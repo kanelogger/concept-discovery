@@ -12,3 +12,4 @@ coverage/
 .reuse/scored.json
 .reuse/evidence/
 .reuse/cache/
+.agents
