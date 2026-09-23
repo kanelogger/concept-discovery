@@ -23,3 +23,13 @@
 - 后续工作：[待办](tasks/backlog.md)
 
 本文件只保留稳定入口。具体命令以 `package.json` 为准，领域差异留在产品契约，临时结论留在任务记录；不得把本次机器权限写成后续会话的授权。
+
+## Agent skills
+
+### Issue tracker
+
+Work is tracked in local Markdown under `tasks/`, indexed by `tasks/backlog.md` and coordinated through `workflow-state.json`. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Read the active task and relevant product contract and ADRs before domain work. See `docs/agents/domain.md`.
