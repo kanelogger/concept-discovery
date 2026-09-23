@@ -16,4 +16,4 @@
 
 任务 2 的六项 P0 是第一性原理、逆向思维、第二层思维、事件—局势—结构、安全边际、古德哈特定律，依据 [清洗稿 §6](../docs/method-registry-curated-v0.1.md#6-后续补充优先级)。全部 30 项的来源可信度和准入结果需逐条保留，不能只审核这六项。
 
-Embedding、Rerank、用户偏好与 Recipe 推荐暂不排入上述交付；仅在 Concept 数量和实际推荐证据表明需要时另开任务，依据 [PRD §14](../docs/method-system-prd-v0.1.md#14-推荐流程)、[§27 Phase 6](../docs/method-system-prd-v0.1.md#27-开发阶段)。
+Embedding、Rerank、用户偏好与 Recipe 推荐暂不排入上述交付；仅在 Concept 数量和实际推荐证据表明需要时另开任务，依据 [PRD §24](../docs/method-system-prd-v0.1.md#24-推荐流程)、[§34 P6 之后](../docs/method-system-prd-v0.1.md#34-mvp-实施顺序)。

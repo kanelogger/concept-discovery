@@ -1,16 +1,21 @@
 {
   "schema_version": 1,
-  "task_id": "0005-user-journey-map",
+  "task_id": "0006-prd-v02-contract-drift",
   "phase": "complete",
-  "task_file": "tasks/0005-user-journey-map.md",
+  "task_file": "tasks/0006-prd-v02-contract-drift.md",
   "updated_at": "2026-09-23",
-  "summary": "依据 PRD 绘制目标用户旅程 SVG，呈现用户动作、系统响应、接触点、体验关注点及推荐分支。",
+  "summary": "修复 PRD v0.2 重写造成的契约与 backlog 锚点漂移（27 处），收敛 PRD 内部不一致（空推荐表示、tags 字段、Confidence 定义、Eval 判定协议、Feedback 事件语义、触发冷却、Relation 方向语义等），恢复 PRD §40 未决问题，PRD 版本升为 v0.2。",
   "blockers": [],
-  "next_actions": ["产品实现按 tasks/backlog.md 后续安排"],
+  "next_actions": ["按 tasks/backlog.md 任务 1 定稿 Schema 与准入规则", "P0 时处理 PRD §40 前三项决策（Eval 门槛、LLM 提供方、存储引擎）并写 ADR"],
   "required_checks": ["npm run validate"],
   "verification": [
     {
       "command": "npm run validate",
+      "result": "passed",
+      "recorded_at": "2026-09-23"
+    },
+    {
+      "command": "npm run check",
       "result": "passed",
       "recorded_at": "2026-09-23"
     }
