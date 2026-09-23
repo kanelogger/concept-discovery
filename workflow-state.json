@@ -1,22 +1,27 @@
 {
   "schema_version": 1,
-  "task_id": "0002-github-reuse-scout",
+  "task_id": "0003-local-system-agent-skills-scout",
   "phase": "complete",
-  "task_file": "tasks/0002-github-reuse-scout.md",
+  "task_file": "tasks/0003-local-system-agent-skills-scout.md",
   "updated_at": "2026-09-23",
-  "summary": "已手动检索与 Method System 相近的 GitHub 项目，建议 reference 架构；本地文档校验通过。",
+  "summary": "已检索本地 Skill 管理系统 + Agent Skills 产品形态，Skillbox 最接近；复用建议待确认部署约束。",
   "blockers": [],
   "next_actions": [
     "后续产品任务从 tasks/backlog.md 的 Schema、来源与准入规则开始",
-    "网络恢复后可补跑 GitHub API 候选评分与检出"
+    "确认 Docker、本地离线和单用户/团队部署边界后决定是否基于 Skillbox 启动"
   ],
   "required_checks": [
     "npm run validate"
   ],
   "verification": [
     {
-      "command": "GitHub query script: method recommendation system llm",
+      "command": "GitHub query script: agent skills management system",
       "result": "failed",
+      "recorded_at": "2026-09-23"
+    },
+    {
+      "command": "manual web search and GitHub evidence review: 5 candidates",
+      "result": "passed",
       "recorded_at": "2026-09-23"
     },
     {
