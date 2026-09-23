@@ -1,0 +1,16 @@
+{
+  "name": "concept-discovery",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Human and Agent collaboration environment for concept-discovery",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "doctor": "node scripts/doctor.mjs",
+    "validate": "node scripts/validate.mjs",
+    "test": "node --test",
+    "check": "npm run validate && npm test"
+  }
+}

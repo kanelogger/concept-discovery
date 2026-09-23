@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "project": {
+    "id": "concept-discovery",
+    "stage": "environment-bootstrap",
+    "product_status": "not-implemented"
+  },
+  "runtime": {
+    "node_major": 24
+  },
+  "commands": {
+    "doctor": "doctor",
+    "validate": "validate",
+    "test": "test",
+    "check": "check"
+  },
+  "context": {
+    "agent_entry": "AGENTS.md",
+    "environment": "AI_ENVIRONMENT.md",
+    "product_contract": "specs/product-contract.md",
+    "workflow": "workflow/README.md",
+    "active_state": "workflow-state.json",
+    "backlog": "tasks/backlog.md"
+  },
+  "required_paths": [
+    "README.md",
+    "AGENTS.md",
+    "AI_ENVIRONMENT.md",
+    "package.json",
+    "package-lock.json",
+    ".node-version",
+    ".github/workflows/check.yml",
+    "docs/README.md",
+    "docs/method-system-prd-v0.1.md",
+    "docs/method-registry-curated-v0.1.md",
+    "docs/agent-environment/commands.md",
+    "docs/agent-environment/runtime.md",
+    "docs/agent-environment/ci-parity.md",
+    "docs/adr/0001-collaboration-bootstrap.md",
+    "rules/git.md",
+    "rules/testing.md",
+    "rules/security.md",
+    "specs/product-contract.md",
+    "workflow/README.md",
+    "workflow/task-template.md",
+    "workflow-state.json",
+    "tasks/0001-bootstrap.md",
+    "tasks/backlog.md"
+  ],
+  "services": [],
+  "capabilities": {
+    "project_skills": [],
+    "connectors": []
+  }
+}
