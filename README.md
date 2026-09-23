@@ -1,6 +1,6 @@
 # concept-discovery
 
-基于当前任务和对话上下文，发现有价值的方法论，并生成可执行的 Prompt。产品计划由本地 Method System 和 Agent Method Skills 组成。
+基于当前任务和对话上下文，发现有价值的方法论，并生成可执行的 Prompt。产品计划由本地 Concept System 和 Agent 端 Concept Discovery Skill 组成。
 
 **当前状态：协作开发环境已初始化，产品尚未实现。** 本仓库目前提供产品材料、任务交接和可运行的环境检查；尚无 Web UI、服务、正式 Registry 或推荐 Skill。
 

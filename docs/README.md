@@ -8,8 +8,10 @@
 
 | 材料 | 状态与用途 |
 | --- | --- |
-| [Method System + Agent Method Skills PRD](method-system-prd-v0.1.md) | v0.1 Draft；产品目标、场景、建议 Schema、MVP 范围与未来验收标准 |
-| [Method Registry 清洗稿](method-registry-curated-v0.1.md) | v0.1 清洗输入；30 个 Core 清洗项、Candidate Packs、Archive 与补充优先级；正式准入尚未完成 |
+| [Concept Discovery PRD](method-system-prd-v0.1.md) | v0.1 Draft；产品目标、场景、建议 Schema、MVP 范围与未来验收标准 |
+| [Concept Registry 清洗稿](method-registry-curated-v0.1.md) | v0.1 清洗输入；30 个 Core 清洗项、Candidate Packs、Archive 与补充优先级；正式准入尚未完成 |
+
+PRD v0.1 已将产品命名为 Concept Discovery；文件路径仍为 `method-*`，命名迁移见 [产品方向与待定契约](../specs/product-contract.md)。
 
 清洗稿引用的 `daily-knowledge(1).md` 未提供；其中六项 P0 仍需补正式定义与来源。字段和准入规则的材料差异统一记录在 [产品方向与待定契约](../specs/product-contract.md)，不要在引用时自行消除差异。
 

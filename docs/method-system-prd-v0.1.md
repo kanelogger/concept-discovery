@@ -1,337 +1,381 @@
-# PRD：Method System + Agent Method Skills
+# Concept Discovery PRD v0.1
 
-版本：v0.1  
-状态：Draft  
-日期：2026-09-23
+版本：v0.1
+日期：2026-09-23  
+状态：Draft
 
----
+## 0. 产品结论
 
-## 1. 产品概述
+Concept Discovery 是一个“基于上下文发现已有概念”的本地系统。
 
-本产品用于帮助人在与 Agent / LLM 对话时，发现自己当前可能需要但没有主动想到的方法论，并将这些方法论进一步转化为 Agent 可执行的提示词。
+它解决的问题是：
 
-产品由两部分组成：
+> 用户知道自己正在表达、分析或判断什么，但并不知道人类已经有一个现成的理论、模型、原则、偏差或思维工具可以更准确地描述和处理这个问题。
 
-1. **Method System**
-   - 本地启动服务
-   - 浏览器访问
-   - 用于管理、筛选、编辑、组织方法论词条
-   - 提供 Dashboard 纵览
-   - 作为整个产品的方法论资产中心
+产品通过分析当前任务、上下文和 Agent 输出，推荐 0~3 个最相关的 Concept，并允许用户进一步了解、应用或把它转成当前任务的可执行 Prompt。
 
-2. **Agent Method Skills**
-   - 供 Agent 调用的方法论推荐 Skill / Skill 组
-   - 读取当前任务、上下文、Agent 当前回答
-   - 诊断当前思路可能存在的问题
-   - 推荐 1~3 个适用的方法论
-   - 根据当前上下文生成完整、可直接执行的 Prompt
-   - 可进一步由 Agent 直接应用
+核心价值不是“收藏更多理论”，而是：
 
-核心产品目标：
-
-> 当用户自己不知道“此刻应该用什么方法思考”时，系统能够基于上下文主动推荐合适的方法论，并帮助 Agent 将方法论落地到当前任务。
-
-产品本质可以理解为：
-
-> 一个由 LLM 驱动的“上下文方法论推荐系统”。
-
----
-
-## 2. 背景与问题
-
-### 2.1 当前痛点
-
-用户在与 LLM / Agent 对话时，经常知道自己“对结果不满意”，但不知道应该通过什么方法论改善。
-
-典型情况：
-
-- Agent 回答太啰嗦，但用户只会说“简短一点”
-- Agent 思路过窄，但用户只会说“再想深一点”
-- Agent 分析停留在表面事件，用户难以主动想到长期结构视角
-- Agent 只寻找支持已有结论的证据，用户没有意识到确认偏见
-- 用户因为项目已投入大量时间而犹豫是否继续，但没有主动意识到沉没成本
-
-传统 Prompt Library 解决的是：
-
-> 用户已经知道自己需要什么，然后去找 Prompt。
-
-本产品解决的是：
-
-> 用户自己不知道需要什么，由 Agent 根据上下文主动发现并推荐。
-
----
-
-## 3. 产品定位
-
-### 3.1 产品定义
-
-**Method System + Agent Method Skills**
+> 在正确的上下文里，让用户发现自己原本不知道需要的 Concept。
 
 一句话：
 
-> 根据用户当前的问题、思考过程和 Agent 回答，主动推荐此刻最值得使用的方法论，并生成上下文化的完整 Prompt。
-
-### 3.2 类比
-
-类似 Spotify / Netflix 的推荐系统：
-
-- 用户不需要知道内容库里有什么
-- 系统根据当前上下文推荐最适合的内容
-- 推荐对象从“歌曲 / 电影”变成“方法论”
-
-推荐模型可以抽象为：
-
-```text
-User × Problem × Context × Method
-```
+> Discover the concepts you didn't know you needed.
 
 ---
 
-## 4. 产品原则
+## 1. 背景与问题
 
-### 4.1 人是主体
+用户在使用 LLM / Agent 时经常遇到以下情况：
 
-方法论推荐首先服务用户的认知。
+- 知道答案太啰嗦，但不知道“奥卡姆剃刀”可以压缩这个要求。
+- 感觉分析太浅，但不知道“第二层思维”可以帮助继续追问后续影响。
+- 觉得分析只围绕新闻事件，但不知道“事件—局势—结构”可以扩展时间尺度。
+- 已经投入项目很久，难以判断是否继续，但没有主动想到“沉没成本”“机会成本”。
+- Review 只寻找支持证据，没有想到“可证伪性”“确认偏见”“逆向思维”。
 
-产品需要回答：
+传统 Prompt Library 和知识库有一个共同前提：
 
-- 用户当前在思考什么？
-- 当前思路可能缺少什么？
-- 什么方法论能帮助用户看到之前没看到的东西？
+> 用户已经知道自己应该搜索什么。
 
-### 4.2 只收录高价值方法论
+Concept Discovery 处理的是另一类问题：
 
-Method System 是精选方法论 Registry。
-
-词条只有满足以下条件才进入正式 Registry：
-
-1. 能显著改变 Agent 的推理方式
-2. 能替代较长的自然语言提示
-3. 有清晰的适用场景
-4. 能转化成明确的 Agent Instruction
-5. 与已有方法存在明显功能差异
-6. 能回答“什么时候应该想起这个方法”
-
-### 4.3 推荐优先于搜索
-
-用户的主要体验：
-
-```text
-当前上下文
-→ 系统诊断
-→ 主动推荐
-→ 用户理解
-→ 一键应用
-```
-
-### 4.4 Prompt 是动态生成物
-
-Registry 中主要存：
-
-```text
-Method
-Trigger
-Diagnosis
-Transform
-Instruction
-Constraints
-```
-
-Skill 根据：
-
-```text
-Method × 当前任务 × 当前回答 × 用户意图
-```
-
-动态生成 Contextual Prompt。
+> 用户不知道应该搜索什么，也不知道某个 Concept 已经存在。
 
 ---
 
-## 5. 目标用户
+## 2. 产品定位
 
-### 5.1 核心用户
+Concept Discovery 是：
 
-高频使用 ChatGPT、Claude、Codex、Claude Code、Cursor、OpenCode 等 Agent / LLM 的用户。
+**Context-aware Concept Discovery System**
 
-典型特征：
+核心模型：
 
-- 经常做复杂分析、Review、决策、研究或创作
-- 已经知道 Prompt 会影响 Agent 质量
-- 希望减少“我该怎么提示 Agent”的认知负担
-- 对第一性原理、奥卡姆剃刀、逆向思维、第二层思维等方法论有兴趣
-- 无法记住大量方法，也无法在每次对话中主动联想到合适的方法
+`User × Problem × Context × Concept`
+
+输入：
+
+- 用户当前问题
+- 当前任务上下文
+- Agent 已有回答（可选）
+- 用户目标（可选）
+
+输出：
+
+- 当前可能遗漏的认知视角
+- 0~3 个推荐 Concept
+- 推荐理由
+- Concept 简介
+- 当前场景下的作用
+- 可执行 Prompt
+- 应用 / 忽略 / 查看动作
 
 ---
 
-## 6. 核心场景
+## 3. 产品原则
 
-### 场景 A：Agent 回答过于冗余
+### 3.1 以“发现”为核心
 
-用户感知：
+产品首要价值是让用户产生：
 
-> 回答废话很多，但我不知道怎么有效要求它改善。
+> “原来这个东西有名字。”
 
-Skill 诊断：
+因此推荐结果必须显式展示 Concept，而不能只把 Concept 隐藏在 Agent 的推理中。
 
-```text
-信息重复
-支线过多
-对结论贡献有限的背景信息过多
-```
+### 3.2 推荐优先于搜索
 
-推荐：**奥卡姆剃刀**
+搜索用于：
 
-进一步生成 Prompt：
+> 我知道自己要找什么。
 
-```text
-重新审视上一轮回答。
+推荐用于：
 
-依据奥卡姆剃刀：
-1. 删除不影响核心结论的背景说明、重复观点和支线信息；
-2. 保留支撑判断所必需的事实、证据和因果关系；
-3. 多个解释具有相同解释力时，采用更简单的解释；
-4. 优先提高信息密度。
-```
+> 我不知道自己需要什么。
 
-### 场景 B：Agent 思路太窄
+两者是独立能力。
 
-用户感知：
+### 3.3 允许返回 NONE
 
-> 回答看起来没错，但思路太窄。
+没有 Concept 能明显改善当前任务时，应该返回空推荐。
 
-Skill 诊断：
+推荐器不能为了显得聪明而强行塞理论。
 
-```text
-仅讨论直接影响
-缺少后续连锁变化
-缺少中长期视角
-```
+### 3.4 默认推荐 1 个，最多 3 个
 
-推荐：
+优先给一个最有增益的 Concept。
 
+只有当多个 Concept 明显互补时，才返回 2~3 个。
+
+### 3.5 Concept 原子化
+
+底层 Registry 中：
+
+- 奥卡姆剃刀
+- 可证伪性
+- 第一性原理
 - 第二层思维
-- 理解世界的三个层次：事件、局势、结构
-
-### 场景 C：用户在已有投入下做继续 / 停止决策
-
-用户输入：
-
-> 这个项目已经做半年了，效果一般，要不要继续？
-
-Skill 诊断：
-
-```text
-历史投入正在参与当前决策
-可能存在沉没成本影响
-缺少替代方案比较
-```
-
-推荐：
-
 - 沉没成本
 - 机会成本
-- 可证伪性
 
-### 场景 D：Agent Review 过于单一
+都应该是独立 Concept。
 
-用户输入：
+组合关系通过 Intent / Recipe 建立。
 
-> Review 一下这个技术方案。
+### 3.6 Prompt 动态生成
 
-推荐：
+Registry 存储 Concept 本身的结构化知识。
 
-- 逆向思维
-- 可证伪性
-- 第二层思维
-- 奥卡姆剃刀
+完整 Prompt 应由：
 
-可组成 Recipe：
+`Concept × Current Context × User Intent`
 
-```text
-Deep Review =
-逆向思维
-+ 可证伪性
-+ 第二层思维
-+ 奥卡姆剃刀
-```
+动态生成。
+
+### 3.7 System 是唯一事实源
+
+Concept 数据、Trigger、Source、版本、推荐日志均由 Local System 管理。
+
+Web、CLI、Skill、未来 MCP 共用同一套 Core / Registry。
+
+---
+
+## 4. 目标用户
+
+核心用户：
+
+- 高频使用 ChatGPT / Claude / Codex / Cursor / OpenCode 等 AI 工具的人
+- 需要做研究、分析、决策、Review、写作、表达的人
+- 有一定知识积累，但无法随时想起所有理论和模型的人
+- 希望通过 AI 持续扩大个人 Concept Vocabulary 的用户
+
+第一阶段以单用户、本地使用为主。
+
+---
+
+## 5. 非目标
+
+v1 不做：
+
+- 百科全书
+- 所有心理效应大全
+- Skill Marketplace
+- Prompt Marketplace
+- 多用户协作平台
+- 企业权限系统
+- 云同步
+- 社交社区
+- 自动执行任意外部代码
+- 复杂推荐算法平台
+- 大规模向量数据库基础设施
+
+---
+
+## 6. 核心用户故事
+
+### 场景 A：用户表达模糊
+
+用户：
+
+> 这个回答感觉什么都有，但重点不突出。
+
+系统推荐：
+
+**奥卡姆剃刀**
+
+原因：
+
+> 当前问题主要是非必要复杂度过多。奥卡姆剃刀可以帮助删除不增加解释力的信息。
+
+动作：
+
+- 查看概念
+- 应用到当前回答
+- 忽略
+
+---
+
+### 场景 B：分析只看到直接影响
+
+用户：
+
+> 这个方案看起来不错，但我担心后续会不会有问题。
+
+系统推荐：
+
+**第二层思维**
+
+原因：
+
+> 当前分析主要停留在一阶结果，可以继续推演行为适应、反馈回路与后续影响。
+
+---
+
+### 场景 C：分析停留在事件
+
+用户：
+
+> 最近发生了很多事件，但我感觉把它们列出来没什么意义。
+
+系统推荐：
+
+**事件—局势—结构**
+
+原因：
+
+> 当前分析集中在短期事件层，可以扩展到中期趋势和长期结构。
+
+---
+
+### 场景 D：继续投入已有项目
+
+用户：
+
+> 已经做半年了，现在停掉感觉太浪费。
+
+系统推荐：
+
+1. 沉没成本
+2. 机会成本
+
+原因：
+
+> 当前判断受到历史投入影响，同时缺少对未来替代方案价值的比较。
+
+---
+
+### 场景 E：Review 太单边
+
+用户：
+
+> 帮我看看这个方案还有没有问题。
+
+系统可推荐：
+
+1. 可证伪性
+2. 逆向思维
+3. 确认偏见
+
+只有当这些 Concept 真正能增加新的检查视角时才推荐。
 
 ---
 
 ## 7. 产品组成
 
-# Part A：Method System
+Concept Discovery 包含两个核心产品面。
 
-### 7.1 产品形态
+### Part A：Local Concept System
 
-本地启动服务：
+职责：
+
+- Concept Registry
+- Concept CRUD
+- 搜索
+- Tag / Domain / Type 管理
+- Source 管理
+- Recipe 管理
+- Recommendation Logs
+- Eval Cases
+- Dashboard
+- Core API
+- CLI
+
+启动方式：
 
 ```bash
-method-system start
+concept-discovery start
 ```
 
-浏览器访问本地 Web UI。
+打开：
 
-### 7.2 主要功能
+```text
+http://localhost:<port>
+```
 
-#### Dashboard
+第一阶段：
 
-展示：
-
-- 总方法数
-- Core Methods 数量
-- Review Lenses 数量
-- Experimental 数量
-- 最近常被推荐的方法
-- 推荐后采用率
-- 经常组合出现的方法
-- 被频繁忽略的方法
-- 最近新增 / 修改方法
-
-#### Method 管理
-
-支持：
-
-- 新建
-- 编辑
-- 删除
-- 搜索
-- Tag
-- 分类
-- 状态管理
-- 去重
-- 关联方法
-- 导入 Markdown
-- 导出 JSON / Markdown
-
-### 7.3 Method 类型
-
-#### Operator
-
-直接改变 Agent 如何思考。
-
-例如：第一性原理、奥卡姆剃刀、逆向思维、第二层思维。
-
-#### Lens
-
-用于检查当前思考是否存在偏差。
-
-例如：确认偏见、幸存者偏差、沉没成本、古德哈特定律。
-
-#### Procedure
-
-规定一个多步骤分析流程。
-
-例如：决策树、六顶思考帽、循证实践、事件—局势—结构。
-
-#### Concept
-
-有解释力，但 Agent 使用价值较弱。默认不进入核心推荐池，可作为候选或实验词条。
+- 本地单用户
+- 无登录
+- SQLite
+- 本地文件 / 数据库
+- 不依赖 Docker
+- 不依赖 PostgreSQL
 
 ---
 
-## 8. Method 数据模型
+### Part B：Concept Discovery Skill
 
-推荐 Schema：
+Skill 本身保持很薄。
+
+职责：
+
+1. 判断当前场景是否值得发现 Concept
+2. 收集任务 / 上下文 / 当前回答
+3. 调用 recommend API / CLI
+4. 将推荐结果清晰展示给用户
+5. 用户选择后获取 Concept 详情
+6. 生成当前场景 Prompt
+7. 真正应用后记录 usage / feedback
+
+Skill 不负责：
+
+- 维护完整 Concept 数据库
+- 自己扫描几百个 Markdown
+- 自己实现版本系统
+- 自己保存推荐日志
+
+---
+
+## 8. 总体架构
+
+```text
+                 Concept Discovery
+
+┌─────────────────────────────────────┐
+│              Local Web              │
+│                                     │
+│ Dashboard                           │
+│ Concepts                            │
+│ Sources                             │
+│ Recipes                             │
+│ Eval Cases                          │
+│ Recommendation Logs                 │
+└────────────────┬────────────────────┘
+                 │
+               Core API
+                 │
+        ┌────────┴────────┐
+        │                 │
+ Concept Registry    Recommendation Engine
+        │                 │
+        │            Context Diagnose
+        │            Intent Routing
+        │            Candidate Recall
+        │            LLM Ranking
+        │                 │
+        └────────┬────────┘
+                 │
+             CLI / MCP
+                 │
+        concept-discovery Skill
+                 │
+               Agent
+                 │
+                 ▼
+        Recommend 0~3 Concepts
+                 │
+        ┌────────┴────────┐
+        ▼                 ▼
+      Learn             Apply
+                          │
+                    Prompt Composer
+```
+
+---
+
+## 9. 核心数据模型
+
+### 9.1 Concept
 
 ```yaml
 id: occams-razor
@@ -339,60 +383,229 @@ name: 奥卡姆剃刀
 aliases:
   - Occam's Razor
 
-type: operator
 status: core
 
-summary:
-  在保持解释力的前提下，优先选择更简单、假设更少的解释或表达。
+interaction_type: operator
+epistemic_type: principle
+
+summary: >
+  在解释力相近时，优先选择假设更少、结构更简单的解释。
 
 trigger:
-  - 信息重复
-  - 回答过长
-  - 解释层次过多
+  - 回答冗余
+  - 方案过度设计
   - 存在大量非必要假设
-  - 多个方案效果相近但复杂度不同
-
-diagnosis:
-  - excessive_complexity
-  - low_information_density
-  - unnecessary_assumptions
-
-transform:
-  - 删除不必要复杂度
-  - 提升信息密度
-  - 保留关键事实和因果链
-
-instruction: |
-  删除对核心结论没有贡献的信息；
-  保留关键事实、证据和必要因果关系；
-  多个解释具有相同解释力时优先选择更简单者。
+  - 多个解释效果相近
 
 avoid_when:
-  - 复杂性本身包含关键因果信息
-  - 任务要求完整保留细节
+  - 复杂性本身是问题的重要组成部分
+  - 简化会删除关键约束或证据
+
+transform:
+  - 删除无贡献复杂度
+  - 提高信息密度
+
+agent_instruction: >
+  删除对核心结论没有贡献的假设、步骤和重复信息；
+  保留关键事实、证据和必要因果链；
+  效果相近时优先选择更简单的表达或方案。
+
+tags:
+  - compression
+  - explanation
+
+domains:
+  - reasoning
+  - communication
+
+intents:
+  - simplify
+  - reduce_complexity
 
 related:
-  - first-principles
   - knowledge-distillation
+  - first-principles
 
-use_cases:
-  - summarize
-  - simplify
-  - architecture-review
-  - writing
+source:
+  title: ...
+  url: ...
+  notes: ...
+
+version: 1
 ```
 
 ---
 
-## 9. Agent Method Skills
+## 10. Concept 分类
 
-第一阶段建议拆成 3 个逻辑 Skill，也可以对外提供一个统一 Skill。
+### 10.1 interaction_type
 
-### Skill 1：Diagnose
+表示 Agent 应该如何使用它。
 
-作用：
+```text
+operator
+lens
+procedure
+```
 
-> 分析用户问题、对话上下文和 Agent 当前输出，判断当前思考可能存在哪些缺口。
+operator：
+直接改变推理方式。
+
+例：
+- 第一性原理
+- 第二层思维
+- 奥卡姆剃刀
+- 逆向思维
+
+lens：
+用于检查偏差、风险或遗漏。
+
+例：
+- 确认偏见
+- 幸存者偏差
+- 沉没成本
+- 古德哈特定律
+
+procedure：
+有明确步骤的方法。
+
+例：
+- 决策树
+- 六顶思考帽
+- 循证实践
+
+---
+
+### 10.2 epistemic_type
+
+表示 Concept 本身是什么性质。
+
+```text
+formal_model
+empirical_finding
+heuristic
+principle
+framework
+law
+bias
+```
+
+两个字段解决不同问题：
+
+```text
+interaction_type
+→ Agent 怎么使用它
+
+epistemic_type
+→ 这个 Concept 本身是什么
+```
+
+---
+
+## 11. Intent 层
+
+推荐器不应该只做：
+
+`Context → Concept`
+
+应该增加中间层：
+
+`Context → Intent → Concept`
+
+例：
+
+```text
+用户：
+还有没有其他解释？
+
+Intent：
+alternative_explanation
+
+候选：
+- 奥卡姆剃刀
+- 汉隆剃刀
+- 可证伪性
+```
+
+建议第一版 Intent：
+
+- simplify
+- challenge_assumption
+- find_counterexample
+- explore_consequences
+- compare_options
+- detect_bias
+- broaden_perspective
+- analyze_risk
+- analyze_structure
+- clarify_explanation
+- validate_evidence
+- escape_stuck_thinking
+
+Intent 是推荐系统的重要中间抽象。
+
+---
+
+## 12. Recipe
+
+Recipe 是一组互补 Concept。
+
+例：
+
+### Deep Review
+
+```text
+逆向思维
+可证伪性
+确认偏见
+第二层思维
+```
+
+### Strategic Analysis
+
+```text
+事件—局势—结构
+第二层思维
+机会成本
+```
+
+### Information Compression
+
+```text
+奥卡姆剃刀
+知识蒸馏
+知识诅咒
+```
+
+Registry 保持 Concept 原子化，Recipe 只维护组合关系。
+
+---
+
+## 13. 搜索与推荐
+
+### 13.1 Search
+
+用于用户已经知道自己想找什么。
+
+```text
+search_concepts(query)
+```
+
+例：
+
+```bash
+concept-discovery search "奥卡姆"
+```
+
+---
+
+### 13.2 Recommend
+
+核心能力。
+
+```text
+recommend_concepts(context)
+```
 
 输入：
 
@@ -401,7 +614,8 @@ use_cases:
   "task": "...",
   "context": "...",
   "response": "...",
-  "user_intent": "..."
+  "user_intent": "...",
+  "limit": 3
 }
 ```
 
@@ -410,53 +624,126 @@ use_cases:
 ```json
 {
   "diagnosis": [
-    {
-      "code": "narrow_time_horizon",
-      "description": "当前分析主要集中于直接影响，缺少中长期视角"
-    }
-  ]
-}
-```
-
-### Skill 2：Recommend
-
-作用：
-
-> 从 Method Registry 中选择此刻最值得提醒用户的 1~3 个方法。
-
-核心问题：
-
-> 用户当前可能遗漏了什么值得提醒的思维工具？
-
-输出：
-
-```json
-{
+    "当前分析主要停留在直接影响",
+    "缺少后续反馈和行为适应"
+  ],
   "recommendations": [
     {
-      "method_id": "second-order-thinking",
+      "id": "second-order-thinking",
       "name": "第二层思维",
-      "reason": "当前回答主要讨论直接结果，缺少后续连锁影响",
+      "reason": "可以继续推演一阶结果之后的连锁影响",
       "confidence": 0.91
     }
   ]
 }
 ```
 
-### Skill 3：Compose
+允许：
 
-作用：
+```json
+{
+  "recommendations": []
+}
+```
 
-> 将被选中的 Method 根据当前上下文编译成完整 Prompt。
+接口约定：机器接口中的「无推荐」统一表示为 `recommendations: []`；`NONE` 只作为展示层标签，不作为返回值。空推荐时 `diagnosis` 仍可携带，用于解释为什么没有合适 Concept。
+
+---
+
+## 14. 推荐流程
+
+v1：
+
+```text
+Task / Context / Response
+        ↓
+Context Diagnosis
+        ↓
+Intent Classification
+        ↓
+Core Concept Catalog
+        ↓
+LLM Router / Ranker
+        ↓
+0~3 Recommendations
+```
+
+当 Concept 数量在 20~100 时：
+
+- 不需要复杂向量数据库
+- 可以给 Router 提供紧凑 Concept Cards
+- LLM 直接完成诊断 + 排序
+
+规模扩大后：
+
+```text
+Context
+↓
+Keyword / Tag / Embedding Recall
+↓
+10~20 Candidates
+↓
+LLM Rerank
+↓
+0~3 Concepts
+```
+
+---
+
+## 15. 推荐规则
+
+硬规则：
+
+1. 可以返回空推荐（`recommendations: []`）
+2. 默认推荐 1 个
+3. 最多 3 个
+4. 不因为关键词相同就推荐
+5. 每个推荐必须说明 Why Now（即输出中的 `reason` 字段）
+6. 只有能改变当前思考、判断或表达时才推荐
+7. 多个 Concept 高度重叠时只保留增益最大的一个
+8. 推荐必须考虑 avoid_when
+9. 优先补当前上下文缺失的视角
+10. 禁止“方法论炫技”
+
+---
+
+## 16. Discovery Card
+
+用户看到的核心 UI 单元。
+
+```text
+奥卡姆剃刀
+
+为什么现在推荐
+当前回答包含多个对核心结论没有贡献的分支，
+主要问题是非必要复杂度。
+
+它是什么
+在解释力相近时，优先采用假设更少、
+结构更简单的解释。
+
+它会改变什么
+删除无贡献的信息，提高信息密度。
+
+[应用到当前任务]
+[查看详情]
+[忽略]
+```
+
+这是 Concept Discovery 的核心产品产物。
+
+---
+
+## 17. Prompt Composer
+
+用户点击“应用”后：
 
 输入：
 
 ```text
-Method
+Concept
 +
-Task
-+
-Context
+Current Task
 +
 Current Response
 +
@@ -469,639 +756,774 @@ User Intent
 Contextual Prompt
 ```
 
----
+例如第二层思维：
 
-## 10. Skill 最终产物
+通用 Instruction：
 
-### Level 1：推荐词条
+> 对一阶结果继续追问“然后呢”，至少分析到第二层后果。
 
-```text
-推荐：奥卡姆剃刀
-```
+在产品架构任务里：
 
-### Level 2：推荐词条 + 原因
+> 对当前架构方案先列出直接收益，再推演采用后团队行为、维护成本、依赖扩张和未来迁移成本。
 
-```text
-推荐：奥卡姆剃刀
+在商业任务里：
 
-原因：
-当前回答存在多个对结论贡献有限的解释和重复论述。
+> 对该促销策略先分析短期销售影响，再分析用户预期、渠道行为和长期价格锚点变化。
 
-作用：
-提高信息密度，保留关键事实和因果关系。
-```
-
-这是默认 UI 展示形式。
-
-### Level 3：完整 Prompt
-
-```text
-依据奥卡姆剃刀重新回答：
-- 删除重复信息和无关支线
-- 保留关键事实和必要因果链
-- 多种表达效果一致时采用最简形式
-```
-
-这是 Agent 实际执行使用的最终产物。
+同一个 Concept 不存一份固定 Prompt。
 
 ---
 
-## 11. Skill 的推荐流程
+## 18. API / CLI
+
+第一版建议至少提供：
 
 ```text
-用户问题 / 当前对话
-          ↓
-读取 Task + Context + Response
-          ↓
-Diagnose
-识别当前认知问题
-          ↓
-从 Registry 中召回候选 Method
-          ↓
-LLM 判断相关性 / 补充价值
-          ↓
-Recommend 1~3 个
-          ↓
-用户选择
-   │
-   ├── 查看方法
-   ├── 应用单个
-   ├── 应用全部
-   └── 忽略
-          ↓
-Compose
-生成上下文化 Prompt
-          ↓
-Agent 执行
+GET  /api/concepts
+GET  /api/concepts/:id
+POST /api/concepts/search
+POST /api/concepts/recommend
+POST /api/concepts/feedback
+POST /api/prompts/compose
 ```
+
+CLI：
+
+```bash
+concept-discovery list
+
+concept-discovery search "复杂度"
+
+concept-discovery recommend \
+  --task "..." \
+  --response "..."
+
+concept-discovery get occams-razor
+
+concept-discovery feedback \
+  occams-razor \
+  --event applied
+```
+
+MCP 可以在 v1.1 增加。
 
 ---
 
-## 12. 推荐系统实现策略
+## 19. Feedback / Usage
 
-### MVP
-
-第一阶段无需构建传统机器学习推荐系统。
-
-直接使用：
+必须区分：
 
 ```text
-Method Registry
-+
-LLM Router Agent
+recommended
+viewed
+applied
+ignored
+not_useful
 ```
 
-Method 数量控制在 20~50 个时，可以将精简后的 Method Cards 提供给 LLM，由 LLM 根据当前上下文进行判断和排序。
+“推荐过”和“真正应用过”是两件事。
 
-### 第二阶段
-
-词条增加后升级为两阶段推荐：
-
-```text
-用户上下文
-    ↓
-粗召回
-Keyword / Tag / Embedding
-    ↓
-10~20 个候选 Method
-    ↓
-LLM Router
-理解上下文 + Rerank
-    ↓
-1~3 个推荐
-```
-
-### 第三阶段
-
-引入用户反馈：
-
-```text
-推荐
-↓
-采用 / 忽略 / 不感兴趣
-↓
-反馈数据
-↓
-调整 Trigger / Rank / 用户偏好
-```
-
----
-
-## 13. 推荐质量原则
-
-### 13.1 少而准
-
-默认推荐 1~3 个。
-
-### 13.2 允许无推荐
-
-系统必须允许返回：
+推荐日志示例：
 
 ```json
 {
-  "recommendations": []
+  "task_id": "...",
+  "concept_id": "occams-razor",
+  "event": "applied",
+  "concept_version": 3,
+  "timestamp": "..."
 }
 ```
 
-没有明显增益时保持安静。
-
-### 13.3 推荐需要解释
-
-每个推荐至少回答：
-
-1. 为什么现在推荐？
-2. 它会怎样改变当前思考？
-
-### 13.4 推荐以“补充认知”为目标
-
-优先寻找：
-
-- 当前缺失视角
-- 当前思维偏差
-- 被忽略的时间尺度
-- 未验证假设
-- 未考虑的失败路径
-
 ---
 
-## 14. UI 设计
+## 20. Dashboard
 
-### 14.1 Web Dashboard
+Dashboard 关注推荐质量，而不是普通知识库统计。
 
-主要页面：
+核心指标：
 
 ```text
-Dashboard
-Methods
-Recipes
-Recommendation Logs
-Settings
+Concepts                       58
+
+本周推荐                       124
+本周应用                        67
+Apply Rate                   54%
+
+推荐后查看率                   71%
+NONE Rate                    32%
 ```
 
-### 14.2 Method Detail
-
-字段：
+Concept 指标：
 
 ```text
-Name
-Aliases
-Type
-Status
-Summary
-Trigger
-Diagnosis
-Transform
-Instruction
-Avoid When
-Use Cases
-Related Methods
-Examples
-Tags
-```
-
-### 14.3 推荐 UI
-
-Agent 侧推荐卡：
-
-```text
-💡 你可能需要
-
-第二层思维
-
-为什么推荐：
-当前回答主要分析直接结果，缺少后续连锁影响。
-
-能带来什么：
-继续推演结果之后的结果。
-
-[应用] [查看] [忽略]
-```
-
----
-
-## 15. Recipe
-
-多个 Method 可以组成 Recipe。
-
-例如：
-
-### Deep Review
-
-```text
-逆向思维
-+
-可证伪性
-+
-第二层思维
-+
 奥卡姆剃刀
+推荐 128
+查看 74
+应用 63
+
+Apply Rate 49%
 ```
 
-### Strategic Analysis
+异常信号：
+
+```text
+高推荐 / 低应用
+→ Trigger 可能过宽
+
+低推荐 / 高应用
+→ Trigger 可能过窄
+
+经常共同出现
+→ 候选 Recipe
+
+经常被忽略
+→ Definition / Recommendation Reason 需要优化
+```
+
+---
+
+## 21. Eval
+
+Eval 从 MVP 阶段进入核心功能。
+
+因为真正需要验证的是：
+
+> 该推荐的时候推荐对了吗？
+
+测试集示例：
+
+### Case 1
+
+输入：
+
+> 这个回答太啰嗦，很多内容删掉也不影响结论。
+
+期望：
+
+```text
+奥卡姆剃刀
+知识蒸馏
+```
+
+不希望：
 
 ```text
 第一性原理
-+
-事件—局势—结构
-+
-第二层思维
-+
+六顶思考帽
+```
+
+---
+
+### Case 2
+
+输入：
+
+> 我们已经做这个项目六个月了，再停感觉很浪费。
+
+期望：
+
+```text
+沉没成本
 机会成本
 ```
 
-### Information Compression
+---
+
+### Case 3
+
+输入：
+
+> 2+2 等于多少？
+
+期望：
 
 ```text
-奥卡姆剃刀
-+
-知识蒸馏
-+
-帕累托原则
+NONE（recommendations: []）
 ```
 
 ---
 
-## 16. Dashboard 数据闭环
+### Eval 指标
 
-记录：
+- Recommendation Precision
+- NONE Precision
+- Top-1 Hit Rate
+- Over-recommendation Rate
+- Human Acceptance Rate
+- Apply Rate
 
-```text
-Method 被推荐次数
-Method 被采用次数
-Method 被忽略次数
-Method 推荐后继续使用次数
-Method 与其他 Method 共现次数
-不同任务类型下的采用率
-```
+推荐器的成功标准不是“总能推荐”。
 
-这些数据用于调整 Trigger、Rank 和词条质量。
+成功标准是：
+
+> 有增益时能发现，没有增益时能闭嘴。
 
 ---
 
-## 17. MVP 范围
+## 22. Concept 版本
 
-### 17.1 Method System
+第一版数据模型中直接保留：
 
-必须有：
+```text
+version
+```
 
-- 本地服务启动
-- Browser Web UI
-- Method CRUD
-- Method Search
-- Tag / Type / Status
-- Markdown 导入
-- Registry JSON
-- 简单 Dashboard
+目的：
 
-暂缓：
+- Trigger 会不断修改
+- Description 会不断优化
+- Instruction 会不断变化
+- 推荐质量必须能与版本关联
 
-- 多用户
-- 云同步
-- 社区
+v1 可以只记录 version number。
+
+完整 immutable revision / restore 后续再做。
+
+---
+
+## 23. Concept Registry 初始规模
+
+MVP 推荐池目标为 20~30 个通过准入的 Core Concepts。[清洗稿](method-registry-curated-v0.1.md) 已清洗出 30 个候选条目，但正式准入尚未完成；下列是优先覆盖范围，不是最终名单。
+
+优先覆盖：
+
+### 推理
+
+- 第一性原理
+- 第二层思维
+- 奥卡姆剃刀
+- 逆向思维
+- 可证伪性
+- 萨根标准
+
+### 决策
+
+- 沉没成本
+- 机会成本
+- 决策树
+- 安全边际
+
+### 偏差检查
+
+- 确认偏见
+- 幸存者偏差
+- 锚定效应
+- 易得性偏差
+- 基本归因错误
+- 取样偏差
+
+### 表达 / 沟通
+
+- 知识诅咒
+- 知识蒸馏
+
+### 多视角
+
+- 六顶思考帽
+- 事件—局势—结构
+
+### 证据
+
+- 循证实践
+- 古德哈特定律
+
+初始数量必须克制。
+
+推荐质量优先于 Concept 数量。
+
+---
+
+## 24. Web 页面
+
+v1 页面：
+
+### Dashboard
+
+- 推荐统计
+- Apply Rate
+- NONE Rate
+- Top Concepts
+- 低质量 Trigger 提示
+
+### Concepts
+
+- 列表
+- 搜索
+- Filter
+- Tag
+- Status
+- Domain
+
+### Concept Detail
+
+- Name
+- Summary
+- Trigger
+- Avoid When
+- Transform
+- Agent Instruction
+- Related
+- Source
+- Version
+- Example
+
+### Recipes
+
+- Recipe 列表
+- Recipe 详情
+- Concept 组合
+
+### Recommendation Logs
+
+- Task
+- Recommended Concepts
+- User Action
+- Version
+- 时间
+
+### Eval Cases
+
+- 输入
+- Expected
+- Forbidden
+- 实际结果
+- Pass / Fail
+
+### Settings
+
+- LLM Provider
+- Model
+- API Key
+- Recommendation Threshold
+
+---
+
+## 25. MVP 技术建议
+
+第一阶段：
+
+```text
+TypeScript
+Bun / Node
+Hono / Fastify
+React / Next.js
+SQLite
+```
+
+保持：
+
+- 单仓库
+- 单用户
+- Local-first
+- 一条启动命令
+- 无 Docker 必需
+- 无登录
+- 无权限系统
+- 无云服务依赖
+
+推荐引擎可直接调用用户配置的模型 API。
+
+---
+
+## 26. 参考项目吸收策略
+
+### cc-thinking-skills
+
+吸收：
+
+- Router
+- NONE
+- Trigger
+- When NOT to Use
+- 默认 1 个，最多 3 个
+- Routing Eval
+
+不吸收：
+
+- 一个 Concept 一个独立 Skill
+
+---
+
+### model-thinking
+
+吸收：
+
+- 用户无需知道模型名
+- 单 Skill + 大量 References
+- 按需读取
+- 跨领域分类
+- formal / empirical / heuristic 等性质区分
+
+不吸收：
+
+- 把多个 Concept 合并成一个底层资产
+- 推荐后直接隐藏 Concept 执行
+
+---
+
+### skills-manager
+
+吸收：
+
+- Local Library
+- Search / Tag / Preview
+- UI 管理体验
+- CLI + Shared Core
+- Activity 思路
+
+不吸收：
+
+- Tauri Desktop
+- 多 Agent 部署管理
+- Symlink / deployment 等系统复杂度
+
+---
+
+### myskills
+
+吸收：
+
+- Registry-first
+- API / Web / CLI / MCP 分层
+- Agent 通过稳定接口访问 Registry
+
+不吸收：
+
+- Auth / MFA
+- 多角色
+- 发布审核
 - Marketplace
-- 复杂权限系统
-
-### 17.2 Skills
-
-必须有：
-
-- Diagnose
-- Recommend
-- Compose
-- 支持当前 Task
-- 支持 Context
-- 支持 Agent 当前 Response
-- 返回 1~3 个 Method
-- 返回推荐原因
-- 生成 Contextual Prompt
-
-### 17.3 初始 Method 数量
-
-建议：
-
-```text
-20~30 个 Core Methods
-```
-
-从现有材料中筛选，最终名单经过单独准入审查。
+- 企业权限
 
 ---
 
-## 18. 非目标
+### skillbox
 
-第一阶段不做：
+重点吸收：
 
-- 方法论百科全书
-- 大而全的知识管理系统
-- 自动收录所有心理学效应
-- 传统协同 Wiki
-- 大规模推荐算法平台
-- 复杂向量数据库架构
-- 纯 Prompt Marketplace
+- Search 与 Recommend 分离
+- Task-aware Recommendation
+- Load / Usage Reporting
+- Library + MCP + CLI + Recommendation 闭环
+- Version 概念
+- Thin Bootstrap Skill
 
----
+不吸收：
 
-## 19. 核心成功指标
-
-### 核心指标
-
-用户看到推荐后产生：
-
-> “对，这个方法我刚才确实没想到，而且它对当前问题有帮助。”
-
-### 可量化指标
-
-- Recommendation Acceptance Rate
-- Method Application Rate
-- Ignore Rate
-- Repeat Recommendation Acceptance
-- 每次推荐数量
-- 无推荐比例
-
-### MVP 验证目标
-
-```text
-LLM 是否能稳定发现当前思考缺口？
-↓
-是否能推荐出合理 Method？
-↓
-用户是否认为推荐有启发？
-↓
-生成 Prompt 后是否能明显改善 Agent 输出？
-```
+- PostgreSQL 必需
+- Docker 必需
+- Client Key
+- Profile / Grant
+- Proposal
+- Executor
+- HTTPS / Remote Hosting
+- 完整版本发布基础设施
 
 ---
 
-## 20. 风险
+## 27. 开发阶段
 
-### 风险 1：推荐变成“方法论炫技”
+### Phase 0：Concept Cleaning
 
-解决：
+目标：
 
-- 高置信度才展示
-- 支持 none
-- 默认最多 3 个
-- 强制解释“为什么此刻需要”
+把现有知识文档整理成 20~30 个 Core Concepts。
 
-### 风险 2：方法论语义过于模糊
+任务：
 
-解决：
+- 去重
+- 分类
+- Trigger
+- Avoid When
+- Transform
+- Instruction
+- Source
+- Intent
+- Version
 
-Registry 中保留：
+---
 
-```text
-Trigger
-Transform
-Instruction
-Avoid When
+### Phase 1：Registry + Local Web
+
+实现：
+
+- SQLite
+- Concept Schema
+- CRUD
+- Search
+- Tag / Domain
+- Concept Detail
+- Import Markdown / JSON
+- Local Server
+
+验收：
+
+```bash
+concept-discovery start
 ```
 
-### 风险 3：词条过多
+即可打开 Web 管理 Concept。
 
-解决：
+---
 
-建立准入机制：
+### Phase 2：Recommend Engine
+
+实现：
+
+- Diagnosis
+- Intent Router
+- Concept Router
+- NONE
+- 0~3 推荐
+- Reason
+- Confidence
+
+同时建立第一批 Eval Cases。
+
+这是产品最关键阶段。
+
+---
+
+### Phase 3：Skill
+
+实现一个：
 
 ```text
-是否能改变 Agent 行为？
-是否能压缩 Prompt？
-是否有明确 Trigger？
-是否有明确 Transform？
-是否有真实使用场景？
+concept-discovery/SKILL.md
 ```
 
-### 风险 4：推荐和执行耦合过深
-
-解决：
-
-区分：
+Agent：
 
 ```text
-Recommend
+Current Context
+↓
+recommend
+↓
+Discovery Card
+↓
+User Choice
 ```
 
-和：
+---
+
+### Phase 4：Prompt Composer
+
+实现：
+
+```text
+Concept × Context → Contextual Prompt
+```
+
+用户可以点击：
 
 ```text
 Apply
 ```
 
-用户保持最终决定权。
+重新执行 Agent。
 
 ---
 
-## 21. 技术架构建议
-
-```text
-                  Local Method System
-                         │
-                  Method Registry
-                         │
-          ┌──────────────┼──────────────┐
-          │              │              │
-       Web UI         Skill API       CLI
-          │              │
-     管理 Method      Agent 调用
-                         │
-                         ▼
-                 LLM Method Router
-                         │
-                  Diagnose / Rank
-                         │
-                         ▼
-                  Prompt Composer
-                         │
-                         ▼
-                       Agent
-```
-
-Registry 是单一事实来源。
-
-推荐底层可以先使用 JSON / Markdown。
-
----
-
-## 22. 数据存储建议
-
-```text
-methods/
-  operators/
-  lenses/
-  procedures/
-  experimental/
-
-recipes/
-
-data/
-  recommendation-logs/
-```
-
-每个 Method 使用 Markdown + YAML 或 JSON。
-
-Web 系统操作后直接更新 Registry。
-
-Skill 读取同一份 Registry。
-
----
-
-## 23. 第一阶段开发顺序
-
-### Phase 0：方法论清洗
-
-从现有材料中：
-
-```text
-筛选
-去重
-分类
-补 Trigger
-补 Diagnosis
-补 Transform
-补 Instruction
-```
-
-产出首批 20~30 个 Method。
-
-### Phase 1：Registry + Web
-
-完成：
-
-```text
-Method Schema
-CRUD
-Search
-Dashboard
-Markdown Import
-```
-
-### Phase 2：Recommend Skill
-
-完成：
-
-```text
-Task → Recommend
-Context → Recommend
-Response → Diagnose → Recommend
-```
-
-### Phase 3：Compose Skill
-
-完成：
-
-```text
-Method × Context → Prompt
-```
-
-### Phase 4：Feedback
+### Phase 5：Feedback Loop
 
 加入：
 
-```text
-Apply
-Ignore
-Not useful
-```
+- recommended
+- viewed
+- applied
+- ignored
+- not_useful
 
-并进入 Dashboard。
-
-### Phase 5：智能召回
-
-方法数量明显增加后再加入：
-
-```text
-Embedding
-Rerank
-User Preference
-Recipes Recommendation
-```
+Dashboard 开始分析 Trigger 质量。
 
 ---
 
-## 24. 第一版验收标准
+### Phase 6：Scale
 
-### Method System
+只有 Concept 数量明显扩大后才增加：
 
-- 可以在本地一条命令启动
-- 浏览器可访问
-- 可以查看所有 Method
-- 可以 CRUD
-- 可以搜索
-- 可以查看 Dashboard
-- 可以导入现有 Markdown
-- Method 数据可以被 Skill 读取
+- Embedding Recall
+- Hybrid Search
+- LLM Rerank
+- MCP
+- 用户偏好
+- Recipe Recommendation
+- 完整 Revision History
 
-### Skill
+---
+
+## 28. v1 验收标准
+
+### System
+
+必须支持：
+
+- 一条命令启动
+- 浏览器访问
+- Concept CRUD
+- 搜索
+- Tag / Domain
+- 20~30 Core Concepts
+- Concept Detail
+- Recommendation Logs
+- Eval Cases
+
+### Recommendation
 
 给定：
 
 ```text
-用户问题
-+
-可选的当前 Agent 回答
+task
+context
+response(optional)
 ```
 
-Skill 可以：
+必须：
 
-1. 诊断当前思路的主要缺口
-2. 推荐最多 3 个 Method
-3. 解释推荐原因
-4. 返回置信度
-5. 允许返回无推荐
-6. 根据 Method 生成上下文化 Prompt
+- 判断是否值得推荐
+- 可以返回空推荐（NONE，`recommendations: []`）
+- 默认 Top-1
+- 最多 Top-3
+- 给出 Why Now
+- 给出 Confidence
+- 不重复推荐高度相似 Concept
 
-### 用户体验
+### Skill
 
-用户可以完成：
+必须：
 
-```text
-看到推荐
-→ 理解为什么推荐
-→ 点击应用
-→ Agent 根据生成 Prompt 重新执行
-```
+- 能被 Agent 调用
+- 使用 System Registry
+- 显式展示 Concept
+- 支持查看
+- 支持 Apply
+- 支持 Ignore
+
+### Prompt
+
+必须：
+
+- 根据当前上下文动态生成
+- 不直接使用固定模板替换全部场景
+
+### Eval
+
+必须：
+
+- 至少 50 个真实场景
+- 包含应该推荐
+- 包含不应该推荐
+- 包含多个 Concept 竞争场景
 
 ---
 
-## 25. 产品最终形态
+## 29. 成功指标
 
-完整产品成果：
+北极星信号：
+
+> 用户看到推荐后产生：
+> “对，这个概念我刚才确实没想到，而且它有帮助。”
+
+量化指标：
+
+- Recommendation Acceptance Rate
+- Apply Rate
+- NONE Accuracy
+- Top-1 Human Preference
+- Ignore Rate
+- Not Useful Rate
+- Repeat Use Rate
+
+早期最重要的是人工 Eval。
+
+不要过早追求推荐算法复杂度。
+
+---
+
+## 30. 最终产品边界
+
+Concept Discovery 的四层：
 
 ```text
-一个本地方法论资产管理系统
-+
-一组 Agent Method Skills
+Concept Registry
+      ↓
+Recommendation Engine
+      ↓
+Discovery Skill
+      ↓
+Prompt Composer
 ```
 
-Method System 回答：
-
-> 我拥有哪些方法论？
-
-Recommend Skill 回答：
-
-> 此刻哪些方法论值得提醒我？
-
-Compose Skill 回答：
-
-> 这个方法在当前任务里应该具体怎么提示 Agent？
-
-最终形成：
+系统分别回答四个问题：
 
 ```text
-Method Registry
-      ↓
-Context Diagnosis
-      ↓
-Method Recommendation
-      ↓
-Contextual Prompt
-      ↓
-Agent Execution
-      ↓
-User Feedback
-      ↓
-Registry / Recommendation Improvement
+Registry
+→ 人类已经有哪些 Concept？
+
+Recommendation
+→ 当前上下文最值得提醒哪个 Concept？
+
+Discovery
+→ 为什么现在应该想到它？
+
+Prompt Composer
+→ 这个 Concept 在当前任务里怎么具体使用？
 ```
 
-产品的长期价值：
+产品长期价值来自：
 
-> 在正确的上下文里，把正确的方法论递给用户，并把它转换成 Agent 真正能执行的思考指令。
+> 把人类已经存在、但用户此刻没有想到的理论、模型、原则和认知工具，在正确的上下文中重新送到用户面前。
+
+这就是 Concept Discovery。
+
+---
+
+## 31. 风险与未决问题
+
+### 31.1 风险
+
+**风险 1：推荐变成“方法论炫技”**
+
+- 只在高置信度时展示
+- 支持空推荐
+- 默认最多 3 个
+- 强制解释“为什么此刻需要”
+
+**风险 2：Concept 语义过于模糊**
+
+- Registry 保留 `trigger` / `transform` / `agent_instruction` / `avoid_when`
+
+**风险 3：词条过多**
+
+- 建立准入机制，见 [清洗稿 §2](method-registry-curated-v0.1.md#2-准入标准)
+
+**风险 4：推荐与执行耦合过深**
+
+- 分离 Recommend 与 Apply，用户保留最终决定权
+
+**风险 5：LLM 置信度不可靠**
+
+- `confidence` 需定义来源与校准方式，并在 Eval 中验证
+
+**风险 6：反馈指标被“多推荐”激励**
+
+- 用 NONE Rate、NONE Precision、Over-recommendation Rate 制衡 Apply Rate
+
+### 31.2 未决问题
+
+- 产品与文件命名：产品已改名 Concept Discovery，文件路径仍为 `method-*`
+- 字段名冲突：`type` 与 `interaction_type`、`related` 与 `related_methods`
+- Core 准入门槛：PRD 未复述，以 [清洗稿 §2](method-registry-curated-v0.1.md#2-准入标准) 为准还是另行定稿
+- Eval 的数值通过门槛、场景来源与判定方式（见 §21、§28）
+
+详见 [产品契约](../specs/product-contract.md)。
+
+---
+
+## 32. 隐私与安全边界
+
+- 推荐引擎调用用户配置的模型 API 时，任务、上下文与回答会离开本机；Settings 必须向用户说明这一点。
+- Settings 中的 API Key 不得写入仓库、推荐日志或普通文本文件；本地存储方式需在实现前决定。
+- 本地服务默认绑定 `127.0.0.1`；“无登录”只适用于本机访问。
+- Recommendation Logs 若保存任务内容，需定义保留期与本机存储位置。

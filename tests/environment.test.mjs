@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { afterEach, test } from 'node:test';
 import { diagnose } from '../scripts/doctor.mjs';
-import { markdownLinks, validateRepository } from '../scripts/validate.mjs';
+import { documentAnchors, markdownLinks, validateRepository } from '../scripts/validate.mjs';
 
 const directories = [];
 afterEach(() => { for (const directory of directories.splice(0)) rmSync(directory, { recursive: true, force: true }); });
@@ -188,20 +188,45 @@ test('blocked phase needs an explanation', () => {
 
 test('local Markdown links support parent paths, spaces, escaped and nested parentheses, images and references', () => {
   const root = fixture();
+  write(root, 'README.md', '# Root\n\n[Workflow](workflow/README.md)\n');
   write(root, 'docs/资料 (draft).md', '# Draft\n');
   write(root, 'docs/with(paren).md', '# Draft\n');
   write(root, 'docs/diagram.svg', '<svg/>');
   write(root, 'docs/index.md', [
-    '[Root](../README.md#ignored-anchor)',
+    '[Root](../README.md#root)',
     '[Space](<资料 (draft).md> "title")',
     '[Encoded](%E8%B5%84%E6%96%99%20%28draft%29.md?raw=1)',
     '[Nested](with(paren).md)',
     '[Escaped](with\\(paren\\).md)',
     '![Diagram](diagram.svg)',
+    '## Index',
     '[Reference][root]', '[root][]', '[root]', '[root]: ../README.md',
-    '[Web](https://example.invalid/missing) [Email](mailto:test@example.invalid) [Anchor](#missing)',
+    '[Web](https://example.invalid/missing) [Email](mailto:test@example.invalid) [Anchor](#index)',
   ].join('\n'));
   assert.deepEqual(validateRepository(root).errors, []);
+});
+
+test('headings produce GitHub-style anchors, including duplicate suffixes', () => {
+  assert.deepEqual(documentAnchors('# Title\n## 3. Core Methods\n### 13.2 允许无推荐\n## 重复\n## 重复\n'),
+    new Set(['title', '3-core-methods', '132-允许无推荐', '重复', '重复-1']));
+});
+
+test('local fragments must match an existing heading and missing anchors fail', () => {
+  const root = fixture();
+  write(root, 'docs/target.md', '# Target Doc\n\n## Section One\n\n## Section One\n');
+  write(root, 'README.md', [
+    '# Readme',
+    '[Ok](docs/target.md#section-one)',
+    '[Second](docs/target.md#section-one-1)',
+    '[Same](#readme)',
+    '[Missing](docs/target.md#nope)',
+    '[Self missing](#absent)',
+    '[External](https://example.invalid/page#anchor)',
+  ].join('\n'));
+  const errors = validateRepository(root).errors;
+  assert.equal(errors.length, 2, errors.join('\n'));
+  assert.match(errors.join('\n'), /README.md:5: missing anchor: #nope/);
+  assert.match(errors.join('\n'), /README.md:6: missing anchor: #absent/);
 });
 
 test('broken links, images, and undefined references fail with the source filename', () => {

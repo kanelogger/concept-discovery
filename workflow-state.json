@@ -1,33 +1,23 @@
 {
   "schema_version": 1,
-  "task_id": "0003-local-system-agent-skills-scout",
+  "task_id": "0004-prd-contract-consistency",
   "phase": "complete",
-  "task_file": "tasks/0003-local-system-agent-skills-scout.md",
-  "updated_at": "2026-09-23",
-  "summary": "已检索本地 Skill 管理系统 + Agent Skills 产品形态，Skillbox 最接近；复用建议待确认部署约束。",
+  "task_file": "tasks/0004-prd-contract-consistency.md",
+  "updated_at": "2026-09-24",
+  "summary": "已还原被污染清洗稿、修正 PRD/契约失效锚点、统一 Concept 命名并补齐 PRD 约定；validate 新增锚点校验与测试。",
   "blockers": [],
   "next_actions": [
-    "后续产品任务从 tasks/backlog.md 的 Schema、来源与准入规则开始",
-    "确认 Docker、本地离线和单用户/团队部署边界后决定是否基于 Skillbox 启动"
+    "按任务 1-7 定稿 Schema 与准入规则",
+    "需要时通过 ADR 决定 method-* 文件重命名与产品命名统一"
   ],
   "required_checks": [
-    "npm run validate"
+    "npm run check"
   ],
   "verification": [
     {
-      "command": "GitHub query script: agent skills management system",
-      "result": "failed",
-      "recorded_at": "2026-09-23"
-    },
-    {
-      "command": "manual web search and GitHub evidence review: 5 candidates",
+      "command": "npm run check",
       "result": "passed",
-      "recorded_at": "2026-09-23"
-    },
-    {
-      "command": "npm run validate",
-      "result": "passed",
-      "recorded_at": "2026-09-23"
+      "recorded_at": "2026-09-24"
     }
   ]
 }

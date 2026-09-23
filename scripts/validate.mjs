@@ -156,6 +156,31 @@ function withoutCode(markdown) {
   }).join('\n');
 }
 
+function slugify(text) {
+  return text.trim().toLowerCase()
+    .replace(/`([^`]*)`/g, '$1')
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/[^\p{L}\p{N}\p{M}\s_-]/gu, '')
+    .trim()
+    .replace(/\s+/g, '-');
+}
+
+// Collect GitHub-style heading anchors so local links with fragments can be checked.
+export function documentAnchors(markdown) {
+  const anchors = new Set();
+  const seen = new Map();
+  for (const line of withoutCode(markdown).split('\n')) {
+    const match = line.match(/^\s{0,3}#{1,6}\s+(.*?)\s*#*\s*$/);
+    if (!match) continue;
+    const base = slugify(match[1]);
+    if (!base) continue;
+    const count = seen.get(base) ?? 0;
+    seen.set(base, count + 1);
+    anchors.add(count === 0 ? base : `${base}-${count}`);
+  }
+  return anchors;
+}
+
 function destination(text, start) {
   let cursor = start;
   while (/\s/.test(text[cursor] ?? '') && cursor < text.length) cursor++;
@@ -226,18 +251,39 @@ export function validateRepository(root = process.cwd()) {
   validateState(root, state, errors);
   let files = [];
   try { files = markdownFiles(root); } catch (error) { errors.push(`Markdown traversal: ${error.message}`); }
+  const anchors = new Map();
+  const anchorsFor = (file) => {
+    if (!anchors.has(file)) {
+      try { anchors.set(file, documentAnchors(readFileSync(file, 'utf8'))); }
+      catch { anchors.set(file, new Set()); }
+    }
+    return anchors.get(file);
+  };
   for (const file of files) {
     for (const link of markdownLinks(readFileSync(file, 'utf8'))) {
       const label = `${relative(root, file)}:${link.line}`;
       if (link.error) { errors.push(`${label}: ${link.error}`); continue; }
       let target = link.destination.replace(/\\([!"#$%&'()*+,\-./:;<=>?@[\]^_`{|}~\\])/g, '$1');
-      if (target.startsWith('#') || target.startsWith('?')) continue;
       if (/^file:/i.test(target) || /^[A-Za-z]:[\\/]/.test(target)) { errors.push(`${label}: local URL must be repository-relative: ${target}`); continue; }
       if (/^[A-Za-z][A-Za-z\d+.-]*:/.test(target) || target.startsWith('//')) continue;
-      target = target.split(/[?#]/)[0];
+      let fragment = '';
+      const hash = target.indexOf('#');
+      if (hash !== -1) {
+        const raw = target.slice(hash + 1);
+        target = target.slice(0, hash);
+        try { fragment = decodeURIComponent(raw).toLowerCase(); } catch { errors.push(`${label}: invalid URL encoding: ${raw}`); continue; }
+      }
+      target = target.split('?')[0];
+      if (!target) {
+        if (fragment && !anchorsFor(file).has(fragment)) errors.push(`${label}: missing anchor: #${fragment}`);
+        continue;
+      }
       try { target = decodeURIComponent(target); } catch { errors.push(`${label}: invalid URL encoding: ${target}`); continue; }
-      const error = checkLocalPath(root, dirname(file), target);
-      if (error) errors.push(`${label}: ${error}`);
+      const pathError = checkLocalPath(root, dirname(file), target);
+      if (pathError) { errors.push(`${label}: ${pathError}`); continue; }
+      if (fragment && /\.md$/i.test(target) && !anchorsFor(resolve(dirname(file), target)).has(fragment)) {
+        errors.push(`${label}: missing anchor: #${fragment}`);
+      }
     }
   }
   return { errors, markdownCount: files.length };
