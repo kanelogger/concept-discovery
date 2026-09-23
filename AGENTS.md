@@ -30,6 +30,10 @@
 
 Work is tracked in local Markdown under `tasks/`, indexed by `tasks/backlog.md` and coordinated through `workflow-state.json`. See `docs/agents/issue-tracker.md`.
 
+### Triage labels
+
+Use the default triage state names in task Markdown. See `docs/agents/triage-labels.md`.
+
 ### Domain docs
 
 Read the active task and relevant product contract and ADRs before domain work. See `docs/agents/domain.md`.

@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "task_id": "0007-setup-matt-pocock-skills",
+  "task_id": "0008-triage-skill-project-mapping",
   "phase": "complete",
-  "task_file": "tasks/0007-setup-matt-pocock-skills.md",
+  "task_file": "tasks/0008-triage-skill-project-mapping.md",
   "updated_at": "2026-09-23",
-  "summary": "按 setup-matt-pocock-skills 配置项目任务追踪和领域文档入口，沿用本地 tasks/ 工作流与现有产品契约/ADR 约定。",
+  "summary": "复用已有健康的 Skill Port triage 项目关联，并创建默认状态标签映射及文档入口。",
   "blockers": [],
   "next_actions": ["按 tasks/backlog.md 任务 1 定稿 Schema 与准入规则", "P0 时处理 PRD §40 前三项决策（Eval 门槛、LLM 提供方、存储引擎）并写 ADR"],
   "required_checks": ["npm run validate"],
