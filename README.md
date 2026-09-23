@@ -25,13 +25,11 @@ npm run check
 
 ## 资料入口
 
-| 入口 | 内容 |
-| --- | --- |
-| [文档索引](docs/README.md) | 两份原始产品输入及其状态 |
-| [产品契约与未决事项](specs/product-contract.md) | 产品方向、材料差异、未来验收边界 |
-| [环境索引](AI_ENVIRONMENT.md) | 真实可用的命令、能力和 CI 差异 |
-| [开发待办](tasks/backlog.md) | 下一阶段任务及验收条件 |
-| [初始化记录](tasks/0001-bootstrap.md) | 本次范围、决策与验证证据 |
-| [环境决策](docs/adr/0001-collaboration-bootstrap.md) | 为什么采用当前最小协作底座 |
-
-建议下一步先统一 Method Schema、导入映射及准入标准，再实现首个 Registry 功能。
+| 入口                                                 | 内容                             |
+| ---------------------------------------------------- | -------------------------------- |
+| [文档索引](docs/README.md)                           | 两份原始产品输入及其状态         |
+| [产品契约与未决事项](specs/product-contract.md)      | 产品方向、材料差异、未来验收边界 |
+| [环境索引](AI_ENVIRONMENT.md)                        | 真实可用的命令、能力和 CI 差异   |
+| [开发待办](tasks/backlog.md)                         | 下一阶段任务及验收条件           |
+| [初始化记录](tasks/0001-bootstrap.md)                | 本次范围、决策与验证证据         |
+| [环境决策](docs/adr/0001-collaboration-bootstrap.md) | 为什么采用当前最小协作底座       |
