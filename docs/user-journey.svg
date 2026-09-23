@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1120" viewBox="0 0 1680 1120" role="img" aria-labelledby="title desc">
+  <title id="title">Concept Discovery 目标用户旅程</title>
+  <desc id="desc">从用户提出任务、系统诊断与推荐，到用户了解概念、选择应用或忽略，以及 Prompt 生成并返回任务的旅程图。包含无推荐分支、接触点与体验关注点。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F6F8FC"/><stop offset="1" stop-color="#EEF3F9"/></linearGradient>
+    <linearGradient id="hero" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#152944"/><stop offset="1" stop-color="#234F69"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#1F3552" flood-opacity=".08"/></filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#8CA1B6"/></marker>
+    <marker id="arrowTeal" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#168C88"/></marker>
+    <style>
+      text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;fill:#18304B}
+      .muted{fill:#62758A}.tiny{font-size:13px}.small{font-size:15px}.body{font-size:16px}.label{font-size:14px;font-weight:700;letter-spacing:.4px}.stage{font-size:19px;font-weight:750}.h2{font-size:26px;font-weight:750}.white{fill:#fff}
+    </style>
+  </defs>
+  <rect width="1680" height="1120" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1680" height="166" fill="url(#hero)"/>
+  <circle cx="1530" cy="20" r="190" fill="#4CB4AC" opacity=".10"/><circle cx="1610" cy="145" r="100" fill="#E7B35A" opacity=".09"/>
+  <text x="64" y="58" class="tiny white" opacity=".72" letter-spacing="2">CONCEPT DISCOVERY  /  EXPERIENCE MAP</text>
+  <text x="64" y="108" class="white" font-size="36" font-weight="760">从“感觉还不够”到发现一个新视角</text>
+  <text x="66" y="140" class="white" font-size="16" opacity=".8">目标用户旅程 · 以“担心方案后续影响”为例 · 根据 PRD v0.1 整理</text>
+  <rect x="1394" y="52" width="220" height="42" rx="21" fill="#FFFFFF" opacity=".13" stroke="#FFFFFF" stroke-opacity=".32"/>
+  <circle cx="1418" cy="73" r="5" fill="#F4C66A"/><text x="1434" y="79" class="white" font-size="14" font-weight="700">目标体验 · 尚未实现</text>
+
+  <!-- left row labels -->
+  <text x="64" y="208" class="tiny muted" font-weight="700" letter-spacing="1.2">旅程阶段</text>
+  <text x="64" y="342" class="tiny muted" font-weight="700" letter-spacing="1.2">用户动作</text>
+  <text x="64" y="561" class="tiny muted" font-weight="700" letter-spacing="1.2">系统响应</text>
+  <text x="64" y="780" class="tiny muted" font-weight="700" letter-spacing="1.2">产品接触点</text>
+  <text x="64" y="908" class="tiny muted" font-weight="700" letter-spacing="1.2">体验关注</text>
+  <text x="64" y="929" class="tiny muted">（预期）</text>
+
+  <!-- stage cards -->
+  <g filter="url(#shadow)">
+    <rect x="225" y="190" width="224" height="88" rx="18" fill="#fff"/><rect x="461" y="190" width="224" height="88" rx="18" fill="#fff"/>
+    <rect x="697" y="190" width="224" height="88" rx="18" fill="#fff"/><rect x="933" y="190" width="224" height="88" rx="18" fill="#fff"/>
+    <rect x="1169" y="190" width="224" height="88" rx="18" fill="#fff"/><rect x="1405" y="190" width="224" height="88" rx="18" fill="#fff"/>
+  </g>
+  <g fill="#168C88"><circle cx="250" cy="216" r="12"/><circle cx="486" cy="216" r="12"/><circle cx="722" cy="216" r="12"/><circle cx="958" cy="216" r="12"/><circle cx="1194" cy="216" r="12"/><circle cx="1430" cy="216" r="12"/></g>
+  <g font-size="11" fill="#fff" text-anchor="middle" font-weight="700"><text x="250" y="220" fill="#fff">01</text><text x="486" y="220" fill="#fff">02</text><text x="722" y="220" fill="#fff">03</text><text x="958" y="220" fill="#fff">04</text><text x="1194" y="220" fill="#fff">05</text><text x="1430" y="220" fill="#fff">06</text></g>
+  <g class="stage"><text x="270" y="224">遇到卡点</text><text x="506" y="224">发起发现</text><text x="742" y="224">看到新概念</text><text x="978" y="224">判断是否有用</text><text x="1214" y="224">生成上下文 Prompt</text><text x="1450" y="224">带回当前任务</text></g>
+  <g class="tiny muted"><text x="250" y="255">察觉分析可能停在表层</text><text x="486" y="255">把任务交给 Agent</text><text x="722" y="255">发现“第二层思维”</text><text x="958" y="255">选择应用、查看或忽略</text><text x="1194" y="255">把概念转成可执行要求</text><text x="1430" y="255">继续分析并决定下一步</text></g>
+
+  <!-- journey columns background lanes -->
+  <g>
+    <rect x="225" y="298" width="224" height="202" rx="16" fill="#FFFFFF"/>
+    <rect x="461" y="298" width="224" height="202" rx="16" fill="#FFFFFF"/>
+    <rect x="697" y="298" width="224" height="202" rx="16" fill="#FFFFFF"/>
+    <rect x="933" y="298" width="224" height="202" rx="16" fill="#FFFFFF"/>
+    <rect x="1169" y="298" width="224" height="202" rx="16" fill="#FFFFFF"/>
+    <rect x="1405" y="298" width="224" height="202" rx="16" fill="#FFFFFF"/>
+    <rect x="225" y="516" width="224" height="214" rx="16" fill="#E9F4F3"/>
+    <rect x="461" y="516" width="224" height="214" rx="16" fill="#E9F4F3"/>
+    <rect x="697" y="516" width="224" height="214" rx="16" fill="#E9F4F3"/>
+    <rect x="933" y="516" width="224" height="214" rx="16" fill="#E9F4F3"/>
+    <rect x="1169" y="516" width="224" height="214" rx="16" fill="#E9F4F3"/>
+    <rect x="1405" y="516" width="224" height="214" rx="16" fill="#E9F4F3"/>
+  </g>
+  <!-- user actions -->
+  <g class="body">
+    <text x="247" y="336" font-weight="700">“方案看起来不错，</text><text x="247" y="362" font-weight="700">但后续会不会出问题？”</text><text x="247" y="405" class="small muted">担心只看见眼前收益，</text><text x="247" y="428" class="small muted">没推演后续影响。</text>
+    <text x="483" y="336" font-weight="700">提交当前任务与上下文</text><text x="483" y="371" class="small muted">可附上已有回答、</text><text x="483" y="394" class="small muted">目标或补充说明。</text>
+    <text x="719" y="336" font-weight="700">读推荐卡片</text><text x="719" y="371" class="small muted">看名称、推荐理由、</text><text x="719" y="394" class="small muted">概念简介与会改变什么。</text><text x="719" y="438" class="small" fill="#168C88">“原来我可以继续问然后呢。”</text>
+    <text x="955" y="336" font-weight="700">决定自己的下一步</text><text x="955" y="371" class="small muted">应用到当前任务，</text><text x="955" y="394" class="small muted">或先查看详情、忽略。</text><text x="955" y="438" class="small muted">选择权始终在用户。</text>
+    <text x="1191" y="336" font-weight="700">检查生成的 Prompt</text><text x="1191" y="371" class="small muted">确认它结合本次任务、</text><text x="1191" y="394" class="small muted">原回答与用户意图。</text>
+    <text x="1427" y="336" font-weight="700">继续分析或做决定</text><text x="1427" y="371" class="small muted">Agent 按新视角推演</text><text x="1427" y="394" class="small muted">二阶影响；用户审阅结果。</text>
+  </g>
+
+  <!-- main path arrows -->
+  <g fill="none" stroke="#8CA1B6" stroke-width="2.5" marker-end="url(#arrow)">
+    <path d="M449 397 H458"/><path d="M685 397 H694"/><path d="M921 397 H930"/><path d="M1157 397 H1166"/><path d="M1393 397 H1402"/>
+  </g>
+  <!-- system responses -->
+  <g class="small">
+    <text x="247" y="552" font-weight="700" fill="#168C88">接收任务上下文</text><text x="247" y="582">任务 / 上下文 / 回答</text><text x="247" y="609" class="muted">作为诊断输入。</text>
+    <text x="483" y="552" font-weight="700" fill="#168C88">诊断缺失视角</text><text x="483" y="582">识别当前只看直接影响，</text><text x="483" y="609">并判断用户想评估后果。</text><text x="483" y="651" class="tiny muted">意图分类 → 候选排序</text>
+    <text x="719" y="552" font-weight="700" fill="#168C88">给出 0–3 个推荐</text><text x="719" y="582">默认 1 个，最多 3 个；</text><text x="719" y="609">解释 Why Now 与置信度。</text>
+    <text x="955" y="552" font-weight="700" fill="#168C88">响应用户选择</text><text x="955" y="582">查看详情 / 应用 / 忽略。</text><text x="955" y="609">不强推不增加增益的概念。</text><text x="955" y="651" class="tiny muted">记录推荐与用户动作*</text>
+    <text x="1191" y="552" font-weight="700" fill="#168C88">按上下文动态组合</text><text x="1191" y="582">Concept × 当前任务 ×</text><text x="1191" y="609">当前回答 × 用户意图。</text><text x="1191" y="651" class="tiny muted">不是固定 Prompt 替换场景</text>
+    <text x="1427" y="552" font-weight="700" fill="#168C88">把控制交还给用户</text><text x="1427" y="582">Agent 执行生成的要求；</text><text x="1427" y="609">用户决定是否采纳结果。</text><text x="1427" y="651" class="tiny muted">反馈进入后续质量观察</text>
+  </g>
+  <!-- system touchpoints -->
+  <g>
+    <rect x="225" y="746" width="1404" height="78" rx="16" fill="#FFFFFF" stroke="#DDE6EF"/>
+    <g fill="#E7EEF5"><rect x="246" y="764" width="189" height="42" rx="12"/><rect x="482" y="764" width="189" height="42" rx="12"/><rect x="718" y="764" width="189" height="42" rx="12"/><rect x="954" y="764" width="189" height="42" rx="12"/><rect x="1190" y="764" width="189" height="42" rx="12"/><rect x="1426" y="764" width="189" height="42" rx="12"/></g>
+    <g class="small" font-weight="650" text-anchor="middle"><text x="340" y="791">Agent 对话 / 任务入口</text><text x="576" y="791">Discovery Skill / 输入</text><text x="812" y="791">Discovery Card</text><text x="1048" y="791">卡片操作 / 概念详情</text><text x="1284" y="791">Prompt Composer</text><text x="1520" y="791">当前 Agent / 日志</text></g>
+  </g>
+  <!-- experience expectations -->
+  <g>
+    <rect x="225" y="846" width="1404" height="114" rx="18" fill="#152944"/>
+    <path d="M315 904 C410 904 430 922 548 910 S665 881 785 892 S908 917 1021 901 S1140 884 1257 900 S1395 919 1534 890" fill="none" stroke="#61C5B8" stroke-width="3" opacity=".8"/>
+    <g fill="#F3C86D" stroke="#152944" stroke-width="3"><circle cx="340" cy="903" r="7"/><circle cx="576" cy="907" r="7"/><circle cx="812" cy="890" r="7"/><circle cx="1048" cy="899" r="7"/><circle cx="1284" cy="902" r="7"/><circle cx="1520" cy="892" r="7"/></g>
+    <g class="small white" text-anchor="middle"><text x="340" y="879">不确定：缺一个视角</text><text x="576" y="939">期待：找到思考方向</text><text x="812" y="872">惊喜：概念有名字</text><text x="1048" y="939">安心：理由清楚、可拒绝</text><text x="1284" y="939">掌控：Prompt 贴合眼前任务</text><text x="1520" y="872">信任：结果仍由我判断</text></g>
+  </g>
+  <!-- no recommendation branch -->
+  <rect x="225" y="986" width="1404" height="82" rx="16" fill="#FFF8E9" stroke="#EBD8A9"/>
+  <rect x="247" y="1006" width="128" height="40" rx="20" fill="#F2DFAE"/><text x="311" y="1032" text-anchor="middle" class="small" font-weight="750">另一种结果</text>
+  <text x="397" y="1019" class="body" font-weight="700">没有明显增益时：返回 recommendations: []，解释原因，不为了推荐而推荐。</text>
+  <text x="397" y="1047" class="small muted">用户留在原任务继续工作；空推荐也是有效结果。忽略推荐同样回到当前任务。</text>
+  <text x="225" y="1092" class="tiny muted">* 日志与反馈属于 PRD 目标能力。体验关注点为设计假设，尚无用户研究验证。来源：docs/method-system-prd-v0.1.md §§2、6、13–17、19、24、28。</text>
+</svg>

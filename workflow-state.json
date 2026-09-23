@@ -1,23 +1,18 @@
 {
   "schema_version": 1,
-  "task_id": "0004-prd-contract-consistency",
+  "task_id": "0005-user-journey-map",
   "phase": "complete",
-  "task_file": "tasks/0004-prd-contract-consistency.md",
-  "updated_at": "2026-09-24",
-  "summary": "已还原被污染清洗稿、修正 PRD/契约失效锚点、统一 Concept 命名并补齐 PRD 约定；validate 新增锚点校验与测试。",
+  "task_file": "tasks/0005-user-journey-map.md",
+  "updated_at": "2026-09-23",
+  "summary": "依据 PRD 绘制目标用户旅程 SVG，呈现用户动作、系统响应、接触点、体验关注点及推荐分支。",
   "blockers": [],
-  "next_actions": [
-    "按任务 1-7 定稿 Schema 与准入规则",
-    "需要时通过 ADR 决定 method-* 文件重命名与产品命名统一"
-  ],
-  "required_checks": [
-    "npm run check"
-  ],
+  "next_actions": ["产品实现按 tasks/backlog.md 后续安排"],
+  "required_checks": ["npm run validate"],
   "verification": [
     {
-      "command": "npm run check",
+      "command": "npm run validate",
       "result": "passed",
-      "recorded_at": "2026-09-24"
+      "recorded_at": "2026-09-23"
     }
   ]
 }
