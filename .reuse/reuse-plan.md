@@ -51,4 +51,4 @@ Node.js / TypeScript（用户已确认）。自托管要求、大型单体接受
 
 ## 迁移日志
 
-- 2026-09-23：完成手动 GitHub 搜索与前三个候选的页面级架构检查。GitHub API 与 `gh`/`curl` 连接失败；依据网页搜索结果及仓库 README、目录和许可页面形成 reference 决策。验证：待执行 `npm run validate`。
+- 2026-09-23：完成手动 GitHub 搜索与前三个候选的页面级架构检查。GitHub API 与 `gh`/`curl` 连接失败；依据网页搜索结果及仓库 README、目录和许可页面形成 reference 决策。`npm run validate` 通过；该检查不验证外部链接或搜索结果完整性。
