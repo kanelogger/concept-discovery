@@ -7,3 +7,8 @@ coverage/
 .env.*
 !.env.example
 *.log
+.reuse/search-cache.json
+.reuse/candidates.json
+.reuse/scored.json
+.reuse/evidence/
+.reuse/cache/
