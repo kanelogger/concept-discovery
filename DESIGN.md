@@ -12,7 +12,7 @@
 **Interaction Tier**: L1 精致静态。
 **Dependencies**: CSS only；现有 React、Tailwind 和 shadcn/ui 风格组件，无动画库。
 
-设计范围包括 A Dashboard 首页、B Card First 首页、C 管理工作区，以及共享导航、Concept 卡片、详情、编辑弹窗和状态反馈。三种布局沿用同一套令牌、内容与控件状态。
+设计范围包括 A Dashboard 首页、B Card First 首页，以及共享导航、Concept 卡片、表格列表和编辑弹窗。两种布局沿用同一套令牌、内容与控件状态。
 
 ## 2. Color Palette & Roles
 
@@ -188,14 +188,13 @@ Concept image fields use a compact upload tile with a local preview, replace/rem
 ```css
 .dashboard-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
 .concept-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
-.workspace-grid { display: grid; grid-template-columns: 232px minmax(320px, 400px) minmax(360px, 1fr); min-height: calc(100vh - 140px); }
-@media (max-width: 1279px) { .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .concept-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .workspace-grid { grid-template-columns: minmax(220px, 0.7fr) minmax(300px, 1fr); } .workspace-detail { grid-column: 1 / -1; } }
-@media (max-width: 767px) { .dashboard-grid, .concept-grid, .workspace-grid { grid-template-columns: minmax(0, 1fr); } .workspace-list { max-height: 420px; overflow: auto; } }
+@media (max-width: 1279px) { .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .concept-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 767px) { .dashboard-grid, .concept-grid { grid-template-columns: minmax(0, 1fr); } }
 ```
 
-Desktop prioritizes quick scanning and persistent context. Tablet uses two-column cards and moves workspace detail below the list. Mobile places navigation in normal flow, uses one-column cards, and stacks filters → results → detail without horizontal overflow.
+Desktop prioritizes quick scanning and persistent context. Tablet uses two-column cards. Mobile places navigation in normal flow and uses one-column cards without horizontal overflow.
 
-The app shell fills the viewport. Keep the header and desktop sidebar anchored while the active page content owns vertical scrolling; the mobile navigation stays directly below the header. Remove decorative placeholders and controls without actions. Keep only sample labels that clarify demo data and the developer layout switcher needed to compare A/B/C.
+The app shell fills the viewport. Keep the header and desktop sidebar anchored while the active page content owns vertical scrolling; the mobile navigation stays directly below the header. Remove decorative placeholders and controls without actions. Keep only sample labels that clarify demo data and the developer layout switcher needed to compare A/B.
 
 In the standalone Concept library, keep search, filters, result count, and the Card list / Table list tabs together in a sticky toolbar above the scrollable results. The table view is a compact CRUD surface with bilingual titles, tags, status, revision time, and row actions.
 
@@ -275,24 +274,22 @@ Card hover changes border/shadow and may gently zoom its cover image. Save/delet
 **Breakpoints:**
 | Name | Width | Key Changes |
 |------|-------|-------------|
-| Desktop | > 1279px | fixed sidebar; 4 KPI columns; 3-column workspace |
-| Tablet | 700–1279px | compact navigation; 2-column cards; workspace details follow list |
-| Mobile | < 700px | normal-flow top navigation; 1-column cards; stacked workspace panels |
+| Desktop | > 1279px | fixed sidebar; 4 KPI columns; 3-column Concept cards |
+| Tablet | 700–1279px | compact navigation; 2-column cards |
+| Mobile | < 700px | normal-flow top navigation; 1-column cards |
 
 **Touch Targets:** minimum 44×44px for primary interactive controls; dense icon actions may use 40px only above mobile breakpoints.
-**Collapsing Strategy:** The desktop sidebar becomes an inline top navigation on small screens. Dashboard metrics reduce to two columns on tablet and one/two columns on narrow mobile. Card covers keep a stable aspect ratio. Workspace filter, result list, and selected detail become sequential panels; internal scrolling is limited to the results list on narrow screens.
+**Collapsing Strategy:** The desktop sidebar becomes an inline top navigation on small screens. Dashboard metrics reduce to two columns on tablet and one/two columns on narrow mobile. Card covers keep a stable aspect ratio.
 
 ```css
 @media (max-width: 1279px) {
   .desktop-sidebar { display: none; }
   .mobile-navigation { display: flex; position: static; }
-  .workspace-grid { grid-template-columns: minmax(0, 1fr); }
-  .workspace-list { height: auto; max-height: 420px; }
 }
 @media (max-width: 767px) {
   body { min-width: 320px; }
   .page-content { padding-inline: 16px; }
-  .concept-grid, .workspace-grid { grid-template-columns: minmax(0, 1fr); }
+  .concept-grid { grid-template-columns: minmax(0, 1fr); }
   .interactive-control { min-height: 44px; }
 }
 ```

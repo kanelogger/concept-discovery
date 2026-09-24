@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "task_id": "0018-concept-library-views",
+  "task_id": "0019-remove-workspace-variant",
   "phase": "complete",
-  "task_file": "tasks/0018-concept-library-views.md",
+  "task_file": "tasks/0019-remove-workspace-variant.md",
   "updated_at": "2026-09-24",
-  "summary": "调整独立 Concept 库，固定搜索筛选与视图切换区，新增 Card list/Table list，并移除指定的冗余英文说明。",
+  "summary": "移除临时 demo 的 variant C 管理工作区页面，只保留 A/B 布局并规范旧 C 链接。",
   "blockers": [],
   "next_actions": [],
   "required_checks": [
@@ -15,12 +15,12 @@
     {
       "command": "npm run demo:build",
       "result": "passed",
-      "recorded_at": "2026-09-24T15:23:54Z"
+      "recorded_at": "2026-09-24T15:31:35Z"
     },
     {
       "command": "npm run validate",
       "result": "passed",
-      "recorded_at": "2026-09-24T15:23:54Z"
+      "recorded_at": "2026-09-24T15:31:35Z"
     }
   ]
 }

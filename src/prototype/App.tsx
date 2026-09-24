@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight, ArrowUpRight, Check, ChevronDown,
   Command, Compass, Globe2, Grid2X2, ImagePlus, LayoutDashboard, MoreHorizontal,
-  List, Pencil, Plus, Search, SlidersHorizontal, Sparkles, Trash2, Upload, X,
+  List, Pencil, Plus, Search, Sparkles, Trash2, Upload, X,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -12,7 +12,7 @@ import { Textarea } from "../components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../components/ui/dialog";
 
 type Locale = "cn" | "en";
-type Variant = "A" | "B" | "C";
+type Variant = "A" | "B";
 type Concept = {
   id: string; cnTitle: string; enTitle: string; cnDescription: string; enDescription: string;
   cnImage: string; enImage: string; wikiUrl: string; tags: string[]; notes: string; updatedAt: string; status: "Ready" | "Draft";
@@ -36,16 +36,25 @@ const labels = {
   }
 };
 
-const variantInfo: Record<Variant, string> = { A: "Dashboard first", B: "Card First", C: "Workspace" };
+const variantInfo: Record<Variant, string> = { A: "Dashboard first", B: "Card First" };
 function readVariant(): Variant {
   const v = new URLSearchParams(window.location.search).get("variant");
-  return v === "B" || v === "C" ? v : "A";
+  return v === "B" ? "B" : "A";
 }
 
 function useVariant() {
   const [variant, setVariant] = useState<Variant>(readVariant);
   useEffect(() => {
-    const onPop = () => setVariant(readVariant());
+    const normalizeAndRead = () => {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get("variant") === "C") {
+        url.searchParams.set("variant", "A");
+        window.history.replaceState({}, "", url);
+      }
+      setVariant(readVariant());
+    };
+    normalizeAndRead();
+    const onPop = () => normalizeAndRead();
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
@@ -72,15 +81,12 @@ function App() {
   const [notice, setNotice] = useState("");
   const [showState, setShowState] = useState(false);
   const t = labels[locale];
-  const selected = concepts.find((c) => c.id === selectedId) ?? concepts[0];
-
-  useEffect(() => { setPage(variant === "B" || variant === "C" ? "concepts" : "dashboard"); }, [variant]);
+  useEffect(() => { setPage(variant === "B" ? "concepts" : "dashboard"); }, [variant]);
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const node = event.target as HTMLElement | null;
       if (node?.matches("input, textarea, [contenteditable='true']")) return;
-      if (event.key === "ArrowLeft") setVariant(variant === "A" ? "C" : variant === "B" ? "A" : "B");
-      if (event.key === "ArrowRight") setVariant(variant === "A" ? "B" : variant === "B" ? "C" : "A");
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") setVariant(variant === "A" ? "B" : "A");
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -132,18 +138,18 @@ function App() {
     </header>
     <div aria-hidden="true" className="h-[68px] shrink-0" />
 
-    {variant !== "C" && <div className="mobile-navigation relative z-20 flex shrink-0 items-center justify-between border-b border-line bg-white px-4 py-2 xl:hidden"><nav className="flex gap-1"><button onClick={() => goTo("dashboard")} className={`min-h-11 rounded-lg px-3 text-sm ${page === "dashboard" ? "bg-accent-soft font-medium text-brand" : "text-muted"}`}><LayoutDashboard size={14} className="mr-1.5 inline" />{t.dashboard}</button><button onClick={() => goTo("concepts")} className={`min-h-11 rounded-lg px-3 text-sm ${page === "concepts" ? "bg-accent-soft font-medium text-brand" : "text-muted"}`}><Grid2X2 size={14} className="mr-1.5 inline" />{t.concepts}</button></nav><div className="flex items-center gap-1 rounded-lg bg-slate-50 p-1"><button className={`min-h-9 rounded-md px-2 text-xs ${locale === "cn" ? "bg-white shadow-sm" : "text-muted"}`} onClick={() => setLocale("cn")}>中</button><button className={`min-h-9 rounded-md px-2 text-xs ${locale === "en" ? "bg-white shadow-sm" : "text-muted"}`} onClick={() => setLocale("en")}>EN</button></div></div>}
+    <div className="mobile-navigation relative z-20 flex shrink-0 items-center justify-between border-b border-line bg-white px-4 py-2 xl:hidden"><nav className="flex gap-1"><button onClick={() => goTo("dashboard")} className={`min-h-11 rounded-lg px-3 text-sm ${page === "dashboard" ? "bg-accent-soft font-medium text-brand" : "text-muted"}`}><LayoutDashboard size={14} className="mr-1.5 inline" />{t.dashboard}</button><button onClick={() => goTo("concepts")} className={`min-h-11 rounded-lg px-3 text-sm ${page === "concepts" ? "bg-accent-soft font-medium text-brand" : "text-muted"}`}><Grid2X2 size={14} className="mr-1.5 inline" />{t.concepts}</button></nav><div className="flex items-center gap-1 rounded-lg bg-slate-50 p-1"><button className={`min-h-9 rounded-md px-2 text-xs ${locale === "cn" ? "bg-white shadow-sm" : "text-muted"}`} onClick={() => setLocale("cn")}>中</button><button className={`min-h-9 rounded-md px-2 text-xs ${locale === "en" ? "bg-white shadow-sm" : "text-muted"}`} onClick={() => setLocale("en")}>EN</button></div></div>
 
     <div className="flex min-h-0 flex-1 overflow-hidden">
-      {variant !== "C" && <aside className="desktop-sidebar hidden h-full max-h-[calc(100dvh-68px)] min-h-0 w-[228px] shrink-0 overflow-y-auto border-r border-line bg-white px-4 py-7 xl:block">
+      <aside className="desktop-sidebar hidden h-full max-h-[calc(100dvh-68px)] min-h-0 w-[228px] shrink-0 overflow-y-auto border-r border-line bg-white px-4 py-7 xl:block">
         <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[.16em] text-slate-400">Workspace</p>
         <nav className="space-y-1">
           <NavItem icon={<LayoutDashboard size={17} />} active={page === "dashboard"} onClick={() => goTo("dashboard")}>{t.dashboard}</NavItem>
           <NavItem icon={<Grid2X2 size={17} />} active={page === "concepts"} onClick={() => goTo("concepts")}>{t.concepts}<span className="ml-auto rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] text-muted">{concepts.length}</span></NavItem>
         </nav>
-      </aside>}
+      </aside>
       <main className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
-        {variant === "C" ? page === "dashboard" ? <><div className="flex justify-end border-b border-line bg-white px-6 py-3"><Button variant="secondary" size="sm" onClick={() => goTo("concepts")}><Grid2X2 size={14} />{t.concepts}</Button></div><Dashboard {...{ t, concepts, fullCn, fullEn, goTo, openCreate, setSelectedId, setLocale }} /></> : <WorkspaceLayout {...{ t, locale, concepts, filtered, selected, selectedId, setSelectedId, search, setSearch, statusFilter, setStatusFilter, tagFilter, setTagFilter, allTags, openCreate, openEdit, removeConcept, goTo, page, fullCn, fullEn }} /> : page === "dashboard" ? <Dashboard {...{ t, concepts, fullCn, fullEn, goTo, openCreate, setSelectedId, setLocale }} /> : <ConceptsPage {...{ t, locale, concepts, filtered, selectedId, setSelectedId, search, setSearch, statusFilter, setStatusFilter, tagFilter, setTagFilter, allTags, openCreate, openEdit, removeConcept }} />}
+        {page === "dashboard" ? <Dashboard {...{ t, concepts, fullCn, fullEn, goTo, openCreate, setSelectedId, setLocale }} /> : <ConceptsPage {...{ t, locale, concepts, filtered, selectedId, setSelectedId, search, setSearch, statusFilter, setStatusFilter, tagFilter, setTagFilter, allTags, openCreate, openEdit, removeConcept }} />}
       </main>
     </div>
 
@@ -157,7 +163,7 @@ function App() {
 
     {import.meta.env.DEV && <>
       <div className="fixed bottom-5 left-1/2 z-40 flex -translate-x-1/2 items-center gap-1 rounded-2xl border border-slate-700/10 bg-surface-inverse p-1.5 text-white shadow-switcher">
-        {(["A", "B", "C"] as Variant[]).map((v) => <button key={v} onClick={() => setVariant(v)} className={`rounded-lg px-2.5 py-2 text-[11px] font-semibold transition ${variant === v ? "bg-white text-ink" : "text-white/70 hover:bg-white/10 hover:text-white"}`}>{v}<span className="ml-1.5 hidden text-[10px] font-normal min-[900px]:inline">{variantInfo[v]}</span></button>)}
+        {(["A", "B"] as Variant[]).map((v) => <button key={v} onClick={() => setVariant(v)} className={`rounded-lg px-2.5 py-2 text-[11px] font-semibold transition ${variant === v ? "bg-white text-ink" : "text-white/70 hover:bg-white/10 hover:text-white"}`}>{v}<span className="ml-1.5 hidden text-[10px] font-normal min-[900px]:inline">{variantInfo[v]}</span></button>)}
         <div className="mx-1 h-5 w-px bg-white/15" />
         <button onClick={() => setShowState((v) => !v)} className="flex items-center gap-1.5 rounded-lg px-2 py-2 text-[10px] text-white/70 hover:bg-white/10"><Command size={12} />{t.state}</button>
       </div>
@@ -238,32 +244,6 @@ function ConceptsPage(props: ListingProps) {
       </tr>; })}</tbody></table></div> : <EmptyState t={t} onClear={() => { setSearch(""); setStatusFilter("all"); setTagFilter("all"); }} />}
     </div>
   </div>;
-}
-
-function WorkspaceLayout(props: ListingProps & { selected: Concept | undefined; goTo: (p: "dashboard" | "concepts") => void; page: "dashboard" | "concepts"; fullCn: number; fullEn: number }) {
-  const { t, locale, concepts, filtered, selected, selectedId, setSelectedId, search, setSearch, statusFilter, setStatusFilter, tagFilter, setTagFilter, allTags, openCreate, openEdit, removeConcept, goTo, fullCn, fullEn } = props;
-  const conceptTitle = selected ? (locale === "cn" ? selected.cnTitle : selected.enTitle) || selected.cnTitle || selected.enTitle : "";
-  const description = selected ? (locale === "cn" ? selected.cnDescription : selected.enDescription) || selected.cnDescription || selected.enDescription : "";
-  return <div className="page-enter min-h-[calc(100vh-68px)] pb-28">
-    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-white px-5 py-4 xl:px-7"><div><div className="mb-1 text-[10px] text-muted">Concept Discovery / {t.library}</div><h1 className="text-lg font-semibold">{t.catalog}<span className="ml-2 text-xs font-normal text-muted">{concepts.length} concepts</span></h1></div><div className="flex items-center gap-2"><button onClick={() => goTo("dashboard")} className="rounded-lg px-3 py-2 text-xs text-muted hover:bg-slate-50"><LayoutDashboard size={14} className="mr-1.5 inline" />{t.dashboard}</button><Button size="sm" onClick={openCreate}><Plus size={14} />{t.new}</Button></div></div>
-    <div className="workspace-grid grid min-h-[calc(100vh-140px)] min-[700px]:grid-cols-[minmax(220px,.7fr)_minmax(300px,1fr)] xl:grid-cols-[230px_minmax(330px,410px)_minmax(360px,1fr)]">
-      <aside className="border-b border-line bg-surface-subtle p-5 xl:border-b-0 xl:border-r"><div className="mb-5 flex items-center justify-between"><h2 className="text-xs font-semibold uppercase tracking-[.1em] text-slate-500">{t.filters}</h2><SlidersHorizontal size={15} className="text-slate-400" /></div><label className="mb-2 block text-[10px] font-semibold text-muted">Search</label><div className="relative mb-5"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t.search} className="pl-9 text-xs" /></div><label className="mb-2 block text-[10px] font-semibold text-muted">Status</label><div className="mb-5 space-y-1">{[["all", t.allFilter], ["ready", t.readyFilter], ["draft", t.draftFilter]].map(([v, label]) => <button key={v} onClick={() => setStatusFilter(v)} className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs ${statusFilter === v ? "bg-accent-soft font-medium text-brand" : "text-muted hover:bg-white"}`}>{label}<span>{v === "all" ? concepts.length : concepts.filter((c) => c.status.toLowerCase() === v).length}</span></button>)}</div><label className="mb-2 block text-[10px] font-semibold text-muted">Tags</label><div className="flex flex-wrap gap-1.5">{["all", ...allTags].map((tag) => <button key={tag} onClick={() => setTagFilter(tag)} className={`rounded-md px-2 py-1.5 text-[10px] ${tagFilter === tag ? "bg-brand text-white" : "bg-white text-muted ring-1 ring-line hover:text-ink"}`}>{tag === "all" ? t.allTags : tag}</button>)}</div><div className="mt-8 rounded-xl border border-line bg-white p-3"><div className="mb-2 text-[10px] font-semibold text-muted">LANGUAGE COMPLETENESS · SAMPLE</div><div className="space-y-2 text-[11px]"><div className="flex justify-between"><span>中文</span><span className="font-medium">{fullCn}/{concepts.length}</span></div><div className="h-1.5 rounded-full bg-slate-100"><div className="h-full rounded-full bg-brand" style={{ width: `${concepts.length ? fullCn / concepts.length * 100 : 0}%` }} /></div><div className="flex justify-between pt-1"><span>English</span><span className="font-medium">{fullEn}/{concepts.length}</span></div><div className="h-1.5 rounded-full bg-slate-100"><div className="h-full rounded-full bg-accent-muted" style={{ width: `${concepts.length ? fullEn / concepts.length * 100 : 0}%` }} /></div></div></div></aside>
-      <section className="border-b border-line bg-canvas xl:border-b-0 xl:border-r"><div className="flex items-center justify-between border-b border-line bg-white/70 px-4 py-3"><div className="text-xs font-semibold">{t.result} <span className="ml-1 font-normal text-muted">{filtered.length}</span></div></div><div className="scroll-thin h-[calc(100vh-184px)] max-xl:h-auto max-xl:max-h-[420px] space-y-3 overflow-y-auto p-3">{filtered.map((c) => <WorkspaceRow key={c.id} concept={c} locale={locale} selected={selectedId === c.id} onClick={() => setSelectedId(c.id)} />)}{!filtered.length && <div className="rounded-xl border border-dashed border-slate-300 bg-white p-7 text-center text-xs text-muted">{t.noResults}</div>}</div></section>
-      <section className="workspace-detail min-w-0 bg-white min-[700px]:col-span-2 xl:col-span-1"><div className="flex items-center justify-between border-b border-line px-5 py-3.5"><div className="flex items-center gap-2 text-[11px] text-muted"><span>{t.detail}</span><span>/</span><span className="font-medium text-ink">{selected ? selected.id : "—"}</span></div>{selected && <div className="flex gap-1"><Button variant="ghost" size="icon" onClick={() => openEdit(selected)} aria-label={t.edit}><Pencil size={15} /></Button><Button variant="ghost" size="icon" onClick={() => removeConcept(selected)} aria-label="Delete"><Trash2 size={15} /></Button></div>}</div>
-        {selected ? <div className="mx-auto max-w-[780px] p-5 md:p-8"><div className="relative mb-6 h-[210px] overflow-hidden rounded-2xl bg-slate-100 image-placeholder"><img src={locale === "cn" ? selected.cnImage : selected.enImage} onError={(e) => { e.currentTarget.style.display = "none"; }} className="h-full w-full object-cover" /><div className="absolute inset-0 bg-gradient-to-t from-slate-950/55 via-transparent to-transparent" /><div className="absolute bottom-5 left-5 right-5"><Badge variant="soft" className="mb-3 bg-white/90 text-brand">{selected.status === "Ready" ? t.readyLabel : t.draft}</Badge><h2 className="text-2xl font-semibold tracking-tight text-white">{conceptTitle}</h2></div></div><p className="text-[15px] leading-[1.75] tracking-[.02em] text-muted">{description || t.incomplete}</p><div className="my-6 flex flex-wrap gap-2">{selected.tags.map((tag) => <Badge key={tag} variant="outline">{tag}</Badge>)}</div><div className="grid gap-4 sm:grid-cols-2"><DetailBox label={t.wiki} value={selected.wikiUrl || "—"} /><DetailBox label={t.notes} value={selected.notes || "—"} /><DetailBox label="中文标题" value={selected.cnTitle || "—"} /><DetailBox label="English title" value={selected.enTitle || "—"} /><DetailBox label="中文图片" value={selected.cnImage ? "Image attached" : t.noImage} /><DetailBox label="English image" value={selected.enImage ? "Image attached" : t.noImage} /></div><div className="mt-7 flex items-center justify-between border-t border-line pt-4 text-[10px] text-muted"><span>Last revised · {selected.updatedAt}</span><span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-amber-500" />Prototype record</span></div></div> : <div className="flex h-[60vh] items-center justify-center text-sm text-muted">{t.empty}</div>}
-      </section>
-    </div>
-  </div>;
-}
-
-function DetailBox({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-xl border border-line p-3.5"><div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">{label}</div><div className="break-words text-xs leading-5 text-slate-600">{value}</div></div>;
-}
-
-function WorkspaceRow({ concept, locale, selected, onClick }: { concept: Concept; locale: Locale; selected: boolean; onClick: () => void }) {
-  const title = (locale === "cn" ? concept.cnTitle : concept.enTitle) || concept.cnTitle || concept.enTitle;
-  const desc = (locale === "cn" ? concept.cnDescription : concept.enDescription) || concept.cnDescription || concept.enDescription;
-  return <button onClick={onClick} className={`w-full rounded-xl border bg-white p-3 text-left transition ${selected ? "border-brand/40 shadow-selected" : "border-line hover:border-slate-300"}`}><div className="mb-3 flex h-[112px] items-center justify-center overflow-hidden rounded-lg bg-slate-100 image-placeholder"><img src={locale === "cn" ? concept.cnImage : concept.enImage} onError={(e) => { e.currentTarget.style.display = "none"; }} className="h-full w-full object-cover" /></div><div className="flex items-start justify-between gap-2"><div className="text-sm font-semibold">{title}</div><span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${concept.status === "Ready" ? "bg-emerald-500" : "bg-amber-400"}`} /></div><p className="mt-1.5 line-clamp-2 text-[15px] leading-[1.75] tracking-[.02em] text-muted">{desc}</p><div className="mt-3 flex items-center justify-between"><div className="flex gap-1">{concept.tags.slice(0, 2).map((tag) => <Badge key={tag} variant="outline" className="px-2 py-0.5 text-[9px]">{tag}</Badge>)}</div><span className="text-[9px] text-slate-400">{concept.updatedAt}</span></div></button>;
 }
 
 function ConceptCard({ concept, locale, t, selected, onSelect, onEdit, onDelete }: { concept: Concept; locale: Locale; t: typeof labels.cn; selected: boolean; onSelect: () => void; onEdit: () => void; onDelete: () => void }) {
