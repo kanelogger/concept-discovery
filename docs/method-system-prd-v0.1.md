@@ -1,6 +1,6 @@
-# Concept Discovery PRD v0.5
+# Concept Discovery PRD v0.6
 
-版本：v0.5
+版本：v0.6
 日期：2026-09-24
 
 状态：MVP 范围冻结（产品未实现）
@@ -9,7 +9,9 @@
 
 Concept Discovery 是一个基于上下文的概念发现系统。
 
-它帮助用户从当前的问题、表达、分析、决策或 Agent 输出中，发现那些自己尚未想到、但已经存在的理论、模型、原则、偏差、框架和认知工具。
+Concept 是有明确名称、可说明出处的专业领域术语或方法论术语，涵盖理论、模型、原则、偏差、框架和其他领域词汇。MVP 由用户以文本录入出处，只检查是否填写，不自动核验出处的真实性。
+
+用户主动调用 Skill 后，系统从当前问题、表达、分析、决策或 Agent 输出中，发现值得考虑的已有 Concept。Concept 可以先进入目录；只有当前语言的推荐内容齐备时，才进入该语言的推荐池。
 
 核心价值：
 
@@ -38,7 +40,7 @@ Concept Discovery 解决的是：
 # 3. 核心闭环
 
 ```text
-当前问题 / 上下文 / Agent 输出
+用户主动调用 Skill + 当前问题 / 上下文 / Agent 输出
             ↓
         Diagnose
             ↓
@@ -106,7 +108,7 @@ Concept
 
 # 7. 产品组成
 
-Web、Skill 与后续 CLI 读写同一份 Concept Registry；Registry 是唯一事实源，推荐、编辑与导入不在各自的副本中分叉。
+Web 维护 Concept Registry；Skill 与开发用评测入口读取同一份数据。Registry 是唯一事实源，推荐、编辑与导入不在各自的副本中分叉。
 
 ## 7.1 Local Web System
 
@@ -120,8 +122,9 @@ Web、Skill 与后续 CLI 读写同一份 Concept Registry；Registry 是唯一�
 - 上传配图
 - 搜索
 - 查看关联 Concept
-- 测试推荐
-- 查看推荐记录
+- 查看 Dashboard（目录状态与使用数据）
+
+Web 只提供 Concept CRUD 与 Dashboard；不提供 Recommendation Playground，也不生成或展示可复用 Prompt。推荐能力通过接口和开发用评测入口验证。
 
 ## 7.2 Concept Discovery Skill
 
@@ -129,23 +132,24 @@ Web、Skill 与后续 CLI 读写同一份 Concept Registry；Registry 是唯一�
 
 工作流：
 
-1. 获取当前 task / context / response
-2. 调用 recommend
-3. 获得 0~3 个 Concept
-4. 向用户展示 Concept
-5. 用户选择后获取详情
-6. 将 Concept 应用到当前任务
-7. 上报 usage / feedback
+1. 用户以命令或明确的自然语言请求调用 Skill
+2. 获取当前 task / context / response
+3. 调用 recommend
+4. 获得 0~3 个 Concept
+5. 向用户展示 Concept
+6. 用户选择后获取详情
+7. 将 Concept 应用到当前任务
+8. 上报 usage / feedback
 
-Skill 保持薄，业务逻辑放在 System。
+Skill 保持薄，业务逻辑放在 System。普通对话不自动触发 Skill；用户再次主动调用时允许重新推荐。
 
 # 8. Web 产品原则
 
-Web 端面向人，因此采用：
+Web 的 Concept 浏览与管理面向人，因此采用：
 
 > Card First
 
-Concept 浏览与推荐都以卡片为正式展示形式；卡片包含标题、描述、WebP 配图（无图时用占位图）、标签和类型。Web 提供 `cn` / `en` 切换，默认 `cn`；界面文案、Concept 内容和配图使用同一语言。
+Concept 浏览以卡片展示；Skill 的推荐结果也用推荐卡。卡片包含标题、描述、WebP 配图（草稿无图时用占位图）和标签；已填写类型时再展示类型。Web 提供 `cn` / `en` 切换，默认 `cn`；界面文案、Concept 内容和配图使用同一语言。
 
 不同页面承担不同职责：
 
@@ -175,10 +179,10 @@ Concept 浏览与推荐都以卡片为正式展示形式；卡片包含标题、
 - 配图
 - 标题
 - 一句话描述
-- 类型
+- 类型（已填写时）
 - 标签
 
-标题、描述、配图与标签按当前 `locale` 从 `locales.cn` 或 `locales.en` 读取；类型为共用枚举，展示标签按界面语言翻译。
+标题、描述、配图与标签按当前 `locale` 从 `locales.cn` 或 `locales.en` 读取；类型字段跨语言共用且可留空，已填写时其展示标签按界面语言翻译，不显示空类型占位符。
 
 # 10. Recommendation Card
 
@@ -226,9 +230,9 @@ MVP 支持为同一 Concept 分别上传 `cn` 与 `en` WebP。
 - 单图建议 ≤ 2MB
 - 两种语言分别上传、替换、删除
 - 支持预览
-- 编辑草稿无某语言图片时，该语言显示默认占位图；正式可推荐 Concept 需要两种语言的图片
+- 编辑草稿无某语言图片时，该语言显示默认占位图；进入某语言推荐池须有该语言图片
 
-正式可推荐 Concept 删除任一语言图片前须先替换，或退出推荐池；不能在该语言继续展示另一语言的图片。
+删除某个可推荐语言的配图前须先替换，或使该语言退出推荐池；另一语言若内容齐备，仍可继续推荐。两种语言的图片不得相互回退。
 
 建议路径：
 
@@ -286,10 +290,7 @@ locales:
     agent_instruction: >
       删除对核心结论没有贡献的假设、步骤和重复信息；
       保留关键事实、证据和必要因果链。
-    source:
-      title: ""
-      url: ""
-      note: ""
+    source_text: William of Ockham（出处文本示例）
   en:
     name: Occam's Razor
     aliases: [Ockham's Razor]
@@ -303,22 +304,22 @@ locales:
     agent_instruction: >
       Remove assumptions, steps, and repetition that do not support the main conclusion.
       Keep essential facts, evidence, and causal links.
-    source:
-      title: ""
-      url: ""
-      note: ""
+    source_text: William of Ockham (example attribution text)
 ```
 
 字段约定：
 
 - `id`：创建时确定的 slug（小写字母、数字、连字符），创建后不可变；Relation 与配图均按 `id` 引用。
-- `locales.cn` / `locales.en`：同一 Concept 下独立保存名称、别名、描述、WebP 配图、Wiki 链接、自由标签、Trigger、Avoid When、Transform、Agent Instruction 与 Source。Search、卡片、详情和 Prompt Composer 按请求语言取同一组字段。
-- `wiki_url`：每种语言可选填一个公开可访问的 Wiki 页面 HTTPS 链接，供用户在详情页继续阅读；示例中的 `example.org` 仅演示字段结构，正式数据须使用真实链接。`source.url` 用于记录内容依据，两者用途独立。保存时校验绝对 HTTPS URL；某语言未填写时隐藏该语言的 Wiki 入口，不使用另一语言的链接，也不影响进入推荐池。
-- `domains` / `intents`、`interaction_type` / `epistemic_type` 与 `id` 是跨语言共用的稳定值；`tags` 是每种语言自己的自由展示与筛选标签，不要求两组字符串相同。
-- 草稿可暂缺某种语言；进入正式推荐池前，两种语言的必填文案和 WebP 配图都须通过校验。正式条目失去必填内容时须先退出推荐池；缺失语言不得静默回退到另一种语言。具体必填字段与迁移规则由 Schema 任务定稿。
+- `locales.cn` / `locales.en`：同一 Concept 下独立保存名称、别名、描述、WebP 配图、Wiki 链接、自由标签、Trigger、Avoid When、Transform、Agent Instruction 与出处文本。Search、卡片、详情和 Prompt Composer 按请求语言取同一组字段。
+- `source_text`：每种语言的单个纯文本出处字段。草稿可留空；该语言进入可浏览目录前要求非空，MVP 不联网核验其真实性，也不解析成结构化引用。示例出处仅演示字段形式。
+- `wiki_url`：每种语言可选填一个公开可访问的 Wiki 页面 HTTPS 链接，供用户在详情页继续阅读；示例中的 `example.org` 仅演示字段结构，正式数据须使用真实链接。`source_text` 说明出处，两者用途独立。保存时校验绝对 HTTPS URL；某语言未填写时隐藏该语言的 Wiki 入口，不使用另一语言的链接，也不影响进入推荐池。
+- `domains` / `intents`、`interaction_type` / `epistemic_type` 与 `id` 是跨语言共用的值；两个类型字段均可省略或置空，已填写时须符合现有枚举，不为普通专业术语强制选择近似类型。`tags` 是每种语言自己的自由展示与筛选标签，不要求两组字符串相同。
+- Concept 可先保存为草稿；某语言有名称、描述和出处文本后可在该语言浏览与搜索，即使尚无可执行的推荐内容；无配图时浏览卡显示占位图。某语言进入推荐池时，还需有配图、触发场景和 Agent Instruction；不要求另一语言同时齐备，也不要求两个类型字段有值。缺少这些字段的语言不进入推荐池，也不回退到另一语言。`status: core` 只是示例分类，不替代按语言判断的推荐资格。完整字段校验与旧数据迁移由 Schema 任务定稿。
 - `version`：从 1 开始，任一语言的内容、Wiki 链接或配图修订都递增；Recommendation Log 记录推荐发生时的 `concept_version`（见 §31）。
 
 # 13. Concept 类型
+
+以下枚举可用于适合分类的方法论候选。`interaction_type` 与 `epistemic_type` 独立可空；普通专业术语无合适类型时留空，不增设 `other` 占位值。目录收录和按语言推荐资格均不依赖这两个字段，也不由旧清洗稿的 `type` 值直接推定。
 
 ## 13.1 interaction_type
 
@@ -530,7 +531,7 @@ MVP 暂缓 Recipe；Relation 的存储、编辑和展示不依赖 Recipe 数据�
 search_concepts(query, locale)
 ```
 
-搜索当前语言的名称、别名、描述和标签；Concept ID 与受控字段可作为跨语言过滤条件。`locale` 只接受 `cn` 或 `en`。
+搜索目录中当前语言已有的名称、别名、描述和标签；不要求该 Concept 可推荐。缺少当前语言内容的条目只在编辑管理视图提示待补，不在该语言的浏览结果中混用另一语言。Concept ID 与受控字段可作为跨语言过滤条件。`locale` 只接受 `cn` 或 `en`。
 
 ## Recommend
 
@@ -542,7 +543,7 @@ search_concepts(query, locale)
 recommend_concepts(context, locale)
 ```
 
-这是产品核心。
+这是产品核心；仅从请求语言中推荐条件齐备的 Concept 选取候选。只有明确调用的 Skill 和开发用评测入口使用推荐接口，Web 不提供推荐输入页。
 
 # 21. Recommendation 输入
 
@@ -559,7 +560,7 @@ recommend_concepts(context, locale)
 
 `user_intent` 为可选显式输入，与后端从上下文推断的 Intent（见 §25）相互印证，不强制一致；推荐以系统推断为准。
 
-`locale` 为显式输入，取 `cn` 或 `en`；Web 默认传 `cn`，切换后传 `en`，Skill 按当前用户语言传值。不依据输入文本自动猜测语言。
+`locale` 为显式输入，取 `cn` 或 `en`；Skill 按当前用户语言传值，开发用评测入口在用例中显式指定。不依据输入文本自动猜测语言。
 
 # 22. Recommendation 输出
 
@@ -608,8 +609,8 @@ recommend_concepts(context, locale)
 8. 避免高度重叠 Concept 同时出现
 9. 优先补当前上下文缺失的认知视角
 10. 禁止为了显得聪明而强行推荐
-11. 同一会话内已推荐过或被忽略的 Concept 不重复推荐，除非用户主动请求
-12. 连续多次空推荐或忽略后降低主动触发频率，避免噪声
+11. Skill 仅在用户以命令或明确的自然语言请求调用时运行；普通对话不自动推荐
+12. 用户再次主动调用时允许重新推荐，空推荐或忽略不触发后台重试
 
 # 24. 推荐流程
 
@@ -637,9 +638,9 @@ NONE / Top 1~3
 
 直接使用紧凑 Concept Cards + LLM Router。
 
-给 LLM 的紧凑卡片包含：`id` / 请求语言的 `name`、一句话 `description`、`trigger`、`avoid_when` / 共用的 `interaction_type`、`epistemic_type`、`domains`、`intents`；不含配图与 `agent_instruction` 全文。
+给 LLM 的紧凑卡片包含：`id` / 请求语言的 `name`、一句话 `description`、`trigger`、`avoid_when` / 共用的 `domains`、`intents`，以及已填写的 `interaction_type`、`epistemic_type`；不含配图与 `agent_instruction` 全文。
 
-LLM Router 需要调用大模型；上下文与回答是否离开本机取决于所选模型提供方，这是 P0 决策项（见 §34、§40）。
+LLM Router 需要调用大模型。默认不向远端发送 task / context / response；可使用已配置的本地模型，或由用户在首次远端调用前知悉数据将离开本机并明确选择远端模型。无可用本地模型且尚未选择远端模型时，Skill 提示完成配置或选择，不调用远端，也不把配置缺失伪装成空推荐。具体提供方与技术接入仍在实施前选定。
 
 # 25. Intent
 
@@ -674,7 +675,7 @@ MVP 中 Intent 可只存在于后端。
 
 # 26. Prompt Composer
 
-用户点击 Apply 后：
+用户在 Skill 中选择 Apply 后：
 
 ```text
 Concept
@@ -696,11 +697,11 @@ Contextual Prompt
 
 不在 Registry 中保存一份固定完整 Prompt。
 
-Composer 使用所选 `locale` 的 `agent_instruction`、`transform` 和 `avoid_when`，生成同语言的 Prompt；原始 task / context / response 保留原文，不因界面切换而自动翻译。
+Composer 使用所选 `locale` 的 `agent_instruction`、`transform` 和 `avoid_when`，生成同语言的 Prompt；原始 task / context / response 保留原文，不因界面切换而自动翻译。Web 不运行 Composer，也不展示生成的 Prompt。
 
 # 27. Web 页面
 
-MVP 只做 4 个核心页面。
+MVP 的 Web 只做 Concept CRUD 与 Dashboard，对应以下 4 个核心页面。
 
 ## 27.1 Concepts
 
@@ -716,7 +717,7 @@ MVP 只做 4 个核心页面。
 
 ## 27.2 Concept Detail
 
-详情页遵守当前 `locale`；类型、Domain 等共用值以当前语言的界面标签显示。
+详情页遵守当前 `locale`；类型已填写时与 Domain 等共用值一起以当前语言的界面标签显示。
 
 顶部 Hero：
 
@@ -724,7 +725,7 @@ MVP 只做 4 个核心页面。
 - Title
 - Description
 - Tags
-- Type
+- Type（已填写时）
 
 正文：
 
@@ -733,7 +734,7 @@ MVP 只做 4 个核心页面。
 - Transform
 - Agent Instruction
 - Wiki 外部链接（按当前语言展示，打开外部页面）
-- Source
+- 出处文本
 - Related Concepts
 - Version
 
@@ -752,7 +753,7 @@ MVP 只做 4 个核心页面。
 - Description
 - Cover WebP（`cn` / `en` 分别上传）
 - Aliases
-- Type
+- Type（可留空）
 - Domain
 - Tags
 - Intents
@@ -761,7 +762,7 @@ MVP 只做 4 个核心页面。
 - Transform
 - Agent Instruction
 - Wiki URL（`cn` / `en` 分别添加、修改或移除）
-- Source
+- 出处文本（`cn` / `en` 分别录入）
 - Relations
 
 支持：
@@ -773,31 +774,18 @@ MVP 只做 4 个核心页面。
 
 Relations 编辑在 §34 P3 接入；P1 先完成 Concept 本身的 CRUD。
 
-草稿可分次补齐语言内容；进入正式推荐池前校验两种语言的必填文案及配图，缺失时在编辑页显示具体语言和字段。
+草稿可分次补齐语言内容；进入某语言推荐池前校验该语言的必填文案、出处文本与配图，缺失时在编辑页显示具体语言和字段。出处只检查非空，不验证其真实性。
 
-## 27.4 Recommendation Playground
+## 27.4 Dashboard
 
-这是 MVP 最重要页面。
+Dashboard 展示目录与真实使用概况，不接收推荐任务或生成 Prompt。
 
-输入：
+- Concept 总数与各语言内容齐备数量
+- 各语言可推荐 Concept 数量
+- 用户主动调用 Skill 后的推荐、查看、应用、忽略与无帮助事件汇总
+- `cn` / `en` 分组统计与 Eval 结果入口
 
-```text
-Task
-Context
-Agent Response
-Locale (cn / en)
-```
-
-输出 Recommendation Cards。
-
-支持：
-
-- Apply
-- View
-- Ignore
-- Not Useful
-
-Playground 与 Skill 调用同一条 recommend API；Playground 产生的事件在 Recommendation Log 中带 `source: "playground"` 标记，Eval 统计默认只计真实使用（见 §31、§32）。
+P1 可先展示目录状态；P5 接入使用数据和 Eval 汇总。推荐接口的调试与离线评测使用开发用入口，不作为 Web 页面，也不产生真实使用事件。
 
 # 28. CRUD
 
@@ -816,7 +804,7 @@ Update：
 - 分别修改 `cn` / `en` 图片
 - 分别编辑 `cn` / `en` Wiki URL
 - 修改 Relation
-- 修改 Source
+- 修改各语言出处文本
 
 Delete：
 - 优先 Archive
@@ -833,20 +821,21 @@ concept-discovery
 工作流：
 
 ```text
-1. 判断当前任务是否值得 Concept Discovery
-2. 收集 task / context / response
+1. 用户用命令或明确的自然语言请求调用 Skill
+2. 收集 task / context / response，确认本地模型可用或远端模型已由用户选择
 3. 携带 locale 调 recommend_concepts
 4. 空推荐（recommendations: []）→ 正常继续
 5. 有推荐 → 展示 1~3 个 Concept
 6. 用户 Apply → 按 locale 获取 concept → compose prompt
-7. Agent 执行
+7. Agent 将 Prompt 用于当前任务
 8. report usage
 ```
 
-触发与冷却：
+调用边界：
 
-- 第 1 步是轻量前置判断，可与第 3 步合并为同一次 LLM 调用；简单任务（事实问答、格式转换等）应在此被过滤。
-- 遵守 §23 规则 11、12：会话内去重与降频，由 Skill 侧维护推荐历史。
+- 普通任务过程中 Agent 不自行调用；明确命令和“帮我找适用的概念”这类直接请求均算主动调用。
+- 即使用户主动调用，简单事实问答也可返回空推荐。用户再次主动调用时不受自动冷却限制。
+- 无可用模型时返回配置或选择提示，属于不可运行状态，与正常的空推荐区分。
 
 # 30. Feedback
 
@@ -866,7 +855,7 @@ not_useful
 
 - `recommended`：系统发出推荐即记录。
 - `viewed`：用户打开 Concept 详情。
-- `applied`：用户点击 Apply 并用于当前任务。
+- `applied`：用户选择 Apply 后，Agent 实际把生成的 Prompt 用于当前任务；只生成或展示 Prompt 不算应用。
 - `ignored`：用户未查看即忽略推荐。
 - `not_useful`：用户查看后主动标记"没有帮助"；它与 `ignored` 的区别在于经过查看，用于衡量推荐质量而非曝光质量。
 
@@ -881,12 +870,11 @@ not_useful
   "concept_version": 3,
   "locale": "cn",
   "event": "applied",
-  "source": "skill",
   "timestamp": "..."
 }
 ```
 
-`source` 取 `skill`（真实使用）或 `playground`（调试），Eval 默认只统计 `skill` 来源。
+Recommendation Log 只记录 Skill 的真实使用；开发用评测调用不写入真实使用日志。
 
 `locale` 记录本次推荐与应用使用的语言，供双语质量分析；同一 Concept 的 ID 和修订版本跨语言共用。
 
@@ -1003,19 +991,19 @@ Not Useful Rate
 - 萨根标准
 - 古德哈特定律
 
-名单来自 [清洗稿](../docs/method-registry-curated-v0.1.md) 的 30 个候选，全部须通过准入审查后才能导入；清洗稿只有中文内容，英文文案与双语配图仍需补齐和审核。准入门槛与逐条审核记录尚待定稿，缺口见[产品契约](../specs/product-contract.md#待定契约材料冲突与字段缺口)。"知识蒸馏"等归类存疑项在准入时重定归属或暂缓。数量目标不替代质量验收。
+名单来自 [清洗稿](../docs/method-registry-curated-v0.1.md) 的 30 个候选，可先按名称与出处文本录入目录；MVP 不把外部出处核验作为录入前置。清洗稿主体为中文，英文内容与两种配图可逐语言补齐；某语言达到推荐条件后即可在该语言参与推荐。"知识蒸馏"等分类存疑项可保留为目录条目，待补齐可用场景和指令后再进入推荐池。数量目标不替代推荐质量验收。
 
 # 34. MVP 实施顺序
 
-主线按以下五步推进。Concept Schema、Core 准入规则和首批内容审核是 CRUD/推荐的数据前置条件；应用栈、存储和模型的数据流在各能力实施前记录决定，不单设 Fork 阶段。
+主线按以下五步推进。Concept Schema 与各语言推荐条件是 CRUD/推荐的数据前置条件；应用栈、存储和模型接入在各能力实施前记录决定，不单设 Fork 阶段。
 
 ## P1：Concept CRUD
 
-建立同一份 Concept Registry 与本地 Web。以 Card First 展示 Concept，支持 `cn` / `en` 标题、描述、WebP 配图与标签，类型跨语言共用；按语言搜索、创建、编辑、归档和删除，并保留内容修订记录。详情页展示该语言可选的 Wiki 外部链接，编辑器可按语言维护。优先参考 Skillbox 的 Web、CRUD、Revision 与 Search 能力。首批导入仅限通过准入审查且双语字段齐备的 Concept（见 §33）。
+建立同一份 Concept Registry 与本地 Web。以 Card First 展示 Concept，支持 `cn` / `en` 标题、描述、WebP 配图与标签；可选类型跨语言共用，未填时不展示。按语言搜索、创建、编辑、归档和删除，并保留内容修订记录。详情页展示该语言可选的 Wiki 外部链接，编辑器可按语言维护。Dashboard 先展示目录状态。优先参考 Skillbox 的 Web、CRUD、Revision 与 Search 能力。首批候选可作为目录条目导入；每种语言独立判断能否推荐（见 §12、§33）。
 
-## P2：Recommendation Playground
+## P2：Recommendation API / Eval Harness
 
-实现 `recommend_concepts`、Diagnosis、Why Now、空推荐与 0~3 个推荐卡；Playground 使用正式推荐接口并显式传 `locale`。用户选择 Apply 后生成同语言的上下文化 Prompt。优先参考 Skillbox 的 Recommend 边界，但按 Concept Schema、`avoid_when` 和本产品的输出契约适配。此阶段准备覆盖两种语言的离线 Eval 案例，避免到真实使用时才首次检查推荐质量。
+实现 `recommend_concepts`、Diagnosis、Why Now、空推荐与 0~3 个推荐结果；开发用评测入口调用正式推荐接口，显式传 `locale`，不写入真实使用日志。优先参考 Skillbox 的 Recommend 边界，但按 Concept Schema、`avoid_when` 和本产品的输出契约适配。此阶段准备覆盖两种语言的离线 Eval 案例；Web 不增加 Playground 或 Prompt 展示。
 
 ## P3：Concept Relation
 
@@ -1023,27 +1011,27 @@ Not Useful Rate
 
 ## P4：Concept Discovery Skill
 
-接入 Agent，复用同一 Registry、推荐接口和 Prompt Composer；传递用户选择的 `locale`，用户选择后才应用 Concept。
+接入 Agent，复用同一 Registry、推荐接口和 Prompt Composer；仅在用户明确调用时运行，传递所选 `locale`，用户选择后才生成并执行同语言 Prompt。无可用模型时提示配置或选择，未经选择不上传上下文。
 
 ## P5：Feedback / Eval
 
-记录推荐、查看、应用、忽略及无帮助事件，参考 Skillbox 的 Usage Reporting 思路；区分 Playground 与真实 Skill 使用。运行离线案例和真实使用评估，再按 §35 的 Gate 决定是否扩大范围。
+记录 Skill 中的推荐、查看、应用、忽略及无帮助事件，参考 Skillbox 的 Usage Reporting 思路；Dashboard 展示使用统计，开发用评测数据与真实使用分开。运行离线案例和真实使用评估，再按 §35 的 Gate 决定是否扩大范围。
 
 # 35. MVP Gate
 
 达到：
 
 ```text
-30 个 cn/en 内容与配图齐备的 Core Concepts
+30 个 cn/en 均可推荐的 Core Concepts
 +
 50 个标明 locale 且覆盖 cn/en 的 Eval Cases
 +
-100 次真实推荐
+100 次用户主动调用 Skill 后的真实推荐
 ```
 
 真实推荐记录按 `locale` 分开统计，便于判断两种语言的质量；具体样本分配与通过门槛见 §40。
 
-之后再决定是否扩大。
+这是扩大 Concept 数量和分发范围前的证据门槛；单语言内容齐备即可进入该语言的早期使用，不必等双语 30 个全部完成。
 
 只看三个问题：
 
@@ -1074,6 +1062,7 @@ Not Useful Rate
 - Recommendation Personalization
 - 大规模 Recipe 系统
 - 完整 Revision UI 重构
+- Web Recommendation Playground 与 Web Prompt 展示
 - 直接 Fork Skillbox
 
 原则：
@@ -1138,7 +1127,7 @@ Web 面向人：
 
 Skill 面向 Agent：
 
-> 在正确的上下文里调用 Concept Discovery。
+> 用户明确调用后，在当前上下文中推荐 Concept 并支持应用。
 
 Recommendation Engine：
 
@@ -1146,7 +1135,7 @@ Recommendation Engine：
 
 # 39. 一句话总结
 
-Concept Discovery 是一个会根据当前上下文，主动帮用户补全“人类已经存在的概念”的本地知识发现系统。
+Concept Discovery 是一个在用户主动调用后，根据当前上下文帮用户发现已有专业术语和方法论术语的本地知识发现系统。
 
 MVP 的核心不是做更多功能。
 
@@ -1156,12 +1145,12 @@ MVP 的核心不是做更多功能。
 
 # 40. 未决问题
 
-以下问题在 MVP Gate 前必须给出决定；其中 Schema/准入、应用栈/存储和模型数据流须在各自依赖的实施阶段前确定：
+以下问题在 MVP Gate 前必须给出决定；其中 Schema 校验、应用栈/存储和模型接入须在各自依赖的实施阶段前确定：
 
 - Eval 数值门槛（Top-1 Hit Rate、Precision、Apply Rate 等的通过线）与判定协议的执行细节。
-- LLM 提供方与数据流：推荐引擎所需的模型在本地还是远端，context / response 是否离开本机。
+- LLM 提供方的具体接入与配置方式：已定本地默认、远端首次显式选择，实施前需确定可用模型与交互入口。
 - 应用栈与存储引擎：结合本地单用户要求选择，并记录与 Skillbox 参考实现的取舍。
 - `confidence` 是否及如何校准：依赖 100 次真实推荐的数据。
 - 清洗稿 `type` 字段到 `interaction_type` / `epistemic_type` 双字段的导入映射。
 - Recipe 数据结构：MVP 暂缓，预留字段未定。
-- 双语准入细则：`cn` / `en` 的必填字段、既有中文清洗稿的英文内容核验与迁移规则，在 Schema/准入任务定稿。
+- Schema 细则：各语言推荐条件的字段校验和旧数据迁移规则；不对 `source_text` 的出处真实性做自动核验。

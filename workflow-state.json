@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "task_id": "0012-add-concept-wiki-url",
+  "task_id": "0013-grill-concept-discovery-prd",
   "phase": "complete",
-  "task_file": "tasks/0012-add-concept-wiki-url.md",
+  "task_file": "tasks/0013-grill-concept-discovery-prd.md",
   "updated_at": "2026-09-24",
-  "summary": "为 Concept 的 cn/en 内容增加可选 Wiki 外部链接契约。",
+  "summary": "通过多轮访谈明确 Concept Discovery PRD 的关键决策，并同步领域词汇表与必要决策记录。",
   "blockers": [],
-  "next_actions": ["定稿 Concept Schema，加入各语言可选 wiki_url 与 HTTPS 校验", "在 Concept CRUD 中实现链接编辑、修订与详情页展示"],
+  "next_actions": ["按 tasks/backlog.md 定稿 Concept Schema、各语言推荐资格和旧 type 字段映射", "记录模型配置与应用栈选择后实施 Concept CRUD"],
   "required_checks": ["npm run validate"],
   "verification": [{"command": "npm run validate", "result": "passed", "recorded_at": "2026-09-24"}]
 }

@@ -8,8 +8,8 @@
 
 | 材料 | 状态与用途 |
 | --- | --- |
-| [Concept Discovery PRD](method-system-prd-v0.1.md) | v0.5；产品目标、Skillbox 参考路线、五阶段 MVP、cn/en 双语字段、配图与可选 Wiki 链接、未来验收标准 |
-| [Concept Registry 清洗稿](method-registry-curated-v0.1.md) | v0.1 清洗输入；30 个 Core 清洗项、Candidate Packs、Archive 与补充优先级；正式准入尚未完成 |
+| [Concept Discovery PRD](method-system-prd-v0.1.md) | v0.6；产品目标、Skillbox 参考路线、五阶段 MVP、按语言推荐资格、Web CRUD + Dashboard 与 Skill 调用边界 |
+| [Concept Registry 清洗稿](method-registry-curated-v0.1.md) | v0.1 清洗输入；30 个 Core 清洗项、Candidate Packs、Archive 与补充优先级；旧分类不自动决定各语言推荐资格 |
 
 PRD 已将产品命名为 Concept Discovery；文件路径仍为 `method-*`，命名迁移见 [产品方向与待定契约](../specs/product-contract.md)。Skillbox 参考源码在被 Git 忽略的 `docs/private-project/skillbox`，它不是本项目已实现代码。
 
@@ -31,6 +31,7 @@ PRD 已将产品命名为 Concept Discovery；文件路径仍为 `method-*`，�
 ## 未来产品契约与任务
 
 - [产品方向与待定契约](../specs/product-contract.md)：产品事实索引、尚未实现的能力、材料冲突与来源缺口。
-- [后续产品任务](../tasks/backlog.md)：Schema 与准入前置工作，以及 CRUD、Playground、Relation、Skill、Feedback / Eval 五阶段主线。
+- [领域词汇表](../CONTEXT.md)：Concept、可推荐 Concept、Relation、Recipe、Source 等术语。
+- [后续产品任务](../tasks/backlog.md)：Schema 前置工作，以及 CRUD、Recommendation API / Eval Harness、Relation、Skill、Feedback / Eval 五阶段主线。
 
 后续实现应先定稿受影响的契约，再把可执行接口、验证结果和必要决策同步到仓库。环境检查成功只证明当前协作环境满足其检查项。
