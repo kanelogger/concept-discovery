@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; color: #17212d; background: #f6f7f9; font-synthesis: none; text-rendering: optimizeLegibility; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 360px; min-height: 100vh; }
+button, input, textarea { font: inherit; }
+::selection { background: #dce9e2; color: #17212d; }
+.cover-art { background-size: cover; background-position: center; }
+.scroll-thin { scrollbar-width: thin; scrollbar-color: #d5dbe0 transparent; }

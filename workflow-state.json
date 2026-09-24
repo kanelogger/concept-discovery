@@ -1,12 +1,28 @@
 {
   "schema_version": 1,
-  "task_id": "0013-grill-concept-discovery-prd",
+  "task_id": "0014-concept-crud-demo",
   "phase": "complete",
-  "task_file": "tasks/0013-grill-concept-discovery-prd.md",
+  "task_file": "tasks/0014-concept-crud-demo.md",
   "updated_at": "2026-09-24",
-  "summary": "通过多轮访谈明确 Concept Discovery PRD 的关键决策，并同步领域词汇表与必要决策记录。",
+  "summary": "临时 Concept CRUD 与 Dashboard UI demo 已完成；三种布局和内存态 CRUD 经浏览器检查，构建及仓库校验通过。",
   "blockers": [],
-  "next_actions": ["按 tasks/backlog.md 定稿 Concept Schema、各语言推荐资格和旧 type 字段映射", "记录模型配置与应用栈选择后实施 Concept CRUD"],
-  "required_checks": ["npm run validate"],
-  "verification": [{"command": "npm run validate", "result": "passed", "recorded_at": "2026-09-24"}]
+  "next_actions": [
+    "由后续 Concept CRUD 实现任务决定吸收哪种布局与交互"
+  ],
+  "required_checks": [
+    "npm run demo:build",
+    "npm run validate"
+  ],
+  "verification": [
+    {
+      "command": "npm run demo:build",
+      "result": "passed",
+      "recorded_at": "2026-09-24"
+    },
+    {
+      "command": "npm run validate",
+      "result": "passed",
+      "recorded_at": "2026-09-24"
+    }
+  ]
 }

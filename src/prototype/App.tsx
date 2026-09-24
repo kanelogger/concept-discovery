@@ -1,0 +1,289 @@
+import { useEffect, useMemo, useState } from "react";
+import {
+  ArrowDownWideNarrow, ArrowLeft, ArrowRight, ArrowUpRight, BookOpen, Check, ChevronDown, CircleHelp,
+  Command, Compass, Database, Globe2, Grid2X2, LayoutDashboard, ListFilter, MoreHorizontal,
+  Pencil, Plus, Search, SlidersHorizontal, Sparkles, Trash2, X,
+} from "lucide-react";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
+import { Card } from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Textarea } from "../components/ui/textarea";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../components/ui/dialog";
+
+type Locale = "cn" | "en";
+type Variant = "A" | "B" | "C";
+type Concept = {
+  id: string; cnTitle: string; enTitle: string; cnDescription: string; enDescription: string;
+  cnImage: string; enImage: string; wikiUrl: string; tags: string[]; notes: string; updatedAt: string; status: "Ready" | "Draft";
+};
+type ConceptDraft = Omit<Concept, "id" | "updatedAt" | "status">;
+
+const seed: Concept[] = [
+  { id: "co-101", cnTitle: "逆向思维", enTitle: "Inversion", cnDescription: "从想要的结果反向推演：先明确什么会导致失败，再主动避开它。", enDescription: "Work backward from the outcome. Identify what would cause failure, then avoid those conditions deliberately.", cnImage: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=85", enImage: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=85", wikiUrl: "https://en.wikipedia.org/wiki/Inversion", tags: ["决策", "风险", "思考工具"], notes: "Seed example · source detail still needs review.", updatedAt: "今天 09:42", status: "Ready" },
+  { id: "co-102", cnTitle: "第一性原理", enTitle: "First Principles Thinking", cnDescription: "把问题拆解到不可再简化的基础事实，再从这些事实重新构建答案。", enDescription: "Break a problem down to its fundamental truths, then reason upward from those facts.", cnImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=900&q=85", enImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=900&q=85", wikiUrl: "", tags: ["分析", "创新"], notes: "Seed example.", updatedAt: "昨天 16:08", status: "Ready" },
+  { id: "co-103", cnTitle: "安全边际", enTitle: "Margin of Safety", cnDescription: "在估值或决策中预留缓冲空间，以降低预测偏差和意外变化造成的损失。", enDescription: "Build a buffer between an estimate and a decision to reduce the impact of uncertainty and error.", cnImage: "https://images.unsplash.com/photo-1518546305927-5a555bb7020d?auto=format&fit=crop&w=900&q=85", enImage: "https://images.unsplash.com/photo-1518546305927-5a555bb7020d?auto=format&fit=crop&w=900&q=85", wikiUrl: "", tags: ["风险", "投资"], notes: "Seed example.", updatedAt: "Sep 18, 2026", status: "Ready" },
+  { id: "co-104", cnTitle: "第二层思维", enTitle: "Second-Order Thinking", cnDescription: "继续追问一个决定带来的后续影响，避免只优化眼前结果。", enDescription: "Look beyond immediate effects and consider the consequences those effects create.", cnImage: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=900&q=85", enImage: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=900&q=85", wikiUrl: "", tags: ["决策", "系统思考"], notes: "Seed example.", updatedAt: "Sep 16, 2026", status: "Ready" },
+  { id: "co-105", cnTitle: "古德哈特定律", enTitle: "Goodhart's Law", cnDescription: "当一个度量成为目标，它就不再是一个好的度量。", enDescription: "When a measure becomes a target, it ceases to be a good measure.", cnImage: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=900&q=85", enImage: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=900&q=85", wikiUrl: "", tags: ["度量", "系统"], notes: "Seed example.", updatedAt: "Sep 13, 2026", status: "Draft" },
+  { id: "co-106", cnTitle: "可逆决策", enTitle: "One-Way and Two-Way Doors", cnDescription: "根据决策是否容易撤回，选择相应的审慎程度和推进速度。", enDescription: "Match the speed and rigor of a decision to how easily it can be reversed.", cnImage: "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=85", enImage: "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=85", wikiUrl: "", tags: ["决策", "执行"], notes: "Seed example.", updatedAt: "Sep 10, 2026", status: "Ready" },
+];
+
+const blankDraft: ConceptDraft = { cnTitle: "", enTitle: "", cnDescription: "", enDescription: "", cnImage: "", enImage: "", wikiUrl: "", tags: [], notes: "" };
+const labels = {
+  cn: { dashboard: "数据概览", concepts: "Concept 库", library: "知识库", new: "新建 Concept", all: "全部 Concept", search: "搜索名称、描述或标签…", dashboardTitle: "把好想法，变成可复用的工具。", dashboardSub: "这是你的 Concept 工作台。先从目录状态开始，再继续整理知识库。", viewAll: "查看全部 Concept", updated: "最近修订", language: "语言完整度", total: "Concept 总数", ready: "可推荐内容", collection: "目录概况", latest: "最近更新", view: "查看详情", edit: "编辑", draft: "草稿", readyLabel: "已就绪", allFilter: "全部状态", readyFilter: "已就绪", draftFilter: "草稿", noResults: "没有找到匹配内容。", sample: "示例数据 · 指标待定", demo: "临时 UI Demo", data: "内存模拟数据", catalog: "概念目录", overview: "工作台概览", save: "保存 Concept", create: "创建 Concept", cancel: "取消", title: "标题", description: "描述", image: "图片 URL", tags: "标签（逗号分隔）", wiki: "Wiki URL（可选）", notes: "备注", cn: "中文", en: "English", editTitle: "编辑 Concept", createTitle: "新建 Concept", deleted: "已从本次内存会话移除", saved: "已保存到内存状态", empty: "暂时还没有 Concept", languageReady: "语言内容齐备", recent: "最近修订", activity: "最近编辑", detail: "详情", selected: "已选中", filters: "筛选", allTags: "全部标签", close: "关闭", count: "条目", incomplete: "资料待补充", full: "内容齐备", state: "状态快照", noImage: "暂无图片", clear: "清空筛选", result: "搜索结果", waiting: "等待补齐中英文完整度"
+  },
+  en: { dashboard: "Dashboard", concepts: "Concepts", library: "Library", new: "New Concept", all: "All concepts", search: "Search name, description, tags…", dashboardTitle: "Turn good ideas into reusable tools.", dashboardSub: "Your Concept workspace. Start with catalog readiness and keep shaping your library.", viewAll: "View all concepts", updated: "Recently revised", language: "Language readiness", total: "Total Concepts", ready: "Recommendation ready", collection: "Catalog overview", latest: "Latest changes", view: "View details", edit: "Edit", draft: "Draft", readyLabel: "Ready", allFilter: "All status", readyFilter: "Ready", draftFilter: "Draft", noResults: "No matching concepts found.", sample: "Sample data · metrics pending", demo: "Temporary UI Demo", data: "In-memory sample data", catalog: "Concept Catalog", overview: "Workspace overview", save: "Save Concept", create: "Create Concept", cancel: "Cancel", title: "Title", description: "Description", image: "Image URL", tags: "Tags (comma-separated)", wiki: "Wiki URL (optional)", notes: "Notes", cn: "中文", en: "English", editTitle: "Edit Concept", createTitle: "New Concept", deleted: "Removed from this in-memory session", saved: "Saved to in-memory state", empty: "No concepts yet", languageReady: "Language completeness", recent: "Recent revisions", activity: "Recent edits", detail: "Detail", selected: "Selected", filters: "Filters", allTags: "All tags", close: "Close", count: "items", incomplete: "Needs content", full: "Complete", state: "State snapshot", noImage: "No image", clear: "Clear filters", result: "Search results", waiting: "Waiting for bilingual content"
+  }
+};
+
+const variantInfo: Record<Variant, string> = { A: "Dashboard first", B: "Card First", C: "Workspace" };
+function readVariant(): Variant {
+  const v = new URLSearchParams(window.location.search).get("variant");
+  return v === "B" || v === "C" ? v : "A";
+}
+
+function useVariant() {
+  const [variant, setVariant] = useState<Variant>(readVariant);
+  useEffect(() => {
+    const onPop = () => setVariant(readVariant());
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+  const change = (next: Variant) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("variant", next);
+    window.history.pushState({}, "", url);
+    setVariant(next);
+  };
+  return [variant, change] as const;
+}
+
+function App() {
+  const [variant, setVariant] = useVariant();
+  const [locale, setLocale] = useState<Locale>("cn");
+  const [concepts, setConcepts] = useState(seed);
+  const [page, setPage] = useState<"dashboard" | "concepts">(variant === "A" ? "dashboard" : "concepts");
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [tagFilter, setTagFilter] = useState("all");
+  const [selectedId, setSelectedId] = useState(seed[0].id);
+  const [formOpen, setFormOpen] = useState(false);
+  const [formSource, setFormSource] = useState<Concept | null>(null);
+  const [notice, setNotice] = useState("");
+  const [showState, setShowState] = useState(false);
+  const t = labels[locale];
+  const selected = concepts.find((c) => c.id === selectedId) ?? concepts[0];
+
+  useEffect(() => { setPage(variant === "B" || variant === "C" ? "concepts" : "dashboard"); }, [variant]);
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const node = event.target as HTMLElement | null;
+      if (node?.matches("input, textarea, [contenteditable='true']")) return;
+      if (event.key === "ArrowLeft") setVariant(variant === "A" ? "C" : variant === "B" ? "A" : "B");
+      if (event.key === "ArrowRight") setVariant(variant === "A" ? "B" : variant === "B" ? "C" : "A");
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [variant, setVariant]);
+  useEffect(() => { if (!notice) return; const id = window.setTimeout(() => setNotice(""), 2600); return () => window.clearTimeout(id); }, [notice]);
+
+  const filtered = useMemo(() => concepts.filter((c) => {
+    const text = `${c.cnTitle} ${c.enTitle} ${c.cnDescription} ${c.enDescription} ${c.tags.join(" ")}`.toLowerCase();
+    return (!search || text.includes(search.toLowerCase())) && (statusFilter === "all" || c.status.toLowerCase() === statusFilter) && (tagFilter === "all" || c.tags.includes(tagFilter));
+  }), [concepts, search, statusFilter, tagFilter]);
+  const allTags = Array.from(new Set(concepts.flatMap((c) => c.tags)));
+  const fullCn = concepts.filter((c) => c.cnTitle && c.cnDescription && c.cnImage).length;
+  const fullEn = concepts.filter((c) => c.enTitle && c.enDescription && c.enImage).length;
+
+  const openCreate = () => { setFormSource(null); setFormOpen(true); };
+  const openEdit = (concept: Concept) => { setFormSource(concept); setFormOpen(true); };
+  const saveConcept = (draft: ConceptDraft) => {
+    const now = new Intl.DateTimeFormat(locale === "cn" ? "zh-CN" : "en", { hour: "2-digit", minute: "2-digit" }).format(new Date());
+    if (formSource) {
+      setConcepts((current) => current.map((c) => c.id === formSource.id ? { ...c, ...draft, updatedAt: `${locale === "cn" ? "今天" : "Today"} ${now}` } : c));
+      setSelectedId(formSource.id);
+      setNotice(t.saved);
+    } else {
+      const id = `co-${Math.floor(100 + Math.random() * 900)}`;
+      const created = { ...draft, id, updatedAt: `${locale === "cn" ? "今天" : "Today"} ${now}`, status: "Draft" as const };
+      setConcepts((current) => [created, ...current]); setSelectedId(id); setNotice(t.saved); setPage("concepts");
+    }
+    setFormOpen(false);
+  };
+  const removeConcept = (concept: Concept) => {
+    setConcepts((current) => current.filter((c) => c.id !== concept.id));
+    setSelectedId((current) => current === concept.id ? (concepts.find((c) => c.id !== concept.id)?.id ?? "") : current);
+    setNotice(t.deleted);
+  };
+
+  const goTo = (next: "dashboard" | "concepts") => setPage(next);
+
+  return <div className="min-h-screen bg-canvas text-ink">
+    <header className="sticky top-0 z-30 flex h-[68px] items-center justify-between border-b border-line bg-white/95 px-6 backdrop-blur xl:px-10">
+      <div className="flex items-center gap-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#e9f0ec] text-brand"><Compass size={19} strokeWidth={2.4} /></div>
+        <div><div className="text-[14px] font-semibold tracking-tight">Concept Discovery</div><div className="text-[10px] font-medium uppercase tracking-[.14em] text-muted">Local Workspace</div></div>
+        <div className="ml-2 hidden h-7 items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800 sm:flex"><span className="h-1.5 w-1.5 rounded-full bg-amber-500" />{t.demo}</div>
+      </div>
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className="hidden items-center gap-1 rounded-lg border border-line bg-slate-50 p-1 md:flex"><button className={`rounded-md px-2.5 py-1 text-xs ${locale === "cn" ? "bg-white text-ink shadow-sm" : "text-muted"}`} onClick={() => setLocale("cn")}>中</button><button className={`rounded-md px-2.5 py-1 text-xs ${locale === "en" ? "bg-white text-ink shadow-sm" : "text-muted"}`} onClick={() => setLocale("en")}>EN</button></div>
+        <div className="hidden h-8 items-center gap-1.5 rounded-full border border-line px-2.5 text-[11px] text-muted lg:flex"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />{t.data}</div>
+        <Button variant="ghost" size="icon" aria-label="Help"><CircleHelp size={17} /></Button>
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#dfeae3] text-[11px] font-semibold text-brand">KH</div>
+      </div>
+    </header>
+
+    <div className="flex min-h-[calc(100vh-68px)]">
+      {variant !== "C" && <aside className="hidden w-[228px] shrink-0 border-r border-line bg-white px-4 py-7 lg:block">
+        <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[.16em] text-slate-400">Workspace</p>
+        <nav className="space-y-1">
+          <NavItem icon={<LayoutDashboard size={17} />} active={(variant === "B" ? page === "dashboard" : page === "dashboard")} onClick={() => goTo("dashboard")}>{t.dashboard}</NavItem>
+          <NavItem icon={<Grid2X2 size={17} />} active={page === "concepts"} onClick={() => goTo("concepts")}>{t.concepts}<span className="ml-auto rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] text-muted">{concepts.length}</span></NavItem>
+        </nav>
+        <div className="my-7 border-t border-line" />
+        <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[.16em] text-slate-400">Library</p>
+        <div className="px-3 py-2 text-sm text-slate-400"><BookOpen className="mr-2 inline-block" size={16} />{t.catalog}</div>
+        <div className="absolute bottom-24 left-5 hidden w-[188px] rounded-xl border border-line bg-[#fafbfc] p-3 text-[11px] leading-5 text-muted xl:block"><span className="mb-1 flex items-center gap-1.5 font-semibold text-ink"><Database size={13} />Prototype state</span>Edits live in memory and reset when you reload.</div>
+      </aside>}
+      {variant !== "C" && <div className="absolute left-0 right-0 top-[68px] z-20 flex items-center justify-between border-b border-line bg-white px-4 py-2 lg:hidden"><nav className="flex gap-1"><button onClick={() => goTo("dashboard")} className={`rounded-lg px-3 py-2 text-xs ${page === "dashboard" ? "bg-[#eef4f0] font-medium text-brand" : "text-muted"}`}><LayoutDashboard size={14} className="mr-1.5 inline" />{t.dashboard}</button><button onClick={() => goTo("concepts")} className={`rounded-lg px-3 py-2 text-xs ${page === "concepts" ? "bg-[#eef4f0] font-medium text-brand" : "text-muted"}`}><Grid2X2 size={14} className="mr-1.5 inline" />{t.concepts}</button></nav><div className="flex items-center gap-1 rounded-lg bg-slate-50 p-1"><button className={`rounded-md px-2 py-1 text-[10px] ${locale === "cn" ? "bg-white shadow-sm" : "text-muted"}`} onClick={() => setLocale("cn")}>中</button><button className={`rounded-md px-2 py-1 text-[10px] ${locale === "en" ? "bg-white shadow-sm" : "text-muted"}`} onClick={() => setLocale("en")}>EN</button></div></div>}
+
+      <main className={`min-w-0 flex-1 ${variant !== "C" ? "pt-0 max-lg:pt-[47px]" : ""}`}>
+        {variant === "C" ? page === "dashboard" ? <><div className="flex justify-end border-b border-line bg-white px-6 py-3"><Button variant="secondary" size="sm" onClick={() => goTo("concepts")}><Grid2X2 size={14} />{t.concepts}</Button></div><Dashboard {...{ t, concepts, fullCn, fullEn, goTo, openCreate, setSelectedId, setLocale }} /></> : <WorkspaceLayout {...{ t, locale, concepts, filtered, selected, selectedId, setSelectedId, search, setSearch, statusFilter, setStatusFilter, tagFilter, setTagFilter, allTags, openCreate, openEdit, removeConcept, goTo, page, fullCn, fullEn }} /> : page === "dashboard" ? <Dashboard {...{ t, concepts, fullCn, fullEn, goTo, openCreate, setSelectedId, setLocale }} /> : <ConceptsPage {...{ t, locale, concepts, filtered, selectedId, setSelectedId, search, setSearch, statusFilter, setStatusFilter, tagFilter, setTagFilter, allTags, openCreate, openEdit, removeConcept }} />}
+      </main>
+    </div>
+
+    <Dialog open={formOpen} onOpenChange={setFormOpen}>
+      <DialogContent>
+        <ConceptForm key={formSource?.id ?? "new"} initial={formSource ?? blankDraft} editing={!!formSource} t={t} onCancel={() => setFormOpen(false)} onSave={saveConcept} />
+      </DialogContent>
+    </Dialog>
+
+    {notice && <div className="fixed right-5 top-[82px] z-[70] flex items-center gap-2 rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm shadow-lg"><span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-50 text-emerald-700"><Check size={14} /></span>{notice}</div>}
+
+    {import.meta.env.DEV && <>
+      <div className="fixed bottom-5 left-1/2 z-40 flex -translate-x-1/2 items-center gap-1 rounded-2xl border border-slate-700/10 bg-[#17212d] p-1.5 text-white shadow-[0_12px_35px_rgba(16,25,34,.24)]">
+        <button onClick={() => setVariant(variant === "A" ? "C" : variant === "B" ? "A" : "B")} aria-label="Previous layout" className="flex h-8 w-8 items-center justify-center rounded-lg text-white/70 hover:bg-white/10 hover:text-white"><ArrowLeft size={15} /></button>
+        {(["A", "B", "C"] as Variant[]).map((v) => <button key={v} onClick={() => setVariant(v)} className={`rounded-lg px-3 py-2 text-[11px] font-semibold transition ${variant === v ? "bg-white text-ink" : "text-white/70 hover:bg-white/10 hover:text-white"}`}>{v}<span className="ml-1.5 hidden text-[10px] font-normal sm:inline">{variantInfo[v]}</span></button>)}
+        <button onClick={() => setVariant(variant === "A" ? "B" : variant === "B" ? "C" : "A")} aria-label="Next layout" className="flex h-8 w-8 items-center justify-center rounded-lg text-white/70 hover:bg-white/10 hover:text-white"><ArrowRight size={15} /></button>
+        <div className="mx-1 h-5 w-px bg-white/15" />
+        <button onClick={() => setShowState((v) => !v)} className="flex items-center gap-1.5 rounded-lg px-2 py-2 text-[10px] text-white/70 hover:bg-white/10"><Command size={12} />{t.state}</button>
+      </div>
+      {showState && <div className="fixed bottom-[76px] left-1/2 z-40 w-[min(620px,calc(100vw-24px))] -translate-x-1/2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"><div className="flex items-center justify-between border-b border-line px-4 py-3"><div><div className="text-xs font-semibold">In-memory Concept state</div><div className="text-[10px] text-muted">{concepts.length} records · reload to reset</div></div><button onClick={() => setShowState(false)} className="rounded-md p-1 text-muted hover:bg-slate-100"><X size={15} /></button></div><pre className="scroll-thin max-h-[34vh] overflow-auto bg-slate-50 p-4 text-[10px] leading-5 text-slate-600">{JSON.stringify(concepts, null, 2)}</pre></div>}
+    </>}
+  </div>;
+}
+
+export default App;
+
+function NavItem({ icon, active, onClick, children }: { icon: React.ReactNode; active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return <button onClick={onClick} className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[13px] transition ${active ? "bg-[#eef4f0] font-medium text-brand" : "text-slate-500 hover:bg-slate-50 hover:text-ink"}`}>{icon}{children}</button>;
+}
+
+function Dashboard({ t, concepts, fullCn, fullEn, goTo, openCreate, setSelectedId, setLocale }: { t: typeof labels.cn; concepts: Concept[]; fullCn: number; fullEn: number; goTo: (page: "dashboard" | "concepts") => void; openCreate: () => void; setSelectedId: (id: string) => void; setLocale: (locale: Locale) => void }) {
+  const recent = concepts.slice(0, 4);
+  return <div className="mx-auto max-w-[1440px] px-6 py-9 pb-28 xl:px-10">
+    <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+      <div><div className="mb-2 flex items-center gap-2 text-[11px] font-medium text-muted"><span>{t.overview}</span><span>/</span><span className="text-brand">{t.dashboard}</span></div><h1 className="max-w-2xl text-[28px] font-semibold leading-tight tracking-[-.035em] md:text-[34px]">{t.dashboardTitle}</h1><p className="mt-2 text-[13px] text-muted">{t.dashboardSub}</p></div>
+      <div className="flex gap-2"><Button variant="secondary" onClick={openCreate}><Plus size={15} />{t.new}</Button><Button onClick={() => goTo("concepts")}>{t.viewAll}<ArrowUpRight size={15} /></Button></div>
+    </div>
+    <div className="mb-4 flex items-center gap-2 text-[10px] font-medium text-amber-800"><span className="rounded-full bg-amber-100 px-2.5 py-1">{t.sample}</span><span className="text-slate-400">These values are illustrative, not usage analytics.</span></div>
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <MetricCard label={t.total} value={concepts.length.toString().padStart(2, "0")} caption="Across both locales" icon={<Grid2X2 size={17} />} delta="+2 this month" />
+      <MetricCard label="中文 · 完整度" value={`${concepts.length ? Math.round(fullCn / concepts.length * 100) : 0}%`} caption={`${fullCn} of ${concepts.length} have image + copy`} icon={<Globe2 size={17} />} delta={`${fullCn} ${t.count}`} />
+      <MetricCard label="English · Readiness" value={`${concepts.length ? Math.round(fullEn / concepts.length * 100) : 0}%`} caption={`${fullEn} of ${concepts.length} have image + copy`} icon={<Globe2 size={17} />} delta={`${fullEn} ${t.count}`} />
+      <MetricCard label={t.ready} value={concepts.filter((c) => c.status === "Ready").length.toString().padStart(2, "0")} caption={t.waiting} icon={<Sparkles size={17} />} delta="Pending definition" />
+    </div>
+    <div className="mt-6 grid gap-5 xl:grid-cols-[1.3fr_.7fr]">
+      <Card className="overflow-hidden"><div className="flex items-center justify-between border-b border-line px-5 py-4"><div><h2 className="text-sm font-semibold">{t.language}</h2><p className="mt-1 text-[11px] text-muted">{t.sample}</p></div><Badge variant="outline"><Globe2 size={12} className="mr-1" />cn / en</Badge></div><div className="grid divide-y divide-line sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+        <ReadinessCard name="中文内容" lang="cn" full={fullCn} total={concepts.length} onClick={() => { setLocale("cn"); goTo("concepts"); }} />
+        <ReadinessCard name="English content" lang="en" full={fullEn} total={concepts.length} onClick={() => { setLocale("en"); goTo("concepts"); }} />
+      </div></Card>
+      <Card><div className="flex items-center justify-between border-b border-line px-5 py-4"><div><h2 className="text-sm font-semibold">{t.updated}</h2><p className="mt-1 text-[11px] text-muted">Revision feed · sample</p></div><button className="text-xs font-medium text-brand" onClick={() => goTo("concepts")}>{t.viewAll}</button></div><div className="px-5 py-1">{recent.map((c, index) => <button key={c.id} onClick={() => { setSelectedId(c.id); goTo("concepts"); }} className="flex w-full items-center gap-3 border-b border-line py-3.5 text-left last:border-0"><div className={`flex h-8 w-8 items-center justify-center rounded-full ${index === 0 ? "bg-[#eaf2ed] text-brand" : "bg-slate-100 text-slate-500"}`}><Pencil size={13} /></div><div className="min-w-0 flex-1"><div className="truncate text-xs font-medium">{c.cnTitle}</div><div className="mt-1 text-[10px] text-muted">{t.edit} · {c.updatedAt}</div></div><ArrowUpRight size={14} className="text-slate-400" /></button>)}</div></Card>
+    </div>
+    <div className="mt-6 rounded-xl border border-dashed border-slate-300 bg-white/60 px-5 py-4"><div className="flex items-start gap-3"><div className="mt-0.5 rounded-lg bg-slate-100 p-2 text-slate-500"><ListFilter size={15} /></div><div><div className="text-xs font-semibold">Dashboard metrics are provisional</div><p className="mt-1 max-w-3xl text-[11px] leading-5 text-muted">Counts, language completeness and revision activity above use local seed data. Recommendation readiness rules and real usage analytics will be defined in a later product phase.</p></div></div></div>
+  </div>;
+}
+
+function MetricCard({ label, value, caption, icon, delta }: { label: string; value: string; caption: string; icon: React.ReactNode; delta: string }) {
+  return <Card className="p-5"><div className="mb-4 flex items-center justify-between"><span className="text-[11px] font-medium text-muted">{label}</span><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f0f4f1] text-brand">{icon}</span></div><div className="flex items-end justify-between"><div><div className="text-[30px] font-semibold leading-none tracking-[-.04em]">{value}</div><p className="mt-2 text-[10px] text-muted">{caption}</p></div><span className="text-[10px] text-slate-400">{delta}</span></div></Card>;
+}
+
+function ReadinessCard({ name, lang, full, total, onClick }: { name: string; lang: Locale; full: number; total: number; onClick: () => void }) {
+  const value = total ? Math.round(full / total * 100) : 0;
+  return <button onClick={onClick} className="p-5 text-left transition hover:bg-slate-50"><div className="mb-3 flex items-center justify-between"><div className="flex items-center gap-2"><span className="flex h-6 min-w-6 items-center justify-center rounded-md bg-slate-100 px-1 text-[10px] font-semibold text-slate-600">{lang.toUpperCase()}</span><span className="text-xs font-medium">{name}</span></div><span className="text-xs font-semibold">{value}%</span></div><div className="h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-brand transition-all" style={{ width: `${value}%` }} /></div><div className="mt-2 flex justify-between text-[10px] text-muted"><span>{full} / {total} {lang === "cn" ? "条目齐备" : "complete entries"}</span><span>View <ArrowRight className="ml-1 inline" size={11} /></span></div></button>;
+}
+
+type ListingProps = {
+  t: typeof labels.cn; locale: Locale; concepts: Concept[]; filtered: Concept[]; selectedId: string; setSelectedId: (id: string) => void;
+  search: string; setSearch: (s: string) => void; statusFilter: string; setStatusFilter: (s: string) => void; tagFilter: string; setTagFilter: (s: string) => void;
+  allTags: string[]; openCreate: () => void; openEdit: (c: Concept) => void; removeConcept: (c: Concept) => void;
+};
+
+function ConceptsPage(props: ListingProps) {
+  const { t, locale, filtered, concepts, selectedId, setSelectedId, search, setSearch, statusFilter, setStatusFilter, tagFilter, setTagFilter, allTags, openCreate, openEdit, removeConcept } = props;
+  return <div className="mx-auto max-w-[1440px] px-6 py-9 pb-28 xl:px-10">
+    <div className="mb-7 flex flex-wrap items-end justify-between gap-4"><div><div className="mb-2 text-[11px] font-medium text-muted">Workspace / {t.library}</div><h1 className="text-[30px] font-semibold tracking-[-.035em]">{t.all}</h1><p className="mt-1.5 text-[13px] text-muted">A calm place to collect and maintain reusable concepts.</p></div><Button onClick={openCreate}><Plus size={16} />{t.new}</Button></div>
+    <div className="mb-5 flex flex-wrap items-center gap-2"><div className="relative min-w-[240px] flex-1 sm:max-w-[380px]"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t.search} className="pl-9" /></div><FilterSelect value={statusFilter} onChange={setStatusFilter} options={[["all", t.allFilter], ["ready", t.readyFilter], ["draft", t.draftFilter]]} /><FilterSelect value={tagFilter} onChange={setTagFilter} options={[["all", t.allTags], ...allTags.map((tag) => [tag, tag] as [string, string])]} /><span className="ml-auto text-[11px] text-muted">{filtered.length} / {concepts.length} {t.count}</span></div>
+    {filtered.length ? <div className="grid gap-5 sm:grid-cols-2 2xl:grid-cols-3">{filtered.map((c) => <ConceptCard key={c.id} concept={c} locale={locale} t={t} selected={c.id === selectedId} onSelect={() => setSelectedId(c.id)} onEdit={() => openEdit(c)} onDelete={() => removeConcept(c)} />)}</div> : <EmptyState t={t} onClear={() => { setSearch(""); setStatusFilter("all"); setTagFilter("all"); }} />}
+    <div className="mt-7 flex items-center justify-between border-t border-line pt-4 text-[10px] text-muted"><span>6 seed concepts · current session edits stay in memory</span><span>Showing {filtered.length} of {concepts.length}</span></div>
+  </div>;
+}
+
+function WorkspaceLayout(props: ListingProps & { selected: Concept | undefined; goTo: (p: "dashboard" | "concepts") => void; page: "dashboard" | "concepts"; fullCn: number; fullEn: number }) {
+  const { t, locale, concepts, filtered, selected, selectedId, setSelectedId, search, setSearch, statusFilter, setStatusFilter, tagFilter, setTagFilter, allTags, openCreate, openEdit, removeConcept, goTo, fullCn, fullEn } = props;
+  const conceptTitle = selected ? (locale === "cn" ? selected.cnTitle : selected.enTitle) || selected.cnTitle || selected.enTitle : "";
+  const description = selected ? (locale === "cn" ? selected.cnDescription : selected.enDescription) || selected.cnDescription || selected.enDescription : "";
+  return <div className="min-h-[calc(100vh-68px)] pb-28">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-white px-5 py-4 xl:px-7"><div><div className="mb-1 text-[10px] text-muted">Concept Discovery / {t.library}</div><h1 className="text-lg font-semibold">{t.catalog}<span className="ml-2 text-xs font-normal text-muted">{concepts.length} concepts</span></h1></div><div className="flex items-center gap-2"><button onClick={() => goTo("dashboard")} className="rounded-lg px-3 py-2 text-xs text-muted hover:bg-slate-50"><LayoutDashboard size={14} className="mr-1.5 inline" />{t.dashboard}</button><Button size="sm" onClick={openCreate}><Plus size={14} />{t.new}</Button></div></div>
+    <div className="grid min-h-[calc(100vh-140px)] xl:grid-cols-[230px_minmax(330px,410px)_minmax(360px,1fr)]">
+      <aside className="border-b border-line bg-[#fafbfc] p-5 xl:border-b-0 xl:border-r"><div className="mb-5 flex items-center justify-between"><h2 className="text-xs font-semibold uppercase tracking-[.1em] text-slate-500">{t.filters}</h2><SlidersHorizontal size={15} className="text-slate-400" /></div><label className="mb-2 block text-[10px] font-semibold text-muted">Search</label><div className="relative mb-5"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t.search} className="pl-9 text-xs" /></div><label className="mb-2 block text-[10px] font-semibold text-muted">Status</label><div className="mb-5 space-y-1">{[["all", t.allFilter], ["ready", t.readyFilter], ["draft", t.draftFilter]].map(([v, label]) => <button key={v} onClick={() => setStatusFilter(v)} className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs ${statusFilter === v ? "bg-[#eaf1ec] font-medium text-brand" : "text-muted hover:bg-white"}`}>{label}<span>{v === "all" ? concepts.length : concepts.filter((c) => c.status.toLowerCase() === v).length}</span></button>)}</div><label className="mb-2 block text-[10px] font-semibold text-muted">Tags</label><div className="flex flex-wrap gap-1.5">{["all", ...allTags].map((tag) => <button key={tag} onClick={() => setTagFilter(tag)} className={`rounded-md px-2 py-1.5 text-[10px] ${tagFilter === tag ? "bg-brand text-white" : "bg-white text-muted ring-1 ring-line hover:text-ink"}`}>{tag === "all" ? t.allTags : tag}</button>)}</div><div className="mt-8 rounded-xl border border-line bg-white p-3"><div className="mb-2 text-[10px] font-semibold text-muted">LANGUAGE COMPLETENESS · SAMPLE</div><div className="space-y-2 text-[11px]"><div className="flex justify-between"><span>中文</span><span className="font-medium">{fullCn}/{concepts.length}</span></div><div className="h-1.5 rounded-full bg-slate-100"><div className="h-full rounded-full bg-brand" style={{ width: `${concepts.length ? fullCn / concepts.length * 100 : 0}%` }} /></div><div className="flex justify-between pt-1"><span>English</span><span className="font-medium">{fullEn}/{concepts.length}</span></div><div className="h-1.5 rounded-full bg-slate-100"><div className="h-full rounded-full bg-[#8ba99a]" style={{ width: `${concepts.length ? fullEn / concepts.length * 100 : 0}%` }} /></div></div></div></aside>
+      <section className="border-b border-line bg-[#f6f7f9] xl:border-b-0 xl:border-r"><div className="flex items-center justify-between border-b border-line bg-white/70 px-4 py-3"><div className="text-xs font-semibold">{t.result} <span className="ml-1 font-normal text-muted">{filtered.length}</span></div><button aria-label="Sort" className="rounded-md p-2 text-muted hover:bg-white"><ArrowDownWideNarrow size={15} /></button></div><div className="scroll-thin h-[calc(100vh-184px)] space-y-3 overflow-y-auto p-3">{filtered.map((c) => <WorkspaceRow key={c.id} concept={c} locale={locale} selected={selectedId === c.id} onClick={() => setSelectedId(c.id)} />)}{!filtered.length && <div className="rounded-xl border border-dashed border-slate-300 bg-white p-7 text-center text-xs text-muted">{t.noResults}</div>}</div></section>
+      <section className="min-w-0 bg-white"><div className="flex items-center justify-between border-b border-line px-5 py-3.5"><div className="flex items-center gap-2 text-[11px] text-muted"><span>{t.detail}</span><span>/</span><span className="font-medium text-ink">{selected ? selected.id : "—"}</span></div>{selected && <div className="flex gap-1"><Button variant="ghost" size="icon" onClick={() => openEdit(selected)} aria-label={t.edit}><Pencil size={15} /></Button><Button variant="ghost" size="icon" onClick={() => removeConcept(selected)} aria-label="Delete"><Trash2 size={15} /></Button></div>}</div>
+        {selected ? <div className="mx-auto max-w-[780px] p-5 md:p-8"><div className="relative mb-6 h-[210px] overflow-hidden rounded-2xl bg-slate-100"><img src={locale === "cn" ? selected.cnImage : selected.enImage} onError={(e) => { e.currentTarget.style.display = "none"; }} className="h-full w-full object-cover" /><div className="absolute inset-0 bg-gradient-to-t from-slate-950/55 via-transparent to-transparent" /><div className="absolute bottom-5 left-5 right-5"><Badge variant="soft" className="mb-3 bg-white/90 text-brand">{selected.status === "Ready" ? t.readyLabel : t.draft}</Badge><h2 className="text-2xl font-semibold tracking-tight text-white">{conceptTitle}</h2></div></div><p className="text-sm leading-7 text-slate-600">{description || t.incomplete}</p><div className="my-6 flex flex-wrap gap-2">{selected.tags.map((tag) => <Badge key={tag} variant="outline">{tag}</Badge>)}</div><div className="grid gap-4 sm:grid-cols-2"><DetailBox label={t.wiki} value={selected.wikiUrl || "—"} /><DetailBox label={t.notes} value={selected.notes || "—"} /><DetailBox label="中文标题" value={selected.cnTitle || "—"} /><DetailBox label="English title" value={selected.enTitle || "—"} /><DetailBox label="中文图片" value={selected.cnImage ? "Image attached" : t.noImage} /><DetailBox label="English image" value={selected.enImage ? "Image attached" : t.noImage} /></div><div className="mt-7 flex items-center justify-between border-t border-line pt-4 text-[10px] text-muted"><span>Last revised · {selected.updatedAt}</span><span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-amber-500" />Prototype record</span></div></div> : <div className="flex h-[60vh] items-center justify-center text-sm text-muted">{t.empty}</div>}
+      </section>
+    </div>
+  </div>;
+}
+
+function DetailBox({ label, value }: { label: string; value: string }) {
+  return <div className="rounded-xl border border-line p-3.5"><div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">{label}</div><div className="break-words text-xs leading-5 text-slate-600">{value}</div></div>;
+}
+
+function WorkspaceRow({ concept, locale, selected, onClick }: { concept: Concept; locale: Locale; selected: boolean; onClick: () => void }) {
+  const title = (locale === "cn" ? concept.cnTitle : concept.enTitle) || concept.cnTitle || concept.enTitle;
+  const desc = (locale === "cn" ? concept.cnDescription : concept.enDescription) || concept.cnDescription || concept.enDescription;
+  return <button onClick={onClick} className={`w-full rounded-xl border bg-white p-3 text-left transition ${selected ? "border-brand/40 shadow-[0_0_0_2px_rgba(65,107,91,.1)]" : "border-line hover:border-slate-300"}`}><div className="mb-3 flex h-[112px] items-center justify-center overflow-hidden rounded-lg bg-slate-100"><img src={locale === "cn" ? concept.cnImage : concept.enImage} onError={(e) => { e.currentTarget.style.display = "none"; }} className="h-full w-full object-cover" /><div className="absolute" /></div><div className="flex items-start justify-between gap-2"><div className="text-sm font-semibold">{title}</div><span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${concept.status === "Ready" ? "bg-emerald-500" : "bg-amber-400"}`} /></div><p className="mt-1.5 line-clamp-2 text-[11px] leading-5 text-muted">{desc}</p><div className="mt-3 flex items-center justify-between"><div className="flex gap-1">{concept.tags.slice(0, 2).map((tag) => <Badge key={tag} variant="outline" className="px-2 py-0.5 text-[9px]">{tag}</Badge>)}</div><span className="text-[9px] text-slate-400">{concept.updatedAt}</span></div></button>;
+}
+
+function ConceptCard({ concept, locale, t, selected, onSelect, onEdit, onDelete }: { concept: Concept; locale: Locale; t: typeof labels.cn; selected: boolean; onSelect: () => void; onEdit: () => void; onDelete: () => void }) {
+  const title = (locale === "cn" ? concept.cnTitle : concept.enTitle) || concept.cnTitle || concept.enTitle;
+  const desc = (locale === "cn" ? concept.cnDescription : concept.enDescription) || concept.cnDescription || concept.enDescription;
+  const image = locale === "cn" ? concept.cnImage : concept.enImage;
+  return <Card className={`group overflow-hidden transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_15px_35px_rgba(21,35,47,.11)] ${selected ? "ring-1 ring-brand/30" : ""}`}>
+    <button onClick={onSelect} className="relative block h-[168px] w-full overflow-hidden bg-[#e6ebe7] text-left"><img src={image} onError={(e) => { e.currentTarget.style.display = "none"; }} className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.025]" /><div className="absolute inset-0 bg-gradient-to-t from-slate-950/45 via-transparent to-transparent" /><div className="absolute bottom-3.5 left-4 right-4 flex items-end justify-between"><Badge variant="soft" className="bg-white/90 text-brand">{concept.status === "Ready" ? t.readyLabel : t.draft}</Badge><span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-slate-700"><ArrowUpRight size={15} /></span></div></button>
+    <div className="p-4"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="truncate text-[16px] font-semibold tracking-tight">{title}</div><div className="mt-1 truncate text-[10px] font-medium uppercase tracking-[.09em] text-slate-400">{locale === "cn" ? concept.enTitle : concept.cnTitle}</div></div><button onClick={onEdit} aria-label={t.edit} className="rounded-md p-2 text-slate-400 opacity-100 hover:bg-slate-100 hover:text-ink sm:opacity-0 sm:group-hover:opacity-100"><MoreHorizontal size={17} /></button></div><p className="mt-3 line-clamp-2 min-h-[42px] text-[12px] leading-[1.75] text-slate-600">{desc}</p><div className="mt-3 flex flex-wrap gap-1.5">{concept.tags.map((tag) => <Badge key={tag} variant="outline" className="px-2 py-0.5 text-[10px]">{tag}</Badge>)}</div><div className="mt-4 flex items-center justify-between border-t border-line pt-3"><span className="text-[10px] text-slate-400">{t.updated} · {concept.updatedAt}</span><div className="flex items-center gap-1"><button onClick={onEdit} className="rounded-md px-2 py-1 text-[10px] font-medium text-muted hover:bg-slate-100 hover:text-ink"><Pencil size={11} className="mr-1 inline" />{t.edit}</button><button onClick={onDelete} className="rounded-md p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600" aria-label="Delete"><Trash2 size={13} /></button></div></div></div>
+  </Card>;
+}
+
+function FilterSelect({ value, onChange, options }: { value: string; onChange: (value: string) => void; options: [string, string][] }) {
+  return <div className="relative"><select value={value} onChange={(e) => onChange(e.target.value)} className="h-10 appearance-none rounded-lg border border-line bg-white py-2 pl-3 pr-8 text-xs text-slate-600 outline-none focus:ring-2 focus:ring-brand/10">{options.map(([v, label]) => <option key={v} value={v}>{label}</option>)}</select><ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} /></div>;
+}
+
+function EmptyState({ t, onClear }: { t: typeof labels.cn; onClear: () => void }) {
+  return <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white/60 px-5 text-center"><div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400"><Search size={19} /></div><h3 className="text-sm font-semibold">{t.noResults}</h3><p className="mt-1.5 text-xs text-muted">Adjust your search or remove a filter.</p><Button variant="outline" size="sm" onClick={onClear} className="mt-4">{t.clear}</Button></div>;
+}
+
+function ConceptForm({ initial, editing, t, onCancel, onSave }: { initial: Concept | ConceptDraft; editing: boolean; t: typeof labels.cn; onCancel: () => void; onSave: (draft: ConceptDraft) => void }) {
+  const [draft, setDraft] = useState<ConceptDraft>({ cnTitle: initial.cnTitle, enTitle: initial.enTitle, cnDescription: initial.cnDescription, enDescription: initial.enDescription, cnImage: initial.cnImage, enImage: initial.enImage, wikiUrl: initial.wikiUrl, tags: [...initial.tags], notes: initial.notes });
+  const update = <K extends keyof ConceptDraft>(key: K, value: ConceptDraft[K]) => setDraft((current) => ({ ...current, [key]: value }));
+  const field = (key: keyof ConceptDraft, label: string, placeholder: string) => <label className="block"><span className="mb-1.5 block text-[11px] font-medium text-slate-600">{label}</span><Input value={typeof draft[key] === "string" ? draft[key] as string : ""} onChange={(e) => update(key, e.target.value as never)} placeholder={placeholder} /></label>;
+  return <form onSubmit={(e) => { e.preventDefault(); onSave(draft); }}>
+    <div className="border-b border-line px-6 py-5"><div className="mb-1 text-[10px] font-semibold uppercase tracking-[.14em] text-brand">{editing ? "Update record" : "Add to your library"}</div><DialogTitle className="text-lg font-semibold tracking-tight">{editing ? t.editTitle : t.createTitle}</DialogTitle><DialogDescription className="mt-1 text-xs text-muted">Both language versions are edited independently. Changes stay in memory.</DialogDescription></div>
+    <div className="space-y-5 p-6">
+      <div><div className="mb-3 flex items-center gap-2 text-xs font-semibold"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#eaf1ec] text-[10px] text-brand">中</span>中文内容</div><div className="grid gap-3 sm:grid-cols-2">{field("cnTitle", "中文标题", "例如：逆向思维")}<div className="sm:col-span-2"><label className="mb-1.5 block text-[11px] font-medium text-slate-600">中文描述</label><Textarea rows={3} value={draft.cnDescription} onChange={(e) => update("cnDescription", e.target.value)} placeholder="用一两句话说明这个 Concept…" /></div><div className="sm:col-span-2">{field("cnImage", "中文图片 URL", "https://…")}</div></div></div>
+      <div className="border-t border-line pt-5"><div className="mb-3 flex items-center gap-2 text-xs font-semibold"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-[9px] text-slate-600">EN</span>English content</div><div className="grid gap-3 sm:grid-cols-2">{field("enTitle", "English title", "e.g. Inversion")}<div className="sm:col-span-2"><label className="mb-1.5 block text-[11px] font-medium text-slate-600">English description</label><Textarea rows={3} value={draft.enDescription} onChange={(e) => update("enDescription", e.target.value)} placeholder="Describe the concept in one or two sentences…" /></div><div className="sm:col-span-2">{field("enImage", "English image URL", "https://…")}</div></div></div>
+      <div className="grid gap-3 border-t border-line pt-5 sm:grid-cols-2">{field("wikiUrl", t.wiki, "https://en.wikipedia.org/wiki/…")}<label className="block"><span className="mb-1.5 block text-[11px] font-medium text-slate-600">{t.tags}</span><Input value={draft.tags.join(", ")} onChange={(e) => update("tags", e.target.value.split(",").map((x) => x.trim()).filter(Boolean))} placeholder="Decision, Systems thinking" /></label><div className="sm:col-span-2"><label className="mb-1.5 block text-[11px] font-medium text-slate-600">{t.notes}</label><Textarea rows={3} value={draft.notes} onChange={(e) => update("notes", e.target.value)} placeholder="Internal notes for this record…" /></div></div>
+    </div>
+    <div className="flex items-center justify-between border-t border-line bg-slate-50/70 px-6 py-4"><span className="text-[10px] text-muted"><span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />Memory only · resets on reload</span><div className="flex gap-2"><Button type="button" variant="secondary" onClick={onCancel}>{t.cancel}</Button><Button type="submit"><Check size={14} />{editing ? t.save : t.create}</Button></div></div>
+  </form>;
+}
