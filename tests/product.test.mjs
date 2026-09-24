@@ -332,3 +332,76 @@ test("archive, restore, and guarded deletion update locale visibility and clean 
     rmSync(directory, { recursive: true, force: true });
   }
 });
+
+test("Dashboard counts and recent revisions follow real registry changes across restart", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "concept-discovery-dashboard-"));
+  const dbPath = join(directory, "registry.sqlite");
+  let app = createApiServer({ dbPath });
+  const listen = async () => {
+    await new Promise((resolve) => app.server.listen(0, "127.0.0.1", resolve));
+    return `http://127.0.0.1:${app.server.address().port}`;
+  };
+  try {
+    let origin = await listen();
+    const dashboard = async () => (await request(origin, "GET", "/api/dashboard")).value;
+    assert.deepEqual({ active: (await dashboard()).active_total, archived: (await dashboard()).archived_total, recent: (await dashboard()).recent_revisions.length }, { active: 0, archived: 0, recent: 0 });
+    const created = await request(origin, "POST", "/api/concepts", { id: "dashboard-one", locales: { cn: { name: "中文", description: "描述", source_text: "出处" }, en: { name: "English" } } });
+    assert.equal(created.value.version, 1);
+    let result = await dashboard();
+    assert.equal(result.active_total, 1);
+    assert.equal(result.both_draft, 0);
+    assert.deepEqual(result.locales, { cn: { browsable: 1, recommendable: 0 }, en: { browsable: 0, recommendable: 0 } });
+    assert.equal(result.recent_revisions[0].concept_id, "dashboard-one");
+    assert.deepEqual(result.recent_revisions[0].affected_languages, ["cn", "en"]);
+    const image = readFileSync(new URL("./fixtures/red.webp", import.meta.url)).toString("base64");
+    const completed = await request(origin, "PATCH", "/api/concepts/dashboard-one", { expected_version: 1, changes: { "locales.cn.trigger": ["决策"], "locales.cn.agent_instruction": "帮助决策", "locales.en.description": "Description", "locales.en.source_text": "Source", "locales.en.trigger": ["Decision"], "locales.en.agent_instruction": "Help decide" }, media: { cn: { action: "set", data: image }, en: { action: "set", data: image } } });
+    assert.equal(completed.value.version, 2);
+    await request(origin, "POST", "/api/concepts", { id: "dashboard-draft", locales: { cn: { name: "草稿" } } });
+    result = await dashboard();
+    assert.equal(result.active_total, 2);
+    assert.equal(result.both_draft, 1);
+    assert.deepEqual(result.locales, { cn: { browsable: 1, recommendable: 1 }, en: { browsable: 1, recommendable: 1 } });
+    assert.equal(result.recent_revisions.length, 3);
+    assert.deepEqual(result.recent_revisions[1].affected_languages, ["cn", "en"]);
+    const lowered = await request(origin, "PATCH", "/api/concepts/dashboard-one", { expected_version: 2, changes: { "locales.en.agent_instruction": "" } });
+    assert.equal(lowered.value.version, 3);
+    result = await dashboard();
+    assert.equal(result.locales.en.browsable, 1);
+    assert.equal(result.locales.en.recommendable, 0);
+    assert.deepEqual(result.recent_revisions[0].affected_languages, ["en"]);
+    const archived = await request(origin, "POST", "/api/concepts/dashboard-one/archive", { expected_version: 3 });
+    assert.equal(archived.value.version, 4);
+    result = await dashboard();
+    assert.equal(result.active_total, 1);
+    assert.equal(result.archived_total, 1);
+    assert.equal(result.both_draft, 1);
+    assert.equal(result.locales.cn.browsable, 0);
+    assert.deepEqual(result.recent_revisions[0].affected_languages, ["cn", "en"]);
+    assert.equal(result.recent_revisions[0].operation, "archive");
+    const restored = await request(origin, "POST", "/api/concepts/dashboard-one/restore", { expected_version: 4 });
+    assert.equal(restored.value.version, 5);
+    result = await dashboard();
+    assert.equal(result.active_total, 2);
+    assert.equal(result.archived_total, 0);
+    assert.equal(result.locales.cn.recommendable, 1);
+    assert.equal(result.locales.en.recommendable, 0);
+    await app.close();
+    app = createApiServer({ dbPath });
+    origin = await listen();
+    result = await dashboard();
+    assert.equal(result.active_total, 2);
+    assert.equal(result.recent_revisions[0].operation, "restore");
+    await request(origin, "POST", "/api/concepts/dashboard-one/archive", { expected_version: 5 });
+    await request(origin, "DELETE", "/api/concepts/dashboard-one", { expected_version: 6, confirm_id: "dashboard-one" });
+    result = await dashboard();
+    assert.equal(result.active_total, 1);
+    assert.equal(result.archived_total, 0);
+    assert.equal(result.both_draft, 1);
+    assert.deepEqual(result.locales, { cn: { browsable: 0, recommendable: 0 }, en: { browsable: 0, recommendable: 0 } });
+    assert.equal(result.recent_revisions.length, 1);
+    assert.equal(result.recent_revisions[0].concept_id, "dashboard-draft");
+  } finally {
+    await app.close();
+    rmSync(directory, { recursive: true, force: true });
+  }
+});

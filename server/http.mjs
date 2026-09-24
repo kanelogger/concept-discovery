@@ -30,6 +30,7 @@ export function createApiServer({ dbPath, fallback } = {}) {
         response.writeHead(200, { "Content-Type": asset.mime_type, "Content-Length": asset.data.length, "Cache-Control": "public, max-age=31536000, immutable" });
         return response.end(asset.data);
       }
+      if (path.length === 2 && path[1] === "dashboard" && request.method === "GET") return json(response, 200, registry.dashboard());
       if (path.length === 2 && path[1] === "concepts") {
         if (request.method === "GET") {
           const concepts = registry.query(Object.fromEntries(url.searchParams));

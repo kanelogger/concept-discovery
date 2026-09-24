@@ -213,6 +213,26 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
       return { data: Buffer.from(row.data), mime_type: row.mime_type };
     },
     list: () => db.prepare("SELECT data FROM concepts ORDER BY updated_at DESC, id").all().map((row) => publicConcept(JSON.parse(row.data))),
+    dashboard: () => {
+      const concepts = db.prepare("SELECT data FROM concepts").all().map((row) => publicConcept(JSON.parse(row.data)));
+      const active = concepts.filter((concept) => concept.lifecycle_status === "active");
+      const locales = Object.fromEntries(["cn", "en"].map((locale) => [locale, {
+        browsable: active.filter((concept) => concept.readiness[locale].browsable).length,
+        recommendable: active.filter((concept) => concept.readiness[locale].recommendable).length,
+      }]));
+      const recent_revisions = db.prepare("SELECT revision_id, concept_id, version_after, operation, changed_at, changes FROM revisions ORDER BY revision_id DESC LIMIT 10").all().map((row) => {
+        const paths = JSON.parse(row.changes).map((change) => change.path);
+        const affected_languages = ["cn", "en"].filter((locale) => paths.some((path) => path.startsWith(`locales.${locale}.`)) || ["archive", "restore"].includes(row.operation));
+        return { revision_id: row.revision_id, concept_id: row.concept_id, version: row.version_after, operation: row.operation, changed_at: row.changed_at, affected_languages, shared_changes: paths.some((path) => !path.startsWith("locales.")), changed_paths: paths };
+      });
+      return {
+        active_total: active.length,
+        both_draft: active.filter((concept) => !concept.readiness.cn.browsable && !concept.readiness.en.browsable).length,
+        locales,
+        archived_total: concepts.length - active.length,
+        recent_revisions,
+      };
+    },
     query: ({ locale = "cn", view = "manage", q = "", status = "all", tag = "", domain = "" } = {}) => {
       if (!["cn", "en"].includes(locale)) bad("locale must be cn or en");
       if (!["manage", "browse"].includes(view)) bad("view must be manage or browse");

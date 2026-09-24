@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "task_id": "0028-archive-restore-delete-concept",
+  "task_id": "0029-real-registry-dashboard",
   "phase": "complete",
-  "task_file": "tasks/0028-archive-restore-delete-concept.md",
+  "task_file": "tasks/0029-real-registry-dashboard.md",
   "updated_at": "2026-09-25",
-  "summary": "Concept 归档、恢复、受限永久删除与管理视图筛选已完成。",
+  "summary": "真实 Registry Dashboard 与 P1 端到端验收已完成。",
   "blockers": [],
-  "next_actions": ["启动 tasks/0029-real-registry-dashboard.md", "完成 P1 端到端验收"],
+  "next_actions": ["建立有限的 P2–P5 实施 tickets 与依赖", "定稿 P2 推荐结果、模型配置和评测契约"],
   "required_checks": ["npm run check", "npm run demo:build", "npm run test:product"],
   "verification": [
     {"command": "npm run test:product", "result": "passed", "recorded_at": "2026-09-25"},

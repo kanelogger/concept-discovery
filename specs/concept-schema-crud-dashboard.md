@@ -1,6 +1,6 @@
 # Concept Schema、CRUD 与 Dashboard 实施规格
 
-状态：P1 待实施。本文定稿本阶段的产品与数据行为；应用框架和存储选型须在实施前记录。
+状态：P1 已在独立 `codex/concept-mvp-demo` 工作区按 0023–0029 实施；本地技术选型见 [ADR 0002](../docs/adr/0002-local-product-stack.md)。本文仍是 P1 产品与数据行为契约，最终用户验收尚未进行。
 
 ## Problem Statement
 

@@ -17,7 +17,7 @@
 
 ## P1 可实施规格
 
-[Concept Schema、CRUD 与 Dashboard 实施规格](concept-schema-crud-dashboard.md) 明确了跨语言和各语言字段、派生的浏览/推荐资格、归档生命周期、Revision、Card First Web 与 Dashboard 的真实数据口径。该规格由 [待实施任务](../tasks/0022-implement-concept-schema-crud-dashboard.md) 承接；当前仓库仍没有正式产品实现。应用框架与存储选型在实施前记录，后续推荐、Relation、Skill 与 Feedback 另行定稿。
+[Concept Schema、CRUD 与 Dashboard 实施规格](concept-schema-crud-dashboard.md) 明确了跨语言和各语言字段、派生的浏览/推荐资格、归档生命周期、Revision、Card First Web 与 Dashboard 的真实数据口径。该规格由 [P1 实施任务](../tasks/0022-implement-concept-schema-crud-dashboard.md) 承接，已在独立 `codex/concept-mvp-demo` 工作区按 0023–0029 完成；应用栈与存储见 [ADR 0002](../docs/adr/0002-local-product-stack.md)。后续推荐、Relation、Skill 与 Feedback 另行定稿。
 
 ## 命名与版本
 
@@ -27,9 +27,7 @@
 
 ## 当前实现边界
 
-当前仓库初始化交付人和 Agent 协作所需的导航、任务流程、运行时约束与检查入口。运行时和可执行命令分别见 [运行时](../docs/agent-environment/runtime.md)、[命令契约](../docs/agent-environment/commands.md)。
-
-应用框架、产品服务、Concept Schema、正式 Registry、Web UI、推荐与 Compose 业务 Skills 均未实现。PRD 中的 `concept-discovery start`、目录树、JSON / YAML 和 UI 示例均为设计输入，不是当前可用接口。协作环境检查通过不代表产品验收通过。
+独立 `codex/concept-mvp-demo` 工作区已实现可运行的 P1 Registry、Web CRUD 与 Dashboard，运行时和可执行命令分别见 [运行时](../docs/agent-environment/runtime.md)、[命令契约](../docs/agent-environment/commands.md)。推荐接口、Relation、Skill、Feedback 与离线 Eval 仍未实现。PRD 中的 `concept-discovery start`、目录树、JSON / YAML 和 UI 示例均为设计输入，不是当前可用接口。P1 自动化与浏览器检查通过不代表 MVP 或用户验收通过。
 
 ## 待定契约：材料冲突与字段缺口
 

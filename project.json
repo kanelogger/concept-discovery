@@ -2,8 +2,8 @@
   "schema_version": 1,
   "project": {
     "id": "concept-discovery",
-    "stage": "p1-implementation",
-    "product_status": "partial-0028"
+    "stage": "p2-planning",
+    "product_status": "p1-complete"
   },
   "runtime": {
     "node_major": 24
