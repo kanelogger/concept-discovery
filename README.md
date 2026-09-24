@@ -1,23 +1,19 @@
-# Concept Discovery · Temporary UI Demo
+# Concept Discovery · MVP implementation workspace
 
-This throwaway UI prototype compares two Concept CRUD layouts on a shared in-memory dataset. It does not connect to a database, model, or backend. Changes reset on reload.
+This branch implements the MVP in ticket order. Ticket 0023 provides a persistent local Concept draft flow. Remaining P1 tickets and P2–P5 are pending; see [backlog](tasks/backlog.md). The earlier memory-only UI remains on `codex/concept-crud-demo` for reference.
 
 ## Run locally
 
 ```sh
-npm install
-npm run demo
+npm ci
+npm start
 ```
 
-Open the local URL printed by Vite. The layout switcher is development-only and supports:
+Open `http://127.0.0.1:4173`. The service stores data in `.local/concept-discovery.sqlite` by default. Set `CONCEPT_DB_PATH` to another file for isolated demos or tests. The Web reads and writes the same Registry API used by the product tests.
 
-- `?variant=A` — Dashboard home, then open the Concept card library
-- `?variant=B` — Card First home, with Dashboard as a separate navigation item
+```sh
+npm run check
+npm run demo:build
+```
 
-Use the floating A/B switcher or left/right arrow keys to compare layouts. Legacy `?variant=C` links open A. Create, edit, and delete actions update shared React memory state. The state button in the switcher exposes the full current dataset. Dashboard values are sample indicators marked as pending definition.
-
-The editor covers Chinese and English titles, descriptions, and image URLs, plus an optional Wiki URL, tags, and notes. Recommendation Playground, Prompt generation, Relation editing, and Skill execution are out of scope.
-
-This prototype is preserved on branch `codex/concept-crud-demo` for product review; it is not production application code.
-
-Visual tokens, component states, L1 motion, and responsive rules are documented in [DESIGN.md](DESIGN.md). The interface uses Noto Sans SC with Inter fallbacks, semantic CSS color tokens, and normal-flow mobile navigation.
+Ticket 0023 accepts immutable lowercase slugs and at least one language name. The editor can continue a saved draft and shows Revision versions. Browsing, search, localized WebP media, archive, dashboard, recommendation and Skill flows arrive in later tickets.

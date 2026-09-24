@@ -2,8 +2,8 @@
   "schema_version": 1,
   "project": {
     "id": "concept-discovery",
-    "stage": "environment-bootstrap",
-    "product_status": "not-implemented"
+    "stage": "p1-implementation",
+    "product_status": "partial-0023"
   },
   "runtime": {
     "node_major": 24
@@ -12,7 +12,10 @@
     "doctor": "doctor",
     "validate": "validate",
     "test": "test",
-    "check": "check"
+    "check": "check",
+    "start": "start",
+    "test_product": "test:product",
+    "web_build": "demo:build"
   },
   "context": {
     "agent_entry": "AGENTS.md",
@@ -47,7 +50,7 @@
     "tasks/0001-bootstrap.md",
     "tasks/backlog.md"
   ],
-  "services": [],
+  "services": [{ "name": "local-concept-registry", "command": "npm start", "bind": "127.0.0.1:4173", "database": ".local/concept-discovery.sqlite" }],
   "capabilities": {
     "project_skills": [],
     "connectors": []

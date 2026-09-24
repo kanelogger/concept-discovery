@@ -1,12 +1,17 @@
 {
   "schema_version": 1,
-  "task_id": "0030-publish-p1-implementation-tickets",
+  "task_id": "0023-persist-concept-draft",
   "phase": "complete",
-  "task_file": "tasks/0030-publish-p1-implementation-tickets.md",
+  "task_file": "tasks/0023-persist-concept-draft.md",
   "updated_at": "2026-09-25",
-  "summary": "按用户确认的纵向切片和阻塞关系，发布 P1 Concept Schema、CRUD 与 Dashboard 七张实现 tickets。",
+  "summary": "持久化 Concept 草稿、本地管理卡片、版本修订和隔离数据验收已完成。",
   "blockers": [],
-  "next_actions": ["从 tasks/0023-persist-concept-draft.md 启动首张无阻塞 ticket 并记录应用栈与存储选型", "依照各 ticket 的 Blocked by 关系推进后续切片"],
-  "required_checks": ["npm run validate"],
-  "verification": [{"command": "npm run validate", "result": "passed", "recorded_at": "2026-09-25"}]
+  "next_actions": ["从 tasks/0024-bilingual-browse-search.md 启动下一张 ticket", "按 Blocked by 顺序推进 0025–0029"],
+  "required_checks": ["npm run check", "npm run demo:build", "npm run test:product"],
+  "verification": [
+    {"command": "npm run test:product", "result": "failed", "recorded_at": "2026-09-25", "note": "Sandbox denied local loopback listen; reran with loopback permission."},
+    {"command": "npm run test:product", "result": "passed", "recorded_at": "2026-09-25"},
+    {"command": "npm run check", "result": "passed", "recorded_at": "2026-09-25"},
+    {"command": "npm run demo:build", "result": "passed", "recorded_at": "2026-09-25"}
+  ]
 }

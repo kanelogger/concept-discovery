@@ -4,15 +4,18 @@
 
 | 命令 | 作用 | 网络与写入 |
 | --- | --- | --- |
-| `npm ci --ignore-scripts` | 按锁文件安装环境；当前零第三方依赖 | 当前无需下载依赖；可能写 npm 本地缓存 / node_modules，不运行生命周期脚本 |
+| `npm ci` | 按锁文件安装 React/Vite 等依赖；缓存齐全时可用 `npm ci --offline` | 可能访问包源，写 `node_modules` 和 npm 缓存 |
 | `npm run doctor` | 核实当前 Node、Git 和仓库根目录 | 离线、只读 |
 | `npm run validate` | 校验清单、状态、必需路径及仓库 Markdown 本地链接 | 离线、只读 |
-| `npm test` | 执行 `tests/` 下的本项目 Node 测试，覆盖环境工具故障路径；不执行私有参考项目测试 | 离线、隔离临时目录，自动清理 |
+| `npm test` | 执行环境与产品 API 测试；产品测试在隔离临时目录启动本地服务并自动清理 | 离线、临时目录、本地回环端口 |
 | `npm run check` | 依次执行 validate 和 test，任一失败返回非零 | 与上述两项相同 |
+| `npm run test:product` | 单独执行 Registry/API 持久化测试 | 离线、临时目录、本地回环端口 |
+| `npm run demo:build` | TypeScript 检查并打包正式 Web 入口 | 离线，写 `dist` |
+| `npm start` | 在 127.0.0.1:4173 启动本地 API 与 Web；`CONCEPT_DB_PATH` 可指定隔离数据库 | 本地回环端口，写 `.local` 或指定路径 |
 
 新机器先按 [.node-version](../../.node-version) 准备 Node 24，再运行安装、doctor 和 check。运行时检查失败应修正环境，不绕过 engines 限制。新增依赖时提交对应锁文件、明确安装网络需求并更新环境决策。
 
-目前不存在 `dev`、`build`、`typecheck`、`e2e`、`method-system start` 命令，也没有监听端口。PRD 中的命令属于产品设想；首次实现时再注册真实入口和启停流程。
+当前产品启动命令为 `npm start`，`npm run demo` 是同一入口的别名。默认端口可用 `PORT` 覆盖；停止服务用 Ctrl-C。
 
 校验器检查仓库 Markdown 文件链接，包括 `.github` 等配置目录；跳过 Git 元数据、node_modules、`.local`、coverage、工具缓存、Git 忽略的 `private-*` 参考目录/Markdown 文件和符号链接文件，具体排除项见 [校验器](../../scripts/validate.mjs)。检查目标引用时拒绝越出仓库的路径。它不发起 HTTP 请求，不验证标题锚点，不做语义或事实判断，也不证明产品正确。外链可用性、准入标准和任务结果由针对性审查负责。
 

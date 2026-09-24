@@ -1,5 +1,5 @@
 {
-  "name": "concept-discovery-ui-prototype",
+  "name": "concept-discovery",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -9,9 +9,10 @@
     "validate": "node scripts/validate.mjs",
     "test": "node --test tests/*.test.mjs",
     "check": "npm run validate && npm test",
-    "demo": "vite --host 0.0.0.0",
+    "demo": "node server/start.mjs",
     "demo:build": "tsc --noEmit && vite build",
-    "demo:preview": "vite preview --host 0.0.0.0"
+    "start": "node server/start.mjs",
+    "test:product": "node --test tests/product.test.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
