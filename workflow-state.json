@@ -1,26 +1,12 @@
 {
   "schema_version": 1,
-  "task_id": "0019-remove-workspace-variant",
+  "task_id": "0020-update-context-from-web-prototype",
   "phase": "complete",
-  "task_file": "tasks/0019-remove-workspace-variant.md",
+  "task_file": "tasks/0020-update-context-from-web-prototype.md",
   "updated_at": "2026-09-24",
-  "summary": "移除临时 demo 的 variant C 管理工作区页面，只保留 A/B 布局并规范旧 C 链接。",
+  "summary": "依据独立 Web 原型观察和产品契约，澄清 Concept 目录、语言版本及按语言浏览和推荐的领域词义。",
   "blockers": [],
-  "next_actions": [],
-  "required_checks": [
-    "npm run demo:build",
-    "npm run validate"
-  ],
-  "verification": [
-    {
-      "command": "npm run demo:build",
-      "result": "passed",
-      "recorded_at": "2026-09-24T15:31:35Z"
-    },
-    {
-      "command": "npm run validate",
-      "result": "passed",
-      "recorded_at": "2026-09-24T15:31:35Z"
-    }
-  ]
+  "next_actions": ["按 tasks/backlog.md 定稿 Concept Schema、各语言推荐资格和旧 type 字段映射", "记录模型配置与应用栈选择后实施 Concept CRUD"],
+  "required_checks": ["npm run validate"],
+  "verification": [{"command": "npm run validate", "result": "passed", "recorded_at": "2026-09-24"}]
 }
