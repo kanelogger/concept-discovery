@@ -18,6 +18,8 @@ type Draft = {
   id: string; cnName: string; enName: string; cnAliases: string; enAliases: string;
   cnDescription: string; enDescription: string; cnSource: string; enSource: string;
   cnTags: string; enTags: string; cnWiki: string; enWiki: string;
+  cnTrigger: string; enTrigger: string; cnAvoid: string; enAvoid: string;
+  cnTransform: string; enTransform: string; cnInstruction: string; enInstruction: string;
   interactionType: string; epistemicType: string;
   domains: string[]; intents: string[];
 };
@@ -26,7 +28,9 @@ type MediaDraft = { action: "set"; data: string; preview: string; fileName: stri
 
 const blank: Draft = {
   id: "", cnName: "", enName: "", cnAliases: "", enAliases: "", cnDescription: "", enDescription: "",
-  cnSource: "", enSource: "", cnTags: "", enTags: "", cnWiki: "", enWiki: "", interactionType: "", epistemicType: "",
+  cnSource: "", enSource: "", cnTags: "", enTags: "", cnWiki: "", enWiki: "",
+  cnTrigger: "", enTrigger: "", cnAvoid: "", enAvoid: "", cnTransform: "", enTransform: "",
+  cnInstruction: "", enInstruction: "", interactionType: "", epistemicType: "",
   domains: [], intents: [],
 };
 const splitList = (value: string) => [...new Set(value.split(",").map((part) => part.trim()).filter(Boolean))];
@@ -37,6 +41,10 @@ const formValues = (draft: Draft): Record<string, unknown> => ({
   "locales.cn.source_text": draft.cnSource, "locales.en.source_text": draft.enSource,
   "locales.cn.tags": splitList(draft.cnTags), "locales.en.tags": splitList(draft.enTags),
   "locales.cn.wiki_url": draft.cnWiki, "locales.en.wiki_url": draft.enWiki,
+  "locales.cn.trigger": splitList(draft.cnTrigger), "locales.en.trigger": splitList(draft.enTrigger),
+  "locales.cn.avoid_when": splitList(draft.cnAvoid), "locales.en.avoid_when": splitList(draft.enAvoid),
+  "locales.cn.transform": splitList(draft.cnTransform), "locales.en.transform": splitList(draft.enTransform),
+  "locales.cn.agent_instruction": draft.cnInstruction, "locales.en.agent_instruction": draft.enInstruction,
   interaction_type: draft.interactionType || null, epistemic_type: draft.epistemicType || null,
   domains: draft.domains, intents: draft.intents,
 });
@@ -48,9 +56,30 @@ const fromConcept = (concept: Concept): Draft => ({
   cnSource: concept.locales.cn.source_text, enSource: concept.locales.en.source_text,
   cnTags: concept.locales.cn.tags.join(", "), enTags: concept.locales.en.tags.join(", "),
   cnWiki: concept.locales.cn.wiki_url, enWiki: concept.locales.en.wiki_url,
+  cnTrigger: concept.locales.cn.trigger.join(", "), enTrigger: concept.locales.en.trigger.join(", "),
+  cnAvoid: concept.locales.cn.avoid_when.join(", "), enAvoid: concept.locales.en.avoid_when.join(", "),
+  cnTransform: concept.locales.cn.transform.join(", "), enTransform: concept.locales.en.transform.join(", "),
+  cnInstruction: concept.locales.cn.agent_instruction, enInstruction: concept.locales.en.agent_instruction,
   interactionType: concept.interaction_type ?? "", epistemicType: concept.epistemic_type ?? "",
   domains: concept.domains, intents: concept.intents,
 });
+
+function updatePayload(concept: Concept, draft: Draft, media: Record<Locale, MediaDraft>) {
+  const values = formValues(draft);
+  const previous = formValues(fromConcept(concept));
+  const changes = Object.fromEntries(Object.entries(values).filter(([path, value]) => JSON.stringify(value) !== JSON.stringify(previous[path])));
+  const mediaChanges = Object.fromEntries(((["cn", "en"] as const).filter((language) => media[language]).map((language) => {
+    const action = media[language]!;
+    return [language, action.action === "set" ? { action: "set", data: action.data } : { action: "remove" }];
+  })));
+  return { expected_version: concept.version, changes, media: mediaChanges };
+}
+
+function createPayload(draft: Draft, preview = false) {
+  const values = formValues(draft);
+  const localeValues = (language: Locale) => Object.fromEntries(Object.entries(values).filter(([path]) => path.startsWith(`locales.${language}.`)).map(([path, value]) => [path.slice(11), value]));
+  return { id: preview && !draft.id ? "preview-draft" : draft.id, interaction_type: values.interaction_type, epistemic_type: values.epistemic_type, domains: values.domains, intents: values.intents, locales: { cn: localeValues("cn"), en: localeValues("en") } };
+}
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, { ...init, headers: { "Content-Type": "application/json", ...init?.headers } });
@@ -79,6 +108,7 @@ function App() {
   const [editor, setEditor] = useState<Concept | "create" | null>(null);
   const [draft, setDraft] = useState<Draft>(blank);
   const [media, setMedia] = useState<Record<Locale, MediaDraft>>({ cn: null, en: null });
+  const [preview, setPreview] = useState<Record<Locale, Readiness> | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -104,9 +134,25 @@ function App() {
     api<{ revisions: Revision[] }>(`/api/concepts/${encodeURIComponent(selected.id)}/revisions`)
       .then((result) => setRevisions(result.revisions)).catch(() => setRevisions([]));
   }, [selected?.id, selected?.version]);
+  useEffect(() => {
+    if (!editor) return;
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      try {
+        if (editor === "create") {
+          const result = await api<{ readiness: Record<Locale, Readiness> }>("/api/concepts/preview", { method: "POST", body: JSON.stringify(createPayload(draft, true)) });
+          if (!cancelled) setPreview(result.readiness);
+        } else {
+          const result = await api<{ after: Record<Locale, Readiness> }>(`/api/concepts/${encodeURIComponent(editor.id)}/preview`, { method: "POST", body: JSON.stringify(updatePayload(editor, draft, media)) });
+          if (!cancelled) setPreview(result.after);
+        }
+      } catch { if (!cancelled) setPreview(null); }
+    }, 180);
+    return () => { cancelled = true; window.clearTimeout(timer); };
+  }, [editor, draft, media]);
 
   const begin = (concept?: Concept) => {
-    setError(""); setEditor(concept ?? "create"); setDraft(concept ? fromConcept(concept) : { ...blank }); setMedia({ cn: null, en: null });
+    setError(""); setEditor(concept ?? "create"); setDraft(concept ? fromConcept(concept) : { ...blank }); setMedia({ cn: null, en: null }); setPreview(concept?.readiness ?? null);
   };
   const setField = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft((current) => ({ ...current, [key]: value }));
   const chooseImage = (language: Locale, file?: File) => {
@@ -125,19 +171,18 @@ function App() {
     event.preventDefault(); setBusy(true); setError("");
     try {
       let saved: Concept;
-      const values = formValues(draft);
       if (editor === "create") {
-        const cn = Object.fromEntries(Object.entries(values).filter(([path]) => path.startsWith("locales.cn.")).map(([path, value]) => [path.slice(11), value]));
-        const en = Object.fromEntries(Object.entries(values).filter(([path]) => path.startsWith("locales.en.")).map(([path, value]) => [path.slice(11), value]));
-        saved = await api<Concept>("/api/concepts", { method: "POST", body: JSON.stringify({ id: draft.id, interaction_type: values.interaction_type, epistemic_type: values.epistemic_type, domains: values.domains, intents: values.intents, locales: { cn, en } }) });
+        saved = await api<Concept>("/api/concepts", { method: "POST", body: JSON.stringify(createPayload(draft)) });
       } else if (editor) {
-        const previous = formValues(fromConcept(editor));
-        const changes = Object.fromEntries(Object.entries(values).filter(([path, value]) => JSON.stringify(value) !== JSON.stringify(previous[path])));
-        const mediaChanges = Object.fromEntries(((["cn", "en"] as const).filter((language) => media[language]).map((language) => {
-          const action = media[language]!;
-          return [language, action.action === "set" ? { action: "set", data: action.data } : { action: "remove" }];
-        })));
-        saved = await api<Concept>(`/api/concepts/${encodeURIComponent(editor.id)}`, { method: "PATCH", body: JSON.stringify({ expected_version: editor.version, changes, media: mediaChanges }) });
+        const payload = updatePayload(editor, draft, media);
+        const impact = await api<{ before: Record<Locale, Readiness>; after: Record<Locale, Readiness> }>(`/api/concepts/${encodeURIComponent(editor.id)}/preview`, { method: "POST", body: JSON.stringify(payload) });
+        const exits: string[] = [];
+        for (const language of ["cn", "en"] as const) {
+          if (impact.before[language].recommendable && !impact.after[language].recommendable) exits.push(`${language}: ${locale === "cn" ? "退出推荐池" : "leaves recommendations"}`);
+          if (impact.before[language].browsable && !impact.after[language].browsable) exits.push(`${language}: ${locale === "cn" ? "退出浏览和搜索" : "leaves browse and search"}`);
+        }
+        if (exits.length && !window.confirm(`${locale === "cn" ? "保存会降低语言资格：" : "Saving will lower locale readiness:"}\n${exits.join("\n")}\n${locale === "cn" ? "仍要保存吗？" : "Save anyway?"}`)) return;
+        saved = await api<Concept>(`/api/concepts/${encodeURIComponent(editor.id)}`, { method: "PATCH", body: JSON.stringify(payload) });
       } else return;
       setSelected(saved); setEditor(null); setSearch(""); setTag(""); setDomain(""); setStatus("all");
       if (!saved.readiness[locale].browsable) setSection("manage");
@@ -158,36 +203,42 @@ function App() {
       <div className="sticky top-16 z-20 mb-5 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white/95 p-3 shadow-sm backdrop-blur"><label className="relative min-w-48 flex-1"><Search size={15} className="absolute left-3 top-3 text-slate-400" /><input value={search} onChange={(event) => setSearch(event.target.value)} aria-label={t.search} placeholder={t.search} className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-emerald-700" /></label>{section === "manage" && <select value={status} onChange={(event) => setStatus(event.target.value)} aria-label="Status" className="rounded-lg border border-slate-200 px-3 py-2 text-sm"><option value="all">{t.all}</option><option value="draft">{t.draft}</option><option value="browsable">{t.browsable}</option><option value="recommendable">{t.recommended}</option></select>}<input value={tag} onChange={(event) => setTag(event.target.value)} aria-label={t.tag} placeholder={t.tag} className="w-28 rounded-lg border border-slate-200 px-3 py-2 text-sm" /><select value={domain} onChange={(event) => setDomain(event.target.value)} aria-label={t.domain} className="rounded-lg border border-slate-200 px-3 py-2 text-sm"><option value="">{t.domain}</option><option value="reasoning">Reasoning</option><option value="communication">Communication</option></select><div className="ml-auto flex rounded-lg border border-slate-200 p-0.5"><button onClick={() => setDensity("cards")} aria-label="Card view" aria-pressed={density === "cards"} className={`rounded-md p-2 ${density === "cards" ? "bg-emerald-50 text-emerald-900" : "text-slate-400"}`}><Grid2X2 size={16} /></button><button onClick={() => setDensity("table")} aria-label="Table view" aria-pressed={density === "table"} className={`rounded-md p-2 ${density === "table" ? "bg-emerald-50 text-emerald-900" : "text-slate-400"}`}><List size={16} /></button></div></div>
       <div className="mb-4 text-xs text-slate-500">{count} {t.result}</div>
       {error && !editor && <p role="alert" className="mb-5 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{error}</p>}
-      {loading ? <p className="text-sm text-slate-500">Loading…</p> : concepts.length === 0 ? <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-20 text-center"><BookOpen className="mx-auto mb-4 text-emerald-800" size={28} /><h2 className="font-medium">{t.empty}</h2></div> : density === "cards" ? <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{concepts.map((concept) => <ConceptCard key={concept.id} concept={concept} locale={locale} manage={section === "manage"} selected={selected?.id === concept.id} onSelect={() => setSelected(concept)} />)}</div> : <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white"><table className="w-full min-w-[650px] text-left text-sm"><thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="px-4 py-3">Concept</th><th className="px-4 py-3">{t.tag}</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Version</th></tr></thead><tbody>{concepts.map((concept) => <tr key={concept.id} className="border-t border-slate-100"><td className="px-4 py-3"><button onClick={() => setSelected(concept)} className="text-left font-medium text-emerald-900 hover:underline">{concept.locales[locale].name || concept.id}</button><div className="max-w-sm truncate text-xs text-slate-500">{concept.locales[locale].description}</div></td><td className="px-4 py-3 text-slate-500">{concept.locales[locale].tags.join(", ")}</td><td className="px-4 py-3 text-slate-500">{concept.readiness[locale].browsable ? t.browsable : t.draft}</td><td className="px-4 py-3 text-slate-500">v{concept.version}</td></tr>)}</tbody></table></div>}
+      {loading ? <p className="text-sm text-slate-500">Loading…</p> : concepts.length === 0 ? <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-20 text-center"><BookOpen className="mx-auto mb-4 text-emerald-800" size={28} /><h2 className="font-medium">{t.empty}</h2></div> : density === "cards" ? <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{concepts.map((concept) => <ConceptCard key={concept.id} concept={concept} locale={locale} manage={section === "manage"} selected={selected?.id === concept.id} onSelect={() => setSelected(concept)} />)}</div> : <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white"><table className="w-full min-w-[650px] text-left text-sm"><thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="px-4 py-3">Concept</th><th className="px-4 py-3">{t.tag}</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Version</th></tr></thead><tbody>{concepts.map((concept) => <tr key={concept.id} className="border-t border-slate-100"><td className="px-4 py-3"><button onClick={() => setSelected(concept)} className="text-left font-medium text-emerald-900 hover:underline">{concept.locales[locale].name || concept.id}</button><div className="max-w-sm truncate text-xs text-slate-500">{concept.locales[locale].description}</div></td><td className="px-4 py-3 text-slate-500">{concept.locales[locale].tags.join(", ")}</td><td className="px-4 py-3 text-slate-500">{concept.readiness[locale].recommendable ? t.recommended : concept.readiness[locale].browsable ? t.browsable : t.draft}</td><td className="px-4 py-3 text-slate-500">v{concept.version}</td></tr>)}</tbody></table></div>}
       {selected && <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6"><div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-medium uppercase tracking-wider text-emerald-800">{selected.id} · v{selected.version}</p><h2 className="mt-2 text-xl font-semibold">{selected.locales[locale].name || selected.id}</h2></div><div className="flex gap-2"><button onClick={() => setRefreshKey((key) => key + 1)} aria-label="Reload" className="rounded-lg border border-slate-200 p-2.5 hover:bg-slate-50"><RefreshCw size={15} /></button><button onClick={() => begin(selected)} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm hover:bg-slate-50"><Pencil size={14} />{t.edit}</button></div></div>{selected.locales[locale].cover_image && <img src={"/api/assets/" + selected.locales[locale].cover_image} alt="" className="mt-5 h-48 w-full rounded-xl object-cover" />}<p className="mt-5 whitespace-pre-wrap text-sm text-slate-600">{selected.locales[locale].description || "—"}</p>{selected.locales[locale].tags.length > 0 && <div className="mt-4 flex flex-wrap gap-1.5">{selected.locales[locale].tags.map((value) => <span key={value} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600">{value}</span>)}</div>}<div className="mt-5 border-t border-slate-100 pt-4"><h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t.source}</h3><p className="mt-2 whitespace-pre-wrap text-sm text-slate-600">{selected.locales[locale].source_text || "—"}</p>{selected.locales[locale].wiki_url && <a href={selected.locales[locale].wiki_url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm text-emerald-800 underline">Wiki ↗</a>}{section === "manage" && !selected.readiness[locale].browsable && <p className="mt-3 text-xs text-amber-800">{t.missing}: {selected.readiness[locale].browse_missing.join(", ")}</p>}</div><div className="mt-5 border-t border-slate-100 pt-4"><h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Revisions</h3><ul className="mt-2 space-y-1 text-xs text-slate-500">{revisions.map((revision) => <li key={revision.version_after}>v{revision.version_after} · {new Date(revision.changed_at).toLocaleString()} · {revision.changes.map((change) => change.path).join(", ")}</li>)}</ul></div></section>}
     </main>
-    {editor && <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/40 p-3" onMouseDown={(event) => { if (event.target === event.currentTarget) setEditor(null); }}><form onSubmit={save} className="flex max-h-[94vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"><div className="flex items-center justify-between border-b border-slate-200 px-6 py-5"><div><p className="text-xs font-medium text-emerald-800">{editor === "create" ? "New record" : `${editor.id} · v${editor.version}`}</p><h2 className="mt-1 text-xl font-semibold">Concept</h2></div><button type="button" onClick={() => setEditor(null)} aria-label="Close" className="rounded-lg p-2 hover:bg-slate-100"><X size={18} /></button></div><div className="grid gap-5 overflow-y-auto p-6 md:grid-cols-2"><label className="block text-xs font-medium text-slate-600 md:col-span-2">ID · immutable slug<input value={draft.id} disabled={editor !== "create"} onChange={(event) => setField("id", event.target.value)} required className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm disabled:bg-slate-100" placeholder="first-principles" /></label>{(["cn", "en"] as const).map((language) => <LanguageForm key={language} language={language} draft={draft} setField={setField} existingImage={editor !== "create" ? editor.locales[language].cover_image : ""} media={media[language]} canUpload={editor !== "create"} onChooseImage={(file) => chooseImage(language, file)} onRemoveImage={() => setMedia((current) => ({ ...current, [language]: { action: "remove" } }))} />)}<div className="grid gap-4 md:col-span-2 md:grid-cols-2"><label className="text-xs font-medium text-slate-600">Interaction type<select value={draft.interactionType} onChange={(event) => setField("interactionType", event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm"><option value="">Unspecified</option><option value="operator">Operator</option><option value="lens">Lens</option><option value="procedure">Procedure</option></select></label><label className="text-xs font-medium text-slate-600">Epistemic type<select value={draft.epistemicType} onChange={(event) => setField("epistemicType", event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm"><option value="">Unspecified</option>{["formal_model", "empirical_finding", "heuristic", "principle", "framework", "law", "bias"].map((value) => <option key={value} value={value}>{value.replaceAll("_", " ")}</option>)}</select></label><label className="text-xs font-medium text-slate-600">Domains<select multiple value={draft.domains} onChange={(event) => setField("domains", [...event.target.selectedOptions].map((option) => option.value))} className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"><option value="reasoning">Reasoning</option><option value="communication">Communication</option></select></label><label className="text-xs font-medium text-slate-600">Intents<select multiple value={draft.intents} onChange={(event) => setField("intents", [...event.target.selectedOptions].map((option) => option.value))} className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"><option value="simplify">Simplify</option><option value="reduce-complexity">Reduce complexity</option></select></label></div></div>{error && <p role="alert" className="mx-6 mb-3 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800">{error}</p>}<div className="flex justify-end gap-2 border-t border-slate-200 bg-slate-50 px-6 py-4"><button type="button" onClick={() => setEditor(null)} className="rounded-lg px-4 py-2 text-sm text-slate-600 hover:bg-slate-100">Cancel</button><button type="submit" disabled={busy} className="inline-flex items-center gap-2 rounded-lg bg-emerald-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"><Check size={15} />{busy ? "Saving…" : "Save"}</button></div></form></div>}
+    {editor && <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/40 p-3" onMouseDown={(event) => { if (event.target === event.currentTarget) setEditor(null); }}><form onSubmit={save} className="flex max-h-[94vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"><div className="flex items-center justify-between border-b border-slate-200 px-6 py-5"><div><p className="text-xs font-medium text-emerald-800">{editor === "create" ? "New record" : `${editor.id} · v${editor.version}`}</p><h2 className="mt-1 text-xl font-semibold">Concept</h2></div><button type="button" onClick={() => setEditor(null)} aria-label="Close" className="rounded-lg p-2 hover:bg-slate-100"><X size={18} /></button></div><div className="grid gap-5 overflow-y-auto p-6 md:grid-cols-2"><label className="block text-xs font-medium text-slate-600 md:col-span-2">ID · immutable slug<input value={draft.id} disabled={editor !== "create"} onChange={(event) => setField("id", event.target.value)} required className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm disabled:bg-slate-100" placeholder="first-principles" /></label>{(["cn", "en"] as const).map((language) => <LanguageForm key={language} language={language} draft={draft} setField={setField} existingImage={editor !== "create" ? editor.locales[language].cover_image : ""} media={media[language]} canUpload={editor !== "create"} onChooseImage={(file) => chooseImage(language, file)} onRemoveImage={() => setMedia((current) => ({ ...current, [language]: { action: "remove" } }))} readiness={preview?.[language] ?? (editor !== "create" ? editor.readiness[language] : null)} />)}<div className="grid gap-4 md:col-span-2 md:grid-cols-2"><label className="text-xs font-medium text-slate-600">Interaction type<select value={draft.interactionType} onChange={(event) => setField("interactionType", event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm"><option value="">Unspecified</option><option value="operator">Operator</option><option value="lens">Lens</option><option value="procedure">Procedure</option></select></label><label className="text-xs font-medium text-slate-600">Epistemic type<select value={draft.epistemicType} onChange={(event) => setField("epistemicType", event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm"><option value="">Unspecified</option>{["formal_model", "empirical_finding", "heuristic", "principle", "framework", "law", "bias"].map((value) => <option key={value} value={value}>{value.replaceAll("_", " ")}</option>)}</select></label><label className="text-xs font-medium text-slate-600">Domains<select multiple value={draft.domains} onChange={(event) => setField("domains", [...event.target.selectedOptions].map((option) => option.value))} className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"><option value="reasoning">Reasoning</option><option value="communication">Communication</option></select></label><label className="text-xs font-medium text-slate-600">Intents<select multiple value={draft.intents} onChange={(event) => setField("intents", [...event.target.selectedOptions].map((option) => option.value))} className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"><option value="simplify">Simplify</option><option value="reduce-complexity">Reduce complexity</option></select></label></div></div>{error && <p role="alert" className="mx-6 mb-3 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800">{error}</p>}<div className="flex justify-end gap-2 border-t border-slate-200 bg-slate-50 px-6 py-4"><button type="button" onClick={() => setEditor(null)} className="rounded-lg px-4 py-2 text-sm text-slate-600 hover:bg-slate-100">Cancel</button><button type="submit" disabled={busy} className="inline-flex items-center gap-2 rounded-lg bg-emerald-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"><Check size={15} />{busy ? "Saving…" : "Save"}</button></div></form></div>}
   </div>;
 }
 
 function ConceptCard({ concept, locale, manage, selected, onSelect }: { concept: Concept; locale: Locale; manage: boolean; selected: boolean; onSelect: () => void }) {
   const local = concept.locales[locale];
   const ready = concept.readiness[locale];
-  return <button onClick={onSelect} className={`overflow-hidden rounded-2xl border bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${selected ? "border-emerald-800" : "border-slate-200"}`}><div className="flex h-36 items-center justify-center bg-gradient-to-br from-emerald-50 to-slate-100 text-emerald-700">{local.cover_image ? <img src={"/api/assets/" + local.cover_image} alt="" className="h-full w-full object-cover" /> : <BookOpen size={28} />}</div><div className="p-5"><div className="mb-3 flex justify-between gap-2"><span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-800">{ready.browsable ? (locale === "cn" ? "可浏览" : "Browsable") : (locale === "cn" ? "草稿" : "Draft")}</span><span className="text-xs text-slate-400">v{concept.version}</span></div><h2 className="truncate text-lg font-semibold">{local.name || concept.id}</h2><p className="mt-1 line-clamp-2 min-h-10 text-sm text-slate-500">{local.description || (locale === "cn" ? "当前语言内容待补" : "Content pending in this language")}</p>{local.tags.length > 0 && <p className="mt-3 truncate text-xs text-emerald-800">{local.tags.join(" · ")}</p>}{manage && !ready.browsable && <p className="mt-3 text-xs text-amber-800">{ready.browse_missing.join(", ")}</p>}<div className="mt-4 border-t border-slate-100 pt-3 text-xs text-slate-400">{concept.id}</div></div></button>;
+  return <button onClick={onSelect} className={`overflow-hidden rounded-2xl border bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${selected ? "border-emerald-800" : "border-slate-200"}`}><div className="flex h-36 items-center justify-center bg-gradient-to-br from-emerald-50 to-slate-100 text-emerald-700">{local.cover_image ? <img src={"/api/assets/" + local.cover_image} alt="" className="h-full w-full object-cover" /> : <BookOpen size={28} />}</div><div className="p-5"><div className="mb-3 flex justify-between gap-2"><span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-800">{ready.recommendable ? (locale === "cn" ? "可推荐" : "Recommendable") : ready.browsable ? (locale === "cn" ? "可浏览" : "Browsable") : (locale === "cn" ? "草稿" : "Draft")}</span><span className="text-xs text-slate-400">v{concept.version}</span></div><h2 className="truncate text-lg font-semibold">{local.name || concept.id}</h2><p className="mt-1 line-clamp-2 min-h-10 text-sm text-slate-500">{local.description || (locale === "cn" ? "当前语言内容待补" : "Content pending in this language")}</p>{local.tags.length > 0 && <p className="mt-3 truncate text-xs text-emerald-800">{local.tags.join(" · ")}</p>}{manage && !ready.browsable && <p className="mt-3 text-xs text-amber-800">{ready.browse_missing.join(", ")}</p>}<div className="mt-4 border-t border-slate-100 pt-3 text-xs text-slate-400">{concept.id}</div></div></button>;
 }
 
-function LanguageForm({ language, draft, setField, existingImage, media, canUpload, onChooseImage, onRemoveImage }: {
+function LanguageForm({ language, draft, setField, existingImage, media, canUpload, onChooseImage, onRemoveImage, readiness }: {
   language: Locale; draft: Draft; setField: <K extends keyof Draft>(key: K, value: Draft[K]) => void;
   existingImage: string; media: MediaDraft; canUpload: boolean;
-  onChooseImage: (file?: File) => void; onRemoveImage: () => void;
+  onChooseImage: (file?: File) => void; onRemoveImage: () => void; readiness: Readiness | null;
 }) {
   const prefix = language === "cn" ? "cn" : "en";
-  const value = (suffix: "Name" | "Aliases" | "Description" | "Source" | "Tags" | "Wiki") => draft[`${prefix}${suffix}`];
-  const update = (suffix: "Name" | "Aliases" | "Description" | "Source" | "Tags" | "Wiki", next: string) => setField(`${prefix}${suffix}`, next);
+  type Suffix = "Name" | "Aliases" | "Description" | "Source" | "Tags" | "Wiki" | "Trigger" | "Avoid" | "Transform" | "Instruction";
+  const value = (suffix: Suffix) => draft[`${prefix}${suffix}`];
+  const update = (suffix: Suffix, next: string) => setField(`${prefix}${suffix}`, next);
   const image = media?.action === "set" ? media.preview : media?.action === "remove" ? "" : existingImage ? `/api/assets/${existingImage}` : "";
   return <section className="space-y-4 rounded-xl border border-slate-200 p-4">
     <h3 className="font-semibold">{language === "cn" ? "中文" : "English"}</h3>
+    {readiness ? <div className="rounded-lg bg-emerald-50 px-3 py-2 text-[11px] text-emerald-950"><strong>{readiness.recommendable ? "Recommendable" : readiness.browsable ? "Browsable" : "Draft"}</strong><p className="mt-1">Browse missing: {readiness.browse_missing.join(", ") || "none"}</p><p>Recommend missing: {readiness.recommend_missing.join(", ") || "none"}</p></div> : <p className="text-[11px] text-slate-500">Save to calculate exact language readiness.</p>}
     <label className="block text-xs font-medium text-slate-600">Name<input value={value("Name")} onChange={(event) => update("Name", event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm" /></label>
     <label className="block text-xs font-medium text-slate-600">Aliases · comma separated<input value={value("Aliases")} onChange={(event) => update("Aliases", event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm" /></label>
     <label className="block text-xs font-medium text-slate-600">Description<textarea value={value("Description")} onChange={(event) => update("Description", event.target.value)} rows={3} className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm" /></label>
     <label className="block text-xs font-medium text-slate-600">Source text<textarea value={value("Source")} onChange={(event) => update("Source", event.target.value)} rows={2} className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm" /></label>
     <label className="block text-xs font-medium text-slate-600">Tags · comma separated<input value={value("Tags")} onChange={(event) => update("Tags", event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm" /></label>
     <label className="block text-xs font-medium text-slate-600">Wiki URL · optional<input type="url" value={value("Wiki")} onChange={(event) => update("Wiki", event.target.value)} placeholder="https://…" className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm" /></label>
+    <label className="block text-xs font-medium text-slate-600">Trigger scenarios · comma separated<input value={value("Trigger")} onChange={(event) => update("Trigger", event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm" /></label>
+    <label className="block text-xs font-medium text-slate-600">Avoid when · comma separated<input value={value("Avoid")} onChange={(event) => update("Avoid", event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm" /></label>
+    <label className="block text-xs font-medium text-slate-600">Transform goals · comma separated<input value={value("Transform")} onChange={(event) => update("Transform", event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm" /></label>
+    <label className="block text-xs font-medium text-slate-600">Agent instruction<textarea value={value("Instruction")} onChange={(event) => update("Instruction", event.target.value)} rows={3} className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm" /></label>
     <div className="text-xs font-medium text-slate-600">WebP image <span className="font-normal text-slate-400">· 2 MB target size</span>
       <div className="mt-2 flex items-center gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-3">
         {image ? <img src={image} alt={language === "cn" ? "中文图片预览" : "English image preview"} className="h-16 w-20 rounded-md object-cover" /> : <div className="flex h-16 w-20 items-center justify-center rounded-md bg-emerald-50 text-emerald-700"><BookOpen size={19} /></div>}

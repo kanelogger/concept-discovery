@@ -37,10 +37,12 @@ export function createApiServer({ dbPath, fallback } = {}) {
         }
         if (request.method === "POST") return json(response, 201, registry.create(await body(request)));
       }
+      if (path.length === 3 && path[1] === "concepts" && path[2] === "preview" && request.method === "POST") return json(response, 200, { readiness: registry.previewCreate(await body(request)) });
       if (path.length >= 3 && path[1] === "concepts") {
         const id = decodeURIComponent(path[2]);
         if (path.length === 3 && request.method === "GET") return json(response, 200, registry.get(id));
         if (path.length === 3 && request.method === "PATCH") return json(response, 200, registry.update(id, await body(request)));
+        if (path.length === 4 && path[3] === "preview" && request.method === "POST") return json(response, 200, registry.previewUpdate(id, await body(request)));
         if (path.length === 4 && path[3] === "revisions" && request.method === "GET") return json(response, 200, { revisions: registry.revisions(id) });
       }
       json(response, 404, { error: "not_found", message: "Not found" });

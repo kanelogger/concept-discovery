@@ -66,7 +66,7 @@ function validateNames(concept) {
   if (!concept.locales.cn.name && !concept.locales.en.name) bad("At least one locale needs a name");
 }
 
-function fromInput(input) {
+function fromInput(input, { requireName = true } = {}) {
   if (!input || typeof input !== "object" || Array.isArray(input)) bad("Concept must be an object");
   if (typeof input.id !== "string" || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(input.id) || input.id.length > 80) bad("ID must be a lowercase slug");
   for (const key of Object.keys(input)) if (!["id", ...sharedFields, "locales"].includes(key)) bad(`${key} is not a Concept field`);
@@ -82,7 +82,7 @@ function fromInput(input) {
       concept.locales[locale][field] = normalizedField(`locales.${locale}.${field}`, value);
     }
   }
-  validateNames(concept);
+  if (requireName) validateNames(concept);
   return concept;
 }
 
@@ -157,6 +157,25 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
     if (!row) throw new RegistryError(404, "not_found", `Concept ${id} not found`);
     return publicConcept(JSON.parse(row.data));
   };
+  const prepareUpdate = (id, input) => {
+    if (!input || !Number.isInteger(input.expected_version) || !input.changes || typeof input.changes !== "object" || Array.isArray(input.changes)) bad("expected_version and changes are required");
+    if (Object.keys(input).some((key) => !["expected_version", "changes", "media"].includes(key))) bad("Unknown update field");
+    const previous = get(id);
+    if (previous.version !== input.expected_version) throw new RegistryError(409, "version_conflict", "Concept changed; reload before saving");
+    const next = structuredClone(previous);
+    delete next.readiness;
+    const actions = mediaActions(input.media);
+    for (const [path, value] of Object.entries(input.changes)) {
+      if (path === "id" || path === "lifecycle_status" || path === "version") bad(`${path} is not editable`);
+      const normalized = normalizedField(path, value);
+      const parts = path.split(".");
+      if (parts.length === 1) next[path] = normalized;
+      else next.locales[parts[1]][parts[2]] = normalized;
+    }
+    for (const action of actions) next.locales[action.locale].cover_image = action.hash;
+    validateNames(next);
+    return { previous, next, actions, changes: changesBetween(previous, next).filter((change) => change.path !== "readiness") };
+  };
   return {
     close: () => db.close(),
     get,
@@ -207,24 +226,13 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
       }
       return publicConcept(concept);
     },
+    previewCreate: (input) => publicConcept(fromInput(input, { requireName: false })).readiness,
+    previewUpdate: (id, input) => {
+      const { previous, next, changes } = prepareUpdate(id, input);
+      return { version: previous.version, before: previous.readiness, after: publicConcept(next).readiness, changes };
+    },
     update: (id, input, actor = "local-user") => {
-      if (!input || !Number.isInteger(input.expected_version) || !input.changes || typeof input.changes !== "object" || Array.isArray(input.changes)) bad("expected_version and changes are required");
-      if (Object.keys(input).some((key) => !["expected_version", "changes", "media"].includes(key))) bad("Unknown update field");
-      const previous = get(id);
-      if (previous.version !== input.expected_version) throw new RegistryError(409, "version_conflict", "Concept changed; reload before saving");
-      const next = structuredClone(previous);
-      delete next.readiness;
-      const actions = mediaActions(input.media);
-      for (const [path, value] of Object.entries(input.changes)) {
-        if (path === "id" || path === "lifecycle_status" || path === "version") bad(`${path} is not editable`);
-        const normalized = normalizedField(path, value);
-        const parts = path.split(".");
-        if (parts.length === 1) next[path] = normalized;
-        else next.locales[parts[1]][parts[2]] = normalized;
-      }
-      for (const action of actions) next.locales[action.locale].cover_image = action.hash;
-      validateNames(next);
-      const changes = changesBetween(previous, next).filter((change) => change.path !== "readiness");
+      const { previous, next, actions, changes } = prepareUpdate(id, input);
       if (changes.length === 0) return publicConcept(next);
       next.version += 1;
       next.updated_at = new Date().toISOString();
