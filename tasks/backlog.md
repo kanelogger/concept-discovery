@@ -4,7 +4,7 @@
 
 任务启动前按 [协作流程](../workflow/README.md) 创建独立任务文件，写明范围、验收和证据；产品命名、字段冲突与未决问题见 [产品方向与待定契约](../specs/product-contract.md)。
 
-P1 的 [Concept Schema、CRUD 与 Dashboard 规格](../specs/concept-schema-crud-dashboard.md) 已发布，由 [ready-for-agent 实施任务](0022-implement-concept-schema-crud-dashboard.md) 承接；产品代码尚未开始。规格已定目录生命周期和各语言可浏览/可推荐资格，出处只检查非空、不执行外部核验。正式实施前记录本地应用栈与存储选型；推荐结果 Schema 与模型配置属于 P2 前置工作。旧 `type` 映射留到明确的导入任务，不阻塞手工 Concept CRUD。
+P1 的 [Concept Schema、CRUD 与 Dashboard 规格](../specs/concept-schema-crud-dashboard.md) 已发布，由 [上层实施任务](0022-implement-concept-schema-crud-dashboard.md)及其七张纵向 tickets 承接；产品代码尚未开始。当前可立即开工的是 [0023：持久化 Concept 草稿](0023-persist-concept-draft.md)，其他切片见 [0024](0024-bilingual-browse-search.md)、[0025](0025-localized-image-wiki.md)、[0026](0026-recommendable-locale-readiness.md)、[0027](0027-revision-history-conflicts.md)、[0028](0028-archive-restore-delete-concept.md)、[0029](0029-real-registry-dashboard.md)，实际开工顺序以各 ticket 的 `Blocked by` 为准。规格已定目录生命周期和各语言可浏览/可推荐资格，出处只检查非空、不执行外部核验。正式实施前记录本地应用栈与存储选型；推荐结果 Schema 与模型配置属于 P2 前置工作。旧 `type` 映射留到明确的导入任务，不阻塞手工 Concept CRUD。
 
 | 顺序 | MVP 主线 | 前置条件 | 完成验收 |
 | --- | --- | --- | --- |
