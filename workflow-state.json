@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "task_id": "0026-recommendable-locale-readiness",
+  "task_id": "0027-revision-history-conflicts",
   "phase": "complete",
-  "task_file": "tasks/0026-recommendable-locale-readiness.md",
+  "task_file": "tasks/0027-revision-history-conflicts.md",
   "updated_at": "2026-09-25",
-  "summary": "双语可推荐资格字段、编辑缺失提示与保存前降级影响确认已完成。",
+  "summary": "可读 Revision 历史与过期编辑冲突恢复已完成。",
   "blockers": [],
-  "next_actions": ["启动 tasks/0027-revision-history-conflicts.md", "继续 0028–0029"],
+  "next_actions": ["启动 tasks/0028-archive-restore-delete-concept.md", "继续 0029"],
   "required_checks": ["npm run check", "npm run demo:build", "npm run test:product"],
   "verification": [
     {"command": "npm run test:product", "result": "passed", "recorded_at": "2026-09-25"},

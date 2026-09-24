@@ -1,6 +1,6 @@
 # Concept Discovery · MVP implementation workspace
 
-This branch implements the MVP in ticket order. Tickets 0023–0026 provide persistent Concept drafts, bilingual browsing/search, independent WebP images and Wiki links, and per-language recommendation readiness. Remaining P1 tickets and P2–P5 are pending; see [backlog](tasks/backlog.md). The earlier memory-only UI remains on `codex/concept-crud-demo` for reference.
+This branch implements the MVP in ticket order. Tickets 0023–0027 provide persistent Concept drafts, bilingual browsing/search, independent WebP images and Wiki links, per-language recommendation readiness, and inspectable revisions with conflict recovery. Remaining P1 tickets and P2–P5 are pending; see [backlog](tasks/backlog.md). The earlier memory-only UI remains on `codex/concept-crud-demo` for reference.
 
 ## Run locally
 

@@ -227,3 +227,46 @@ test("recommendability preview uses the same per-language rules as saved records
     rmSync(directory, { recursive: true, force: true });
   }
 });
+
+test("revision history preserves before and after values while stale edits cannot overwrite newer media or text", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "concept-discovery-revisions-"));
+  const app = createApiServer({ dbPath: join(directory, "registry.sqlite") });
+  const red = readFileSync(new URL("./fixtures/red.webp", import.meta.url));
+  const blue = readFileSync(new URL("./fixtures/blue.webp", import.meta.url));
+  const redHash = createHash("sha256").update(red).digest("hex");
+  const blueHash = createHash("sha256").update(blue).digest("hex");
+  try {
+    await new Promise((resolve) => app.server.listen(0, "127.0.0.1", resolve));
+    const origin = `http://127.0.0.1:${app.server.address().port}`;
+    const created = await request(origin, "POST", "/api/concepts", { id: "history", locales: { cn: { name: "修订", description: "初始描述", source_text: "中文出处" }, en: { name: "History" } } });
+    assert.equal(created.value.version, 1);
+    const firstSession = await request(origin, "GET", "/api/concepts/history");
+    const secondSession = await request(origin, "GET", "/api/concepts/history");
+    const newer = await request(origin, "PATCH", "/api/concepts/history", { expected_version: firstSession.value.version, changes: { "locales.cn.description": "新的描述", "locales.cn.wiki_url": "https://example.org/cn" }, media: { cn: { action: "set", data: red.toString("base64") } } });
+    assert.equal(newer.status, 200);
+    assert.equal(newer.value.version, 2);
+    const stale = await request(origin, "PATCH", "/api/concepts/history", { expected_version: secondSession.value.version, changes: { "locales.cn.description": "过期描述", "locales.en.wiki_url": "https://example.org/en" }, media: { cn: { action: "set", data: blue.toString("base64") } } });
+    assert.equal(stale.status, 409);
+    assert.equal(stale.value.error, "version_conflict");
+    assert.equal((await request(origin, "GET", "/api/concepts/history")).value.locales.cn.description, "新的描述");
+    assert.equal((await fetch(`${origin}/api/assets/${blueHash}`)).status, 404);
+    const noOp = await request(origin, "PATCH", "/api/concepts/history", { expected_version: 2, changes: { "locales.cn.description": "新的描述" }, media: { cn: { action: "set", data: red.toString("base64") } } });
+    assert.equal(noOp.value.version, 2);
+    const replaced = await request(origin, "PATCH", "/api/concepts/history", { expected_version: 2, changes: { "locales.cn.wiki_url": "https://example.org/updated", domains: ["reasoning"] }, media: { cn: { action: "set", data: blue.toString("base64") } } });
+    assert.equal(replaced.value.version, 3);
+    const revisions = (await request(origin, "GET", "/api/concepts/history/revisions")).value.revisions;
+    assert.equal(revisions.length, 3);
+    assert.deepEqual(revisions.map((revision) => [revision.version_before, revision.version_after, revision.operation]), [[2, 3, "update"], [1, 2, "update"], [0, 1, "create"]]);
+    assert.ok(revisions.every((revision) => revision.actor && revision.changed_at));
+    assert.deepEqual(revisions[0].changes.find((change) => change.path === "locales.cn.cover_image"), { path: "locales.cn.cover_image", before: redHash, after: blueHash });
+    assert.deepEqual(revisions[0].changes.find((change) => change.path === "locales.cn.wiki_url"), { path: "locales.cn.wiki_url", before: "https://example.org/cn", after: "https://example.org/updated" });
+    assert.deepEqual(revisions[0].changes.find((change) => change.path === "domains"), { path: "domains", before: [], after: ["reasoning"] });
+    assert.equal(revisions[1].changes.find((change) => change.path === "locales.cn.description").before, "初始描述");
+    assert.ok(!JSON.stringify(revisions).includes(red.toString("base64")));
+    assert.equal((await fetch(`${origin}/api/assets/${redHash}`)).status, 200);
+    assert.equal((await fetch(`${origin}/api/assets/${blueHash}`)).status, 200);
+  } finally {
+    await app.close();
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
