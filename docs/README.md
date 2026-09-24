@@ -8,7 +8,7 @@
 
 | 材料 | 状态与用途 |
 | --- | --- |
-| [Concept Discovery PRD](method-system-prd-v0.1.md) | v0.3；产品目标、Skillbox 参考路线、五阶段 MVP、建议 Schema 与未来验收标准 |
+| [Concept Discovery PRD](method-system-prd-v0.1.md) | v0.4；产品目标、Skillbox 参考路线、五阶段 MVP、cn/en 双语字段与配图、未来验收标准 |
 | [Concept Registry 清洗稿](method-registry-curated-v0.1.md) | v0.1 清洗输入；30 个 Core 清洗项、Candidate Packs、Archive 与补充优先级；正式准入尚未完成 |
 
 PRD 已将产品命名为 Concept Discovery；文件路径仍为 `method-*`，命名迁移见 [产品方向与待定契约](../specs/product-contract.md)。Skillbox 参考源码在被 Git 忽略的 `docs/private-project/skillbox`，它不是本项目已实现代码。

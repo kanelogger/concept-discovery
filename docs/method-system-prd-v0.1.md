@@ -1,6 +1,6 @@
-# Concept Discovery PRD v0.3
+# Concept Discovery PRD v0.4
 
-版本：v0.3
+版本：v0.4
 日期：2026-09-24
 
 状态：MVP 范围冻结（产品未实现）
@@ -145,7 +145,7 @@ Web 端面向人，因此采用：
 
 > Card First
 
-Concept 浏览与推荐都以卡片为正式展示形式；卡片包含标题、描述、WebP 配图（无图时用占位图）、标签和类型。
+Concept 浏览与推荐都以卡片为正式展示形式；卡片包含标题、描述、WebP 配图（无图时用占位图）、标签和类型。Web 提供 `cn` / `en` 切换，默认 `cn`；界面文案、Concept 内容和配图使用同一语言。
 
 不同页面承担不同职责：
 
@@ -177,6 +177,8 @@ Concept 浏览与推荐都以卡片为正式展示形式；卡片包含标题、
 - 一句话描述
 - 类型
 - 标签
+
+标题、描述、配图与标签按当前 `locale` 从 `locales.cn` 或 `locales.en` 读取；类型为共用枚举，展示标签按界面语言翻译。
 
 # 10. Recommendation Card
 
@@ -210,34 +212,41 @@ Concept 浏览与推荐都以卡片为正式展示形式；卡片包含标题、
 - View
 - Ignore
 
+推荐卡的 Concept 文案、配图与 Why Now 使用同一 `locale`，不混用另一种语言的图片或文案。
+
 Not Useful 不在首屏按钮中：用户点击 View 查看详情后，才可在详情或卡片二级操作处标记（事件语义见 §30）。
 
 # 11. Concept 配图
 
-MVP 支持用户直接上传 WebP。
+MVP 支持为同一 Concept 分别上传 `cn` 与 `en` WebP。
 
 要求：
 
 - 格式：`.webp`
 - 单图建议 ≤ 2MB
-- 支持上传
-- 支持替换
-- 支持删除
+- 两种语言分别上传、替换、删除
 - 支持预览
-- 无图时显示默认占位图
+- 编辑草稿无某语言图片时，该语言显示默认占位图；正式可推荐 Concept 需要两种语言的图片
+
+正式可推荐 Concept 删除任一语言图片前须先替换，或退出推荐池；不能在该语言继续展示另一语言的图片。
 
 建议路径：
 
 ```text
-/uploads/concepts/{concept-id}.webp
+/uploads/concepts/{concept-id}/cn.webp
+/uploads/concepts/{concept-id}/en.webp
 ```
 
-`{concept-id}` 即 Concept 的 `id`（slug 规则见 §12），示例中的 `occams-razor` 就是 id 本身。
+`{concept-id}` 即 Concept 的 `id`（slug 规则见 §12）；同一 Concept 的两张图片有独立路径与修订记录。
 
 字段：
 
 ```yaml
-cover_image: /uploads/concepts/occams-razor.webp
+locales:
+  cn:
+    cover_image: /uploads/concepts/occams-razor/cn.webp
+  en:
+    cover_image: /uploads/concepts/occams-razor/en.webp
 ```
 
 MVP 不做：
@@ -252,63 +261,59 @@ MVP 不做：
 
 ```yaml
 id: occams-razor
-name: 奥卡姆剃刀
-
-aliases:
-  - Occam's Razor
-
-description: >
-  在解释力相近时，优先选择更简单的解释。
-
-cover_image: /uploads/concepts/occams-razor.webp
-
 status: core
-
 interaction_type: operator
 epistemic_type: principle
-
 domains:
   - reasoning
   - communication
-
 intents:
   - simplify
   - reduce-complexity
-
-trigger:
-  - 回答冗余
-  - 方案过度设计
-  - 存在大量非必要假设
-
-avoid_when:
-  - 简化会删除关键约束
-  - 复杂性本身就是问题重点
-
-transform:
-  - 删除无贡献复杂度
-  - 提高信息密度
-
-agent_instruction: >
-  删除对核心结论没有贡献的假设、步骤和重复信息；
-  保留关键事实、证据和必要因果链。
-
-source:
-  title: ""
-  url: ""
-  note: ""
-
-tags:
-  - 表达
-  - 解释
-
 version: 1
+
+locales:
+  cn:
+    name: 奥卡姆剃刀
+    aliases: [奥卡姆原则]
+    description: 在解释力相近时，优先选择更简单的解释。
+    cover_image: /uploads/concepts/occams-razor/cn.webp
+    tags: [表达, 解释]
+    trigger: [回答冗余, 方案过度设计]
+    avoid_when: [简化会删除关键约束]
+    transform: [删除无贡献复杂度, 提高信息密度]
+    agent_instruction: >
+      删除对核心结论没有贡献的假设、步骤和重复信息；
+      保留关键事实、证据和必要因果链。
+    source:
+      title: ""
+      url: ""
+      note: ""
+  en:
+    name: Occam's Razor
+    aliases: [Ockham's Razor]
+    description: Prefer the simpler explanation when explanatory power is comparable.
+    cover_image: /uploads/concepts/occams-razor/en.webp
+    tags: [communication, explanation]
+    trigger: [An answer is verbose, A solution is overengineered]
+    avoid_when: [Simplification would remove a critical constraint]
+    transform: [Remove unnecessary complexity, Increase information density]
+    agent_instruction: >
+      Remove assumptions, steps, and repetition that do not support the main conclusion.
+      Keep essential facts, evidence, and causal links.
+    source:
+      title: ""
+      url: ""
+      note: ""
 ```
 
 字段约定：
 
 - `id`：创建时确定的 slug（小写字母、数字、连字符），创建后不可变；Relation 与配图均按 `id` 引用。
-- `tags`：自由标签，与受控的 `domains` / `intents` 并列，供列表筛选与卡片展示。
-- `version`：从 1 开始，每次内容修订递增；Recommendation Log 记录推荐发生时的 `concept_version`（见 §31）。
+- `locales.cn` / `locales.en`：同一 Concept 下独立保存名称、别名、描述、WebP 配图、自由标签、Trigger、Avoid When、Transform、Agent Instruction 与 Source。Search、卡片、详情和 Prompt Composer 按请求语言取同一组字段。
+- `domains` / `intents`、`interaction_type` / `epistemic_type` 与 `id` 是跨语言共用的稳定值；`tags` 是每种语言自己的自由展示与筛选标签，不要求两组字符串相同。
+- 草稿可暂缺某种语言；进入正式推荐池前，两种语言的必填文案和 WebP 配图都须通过校验。正式条目失去必填内容时须先退出推荐池；缺失语言不得静默回退到另一种语言。具体必填字段与迁移规则由 Schema 任务定稿。
+- `version`：从 1 开始，任一语言的内容或配图修订都递增；Recommendation Log 记录推荐发生时的 `concept_version`（见 §31）。
 
 # 13. Concept 类型
 
@@ -380,8 +385,12 @@ id
 source_concept_id
 target_concept_id
 relation_type
-note
+note:
+  cn: string
+  en: string
 ```
+
+关系的 Concept ID 和 `relation_type` 跨语言共用；面向用户的 Relation Note 分别保存 `cn` / `en` 文案。
 
 `weight` 不进入 MVP：Relation 在推荐中仅作为同分时的辅助排序信号（见 §18），差异化权重留待真实推荐数据支持后再引入。
 
@@ -402,9 +411,13 @@ part_of
   often_used_with → 机会成本
 ```
 
-说明：
+说明按语言保存：
 
-> 沉没成本帮助排除无法收回的历史投入，机会成本帮助比较从现在开始的未来选择。
+```yaml
+note:
+  cn: 沉没成本帮助排除无法收回的历史投入，机会成本帮助比较从现在开始的未来选择。
+  en: Sunk costs set aside unrecoverable past investment; opportunity costs compare future alternatives.
+```
 
 ```text
 确认偏见
@@ -432,6 +445,8 @@ part_of
 - Relation Type
 - Target Concept
 - Relation Note
+
+Target Concept 名称和 Relation Note 均按当前 `locale` 展示；关系类型为共用枚举，显示名称由界面翻译。
 
 # 17. Relation 存储规则
 
@@ -509,8 +524,10 @@ MVP 暂缓 Recipe；Relation 的存储、编辑和展示不依赖 Recipe 数据�
 > 我知道自己要找什么。
 
 ```text
-search_concepts(query)
+search_concepts(query, locale)
 ```
+
+搜索当前语言的名称、别名、描述和标签；Concept ID 与受控字段可作为跨语言过滤条件。`locale` 只接受 `cn` 或 `en`。
 
 ## Recommend
 
@@ -519,7 +536,7 @@ search_concepts(query)
 > 我不知道自己需要什么。
 
 ```text
-recommend_concepts(context)
+recommend_concepts(context, locale)
 ```
 
 这是产品核心。
@@ -532,16 +549,20 @@ recommend_concepts(context)
   "context": "...",
   "response": "...",
   "user_intent": "...",
+  "locale": "cn",
   "limit": 3
 }
 ```
 
 `user_intent` 为可选显式输入，与后端从上下文推断的 Intent（见 §25）相互印证，不强制一致；推荐以系统推断为准。
 
+`locale` 为显式输入，取 `cn` 或 `en`；Web 默认传 `cn`，切换后传 `en`，Skill 按当前用户语言传值。不依据输入文本自动猜测语言。
+
 # 22. Recommendation 输出
 
 ```json
 {
+  "locale": "cn",
   "diagnosis": [
     "当前判断受过去投入影响",
     "缺少未来替代方案比较"
@@ -568,8 +589,9 @@ recommend_concepts(context)
 - `reason` 即 Recommendation Card 上的 Why Now（见 §10），二者是同一内容的机器表示与展示文案。
 - `diagnosis` 是自由文本，描述当前上下文缺失或被扭曲的认知视角；不要求与 `recommendations` 一一对应，但每条 `reason` 应能追溯到 `diagnosis` 描述的某个视角。
 - `confidence` 是推荐器自评的 0~1 分数，表示"该 Concept 对当前上下文有实际帮助"的可能性；MVP 仅用于排序与展示，不做校准。
+- 输出回显 `locale`；`diagnosis`、`name`、`reason` 使用该语言，卡片的描述、标签和配图从同一语言的 Concept 字段读取。概念 ID 与类型不翻译。
 
-空推荐的机器表示为 `{"recommendations": []}`；`NONE` 只是展示层与文档标签，不进入 API 输出。
+空推荐时 `recommendations` 为 `[]`，输出仍回显 `locale`；`NONE` 只是展示层与文档标签，不进入 API 输出。
 
 # 23. 推荐规则
 
@@ -612,7 +634,7 @@ NONE / Top 1~3
 
 直接使用紧凑 Concept Cards + LLM Router。
 
-给 LLM 的紧凑卡片包含：`id` / `name` / 一句话 `description` / `interaction_type` / `epistemic_type` / `domains` / `intents` / `trigger` / `avoid_when`；不含配图与 `agent_instruction` 全文。
+给 LLM 的紧凑卡片包含：`id` / 请求语言的 `name`、一句话 `description`、`trigger`、`avoid_when` / 共用的 `interaction_type`、`epistemic_type`、`domains`、`intents`；不含配图与 `agent_instruction` 全文。
 
 LLM Router 需要调用大模型；上下文与回答是否离开本机取决于所选模型提供方，这是 P0 决策项（见 §34、§40）。
 
@@ -671,12 +693,15 @@ Contextual Prompt
 
 不在 Registry 中保存一份固定完整 Prompt。
 
+Composer 使用所选 `locale` 的 `agent_instruction`、`transform` 和 `avoid_when`，生成同语言的 Prompt；原始 task / context / response 保留原文，不因界面切换而自动翻译。
+
 # 27. Web 页面
 
 MVP 只做 4 个核心页面。
 
 ## 27.1 Concepts
 
+- `cn` / `en` 切换（界面文案、卡片内容和图片同步）
 - Card Grid
 - Search
 - Filter
@@ -687,6 +712,8 @@ MVP 只做 4 个核心页面。
 - Archive / Delete
 
 ## 27.2 Concept Detail
+
+详情页遵守当前 `locale`；类型、Domain 等共用值以当前语言的界面标签显示。
 
 顶部 Hero：
 
@@ -715,11 +742,11 @@ MVP 只做 4 个核心页面。
 
 ## 27.3 Concept Editor
 
-表单：
+表单把跨语言共用字段与 `cn` / `en` 内容分区；两个语言区分别编辑和预览：
 
 - Name
 - Description
-- Cover WebP
+- Cover WebP（`cn` / `en` 分别上传）
 - Aliases
 - Type
 - Domain
@@ -741,6 +768,8 @@ MVP 只做 4 个核心页面。
 
 Relations 编辑在 §34 P3 接入；P1 先完成 Concept 本身的 CRUD。
 
+草稿可分次补齐语言内容；进入正式推荐池前校验两种语言的必填文案及配图，缺失时在编辑页显示具体语言和字段。
+
 ## 27.4 Recommendation Playground
 
 这是 MVP 最重要页面。
@@ -751,6 +780,7 @@ Relations 编辑在 §34 P3 接入；P1 先完成 Concept 本身的 CRUD。
 Task
 Context
 Agent Response
+Locale (cn / en)
 ```
 
 输出 Recommendation Cards。
@@ -777,8 +807,8 @@ Read：
 - 详情
 
 Update：
-- 编辑字段
-- 修改图片
+- 分别编辑 `cn` / `en` 字段
+- 分别修改 `cn` / `en` 图片
 - 修改 Relation
 - 修改 Source
 
@@ -799,10 +829,10 @@ concept-discovery
 ```text
 1. 判断当前任务是否值得 Concept Discovery
 2. 收集 task / context / response
-3. 调 recommend_concepts
+3. 携带 locale 调 recommend_concepts
 4. 空推荐（recommendations: []）→ 正常继续
 5. 有推荐 → 展示 1~3 个 Concept
-6. 用户 Apply → get concept → compose prompt
+6. 用户 Apply → 按 locale 获取 concept → compose prompt
 7. Agent 执行
 8. report usage
 ```
@@ -843,6 +873,7 @@ not_useful
   "task_id": "...",
   "concept_id": "occams-razor",
   "concept_version": 3,
+  "locale": "cn",
   "event": "applied",
   "source": "skill",
   "timestamp": "..."
@@ -850,6 +881,8 @@ not_useful
 ```
 
 `source` 取 `skill`（真实使用）或 `playground`（调试），Eval 默认只统计 `skill` 来源。
+
+`locale` 记录本次推荐与应用使用的语言，供双语质量分析；同一 Concept 的 ID 和修订版本跨语言共用。
 
 用于：
 
@@ -876,7 +909,7 @@ Eval 从 MVP 开始建设。
 Expected：
 
 ```text
-奥卡姆剃刀
+occams-razor
 ```
 
 多推荐是否合格见规则 4（必须互补）；本例中"知识蒸馏"与"奥卡姆剃刀"高度重叠，单独命中奥卡姆剃刀即可，同时输出第二个需理由说明互补作用。
@@ -888,8 +921,8 @@ Expected：
 Expected：
 
 ```text
-沉没成本
-机会成本
+sunk-cost
+opportunity-cost
 ```
 
 输入：
@@ -917,7 +950,8 @@ Not Useful Rate
 判定协议：
 
 - 50 个 Eval Case 由维护者人工标注 Expected；场景来源为真实使用日志与典型场景各半。
-- Hit = 输出名单与 Expected 的交集；Top-1 Hit Rate 看首个推荐，Precision 看整组推荐。
+- 每个 Eval Case 标明 `locale`，覆盖 `cn` / `en`；除了 Concept ID 命中，还检查诊断、Why Now、卡片字段和配图是否使用对应语言。
+- Expected 使用跨语言共用的 Concept ID，显示名称由 `locale` 解析。Hit = 输出 ID 名单与 Expected ID 的交集；Top-1 Hit Rate 看首个推荐，Precision 看整组推荐。
 - "用户原本没想到"是主观体验，MVP 以 Apply Rate 作为行为代理指标，不在离线 Eval 中判定。
 - NONE 类用固定琐碎输入（如数学事实问答），要求输出 `recommendations: []`。
 - 数值通过门槛未定，见 §40。
@@ -963,7 +997,7 @@ Not Useful Rate
 - 萨根标准
 - 古德哈特定律
 
-名单来自 [清洗稿](../docs/method-registry-curated-v0.1.md) 的 30 个候选，全部须通过准入审查后才能导入；准入门槛与逐条审核记录尚待定稿，缺口见[产品契约](../specs/product-contract.md#待定契约材料冲突与字段缺口)。"知识蒸馏"等归类存疑项在准入时重定归属或暂缓。数量目标不替代质量验收。
+名单来自 [清洗稿](../docs/method-registry-curated-v0.1.md) 的 30 个候选，全部须通过准入审查后才能导入；清洗稿只有中文内容，英文文案与双语配图仍需补齐和审核。准入门槛与逐条审核记录尚待定稿，缺口见[产品契约](../specs/product-contract.md#待定契约材料冲突与字段缺口)。"知识蒸馏"等归类存疑项在准入时重定归属或暂缓。数量目标不替代质量验收。
 
 # 34. MVP 实施顺序
 
@@ -971,19 +1005,19 @@ Not Useful Rate
 
 ## P1：Concept CRUD
 
-建立同一份 Concept Registry 与本地 Web。以 Card First 展示 Concept，支持标题、描述、WebP 配图、标签、类型、搜索、创建、编辑、归档和删除；保留内容修订记录。优先参考 Skillbox 的 Web、CRUD、Revision 与 Search 能力。首批导入仅限通过准入审查的 Concept（见 §33）。
+建立同一份 Concept Registry 与本地 Web。以 Card First 展示 Concept，支持 `cn` / `en` 标题、描述、WebP 配图与标签，类型跨语言共用；按语言搜索、创建、编辑、归档和删除，并保留内容修订记录。优先参考 Skillbox 的 Web、CRUD、Revision 与 Search 能力。首批导入仅限通过准入审查且双语字段齐备的 Concept（见 §33）。
 
 ## P2：Recommendation Playground
 
-实现 `recommend_concepts`、Diagnosis、Why Now、空推荐与 0~3 个推荐卡；Playground 使用正式推荐接口。用户选择 Apply 后生成上下文化 Prompt。优先参考 Skillbox 的 Recommend 边界，但按 Concept Schema、`avoid_when` 和本产品的输出契约适配。此阶段准备可复现的离线 Eval 案例，避免到真实使用时才首次检查推荐质量。
+实现 `recommend_concepts`、Diagnosis、Why Now、空推荐与 0~3 个推荐卡；Playground 使用正式推荐接口并显式传 `locale`。用户选择 Apply 后生成同语言的上下文化 Prompt。优先参考 Skillbox 的 Recommend 边界，但按 Concept Schema、`avoid_when` 和本产品的输出契约适配。此阶段准备覆盖两种语言的离线 Eval 案例，避免到真实使用时才首次检查推荐质量。
 
 ## P3：Concept Relation
 
-支持手动添加五种关系、方向语义、Relation Note、详情展示与轻量推荐信号。Relation 与 Recipe 分离；Recipe 不进入 MVP。
+支持手动添加五种关系、方向语义、双语 Relation Note、详情展示与轻量推荐信号。Relation 与 Recipe 分离；Recipe 不进入 MVP。
 
 ## P4：Concept Discovery Skill
 
-接入 Agent，复用同一 Registry、推荐接口和 Prompt Composer；用户选择后才应用 Concept。
+接入 Agent，复用同一 Registry、推荐接口和 Prompt Composer；传递用户选择的 `locale`，用户选择后才应用 Concept。
 
 ## P5：Feedback / Eval
 
@@ -994,12 +1028,14 @@ Not Useful Rate
 达到：
 
 ```text
-30 个 Core Concepts
+30 个 cn/en 内容与配图齐备的 Core Concepts
 +
-50 个 Eval Cases
+50 个标明 locale 且覆盖 cn/en 的 Eval Cases
 +
 100 次真实推荐
 ```
+
+真实推荐记录按 `locale` 分开统计，便于判断两种语言的质量；具体样本分配与通过门槛见 §40。
 
 之后再决定是否扩大。
 
@@ -1122,3 +1158,4 @@ MVP 的核心不是做更多功能。
 - `confidence` 是否及如何校准：依赖 100 次真实推荐的数据。
 - 清洗稿 `type` 字段到 `interaction_type` / `epistemic_type` 双字段的导入映射。
 - Recipe 数据结构：MVP 暂缓，预留字段未定。
+- 双语准入细则：`cn` / `en` 的必填字段、既有中文清洗稿的英文内容核验与迁移规则，在 Schema/准入任务定稿。
