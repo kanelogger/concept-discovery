@@ -4,11 +4,11 @@
 
 任务启动前按 [协作流程](../workflow/README.md) 创建独立任务文件，写明范围、验收和证据；产品命名、字段冲突与未决问题见 [产品方向与待定契约](../specs/product-contract.md)。
 
-实施前置：先定稿 Concept/推荐结果 Schema（含 `locales.cn` / `locales.en`、各语言 WebP、纯文本 `source_text`、可选 `wiki_url` 与 `locale` 输入输出）、目录生命周期和按语言计算的推荐资格。某语言进入可浏览目录前要求名称、描述和非空出处文本；只检查出处是否填写，不自动核验真实性。普通专业术语可在缺少推荐指令时进入目录。记录本地应用栈、存储和模型配置方式。这些准备工作服务五阶段主线，不构成 Fork 阶段。
+P1 的 [Concept Schema、CRUD 与 Dashboard 规格](../specs/concept-schema-crud-dashboard.md) 已发布，由 [ready-for-agent 实施任务](0022-implement-concept-schema-crud-dashboard.md) 承接；产品代码尚未开始。规格已定目录生命周期和各语言可浏览/可推荐资格，出处只检查非空、不执行外部核验。正式实施前记录本地应用栈与存储选型；推荐结果 Schema 与模型配置属于 P2 前置工作。旧 `type` 映射留到明确的导入任务，不阻塞手工 Concept CRUD。
 
 | 顺序 | MVP 主线 | 前置条件 | 完成验收 |
 | --- | --- | --- | --- |
-| 1 | Concept CRUD | Schema 和技术选型；类型字段独立可空 | 同一 Registry 支撑本地 Card First Web；卡片按 `cn` / `en` 展示对应内容和 WebP，普通术语可先入目录，未填类型时卡片不显示类型；可分别编辑出处文本与 Wiki 链接、按语言搜索、归档/删除、查看修订。Dashboard 展示目录和各语言推荐资格；无效输入不破坏有效数据。优先参考 Skillbox Web/CRUD/Revision/Search。 |
+| 1 | [Concept CRUD](0022-implement-concept-schema-crud-dashboard.md) | [P1 规格](../specs/concept-schema-crud-dashboard.md)已发布；应用栈与存储选型待记录 | 同一 Registry 支撑本地 Card First Web；卡片按 `cn` / `en` 展示对应内容和 WebP，普通术语可先入目录，未填类型时卡片不显示类型；可分别编辑出处文本与 Wiki 链接、按语言搜索、归档/删除、查看修订。Dashboard 展示目录和各语言推荐资格；无效输入不破坏有效数据。优先参考 Skillbox Web/CRUD/Revision/Search。 |
 | 2 | Recommendation API / Eval Harness | 至少一个语言有可推荐的 Concept；模型配置与数据流定稿 | 开发用评测入口向正式推荐接口传 `locale`，得到同语言诊断、Why Now 和 0–3 个推荐或空结果；用例覆盖 `cn` / `en`、无推荐和禁用条件，不写真实使用日志。Web 无 Playground 或 Prompt 展示。优先参考 Skillbox Recommend。 |
 | 3 | Concept Relation | Concept CRUD 与推荐接口可用 | 手动维护五种关系和 `cn` / `en` 备注，校验引用和方向；详情按语言展示关系，轻量推荐信号有可复现案例；不引入 Recipe。 |
 | 4 | Concept Discovery Skill | 推荐接口、Relation 和 Prompt Composer 可用 | 只在用户以命令或明确自然语言请求调用时运行；Agent 与 Web 读取同一 Registry，按用户 `locale` 推荐，用户选择后生成并执行同语言 Prompt；无模型时提示配置或选择，未经选择不上传上下文。 |

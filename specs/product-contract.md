@@ -1,6 +1,6 @@
 # 产品方向与待定契约
 
-状态：产品方向索引；产品契约尚未定稿。此文件从两份产品输入提取边界，不将 Draft 示例提升为已实现能力。
+状态：产品方向索引；P1 的 Concept Schema、CRUD 与 Dashboard 已有可实施规格，其余产品契约仍待逐阶段定稿。此文件从两份产品输入提取边界，不将 Draft 示例提升为已实现能力。
 
 ## 已确认的产品方向
 
@@ -14,6 +14,10 @@
 - 目录允许收录普通专业术语；某语言有名称、描述和出处文本即可浏览，补齐配图、触发场景和 Agent Instruction 后才进入该语言推荐池，不要求另一语言或两个类型字段齐备。Web、搜索、推荐、Apply 不混用另一语言的文案或图片。参见 [PRD §12](../docs/method-system-prd-v0.1.md#12-concept-数据模型)、[§20](../docs/method-system-prd-v0.1.md#20-搜索与推荐)。
 - 每种语言有纯文本 `source_text`；该语言进入可浏览目录前要求非空，只检查非空，不联网核验出处。`wiki_url` 是可选的延伸阅读链接，缺失时隐藏入口，不跨语言回退。参见 [PRD §12](../docs/method-system-prd-v0.1.md#12-concept-数据模型)、[§27](../docs/method-system-prd-v0.1.md#27-web-页面)。
 - Skill 仅在明确命令或直接自然语言请求下运行；本地模型优先，远端模型在首次发送上下文前明确告知并由用户选择。没有可用模型时提示配置或选择，不伪造空推荐。参见 [PRD §24](../docs/method-system-prd-v0.1.md#24-推荐流程)、[§29](../docs/method-system-prd-v0.1.md#29-skill)。
+
+## P1 可实施规格
+
+[Concept Schema、CRUD 与 Dashboard 实施规格](concept-schema-crud-dashboard.md) 明确了跨语言和各语言字段、派生的浏览/推荐资格、归档生命周期、Revision、Card First Web 与 Dashboard 的真实数据口径。该规格由 [待实施任务](../tasks/0022-implement-concept-schema-crud-dashboard.md) 承接；当前仓库仍没有正式产品实现。应用框架与存储选型在实施前记录，后续推荐、Relation、Skill 与 Feedback 另行定稿。
 
 ## 命名与版本
 
@@ -35,14 +39,14 @@
 | 类型字段范围 | [PRD §12、§13](../docs/method-system-prd-v0.1.md#12-concept-数据模型)使用 `interaction_type` + `epistemic_type`，现有枚举只覆盖方法论相关类别；[清洗稿 §3、§7](../docs/method-registry-curated-v0.1.md#7-skill-推荐时的最小卡片)使用旧 `type` | 已定稿：两个字段独立可空，已填写时需符合枚举；目录收录、卡片展示和推荐资格都不强迫普通术语选择近似类型。旧 `type` 的导入映射留待 Schema 任务 |
 | 关联字段名 | [PRD §14](../docs/method-system-prd-v0.1.md#14-concept-relation)定为独立关系表 `concept_relations`，不使用卡片内嵌字段；[清洗稿 §6 P1](../docs/method-registry-curated-v0.1.md#6-后续补充优先级)建议 `related_methods` | PRD 侧已定稿独立关系表（含方向语义，见 §17）；清洗稿 `related_methods` 的导入映射仍待定 |
 | 空推荐表示 | [PRD §22](../docs/method-system-prd-v0.1.md#22-recommendation-输出)已定 `recommendations: []` 为机器表示、`NONE` 仅作标签；[清洗稿 §8](../docs/method-registry-curated-v0.1.md#8-推荐策略建议)仍写 `none` | 已定稿：以 PRD §22 为准；待更新清洗稿 §8 的 `none` 写法并补可校验样例 |
-| `status`、包归属 | [PRD §12](../docs/method-system-prd-v0.1.md#12-concept-数据模型)示例 `status: core`，未定义 pack；[清洗稿 §1、§4、§5](../docs/method-registry-curated-v0.1.md#1-清洗结论)组织为 Core、Candidate Packs、Archive | 明确生命周期状态、包归属是否独立，以及默认推荐池过滤规则；PRD 仍只示例 `status: core`，未定义 pack |
+| `status`、包归属 | [PRD §12](../docs/method-system-prd-v0.1.md#12-concept-数据模型)示例 `status: core`，未定义 pack；[清洗稿 §1、§4、§5](../docs/method-registry-curated-v0.1.md#1-清洗结论)组织为 Core、Candidate Packs、Archive | [P1 规格](concept-schema-crud-dashboard.md) 已将生命周期定为 `active` / `archived`，浏览/推荐资格按语言派生；`core` 不作状态。旧 Core/Pack 分类及迁移映射留待后续。 |
 | 模型字段缺口 | [PRD §27](../docs/method-system-prd-v0.1.md#27-web-页面)要求按 Tag 筛选、[§23](../docs/method-system-prd-v0.1.md#23-推荐规则)要求 Why Now；[PRD §12](../docs/method-system-prd-v0.1.md#12-concept-数据模型)已含 `locales.cn.tags` / `locales.en.tags`，[§22](../docs/method-system-prd-v0.1.md#22-recommendation-输出)已注明 `reason` 即 Why Now | 已定稿方向：`tags` 是每种语言各自的自由标签，`domains` / `intents` 是跨语言共用受控值；`reason` 即 Why Now。Schema 落地时以 PRD §12、§22 为准并加校验 |
-| 按语言发布与迁移 | [PRD §12](../docs/method-system-prd-v0.1.md#12-concept-数据模型)使用 `locales.cn` / `locales.en`；清洗稿主体为中文 | 已定稿：各语言分别判断推荐资格，缺失语言不静默回退；Schema 任务细化校验与旧平铺字段迁移，英文内容和图片可逐语言补齐 |
+| 按语言发布与迁移 | [PRD §12](../docs/method-system-prd-v0.1.md#12-concept-数据模型)使用 `locales.cn` / `locales.en`；清洗稿主体为中文 | [P1 规格](concept-schema-crud-dashboard.md) 已定稿各语言可浏览/可推荐校验及无跨语言回退；旧平铺字段迁移仍待具体导入任务决定。 |
 | Recipe | [PRD §19](../docs/method-system-prd-v0.1.md#19-recipe)定义 Recipe 并明确 MVP 暂缓；[§27](../docs/method-system-prd-v0.1.md#27-web-页面)未排 Recipes 页；[§12](../docs/method-system-prd-v0.1.md#12-concept-数据模型)无 Recipe Schema | 未来单独定义 Recipe 结构、接口与推荐池关系；MVP 的 Relation 不依赖 Recipe |
 
 `instruction` 与 `agent_instruction` 的字段名分歧已解除：[PRD §12](../docs/method-system-prd-v0.1.md#12-concept-数据模型) 与 [清洗稿 §3、§7](../docs/method-registry-curated-v0.1.md#7-skill-推荐时的最小卡片) 均使用 `agent_instruction`。
 
-决策应写入规格与 ADR，再由样例及校验约束执行；在此之前不生成正式 Registry，也不按某份示例默默定稿。
+已确认的 P1 决策以实施规格为准；待定迁移与后续阶段仍须记录决定，不按某份示例默默定稿。
 
 ## 方法来源与准入状态
 

@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "task_id": "0020-update-context-from-web-prototype",
+  "task_id": "0021-publish-p1-spec",
   "phase": "complete",
-  "task_file": "tasks/0020-update-context-from-web-prototype.md",
+  "task_file": "tasks/0021-publish-p1-spec.md",
   "updated_at": "2026-09-24",
-  "summary": "依据独立 Web 原型观察和产品契约，澄清 Concept 目录、语言版本及按语言浏览和推荐的领域词义。",
+  "summary": "综合 PRD、领域词汇和原型反馈，发布 Concept Schema、CRUD 与 Dashboard 的 P1 可实施规格及待实施任务。",
   "blockers": [],
-  "next_actions": ["按 tasks/backlog.md 定稿 Concept Schema、各语言推荐资格和旧 type 字段映射", "记录模型配置与应用栈选择后实施 Concept CRUD"],
+  "next_actions": ["从 tasks/0022-implement-concept-schema-crud-dashboard.md 启动 P1 实施并记录应用栈与存储选型", "按规格建立持久化 Concept Registry、Card First Web、Revision 与真实 Dashboard"],
   "required_checks": ["npm run validate"],
   "verification": [{"command": "npm run validate", "result": "passed", "recorded_at": "2026-09-24"}]
 }
