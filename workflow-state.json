@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "task_id": "0017-dashboard-scroll-simplify",
+  "task_id": "0018-concept-library-views",
   "phase": "complete",
-  "task_file": "tasks/0017-dashboard-scroll-simplify.md",
+  "task_file": "tasks/0018-concept-library-views.md",
   "updated_at": "2026-09-24",
-  "summary": "已完成固定头部/侧栏与主内容独立滚动，并按奥卡姆剃刀移除 provisional 说明、Prototype state 和静态无动作区块。",
+  "summary": "调整独立 Concept 库，固定搜索筛选与视图切换区，新增 Card list/Table list，并移除指定的冗余英文说明。",
   "blockers": [],
   "next_actions": [],
   "required_checks": [
@@ -15,12 +15,12 @@
     {
       "command": "npm run demo:build",
       "result": "passed",
-      "recorded_at": "2026-09-24T14:59:46Z"
+      "recorded_at": "2026-09-24T15:23:54Z"
     },
     {
       "command": "npm run validate",
       "result": "passed",
-      "recorded_at": "2026-09-24T14:59:46Z"
+      "recorded_at": "2026-09-24T15:23:54Z"
     }
   ]
 }
