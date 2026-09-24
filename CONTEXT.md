@@ -8,9 +8,21 @@
 有明确名称和可说明出处的专业领域术语或方法论术语。
 _Avoid_: Method
 
+**Concept 目录**:
+收录并供人维护 Concept 的集合；收录的条目可以尚未具备某种语言的浏览或推荐资格。
+_Avoid_: 推荐池
+
+**Concept 语言版本**:
+同一 Concept 的中文或英文内容与配图；两种语言共享概念身份，内容和可用资格分别判断。
+_Avoid_: 独立 Concept
+
+**可浏览 Concept**:
+在指定语言中已有名称、描述和出处文本，因而可供该语言的读者浏览与搜索的 Concept。
+_Avoid_: 可推荐 Concept
+
 **可推荐 Concept**:
-某语言内容已能说明适用场景并指导 Agent 用于当前任务的 Concept；资格按语言判断。
-_Avoid_: Core
+在指定语言已可浏览，并具备该语言的配图、适用场景说明与 Agent 应用指引的 Concept；资格按语言判断。
+_Avoid_: Core、可浏览 Concept
 
 **Concept Relation**:
 两个 Concept 之间带类型的语义关联，描述它们如何相关，不定义共同应用的步骤。
