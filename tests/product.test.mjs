@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { DatabaseSync } from "node:sqlite";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -265,6 +266,67 @@ test("revision history preserves before and after values while stale edits canno
     assert.ok(!JSON.stringify(revisions).includes(red.toString("base64")));
     assert.equal((await fetch(`${origin}/api/assets/${redHash}`)).status, 200);
     assert.equal((await fetch(`${origin}/api/assets/${blueHash}`)).status, 200);
+  } finally {
+    await app.close();
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("archive, restore, and guarded deletion update locale visibility and clean only unshared assets", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "concept-discovery-lifecycle-"));
+  const dbPath = join(directory, "registry.sqlite");
+  const app = createApiServer({ dbPath });
+  const red = readFileSync(new URL("./fixtures/red.webp", import.meta.url));
+  const blue = readFileSync(new URL("./fixtures/blue.webp", import.meta.url));
+  const redHash = createHash("sha256").update(red).digest("hex");
+  const blueHash = createHash("sha256").update(blue).digest("hex");
+  try {
+    await new Promise((resolve) => app.server.listen(0, "127.0.0.1", resolve));
+    const origin = `http://127.0.0.1:${app.server.address().port}`;
+    const data = (id) => ({ id, locales: { cn: { name: "中文", description: "中文描述", source_text: "中文出处", trigger: ["决策"], agent_instruction: "提供建议" }, en: { name: "English", description: "English description", source_text: "English source", trigger: ["Decision"], agent_instruction: "Offer guidance" } } });
+    assert.equal((await request(origin, "POST", "/api/concepts", data("lifecycle"))).status, 201);
+    assert.equal((await request(origin, "POST", "/api/concepts", data("other"))).status, 201);
+    const media = { cn: { action: "set", data: red.toString("base64") }, en: { action: "set", data: red.toString("base64") } };
+    const first = await request(origin, "PATCH", "/api/concepts/lifecycle", { expected_version: 1, changes: {}, media });
+    assert.equal(first.value.readiness.cn.recommendable, true);
+    assert.equal(first.value.readiness.en.recommendable, true);
+    await request(origin, "PATCH", "/api/concepts/other", { expected_version: 1, changes: {}, media });
+    const replaced = await request(origin, "PATCH", "/api/concepts/lifecycle", { expected_version: 2, changes: {}, media: { cn: { action: "set", data: blue.toString("base64") } } });
+    assert.equal(replaced.value.version, 3);
+    assert.equal((await request(origin, "DELETE", "/api/concepts/lifecycle", { expected_version: 3, confirm_id: "lifecycle" })).value.error, "not_archived");
+    const archived = await request(origin, "POST", "/api/concepts/lifecycle/archive", { expected_version: 3 });
+    assert.equal(archived.value.version, 4);
+    assert.equal(archived.value.lifecycle_status, "archived");
+    assert.equal(archived.value.readiness.cn.recommendable, false);
+    assert.equal(archived.value.readiness.en.browsable, false);
+    assert.equal((await request(origin, "GET", "/api/concepts?locale=cn&view=browse")).value.count, 1);
+    assert.equal((await request(origin, "GET", "/api/concepts?locale=en&view=browse")).value.count, 1);
+    assert.equal((await request(origin, "GET", "/api/concepts?locale=cn&view=manage&status=recommendable")).value.count, 1);
+    assert.equal((await request(origin, "GET", "/api/concepts?locale=en&view=manage&status=archived")).value.concepts[0].id, "lifecycle");
+    assert.equal((await request(origin, "POST", "/api/concepts/lifecycle/archive", { expected_version: 4 })).value.version, 4);
+    const restored = await request(origin, "POST", "/api/concepts/lifecycle/restore", { expected_version: 4 });
+    assert.equal(restored.value.version, 5);
+    assert.equal(restored.value.readiness.cn.recommendable, true);
+    assert.equal(restored.value.readiness.en.recommendable, true);
+    assert.equal((await request(origin, "GET", "/api/concepts?locale=en&view=browse")).value.count, 2);
+    assert.equal((await request(origin, "POST", "/api/concepts/lifecycle/archive", { expected_version: 5 })).value.version, 6);
+    const external = new DatabaseSync(dbPath);
+    try {
+      external.prepare("INSERT INTO concept_references (concept_id, source_type, source_id) VALUES (?, ?, ?)").run("lifecycle", "test-relation", "linked");
+      assert.equal((await request(origin, "DELETE", "/api/concepts/lifecycle", { expected_version: 6, confirm_id: "lifecycle" })).value.error, "has_references");
+      assert.equal((await request(origin, "GET", "/api/concepts/lifecycle")).value.version, 6);
+      external.prepare("DELETE FROM concept_references WHERE concept_id = ?").run("lifecycle");
+    } finally { external.close(); }
+    assert.equal((await request(origin, "DELETE", "/api/concepts/lifecycle", { expected_version: 6, confirm_id: "wrong" })).status, 400);
+    assert.equal((await request(origin, "DELETE", "/api/concepts/lifecycle", { expected_version: 5, confirm_id: "lifecycle" })).value.error, "version_conflict");
+    assert.deepEqual((await request(origin, "DELETE", "/api/concepts/lifecycle", { expected_version: 6, confirm_id: "lifecycle" })).value, { deleted: true, id: "lifecycle" });
+    assert.equal((await request(origin, "GET", "/api/concepts/lifecycle")).status, 404);
+    assert.equal((await request(origin, "GET", "/api/concepts/lifecycle/revisions")).status, 404);
+    assert.equal((await fetch(`${origin}/api/assets/${blueHash}`)).status, 404);
+    assert.equal((await fetch(`${origin}/api/assets/${redHash}`)).status, 200);
+    assert.equal((await request(origin, "GET", "/api/concepts/other")).value.version, 2);
+    const otherRevisions = (await request(origin, "GET", "/api/concepts/other/revisions")).value.revisions;
+    assert.equal(otherRevisions.length, 2);
   } finally {
     await app.close();
     rmSync(directory, { recursive: true, force: true });

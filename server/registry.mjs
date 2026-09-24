@@ -150,7 +150,7 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
   const dbPath = resolve(path);
   mkdirSync(dirname(dbPath), { recursive: true });
   const db = new DatabaseSync(dbPath);
-  db.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; CREATE TABLE IF NOT EXISTS concepts (id TEXT PRIMARY KEY, data TEXT NOT NULL, version INTEGER NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL); CREATE TABLE IF NOT EXISTS revisions (revision_id INTEGER PRIMARY KEY AUTOINCREMENT, concept_id TEXT NOT NULL REFERENCES concepts(id) ON DELETE CASCADE, version_before INTEGER NOT NULL, version_after INTEGER NOT NULL, actor TEXT NOT NULL, operation TEXT NOT NULL, changed_at TEXT NOT NULL, changes TEXT NOT NULL); CREATE TABLE IF NOT EXISTS media_assets (hash TEXT PRIMARY KEY, mime_type TEXT NOT NULL, byte_size INTEGER NOT NULL, data BLOB NOT NULL, created_at TEXT NOT NULL);");
+  db.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; CREATE TABLE IF NOT EXISTS concepts (id TEXT PRIMARY KEY, data TEXT NOT NULL, version INTEGER NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL); CREATE TABLE IF NOT EXISTS revisions (revision_id INTEGER PRIMARY KEY AUTOINCREMENT, concept_id TEXT NOT NULL REFERENCES concepts(id) ON DELETE CASCADE, version_before INTEGER NOT NULL, version_after INTEGER NOT NULL, actor TEXT NOT NULL, operation TEXT NOT NULL, changed_at TEXT NOT NULL, changes TEXT NOT NULL); CREATE TABLE IF NOT EXISTS media_assets (hash TEXT PRIMARY KEY, mime_type TEXT NOT NULL, byte_size INTEGER NOT NULL, data BLOB NOT NULL, created_at TEXT NOT NULL); CREATE TABLE IF NOT EXISTS concept_references (concept_id TEXT NOT NULL REFERENCES concepts(id) ON DELETE RESTRICT, source_type TEXT NOT NULL, source_id TEXT NOT NULL, PRIMARY KEY (concept_id, source_type, source_id));");
   const readRow = db.prepare("SELECT data FROM concepts WHERE id = ?");
   const get = (id) => {
     const row = readRow.get(id);
@@ -176,6 +176,33 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
     validateNames(next);
     return { previous, next, actions, changes: changesBetween(previous, next).filter((change) => change.path !== "readiness") };
   };
+  const setLifecycle = (id, input, status, actor = "local-user") => {
+    if (!input || !Number.isInteger(input.expected_version) || Object.keys(input).some((key) => key !== "expected_version")) bad("expected_version is required");
+    const previous = get(id);
+    if (previous.version !== input.expected_version) throw new RegistryError(409, "version_conflict", "Concept changed; reload before saving");
+    if (previous.lifecycle_status === status) return previous;
+    const next = structuredClone(previous);
+    delete next.readiness;
+    next.lifecycle_status = status;
+    next.version += 1;
+    next.updated_at = new Date().toISOString();
+    db.exec("BEGIN IMMEDIATE");
+    try {
+      const updated = db.prepare("UPDATE concepts SET data = ?, version = ?, updated_at = ? WHERE id = ? AND version = ?").run(JSON.stringify(next), next.version, next.updated_at, id, previous.version);
+      if (!updated.changes) throw new RegistryError(409, "version_conflict", "Concept changed; reload before saving");
+      db.prepare("INSERT INTO revisions (concept_id, version_before, version_after, actor, operation, changed_at, changes) VALUES (?, ?, ?, ?, ?, ?, ?)").run(id, previous.version, next.version, actor, status === "archived" ? "archive" : "restore", next.updated_at, JSON.stringify([{ path: "lifecycle_status", before: previous.lifecycle_status, after: status }]));
+      db.exec("COMMIT");
+    } catch (error) { db.exec("ROLLBACK"); throw error; }
+    return publicConcept(next);
+  };
+  const imageHashes = (concept, revisions) => {
+    const hashes = new Set([concept.locales.cn.cover_image, concept.locales.en.cover_image]);
+    for (const revision of revisions) for (const change of JSON.parse(revision.changes)) {
+      if (change.path.endsWith(".cover_image")) { hashes.add(change.before); hashes.add(change.after); }
+    }
+    hashes.delete(""); hashes.delete(null);
+    return hashes;
+  };
   return {
     close: () => db.close(),
     get,
@@ -189,14 +216,15 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
     query: ({ locale = "cn", view = "manage", q = "", status = "all", tag = "", domain = "" } = {}) => {
       if (!["cn", "en"].includes(locale)) bad("locale must be cn or en");
       if (!["manage", "browse"].includes(view)) bad("view must be manage or browse");
-      if (!["all", "draft", "browsable", "recommendable"].includes(status)) bad("status is invalid");
+      if (!["all", "draft", "browsable", "recommendable", "archived"].includes(status)) bad("status is invalid");
       if (domain && !domainCodes.has(domain)) bad("domain is invalid");
       const needle = text(q, "q").toLocaleLowerCase();
       const exactTag = text(tag, "tag");
       return db.prepare("SELECT data FROM concepts ORDER BY updated_at DESC, id").all().map((row) => publicConcept(JSON.parse(row.data))).filter((concept) => {
         const local = concept.locales[locale];
         const ready = concept.readiness[locale];
-        if (concept.lifecycle_status !== "active") return false;
+        if (status === "archived" && concept.lifecycle_status !== "archived") return false;
+        if (!["all", "archived"].includes(status) && concept.lifecycle_status !== "active") return false;
         if (view === "browse" && !ready.browsable) return false;
         if (status === "draft" && ready.browsable) return false;
         if (status === "browsable" && !ready.browsable) return false;
@@ -245,6 +273,33 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
         db.exec("COMMIT");
       } catch (error) { db.exec("ROLLBACK"); throw error; }
       return publicConcept(next);
+    },
+    archive: (id, input, actor) => setLifecycle(id, input, "archived", actor),
+    restore: (id, input, actor) => setLifecycle(id, input, "active", actor),
+    delete: (id, input) => {
+      if (!input || !Number.isInteger(input.expected_version) || input.confirm_id !== id || Object.keys(input).some((key) => !["expected_version", "confirm_id"].includes(key))) bad("expected_version and matching confirm_id are required");
+      const concept = get(id);
+      if (concept.version !== input.expected_version) throw new RegistryError(409, "version_conflict", "Concept changed; reload before deleting");
+      if (concept.lifecycle_status !== "archived") throw new RegistryError(409, "not_archived", "Archive the Concept before permanent deletion");
+      db.exec("BEGIN IMMEDIATE");
+      try {
+        if (db.prepare("SELECT 1 FROM concept_references WHERE concept_id = ? LIMIT 1").get(id)) throw new RegistryError(409, "has_references", "Concept has external references");
+        const revisions = db.prepare("SELECT changes FROM revisions WHERE concept_id = ?").all(id);
+        const candidates = imageHashes(concept, revisions);
+        const deleted = db.prepare("DELETE FROM concepts WHERE id = ? AND version = ? AND json_extract(data, '$.lifecycle_status') = 'archived'").run(id, concept.version);
+        if (!deleted.changes) throw new RegistryError(409, "version_conflict", "Concept changed; reload before deleting");
+        const stillUsed = new Set();
+        for (const row of db.prepare("SELECT data FROM concepts").all()) {
+          const remaining = JSON.parse(row.data);
+          stillUsed.add(remaining.locales.cn.cover_image); stillUsed.add(remaining.locales.en.cover_image);
+        }
+        for (const row of db.prepare("SELECT changes FROM revisions").all()) for (const change of JSON.parse(row.changes)) {
+          if (change.path.endsWith(".cover_image")) { stillUsed.add(change.before); stillUsed.add(change.after); }
+        }
+        for (const hash of candidates) if (!stillUsed.has(hash)) db.prepare("DELETE FROM media_assets WHERE hash = ?").run(hash);
+        db.exec("COMMIT");
+      } catch (error) { db.exec("ROLLBACK"); throw error; }
+      return { deleted: true, id };
     },
   };
 }
