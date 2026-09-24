@@ -20,3 +20,5 @@ Use the floating switcher or left/right arrow keys to compare layouts. Create, e
 The editor covers Chinese and English titles, descriptions, and image URLs, plus an optional Wiki URL, tags, and notes. Recommendation Playground, Prompt generation, Relation editing, and Skill execution are out of scope.
 
 This prototype is preserved on branch `codex/concept-crud-demo` for product review; it is not production application code.
+
+Visual tokens, component states, L1 motion, and responsive rules are documented in [DESIGN.md](DESIGN.md). The interface uses Noto Sans SC with Inter fallbacks, semantic CSS color tokens, and normal-flow mobile navigation.
