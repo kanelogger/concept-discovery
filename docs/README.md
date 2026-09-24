@@ -2,16 +2,16 @@
 
 本仓库当前交付协作开发环境。产品材料描述未来方向，产品功能尚未实现。
 
-## 原始产品输入
+## 产品输入与草稿
 
-以下两份材料保留原稿，阅读时不要把示例接口、清洗分类或规划当作运行事实。
+以下材料记录产品方向，阅读时不要把示例接口、清洗分类或规划当作运行事实。
 
 | 材料 | 状态与用途 |
 | --- | --- |
-| [Concept Discovery PRD](method-system-prd-v0.1.md) | v0.1 Draft；产品目标、场景、建议 Schema、MVP 范围与未来验收标准 |
+| [Concept Discovery PRD](method-system-prd-v0.1.md) | v0.3；产品目标、Skillbox 参考路线、五阶段 MVP、建议 Schema 与未来验收标准 |
 | [Concept Registry 清洗稿](method-registry-curated-v0.1.md) | v0.1 清洗输入；30 个 Core 清洗项、Candidate Packs、Archive 与补充优先级；正式准入尚未完成 |
 
-PRD v0.1 已将产品命名为 Concept Discovery；文件路径仍为 `method-*`，命名迁移见 [产品方向与待定契约](../specs/product-contract.md)。
+PRD 已将产品命名为 Concept Discovery；文件路径仍为 `method-*`，命名迁移见 [产品方向与待定契约](../specs/product-contract.md)。Skillbox 参考源码在被 Git 忽略的 `docs/private-project/skillbox`，它不是本项目已实现代码。
 
 清洗稿引用的 `daily-knowledge(1).md` 未提供；其中六项 P0 仍需补正式定义与来源。字段和准入规则的材料差异统一记录在 [产品方向与待定契约](../specs/product-contract.md)，不要在引用时自行消除差异。
 
@@ -31,6 +31,6 @@ PRD v0.1 已将产品命名为 Concept Discovery；文件路径仍为 `method-*`
 ## 未来产品契约与任务
 
 - [产品方向与待定契约](../specs/product-contract.md)：产品事实索引、尚未实现的能力、材料冲突与来源缺口。
-- [后续产品任务](../tasks/backlog.md)：从 Schema、来源与准入，到 Registry + Web，再到 Recommend、Compose 和反馈的任务顺序与验收。
+- [后续产品任务](../tasks/backlog.md)：Schema 与准入前置工作，以及 CRUD、Playground、Relation、Skill、Feedback / Eval 五阶段主线。
 
 后续实现应先定稿受影响的契约，再把可执行接口、验证结果和必要决策同步到仓库。环境检查成功只证明当前协作环境满足其检查项。

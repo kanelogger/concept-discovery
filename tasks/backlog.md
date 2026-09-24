@@ -1,19 +1,19 @@
 # 后续产品任务
 
-状态：以下任务均未启动。它们属于后续产品开发，不是 [环境初始化任务](0001-bootstrap.md) 的未完成项。本次不建立产品服务、正式 Registry 或业务 Skills。
+状态：以下产品任务均未启动。Skillbox 本地源码仅作为参考；本次文档修订不建立产品服务、正式 Registry 或业务 Skill。
 
 任务启动前按 [协作流程](../workflow/README.md) 创建独立任务文件，写明范围、验收和证据；产品命名、字段冲突与未决问题见 [产品方向与待定契约](../specs/product-contract.md)。
 
-| 顺序 | 有限任务 | 前置条件 | 完成验收 |
+实施前置：先定稿 Concept/推荐结果 Schema、生命周期与 Core 准入规则；核验首批条目来源并逐条审核；记录本地应用栈、存储和模型数据流的选择。这些准备工作服务五阶段主线，不构成 Fork 阶段。
+
+| 顺序 | MVP 主线 | 前置条件 | 完成验收 |
 | --- | --- | --- | --- |
-| 1 | 定稿 Concept、推荐结果 Schema 与准入规则 | 阅读两份产品输入及契约中的冲突表 | 明确必填字段、`type` / `interaction_type`、`related` / `related_methods`、`status` / 包归属、`tags`、空推荐表示、兼容规则、Core 准入门槛与例外处理；记录 ADR；有效与无效样例可由确定性校验区分 |
-| 2 | 核验来源并完成首批准入 | 任务 1 的 Schema；统一准入门槛 | 记录 `daily-knowledge(1).md` 的缺失或取得情况；补齐六项 P0 正式定义与可核验来源；对清洗稿 30 项逐条记录准入、候选或暂缓及理由；缺来源项保留待补标记，只有通过审核的数据进入正式 Registry |
-| 3 | 建立 Registry 读写与导入边界 | 任务 1、2 | 确定存储形式与接口；读写、ID 唯一性、关联有效性、Markdown 导入和 JSON / Markdown 导出有可重现样例；无效输入返回明确错误且不破坏有效数据 |
-| 4 | 交付本地 Web 最小闭环 | 任务 3；单独记录应用技术选择 | 实际支持一条命令启动；浏览器可查看、CRUD、搜索、按 Tag / Type / Status 筛选；简单 Dashboard 与 Registry 一致；导入入口能通过合法与非法样例验证 |
-| 5 | 交付 Diagnose + Recommend | 任务 1、3；正式可推荐数据可读 | 给定任务、上下文和可选当前回答，输出诊断及 0–3 个有效 Concept；理由解释当前触发点和预期作用；遵守状态 / 包过滤及禁用条件；固定代表案例覆盖有推荐、无推荐与不适用情况 |
-| 6 | 交付 Compose 与用户应用流程 | 任务 5 | 用户选择的 Concept 与上下文生成可直接执行 Prompt；保留适用约束；可追溯所选 Concept；应用由用户选择触发，至少一个完整案例贯通推荐、选择、生成与执行 |
-| 7 | 建立反馈与统计闭环 | 任务 4–6；明确反馈事件语义 | 采用、忽略、不适用等事件按约定记录；用固定事件样本核对采用率、推荐次数和 Concept 共现统计；Dashboard 能展示并解释对应结果 |
+| 1 | Concept CRUD | Schema、准入记录和技术选型 | 同一 Registry 支撑本地 Card First Web；卡片有标题、描述、WebP 配图、标签和类型；可创建、编辑、归档/删除、搜索、查看修订；无效输入不破坏有效数据。优先参考 Skillbox Web/CRUD/Revision/Search。 |
+| 2 | Recommendation Playground | 有可推荐的已审核 Concept；模型与数据流决定 | Playground 调正式推荐接口，输出诊断、Why Now 和 0–3 个推荐或空结果；Apply 生成上下文化 Prompt；代表案例覆盖有效、无效和禁用条件。优先参考 Skillbox Recommend，并建立初始离线 Eval 样本。 |
+| 3 | Concept Relation | Concept CRUD 与推荐接口可用 | 手动维护五种关系及备注，校验引用和方向；详情展示关系，轻量推荐信号有可复现案例；不引入 Recipe。 |
+| 4 | Concept Discovery Skill | Playground、Relation 和 Prompt Composer 可用 | Agent 与 Web 读取同一 Registry、调用同一推荐接口；用户选择后生成并执行 Prompt，空推荐正常继续。 |
+| 5 | Feedback / Eval | Skill 接入；事件语义与标识定稿 | 记录推荐、查看、应用、忽略、无帮助，区分 Playground 与真实使用；核对 Usage 统计，运行离线和真实使用评估，并据 MVP Gate 决定是否扩大。优先参考 Skillbox Usage Reporting。 |
 
-任务 2 的六项 P0 是第一性原理、逆向思维、第二层思维、事件—局势—结构、安全边际、古德哈特定律，依据 [清洗稿 §6](../docs/method-registry-curated-v0.1.md#6-后续补充优先级)。全部 30 项的来源可信度和准入结果需逐条保留，不能只审核这六项。
+首批准入仍须记录 `daily-knowledge(1).md` 的缺失或取得情况；六项优先补来源的是第一性原理、逆向思维、第二层思维、事件—局势—结构、安全边际、古德哈特定律，依据 [清洗稿 §6](../docs/method-registry-curated-v0.1.md#6-后续补充优先级)。清洗稿 30 项全部要逐条审核；只有通过审核的数据进入正式 Registry。
 
-Embedding、Rerank、用户偏好与 Recipe 推荐暂不排入上述交付；仅在 Concept 数量和实际推荐证据表明需要时另开任务，依据 [PRD §24](../docs/method-system-prd-v0.1.md#24-推荐流程)、[§34 P6 之后](../docs/method-system-prd-v0.1.md#34-mvp-实施顺序)。
+Markdown 批量导入、JSON/Markdown 导出、Dashboard、Embedding、复杂 Rerank、用户偏好与 Recipe 推荐暂不排入主线；需要时依据真实使用证据另开任务。MVP 排除项见 [PRD §36](../docs/method-system-prd-v0.1.md#36-mvp-明确不做)。

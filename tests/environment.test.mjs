@@ -34,7 +34,7 @@ function fixture() {
   write(root, 'README.md', '[Workflow](workflow/README.md)\n');
   writeJson(root, 'package.json', {
     private: true, engines: { node: '>=24 <25' },
-    scripts: { doctor: 'node scripts/doctor.mjs', validate: 'node scripts/validate.mjs', test: 'node --test', check: 'npm run validate && npm test' },
+    scripts: { doctor: 'node scripts/doctor.mjs', validate: 'node scripts/validate.mjs', test: 'node --test tests/*.test.mjs', check: 'npm run validate && npm test' },
   });
   writeJson(root, 'project.json', {
     schema_version: 1, project: { id: 'concept-discovery', stage: 'environment-bootstrap', product_status: 'not-implemented' },
@@ -291,6 +291,16 @@ test('Markdown in configuration directories is still checked', () => {
   const root = fixture();
   write(root, '.github/PULL_REQUEST_TEMPLATE.md', '[Broken](missing.md)');
   assert.match(validateRepository(root).errors.join('\n'), /PULL_REQUEST_TEMPLATE.md:1: missing path/);
+});
+
+test('ignored private reference files do not affect repository link validation', () => {
+  const root = fixture();
+  write(root, 'docs/private-project/README.md', '[Broken](missing.md)');
+  write(root, 'docs/private-notes.md', '[Broken](missing.md)');
+  assert.deepEqual(validateRepository(root).errors, []);
+  assert.equal(validateRepository(root).markdownCount, 7);
+  write(root, 'docs/public.md', '[Broken](missing.md)');
+  assert.match(validateRepository(root).errors.join('\n'), /docs\/public.md:1: missing path/);
 });
 
 test('doctor reports wrong Node and missing Git as failures without throwing', () => {

@@ -30,6 +30,8 @@ Node.js / TypeScript（用户前轮已确认）。本轮最接近项目 Skillbox
 
 ## 复用决策：reference
 
+2026-09-24 更新：用户决定以本地 `docs/private-project/skillbox` 源码为参考，不 Fork Skillbox；优先参考 Web、CRUD、Revision、Search、Recommend、Usage，并按 Concept 业务适配。以下记录保留 2026-09-23 的侦察判断与当时的未决项；当前路线以 [PRD §5、§34](../docs/method-system-prd-v0.1.md#5-mvp-技术路线)为准。
+
 产品形态有多个直接先例。现阶段推荐以 **Skillbox** 为首要架构参考：研究其 Skill 资产模型、Web 管理界面、MCP / Agent bootstrap 边界和本地部署流程。暂不直接 fork，待确认本地运行约束并对照产品专用的 Method Schema、准入审核、诊断和 Compose 流程后再判断是否启动基座迁移。
 
 ## 决策依据

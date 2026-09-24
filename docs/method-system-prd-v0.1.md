@@ -1,7 +1,8 @@
-# Concept Discovery PRD v0.1
+# Concept Discovery PRD v0.3
 
-版本：v0.2
-日期：2026-09-23  
+版本：v0.3
+日期：2026-09-24
+
 状态：MVP 范围冻结（产品未实现）
 
 # 1. 产品定义
@@ -68,37 +69,26 @@ MVP 只验证一个问题：
 
 # 5. MVP 技术路线
 
-最快 MVP：
+MVP 以 Skillbox 为参考实现，在本项目中建设 Concept Discovery。当前工作区的参考源码位于 `docs/private-project/skillbox`，不以 Fork Skillbox 作为实施步骤。
 
-> 基于 Skillbox 进行改造。
-
-原因：
-
-Skillbox 已经具备：
+优先研究并复用其成熟能力的设计与接口边界：
 
 - Web 管理端
-- Library
-- CRUD
-- Markdown / File Editor
+- Concept CRUD 与编辑流程
 - Revision
 - Search
-- CLI
-- MCP
-- Recommendation
+- Recommend
 - Usage Reporting
-- Local / Self-hosted
 
-第一阶段不重写这些系统能力。
+对每项能力按 Concept 数据模型和本地单用户场景适配；是否移植具体代码由实施任务评估。Skillbox 的 Bun、PostgreSQL、Docker 部署与通用 Skill 权限模型不自动成为本项目的技术选型。
 
-目标是：
-
-> 借 Skillbox 的壳，验证 Concept Discovery。
+目标是在保留这些能力经验的同时，尽快验证 Concept 推荐与应用闭环。
 
 # 6. 改造原则
 
-第一阶段避免大规模底层重构。
+第一阶段先建立 Concept Registry 与所需能力，避免移入与 MVP 无关的上游权限、发布和部署功能。
 
-内部可以继续保留部分 `skill` 命名，例如：
+参考 Skillbox 的模块时，可以在适配层保留上游 `skill` 命名，例如：
 
 ```text
 skill
@@ -106,13 +96,13 @@ skill_id
 skill_revision
 ```
 
-前端与产品层统一展示为：
+本项目的领域接口、数据模型和前端统一使用：
 
 ```text
 Concept
 ```
 
-等产品验证后，再决定是否彻底重构领域模型。
+上游命名不进入新的 Concept 契约。模块复用需单独记录边界和迁移成本。
 
 # 7. 产品组成
 
@@ -154,6 +144,8 @@ Skill 保持薄，业务逻辑放在 System。
 Web 端面向人，因此采用：
 
 > Card First
+
+Concept 浏览与推荐都以卡片为正式展示形式；卡片包含标题、描述、WebP 配图（无图时用占位图）、标签和类型。
 
 不同页面承担不同职责：
 
@@ -377,7 +369,7 @@ bias
 
 Concept 之间允许建立关系。
 
-关系独立于 tags。
+关系独立于 tags，也不承担 Recipe 的组合语义。
 
 数据结构：
 
@@ -391,7 +383,7 @@ relation_type
 note
 ```
 
-`weight` 不进入 MVP：Relation Boost 使用固定常量（见 §18），差异化权重留待真实推荐数据支持后再引入。
+`weight` 不进入 MVP：Relation 在推荐中仅作为同分时的辅助排序信号（见 §18），差异化权重留待真实推荐数据支持后再引入。
 
 MVP 支持：
 
@@ -463,21 +455,18 @@ B related_to A
 
 # 18. Relation 与 Recommendation
 
-Relation 可作为轻量 rerank 信号。
+Relation 可作为轻量排序信号。先检查候选本身是否适用、是否触发 `avoid_when`，再用 Relation 处理同分且互补的候选。
 
 例如：
 
 ```text
-沉没成本
-score = 0.94
-
-机会成本
-base score = 0.71
-relation boost = +0.08
-final score = 0.79
+沉没成本已入选
+机会成本与另一候选同分
+机会成本 often_used_with 沉没成本
+互补检查通过 → 机会成本优先
 ```
 
-MVP 中 `relation boost` 为固定常量（示例取 +0.08），不逐对校准，只作为同分时倾向已验证组合的 tiebreaker。
+MVP 不为 Relation 叠加数值分数；只有同分、互补且均适用时才用于排序。
 
 MVP 不做复杂图推理。
 
@@ -507,7 +496,7 @@ Deep Review
 └── 第二层思维
 ```
 
-MVP 可以暂缓 Recipe，只预留数据结构。
+MVP 暂缓 Recipe；Relation 的存储、编辑和展示不依赖 Recipe 数据结构。
 
 # 20. 搜索与推荐
 
@@ -750,6 +739,8 @@ MVP 只做 4 个核心页面。
 - Preview
 - Save
 
+Relations 编辑在 §34 P3 接入；P1 先完成 Concept 本身的 CRUD。
+
 ## 27.4 Recommendation Playground
 
 这是 MVP 最重要页面。
@@ -972,82 +963,31 @@ Not Useful Rate
 - 萨根标准
 - 古德哈特定律
 
-名单来自 [清洗稿](../docs/method-registry-curated-v0.1.md) 的 30 个候选，全部须通过准入审查（准入门槛与逐条审核记录见产品契约）后才能导入；"知识蒸馏"等归类存疑项在准入时重定归属或暂缓。数量目标不替代质量验收。
+名单来自 [清洗稿](../docs/method-registry-curated-v0.1.md) 的 30 个候选，全部须通过准入审查后才能导入；准入门槛与逐条审核记录尚待定稿，缺口见[产品契约](../specs/product-contract.md#待定契约材料冲突与字段缺口)。"知识蒸馏"等归类存疑项在准入时重定归属或暂缓。数量目标不替代质量验收。
 
 # 34. MVP 实施顺序
 
-## P0：Fork Skillbox
+主线按以下五步推进。Concept Schema、Core 准入规则和首批内容审核是 CRUD/推荐的数据前置条件；应用栈、存储和模型的数据流在各能力实施前记录决定，不单设 Fork 阶段。
 
-目标：
+## P1：Concept CRUD
 
-跑起来。
+建立同一份 Concept Registry 与本地 Web。以 Card First 展示 Concept，支持标题、描述、WebP 配图、标签、类型、搜索、创建、编辑、归档和删除；保留内容修订记录。优先参考 Skillbox 的 Web、CRUD、Revision 与 Search 能力。首批导入仅限通过准入审查的 Concept（见 §33）。
 
-不改架构。
+## P2：Recommendation Playground
 
-同时确认并记录：Skillbox 现有存储引擎、LLM 调用方式、上下文与回答的数据流边界（是否离开本机），结论写入 ADR（见 §40）。
+实现 `recommend_concepts`、Diagnosis、Why Now、空推荐与 0~3 个推荐卡；Playground 使用正式推荐接口。用户选择 Apply 后生成上下文化 Prompt。优先参考 Skillbox 的 Recommend 边界，但按 Concept Schema、`avoid_when` 和本产品的输出契约适配。此阶段准备可复现的离线 Eval 案例，避免到真实使用时才首次检查推荐质量。
 
-## P1：Concept 化
+## P3：Concept Relation
 
-加入：
+支持手动添加五种关系、方向语义、Relation Note、详情展示与轻量推荐信号。Relation 与 Recipe 分离；Recipe 不进入 MVP。
 
-- Concept Card
-- Title
-- Description
-- WebP Cover
-- Type
-- Trigger
-- Instruction
+## P4：Concept Discovery Skill
 
-导入通过准入审查的 20~30 个 Concept（准入见 §33）。
+接入 Agent，复用同一 Registry、推荐接口和 Prompt Composer；用户选择后才应用 Concept。
 
-## P2：Web CRUD
+## P5：Feedback / Eval
 
-确认：
-
-- Create
-- Read
-- Update
-- Archive / Delete
-- Upload WebP
-- Relation Editing
-
-## P3：Recommendation
-
-改造：
-
-```text
-recommend_skills
-```
-
-为：
-
-```text
-recommend_concepts
-```
-
-优先改 Prompt 与输出 Schema。
-
-## P4：Recommendation Playground
-
-这是第一阶段最重要产品页。
-
-## P5：Concept Relation
-
-支持：
-
-- 手动添加
-- 5 种关系
-- Detail 展示
-- Relation Note
-- Recommendation Boost
-
-## P6：Concept Discovery Skill
-
-Agent 接入。
-
-## P7：Feedback + Eval
-
-开始真实使用。
+记录推荐、查看、应用、忽略及无帮助事件，参考 Skillbox 的 Usage Reporting 思路；区分 Playground 与真实 Skill 使用。运行离线案例和真实使用评估，再按 §35 的 Gate 决定是否扩大范围。
 
 # 35. MVP Gate
 
@@ -1092,12 +1032,13 @@ Agent 接入。
 - Recommendation Personalization
 - 大规模 Recipe 系统
 - 完整 Revision UI 重构
+- 直接 Fork Skillbox
 
 原则：
 
-> 能沿用 Skillbox 的就沿用。
+> 优先参考 Skillbox 已验证的能力边界，再按 Concept 业务和本地运行约束适配。
 
-存储沿用 Skillbox 现状，MVP 不引入新的数据库引擎；P0 确认具体引擎并记录（见 §34）。
+本项目的存储引擎与启动方式单独选定；Skillbox 的 PostgreSQL 和 Docker 仅作为参考实现事实，不构成本产品依赖。
 
 # 37. 后续方向
 
@@ -1173,11 +1114,11 @@ MVP 的核心不是做更多功能。
 
 # 40. 未决问题
 
-以下问题在 MVP Gate 前必须给出决定，但不阻塞 P0–P2：
+以下问题在 MVP Gate 前必须给出决定；其中 Schema/准入、应用栈/存储和模型数据流须在各自依赖的实施阶段前确定：
 
 - Eval 数值门槛（Top-1 Hit Rate、Precision、Apply Rate 等的通过线）与判定协议的执行细节。
 - LLM 提供方与数据流：推荐引擎所需的模型在本地还是远端，context / response 是否离开本机。
-- 存储引擎：P0 Fork 后确认 Skillbox 现状并记录 ADR。
+- 应用栈与存储引擎：结合本地单用户要求选择，并记录与 Skillbox 参考实现的取舍。
 - `confidence` 是否及如何校准：依赖 100 次真实推荐的数据。
 - 清洗稿 `type` 字段到 `interaction_type` / `epistemic_type` 双字段的导入映射。
 - Recipe 数据结构：MVP 暂缓，预留字段未定。

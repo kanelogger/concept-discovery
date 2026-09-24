@@ -232,10 +232,11 @@ export function markdownLinks(markdown) {
 function markdownFiles(root, directory = root) {
   const files = [];
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    if (entry.isDirectory() && (excludedDirectories.has(entry.name) || /^\..*cache.*$/i.test(entry.name))) continue;
+    if (entry.isDirectory() && (excludedDirectories.has(entry.name) || /^\..*cache.*$/i.test(entry.name) || entry.name.startsWith('private-'))) continue;
     const path = resolve(directory, entry.name);
     if (entry.isSymbolicLink()) continue;
     if (entry.isDirectory()) files.push(...markdownFiles(root, path));
+    else if (entry.name.startsWith('private-') && /\.md$/i.test(entry.name)) continue;
     else if (/\.md$/i.test(entry.name)) files.push(path);
   }
   return files;
