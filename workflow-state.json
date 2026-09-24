@@ -1,18 +1,23 @@
 {
   "schema_version": 1,
-  "task_id": "0008-triage-skill-project-mapping",
+  "task_id": "0009-review-method-system-prd",
   "phase": "complete",
-  "task_file": "tasks/0008-triage-skill-project-mapping.md",
-  "updated_at": "2026-09-23",
-  "summary": "复用已有健康的 Skill Port triage 项目关联，并创建默认状态标签映射及文档入口。",
+  "task_file": "tasks/0009-review-method-system-prd.md",
+  "updated_at": "2026-09-24",
+  "summary": "审阅 Concept Discovery PRD v0.2 的实施前置条件与 MVP 验收定义。",
   "blockers": [],
-  "next_actions": ["按 tasks/backlog.md 任务 1 定稿 Schema 与准入规则", "P0 时处理 PRD §40 前三项决策（Eval 门槛、LLM 提供方、存储引擎）并写 ADR"],
+  "next_actions": ["按审阅结论决定 Skillbox 的部署与 Fork 取舍", "修订 MVP Gate、事件协议与 Eval 判定，再启动 Schema/准入任务"],
   "required_checks": ["npm run validate"],
   "verification": [
     {
       "command": "npm run validate",
+      "result": "failed",
+      "recorded_at": "2026-09-24"
+    },
+    {
+      "command": "npm run validate",
       "result": "passed",
-      "recorded_at": "2026-09-23"
+      "recorded_at": "2026-09-24"
     }
   ]
 }
