@@ -13,3 +13,5 @@ coverage/
 .reuse/evidence/
 .reuse/cache/
 .agents
+private-*/
+private-*.md
