@@ -12,10 +12,11 @@
 - Web 正式采用 Card First；Concept Card 展示标题、描述、WebP 配图、标签与类型。Relation 支持 `related_to`、`often_used_with`、`contrasts_with`、`extends`、`part_of`，与暂缓的 Recipe 分离。参见 [PRD §8–§9](../docs/method-system-prd-v0.1.md#8-web-产品原则)、[§14](../docs/method-system-prd-v0.1.md#14-concept-relation)、[§19](../docs/method-system-prd-v0.1.md#19-recipe)。
 - MVP 主线为 Concept CRUD → Recommendation Playground → Relation → Skill → Feedback / Eval；Schema、来源准入和技术选型是各阶段的前置工作。参见 [PRD §34](../docs/method-system-prd-v0.1.md#34-mvp-实施顺序)。
 - Concept 的可见内容以 `locales.cn` / `locales.en` 分组，WebP 配图也按语言分别保存；`id`、类型、Domain、Intent 与关系引用跨语言共用。Web、搜索、推荐、Apply 使用同一显式语言，不混用另一语言的文案或图片。参见 [PRD §8](../docs/method-system-prd-v0.1.md#8-web-产品原则)、[§11–§12](../docs/method-system-prd-v0.1.md#11-concept-配图)、[§21–§22](../docs/method-system-prd-v0.1.md#21-recommendation-输入)。
+- 每种语言的 Concept 可选填独立 `wiki_url`，详情页用作延伸阅读入口；`source.url` 记录内容依据。缺失 Wiki 链接时隐藏入口，不跨语言回退，也不影响推荐资格。参见 [PRD §12](../docs/method-system-prd-v0.1.md#12-concept-数据模型)、[§27](../docs/method-system-prd-v0.1.md#27-web-页面)。
 
 ## 命名与版本
 
-- [PRD](../docs/method-system-prd-v0.1.md) 已将产品命名为 **Concept Discovery**，并把推荐实体命名为 **Concept**。当前文档为 v0.4（cn/en 双语字段与配图）；重写前的 v0.1 章节结构不再被引用。
+- [PRD](../docs/method-system-prd-v0.1.md) 已将产品命名为 **Concept Discovery**，并把推荐实体命名为 **Concept**。当前文档为 v0.5（cn/en 双语字段、配图与可选 Wiki 链接）；重写前的 v0.1 章节结构不再被引用。
 - 仓库文件路径仍保留 `docs/method-system-prd-v0.1.md`、`docs/method-registry-curated-v0.1.md`；清洗稿正文沿用 “Core Method”。文件重命名属后续决策，需要 ADR 并同步 `project.json` 与本文件引用。
 - 本文件以下统一使用 Concept；引用旧材料原文时保留其 “Method” 用词。
 
@@ -56,7 +57,7 @@
 
 | 能力 | 必须能观察到的结果 |
 | --- | --- |
-| Registry + Web | 一条命令启动本地服务；浏览器可切换 `cn` / `en`，卡片、搜索、编辑和 WebP 图片按语言对应；可查看修订，Skill 读取同一份有效数据 |
+| Registry + Web | 一条命令启动本地服务；浏览器可切换 `cn` / `en`，卡片、搜索、编辑、WebP 图片及可选 Wiki 链接按语言对应；可查看修订，Skill 读取同一份有效数据 |
 | Diagnose + Recommend | 输入任务、显式 `locale` 及可选上下文 / 回答，输出同语言诊断与最多 3 个推荐；每项提供理由及置信度；无明显增益时返回空推荐 |
 | Compose + 应用 | 根据选择的 Concept 与当前上下文生成同语言 Prompt；用户能理解推荐并选择应用，Agent 可按生成的 Prompt 执行 |
 | 反馈 | 按定稿的数据语义记录采用、忽略等反馈，并可核对 Usage 统计与原始记录一致性 |

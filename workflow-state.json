@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "task_id": "0011-localize-concept-cn-en",
+  "task_id": "0012-add-concept-wiki-url",
   "phase": "complete",
-  "task_file": "tasks/0011-localize-concept-cn-en.md",
+  "task_file": "tasks/0012-add-concept-wiki-url.md",
   "updated_at": "2026-09-24",
-  "summary": "为 Concept 的可见字段与配图明确 cn/en 双语契约。",
+  "summary": "为 Concept 的 cn/en 内容增加可选 Wiki 外部链接契约。",
   "blockers": [],
-  "next_actions": ["按 tasks/backlog.md 定稿 cn/en Schema、必填校验与准入规则", "补齐并审核首批 Concept 英文内容及双语 WebP 后进入 Concept CRUD"],
+  "next_actions": ["定稿 Concept Schema，加入各语言可选 wiki_url 与 HTTPS 校验", "在 Concept CRUD 中实现链接编辑、修订与详情页展示"],
   "required_checks": ["npm run validate"],
   "verification": [{"command": "npm run validate", "result": "passed", "recorded_at": "2026-09-24"}]
 }

@@ -1,6 +1,6 @@
-# Concept Discovery PRD v0.4
+# Concept Discovery PRD v0.5
 
-版本：v0.4
+版本：v0.5
 日期：2026-09-24
 
 状态：MVP 范围冻结（产品未实现）
@@ -278,6 +278,7 @@ locales:
     aliases: [奥卡姆原则]
     description: 在解释力相近时，优先选择更简单的解释。
     cover_image: /uploads/concepts/occams-razor/cn.webp
+    wiki_url: https://example.org/wiki/cn/occams-razor
     tags: [表达, 解释]
     trigger: [回答冗余, 方案过度设计]
     avoid_when: [简化会删除关键约束]
@@ -294,6 +295,7 @@ locales:
     aliases: [Ockham's Razor]
     description: Prefer the simpler explanation when explanatory power is comparable.
     cover_image: /uploads/concepts/occams-razor/en.webp
+    wiki_url: https://example.org/wiki/en/occams-razor
     tags: [communication, explanation]
     trigger: [An answer is verbose, A solution is overengineered]
     avoid_when: [Simplification would remove a critical constraint]
@@ -310,10 +312,11 @@ locales:
 字段约定：
 
 - `id`：创建时确定的 slug（小写字母、数字、连字符），创建后不可变；Relation 与配图均按 `id` 引用。
-- `locales.cn` / `locales.en`：同一 Concept 下独立保存名称、别名、描述、WebP 配图、自由标签、Trigger、Avoid When、Transform、Agent Instruction 与 Source。Search、卡片、详情和 Prompt Composer 按请求语言取同一组字段。
+- `locales.cn` / `locales.en`：同一 Concept 下独立保存名称、别名、描述、WebP 配图、Wiki 链接、自由标签、Trigger、Avoid When、Transform、Agent Instruction 与 Source。Search、卡片、详情和 Prompt Composer 按请求语言取同一组字段。
+- `wiki_url`：每种语言可选填一个公开可访问的 Wiki 页面 HTTPS 链接，供用户在详情页继续阅读；示例中的 `example.org` 仅演示字段结构，正式数据须使用真实链接。`source.url` 用于记录内容依据，两者用途独立。保存时校验绝对 HTTPS URL；某语言未填写时隐藏该语言的 Wiki 入口，不使用另一语言的链接，也不影响进入推荐池。
 - `domains` / `intents`、`interaction_type` / `epistemic_type` 与 `id` 是跨语言共用的稳定值；`tags` 是每种语言自己的自由展示与筛选标签，不要求两组字符串相同。
 - 草稿可暂缺某种语言；进入正式推荐池前，两种语言的必填文案和 WebP 配图都须通过校验。正式条目失去必填内容时须先退出推荐池；缺失语言不得静默回退到另一种语言。具体必填字段与迁移规则由 Schema 任务定稿。
-- `version`：从 1 开始，任一语言的内容或配图修订都递增；Recommendation Log 记录推荐发生时的 `concept_version`（见 §31）。
+- `version`：从 1 开始，任一语言的内容、Wiki 链接或配图修订都递增；Recommendation Log 记录推荐发生时的 `concept_version`（见 §31）。
 
 # 13. Concept 类型
 
@@ -729,6 +732,7 @@ MVP 只做 4 个核心页面。
 - Avoid When
 - Transform
 - Agent Instruction
+- Wiki 外部链接（按当前语言展示，打开外部页面）
 - Source
 - Related Concepts
 - Version
@@ -756,6 +760,7 @@ MVP 只做 4 个核心页面。
 - Avoid When
 - Transform
 - Agent Instruction
+- Wiki URL（`cn` / `en` 分别添加、修改或移除）
 - Source
 - Relations
 
@@ -809,6 +814,7 @@ Read：
 Update：
 - 分别编辑 `cn` / `en` 字段
 - 分别修改 `cn` / `en` 图片
+- 分别编辑 `cn` / `en` Wiki URL
 - 修改 Relation
 - 修改 Source
 
@@ -1005,7 +1011,7 @@ Not Useful Rate
 
 ## P1：Concept CRUD
 
-建立同一份 Concept Registry 与本地 Web。以 Card First 展示 Concept，支持 `cn` / `en` 标题、描述、WebP 配图与标签，类型跨语言共用；按语言搜索、创建、编辑、归档和删除，并保留内容修订记录。优先参考 Skillbox 的 Web、CRUD、Revision 与 Search 能力。首批导入仅限通过准入审查且双语字段齐备的 Concept（见 §33）。
+建立同一份 Concept Registry 与本地 Web。以 Card First 展示 Concept，支持 `cn` / `en` 标题、描述、WebP 配图与标签，类型跨语言共用；按语言搜索、创建、编辑、归档和删除，并保留内容修订记录。详情页展示该语言可选的 Wiki 外部链接，编辑器可按语言维护。优先参考 Skillbox 的 Web、CRUD、Revision 与 Search 能力。首批导入仅限通过准入审查且双语字段齐备的 Concept（见 §33）。
 
 ## P2：Recommendation Playground
 
