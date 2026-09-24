@@ -195,6 +195,8 @@ Concept image fields use a compact upload tile with a local preview, replace/rem
 
 Desktop prioritizes quick scanning and persistent context. Tablet uses two-column cards and moves workspace detail below the list. Mobile places navigation in normal flow, uses one-column cards, and stacks filters → results → detail without horizontal overflow.
 
+The app shell fills the viewport. Keep the header and desktop sidebar anchored while the active page content owns vertical scrolling; the mobile navigation stays directly below the header. Remove decorative placeholders and controls without actions. Keep only sample labels that clarify demo data and the developer layout switcher needed to compare A/B/C.
+
 ## 6. Depth & Elevation
 
 | Level | Treatment | Use |
