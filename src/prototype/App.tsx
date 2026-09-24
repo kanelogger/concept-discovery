@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowDownWideNarrow, ArrowRight, ArrowUpRight, BookOpen, Check, ChevronDown, CircleHelp,
-  Command, Compass, Database, Globe2, Grid2X2, LayoutDashboard, ListFilter, MoreHorizontal,
-  Pencil, Plus, Search, SlidersHorizontal, Sparkles, Trash2, X,
+  Command, Compass, Database, Globe2, Grid2X2, ImagePlus, LayoutDashboard, ListFilter, MoreHorizontal,
+  Pencil, Plus, Search, SlidersHorizontal, Sparkles, Trash2, Upload, X,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -273,15 +273,61 @@ function EmptyState({ t, onClear }: { t: typeof labels.cn; onClear: () => void }
 
 function ConceptForm({ initial, editing, t, onCancel, onSave }: { initial: Concept | ConceptDraft; editing: boolean; t: typeof labels.cn; onCancel: () => void; onSave: (draft: ConceptDraft) => void }) {
   const [draft, setDraft] = useState<ConceptDraft>({ cnTitle: initial.cnTitle, enTitle: initial.enTitle, cnDescription: initial.cnDescription, enDescription: initial.enDescription, cnImage: initial.cnImage, enImage: initial.enImage, wikiUrl: initial.wikiUrl, tags: [...initial.tags], notes: initial.notes });
+  const [pendingUploads, setPendingUploads] = useState(0);
   const update = <K extends keyof ConceptDraft>(key: K, value: ConceptDraft[K]) => setDraft((current) => ({ ...current, [key]: value }));
   const field = (key: keyof ConceptDraft, label: string, placeholder: string) => <label className="block"><span className="mb-1.5 block text-[11px] font-medium text-slate-600">{label}</span><Input value={typeof draft[key] === "string" ? draft[key] as string : ""} onChange={(e) => update(key, e.target.value as never)} placeholder={placeholder} /></label>;
-  return <form onSubmit={(e) => { e.preventDefault(); onSave(draft); }}>
-    <div className="border-b border-line px-6 py-5"><div className="mb-1 text-[10px] font-semibold uppercase tracking-[.14em] text-brand">{editing ? "Update record" : "Add to your library"}</div><DialogTitle className="text-lg font-semibold tracking-tight">{editing ? t.editTitle : t.createTitle}</DialogTitle><DialogDescription className="mt-1 text-xs text-muted">Both language versions are edited independently. Changes stay in memory.</DialogDescription></div>
-    <div className="space-y-5 p-6">
-      <div><div className="mb-3 flex items-center gap-2 text-xs font-semibold"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent-soft text-[10px] text-brand">中</span>中文内容</div><div className="grid gap-3 sm:grid-cols-2">{field("cnTitle", "中文标题", "例如：逆向思维")}<div className="sm:col-span-2"><label className="mb-1.5 block text-[11px] font-medium text-slate-600">中文描述</label><Textarea rows={3} value={draft.cnDescription} onChange={(e) => update("cnDescription", e.target.value)} placeholder="用一两句话说明这个 Concept…" /></div><div className="sm:col-span-2">{field("cnImage", "中文图片 URL", "https://…")}</div></div></div>
-      <div className="border-t border-line pt-5"><div className="mb-3 flex items-center gap-2 text-xs font-semibold"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-[9px] text-slate-600">EN</span>English content</div><div className="grid gap-3 sm:grid-cols-2">{field("enTitle", "English title", "e.g. Inversion")}<div className="sm:col-span-2"><label className="mb-1.5 block text-[11px] font-medium text-slate-600">English description</label><Textarea rows={3} value={draft.enDescription} onChange={(e) => update("enDescription", e.target.value)} placeholder="Describe the concept in one or two sentences…" /></div><div className="sm:col-span-2">{field("enImage", "English image URL", "https://…")}</div></div></div>
-      <div className="grid gap-3 border-t border-line pt-5 sm:grid-cols-2">{field("wikiUrl", t.wiki, "https://en.wikipedia.org/wiki/…")}<label className="block"><span className="mb-1.5 block text-[11px] font-medium text-slate-600">{t.tags}</span><Input value={draft.tags.join(", ")} onChange={(e) => update("tags", e.target.value.split(",").map((x) => x.trim()).filter(Boolean))} placeholder="Decision, Systems thinking" /></label><div className="sm:col-span-2"><label className="mb-1.5 block text-[11px] font-medium text-slate-600">{t.notes}</label><Textarea rows={3} value={draft.notes} onChange={(e) => update("notes", e.target.value)} placeholder="Internal notes for this record…" /></div></div>
+  return <form onSubmit={(e) => { e.preventDefault(); onSave(draft); }} className="flex max-h-[calc(100dvh-24px)] flex-col">
+    <div className="shrink-0 border-b border-line px-5 py-3.5 pr-14"><div className="mb-0.5 text-[10px] font-semibold uppercase tracking-[.14em] text-brand">{editing ? "Update record" : "Add to your library"}</div><DialogTitle className="text-lg font-semibold tracking-tight">{editing ? t.editTitle : t.createTitle}</DialogTitle><DialogDescription className="mt-0.5 text-xs text-muted">Both language versions are edited independently. Changes stay in memory.</DialogDescription></div>
+    <div className="dialog-form-scroll min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-4">
+      <div className="grid gap-4 min-[700px]:grid-cols-2 min-[700px]:gap-5">
+        <section className="space-y-2.5"><div className="flex items-center gap-2 text-xs font-semibold"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent-soft text-[10px] text-brand">中</span>中文内容</div>{field("cnTitle", "中文标题", "例如：逆向思维")}<label className="block"><span className="mb-1 block text-[11px] font-medium text-slate-600">中文描述</span><Textarea className="h-24 min-h-24 resize-y py-2" rows={3} value={draft.cnDescription} onChange={(e) => update("cnDescription", e.target.value)} placeholder="用一两句话说明这个 Concept…" /></label><ImageUpload label="中文图片" value={draft.cnImage} onChange={(value) => update("cnImage", value)} onBusyChange={(busy) => setPendingUploads((current) => Math.max(0, current + (busy ? 1 : -1)))} /></section>
+        <section className="space-y-2.5 min-[700px]:border-l min-[700px]:border-line min-[700px]:pl-5"><div className="flex items-center gap-2 text-xs font-semibold"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-[9px] text-slate-600">EN</span>English content</div>{field("enTitle", "English title", "e.g. Inversion")}<label className="block"><span className="mb-1 block text-[11px] font-medium text-slate-600">English description</span><Textarea className="h-24 min-h-24 resize-y py-2" rows={3} value={draft.enDescription} onChange={(e) => update("enDescription", e.target.value)} placeholder="Describe the concept in one or two sentences…" /></label><ImageUpload label="English image" value={draft.enImage} onChange={(value) => update("enImage", value)} onBusyChange={(busy) => setPendingUploads((current) => Math.max(0, current + (busy ? 1 : -1)))} /></section>
+      </div>
+      <div className="grid gap-3 border-t border-line pt-3 min-[700px]:grid-cols-2">{field("wikiUrl", t.wiki, "https://en.wikipedia.org/wiki/…")}<label className="block"><span className="mb-1.5 block text-[11px] font-medium text-slate-600">{t.tags}</span><Input value={draft.tags.join(", ")} onChange={(e) => update("tags", e.target.value.split(",").map((x) => x.trim()).filter(Boolean))} placeholder="Decision, Systems thinking" /></label><label className="block min-[700px]:col-span-2"><span className="mb-1 block text-[11px] font-medium text-slate-600">{t.notes}</span><Textarea className="h-[64px] min-h-[64px] resize-y py-2" rows={2} value={draft.notes} onChange={(e) => update("notes", e.target.value)} placeholder="Internal notes for this record…" /></label></div>
     </div>
-    <div className="flex items-center justify-between border-t border-line bg-slate-50/70 px-6 py-4"><span className="text-[10px] text-muted"><span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />Memory only · resets on reload</span><div className="flex gap-2"><Button type="button" variant="secondary" onClick={onCancel}>{t.cancel}</Button><Button type="submit"><Check size={14} />{editing ? t.save : t.create}</Button></div></div>
+    <div className="flex shrink-0 items-center justify-between border-t border-line bg-slate-50/70 px-5 py-3"><span className="text-[10px] text-muted"><span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />Memory only · resets on reload</span><div className="flex gap-2"><Button type="button" variant="secondary" onClick={onCancel}>{t.cancel}</Button><Button type="submit" disabled={pendingUploads > 0}><Check size={14} />{editing ? t.save : t.create}</Button></div></div>
   </form>;
+}
+
+function ImageUpload({ label, value, onChange, onBusyChange }: { label: string; value: string; onChange: (value: string) => void; onBusyChange: (busy: boolean) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState("");
+  const [fileName, setFileName] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const acceptFile = (file?: File) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setError("请选择图片文件 / Choose an image file");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      setError("图片需小于 8 MB / Keep image under 8 MB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        onChange(reader.result);
+        setFileName(file.name);
+        setError("");
+      } else setError("图片读取失败，请重试 / Could not read image");
+      setUploading(false);
+      onBusyChange(false);
+    };
+    reader.onerror = () => { setError("图片读取失败，请重试 / Could not read image"); setUploading(false); onBusyChange(false); };
+    setUploading(true);
+    onBusyChange(true);
+    reader.readAsDataURL(file);
+  };
+  return <div>
+    <div className="mb-1 flex items-center justify-between"><span className="text-[11px] font-medium text-slate-600">{label}</span><span className="text-[10px] text-muted">PNG · JPG · WebP · Max 8 MB</span></div>
+    <div onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); acceptFile(event.dataTransfer.files[0]); }} className="flex min-h-[76px] items-center gap-3 rounded-lg border border-dashed border-border-strong bg-surface-subtle px-3 py-2">
+      {value ? <img src={value} alt={`${label} preview`} className="h-14 w-[76px] shrink-0 rounded-md border border-line bg-white object-cover" /> : <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white text-brand"><ImagePlus size={20} /></span>}
+      <div className="min-w-0 flex-1"><div title={fileName || undefined} className="truncate text-xs font-medium text-ink">{uploading ? "正在读取图片… / Reading…" : fileName || (value ? "图片预览已就绪 / Image ready" : "拖入图片，或点击上传")}</div><div className="mt-1 text-[10px] text-muted">{value ? "仅本会话可见 · Local preview" : "图片仅保存在当前会话内存"}</div></div>
+      <button type="button" disabled={uploading} onClick={() => inputRef.current?.click()} aria-label={`${value ? "更换" : "上传"} ${label}`} className="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-md border border-line bg-white px-2.5 text-[11px] font-medium text-ink transition hover:bg-slate-50 disabled:cursor-wait disabled:opacity-60"><Upload size={13} />{value ? "更换" : "上传"}</button>
+      <input ref={inputRef} type="file" accept="image/*" className="sr-only" onChange={(event) => { acceptFile(event.target.files?.[0]); event.currentTarget.value = ""; }} />
+      {value && <button type="button" onClick={() => { onChange(""); setFileName(""); setError(""); }} className="rounded-md p-2 text-muted hover:bg-white hover:text-ink" aria-label="移除图片"><X size={14} /></button>}
+    </div>
+    {error && <p role="alert" className="mt-1 text-[11px] text-error">{error}</p>}
+  </div>;
 }

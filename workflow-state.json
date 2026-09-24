@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "task_id": "0015-concept-crud-demo-design",
+  "task_id": "0016-concept-form-upload",
   "phase": "complete",
-  "task_file": "tasks/0015-concept-crud-demo-design.md",
+  "task_file": "tasks/0016-concept-form-upload.md",
   "updated_at": "2026-09-24",
-  "summary": "已完成经确认的 Concept CRUD demo 视觉规范与 A/B/C 布局的视觉、交互状态和响应式优化；构建与仓库校验通过。",
+  "summary": "已完成 Concept 新建/编辑弹窗的一屏优先布局和双语本地图片上传、预览、替换与移除组件。",
   "blockers": [],
   "next_actions": [],
   "required_checks": [
@@ -12,9 +12,20 @@
     "npm run validate"
   ],
   "verification": [
-    "npm run demo:build — PASS",
-    "npm run validate — PASS",
-    "git diff --check — PASS",
-    "In-app browser A/B/C at approx. 755px — PASS; desktop and <700px viewport not separately sized"
+    {
+      "command": "npm run demo:build",
+      "result": "passed",
+      "recorded_at": "2026-09-24T14:39:55.505Z"
+    },
+    {
+      "command": "npm run validate",
+      "result": "passed",
+      "recorded_at": "2026-09-24T14:39:55.505Z"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed",
+      "recorded_at": "2026-09-24T14:39:55.505Z"
+    }
   ]
 }

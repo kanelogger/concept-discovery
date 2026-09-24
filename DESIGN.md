@@ -168,6 +168,8 @@
 .ui-toast { border: 1px solid var(--color-success-soft); border-radius: 12px; background: var(--color-surface); color: var(--color-text); box-shadow: 0 10px 30px rgb(var(--rgb-text) / 0.12); }
 ```
 
+Concept image fields use a compact upload tile with a local preview, replace/remove actions, and a visible file-size limit. Keep the dialog content within the viewport; place bilingual fields side by side when space permits. Narrow or short viewports may scroll inside the form, with the scrollbar visually hidden while preserving keyboard and touch scrolling.
+
 ## 5. Layout Principles
 
 **Container:**

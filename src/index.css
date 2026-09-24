@@ -77,6 +77,8 @@ button { -webkit-tap-highlight-color: transparent; }
 ::selection { background: var(--color-accent-soft); color: var(--color-text); }
 :where(button, a, input, textarea, select, [role="button"]):focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
 .scroll-thin { scrollbar-width: thin; scrollbar-color: var(--color-border-strong) transparent; }
+.dialog-form-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+.dialog-form-scroll::-webkit-scrollbar { display: none; }
 .page-enter { animation: page-enter 220ms cubic-bezier(.2, .7, .2, 1) both; }
 .image-placeholder { background-image: linear-gradient(135deg, rgb(var(--rgb-accent-soft)) 0%, rgb(var(--rgb-accent-muted) / .58) 48%, rgb(var(--rgb-accent)) 100%); }
 @keyframes page-enter { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
