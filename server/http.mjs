@@ -10,7 +10,7 @@ async function body(request) {
   let raw = "";
   for await (const chunk of request) {
     raw += chunk;
-    if (raw.length > 1024 * 1024) throw new RegistryError(413, "too_large", "Request too large");
+    if (raw.length > 32 * 1024 * 1024) throw new RegistryError(413, "too_large", "Request too large");
   }
   try { return JSON.parse(raw); } catch { throw new RegistryError(400, "invalid_json", "Invalid JSON body"); }
 }
@@ -25,6 +25,11 @@ export function createApiServer({ dbPath, fallback } = {}) {
     }
     try {
       const path = url.pathname.split("/").filter(Boolean);
+      if (path.length === 3 && path[1] === "assets" && request.method === "GET") {
+        const asset = registry.asset(path[2]);
+        response.writeHead(200, { "Content-Type": asset.mime_type, "Content-Length": asset.data.length, "Cache-Control": "public, max-age=31536000, immutable" });
+        return response.end(asset.data);
+      }
       if (path.length === 2 && path[1] === "concepts") {
         if (request.method === "GET") {
           const concepts = registry.query(Object.fromEntries(url.searchParams));

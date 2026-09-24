@@ -1,6 +1,6 @@
 # Concept Discovery · MVP implementation workspace
 
-This branch implements the MVP in ticket order. Tickets 0023–0024 provide persistent Concept drafts and bilingual browsing/search. Remaining P1 tickets and P2–P5 are pending; see [backlog](tasks/backlog.md). The earlier memory-only UI remains on `codex/concept-crud-demo` for reference.
+This branch implements the MVP in ticket order. Tickets 0023–0025 provide persistent Concept drafts, bilingual browsing/search, and independent WebP images and Wiki links. Remaining P1 tickets and P2–P5 are pending; see [backlog](tasks/backlog.md). The earlier memory-only UI remains on `codex/concept-crud-demo` for reference.
 
 ## Run locally
 
@@ -16,4 +16,4 @@ npm run check
 npm run demo:build
 ```
 
-The editor accepts immutable lowercase slugs and at least one language name, then saves independent names, aliases, descriptions, tags and source text per language. The Card First library searches only browsable content in the selected language; management shows drafts and missing fields. Localized WebP media, archive, dashboard, recommendation and Skill flows arrive in later tickets.
+The editor accepts immutable lowercase slugs and at least one language name, then saves independent names, aliases, descriptions, tags, source text, WebP covers and optional HTTPS Wiki links per language. Save a draft before adding a cover. The Card First library searches only browsable content in the selected language; management shows drafts and missing fields. Archive, dashboard, recommendation and Skill flows arrive in later tickets.

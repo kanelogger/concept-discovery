@@ -1,14 +1,15 @@
 {
   "schema_version": 1,
-  "task_id": "0024-bilingual-browse-search",
+  "task_id": "0025-localized-image-wiki",
   "phase": "complete",
-  "task_file": "tasks/0024-bilingual-browse-search.md",
+  "task_file": "tasks/0025-localized-image-wiki.md",
   "updated_at": "2026-09-25",
-  "summary": "按语言浏览、搜索、管理草稿和卡片/表格共用查询已完成并通过隔离数据验收。",
+  "summary": "各语言 WebP 和 Wiki 独立编辑、原子保存、历史资产读取已完成。",
   "blockers": [],
-  "next_actions": ["启动 tasks/0025-localized-image-wiki.md", "继续 0026–0029"],
-  "required_checks": ["npm run check", "npm run demo:build"],
+  "next_actions": ["启动 tasks/0026-recommendable-locale-readiness.md", "继续 0027–0029"],
+  "required_checks": ["npm run check", "npm run demo:build", "npm run test:product"],
   "verification": [
+    {"command": "npm run test:product", "result": "passed", "recorded_at": "2026-09-25"},
     {"command": "npm run check", "result": "passed", "recorded_at": "2026-09-25"},
     {"command": "npm run demo:build", "result": "passed", "recorded_at": "2026-09-25"}
   ]

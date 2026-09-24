@@ -1,5 +1,6 @@
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { createHash } from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
 
 const interactionTypes = new Set(["operator", "lens", "procedure"]);
@@ -107,11 +108,49 @@ function changesBetween(before, after, prefix = "") {
   return changes;
 }
 
+function webpBytes(base64) {
+  if (typeof base64 !== "string" || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(base64)) bad("Image data must be base64");
+  const bytes = Buffer.from(base64, "base64");
+  if (bytes.length < 25 || bytes.toString("ascii", 0, 4) !== "RIFF" || bytes.toString("ascii", 8, 12) !== "WEBP" || bytes.readUInt32LE(4) + 8 !== bytes.length) bad("Image is not a valid WebP file");
+  let offset = 12;
+  const first = bytes.toString("ascii", 12, 16);
+  if (!["VP8 ", "VP8L", "VP8X"].includes(first)) bad("Image is not a valid WebP file");
+  while (offset < bytes.length) {
+    if (offset + 8 > bytes.length) bad("Image is not a valid WebP file");
+    const length = bytes.readUInt32LE(offset + 4);
+    if (offset + 8 + length > bytes.length) bad("Image is not a valid WebP file");
+    if (offset === 12) {
+      const payload = offset + 8;
+      if (first === "VP8 " && (length < 10 || bytes.toString("hex", payload + 3, payload + 6) !== "9d012a")) bad("Image is not a valid WebP file");
+      if (first === "VP8L" && (length < 5 || bytes[payload] !== 0x2f)) bad("Image is not a valid WebP file");
+      if (first === "VP8X" && length < 10) bad("Image is not a valid WebP file");
+    }
+    offset += 8 + length + (length % 2);
+  }
+  if (offset !== bytes.length) bad("Image is not a valid WebP file");
+  return bytes;
+}
+
+function mediaActions(media) {
+  if (media === undefined) return [];
+  if (!media || typeof media !== "object" || Array.isArray(media)) bad("media must be an object");
+  const result = [];
+  for (const [locale, action] of Object.entries(media)) {
+    if (!["cn", "en"].includes(locale) || !action || typeof action !== "object" || Array.isArray(action)) bad("Invalid media locale or action");
+    if (action.action === "remove" && Object.keys(action).length === 1) result.push({ locale, hash: "", bytes: null });
+    else if (action.action === "set" && Object.keys(action).length === 2 && own(action, "data")) {
+      const bytes = webpBytes(action.data);
+      result.push({ locale, hash: createHash("sha256").update(bytes).digest("hex"), bytes });
+    } else bad("Invalid media action");
+  }
+  return result;
+}
+
 export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/concept-discovery.sqlite") {
   const dbPath = resolve(path);
   mkdirSync(dirname(dbPath), { recursive: true });
   const db = new DatabaseSync(dbPath);
-  db.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; CREATE TABLE IF NOT EXISTS concepts (id TEXT PRIMARY KEY, data TEXT NOT NULL, version INTEGER NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL); CREATE TABLE IF NOT EXISTS revisions (revision_id INTEGER PRIMARY KEY AUTOINCREMENT, concept_id TEXT NOT NULL REFERENCES concepts(id) ON DELETE CASCADE, version_before INTEGER NOT NULL, version_after INTEGER NOT NULL, actor TEXT NOT NULL, operation TEXT NOT NULL, changed_at TEXT NOT NULL, changes TEXT NOT NULL);");
+  db.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; CREATE TABLE IF NOT EXISTS concepts (id TEXT PRIMARY KEY, data TEXT NOT NULL, version INTEGER NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL); CREATE TABLE IF NOT EXISTS revisions (revision_id INTEGER PRIMARY KEY AUTOINCREMENT, concept_id TEXT NOT NULL REFERENCES concepts(id) ON DELETE CASCADE, version_before INTEGER NOT NULL, version_after INTEGER NOT NULL, actor TEXT NOT NULL, operation TEXT NOT NULL, changed_at TEXT NOT NULL, changes TEXT NOT NULL); CREATE TABLE IF NOT EXISTS media_assets (hash TEXT PRIMARY KEY, mime_type TEXT NOT NULL, byte_size INTEGER NOT NULL, data BLOB NOT NULL, created_at TEXT NOT NULL);");
   const readRow = db.prepare("SELECT data FROM concepts WHERE id = ?");
   const get = (id) => {
     const row = readRow.get(id);
@@ -121,6 +160,12 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
   return {
     close: () => db.close(),
     get,
+    asset: (hash) => {
+      if (!/^[a-f0-9]{64}$/.test(hash)) throw new RegistryError(404, "not_found", "Image not found");
+      const row = db.prepare("SELECT data, mime_type FROM media_assets WHERE hash = ?").get(hash);
+      if (!row) throw new RegistryError(404, "not_found", "Image not found");
+      return { data: Buffer.from(row.data), mime_type: row.mime_type };
+    },
     list: () => db.prepare("SELECT data FROM concepts ORDER BY updated_at DESC, id").all().map((row) => publicConcept(JSON.parse(row.data))),
     query: ({ locale = "cn", view = "manage", q = "", status = "all", tag = "", domain = "" } = {}) => {
       if (!["cn", "en"].includes(locale)) bad("locale must be cn or en");
@@ -164,11 +209,12 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
     },
     update: (id, input, actor = "local-user") => {
       if (!input || !Number.isInteger(input.expected_version) || !input.changes || typeof input.changes !== "object" || Array.isArray(input.changes)) bad("expected_version and changes are required");
-      if (Object.keys(input).some((key) => !["expected_version", "changes"].includes(key))) bad("Unknown update field");
+      if (Object.keys(input).some((key) => !["expected_version", "changes", "media"].includes(key))) bad("Unknown update field");
       const previous = get(id);
       if (previous.version !== input.expected_version) throw new RegistryError(409, "version_conflict", "Concept changed; reload before saving");
       const next = structuredClone(previous);
       delete next.readiness;
+      const actions = mediaActions(input.media);
       for (const [path, value] of Object.entries(input.changes)) {
         if (path === "id" || path === "lifecycle_status" || path === "version") bad(`${path} is not editable`);
         const normalized = normalizedField(path, value);
@@ -176,6 +222,7 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
         if (parts.length === 1) next[path] = normalized;
         else next.locales[parts[1]][parts[2]] = normalized;
       }
+      for (const action of actions) next.locales[action.locale].cover_image = action.hash;
       validateNames(next);
       const changes = changesBetween(previous, next).filter((change) => change.path !== "readiness");
       if (changes.length === 0) return publicConcept(next);
@@ -183,6 +230,7 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
       next.updated_at = new Date().toISOString();
       db.exec("BEGIN IMMEDIATE");
       try {
+        for (const action of actions) if (action.bytes) db.prepare("INSERT OR IGNORE INTO media_assets (hash, mime_type, byte_size, data, created_at) VALUES (?, 'image/webp', ?, ?, ?)").run(action.hash, action.bytes.length, action.bytes, next.updated_at);
         const result = db.prepare("UPDATE concepts SET data = ?, version = ?, updated_at = ? WHERE id = ? AND version = ?").run(JSON.stringify(next), next.version, next.updated_at, id, previous.version);
         if (!result.changes) throw new RegistryError(409, "version_conflict", "Concept changed; reload before saving");
         db.prepare("INSERT INTO revisions (concept_id, version_before, version_after, actor, operation, changed_at, changes) VALUES (?, ?, ?, ?, 'update', ?, ?)").run(id, previous.version, next.version, actor, next.updated_at, JSON.stringify(changes));

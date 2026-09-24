@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -98,6 +99,66 @@ test("catalog search publishes each language independently and survives restart"
     origin = await listen();
     assert.equal((await query(origin, { locale: "en", view: "browse", q: "Inversion" })).value.count, 1);
     assert.equal((await query(origin, { locale: "cn", view: "browse", q: "Inversion" })).value.count, 0);
+  } finally {
+    await app.close();
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("localized WebP and Wiki edits commit atomically and preserve historical assets", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "concept-discovery-media-"));
+  const dbPath = join(directory, "registry.sqlite");
+  const red = readFileSync(new URL("./fixtures/red.webp", import.meta.url));
+  const blue = readFileSync(new URL("./fixtures/blue.webp", import.meta.url));
+  const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
+  let app = createApiServer({ dbPath });
+  const listen = async () => {
+    await new Promise((resolve) => app.server.listen(0, "127.0.0.1", resolve));
+    return `http://127.0.0.1:${app.server.address().port}`;
+  };
+  try {
+    let origin = await listen();
+    const created = await request(origin, "POST", "/api/concepts", { id: "two-images", locales: { cn: { name: "双语", description: "中文描述", source_text: "中文出处" }, en: { name: "Bilingual", description: "English description", source_text: "English source" } } });
+    assert.equal(created.status, 201);
+    assert.equal(created.value.locales.cn.cover_image, "");
+    assert.equal(created.value.locales.en.cover_image, "");
+    const first = await request(origin, "PATCH", "/api/concepts/two-images", { expected_version: 1, changes: { "locales.cn.wiki_url": "https://example.invalid/cn" }, media: { cn: { action: "set", data: red.toString("base64") } } });
+    assert.equal(first.status, 200);
+    assert.equal(first.value.version, 2);
+    assert.equal(first.value.locales.cn.cover_image, hash(red));
+    assert.equal(first.value.locales.en.cover_image, "");
+    assert.equal(first.value.locales.cn.wiki_url, "https://example.invalid/cn");
+    const imageResponse = await fetch(`${origin}/api/assets/${hash(red)}`);
+    assert.equal(imageResponse.headers.get("content-type"), "image/webp");
+    assert.deepEqual(Buffer.from(await imageResponse.arrayBuffer()), red);
+    const fake = await request(origin, "PATCH", "/api/concepts/two-images", { expected_version: 2, changes: { "locales.en.wiki_url": "https://example.invalid/en" }, media: { en: { action: "set", data: Buffer.from("fake image/webp").toString("base64") } } });
+    assert.equal(fake.status, 400);
+    assert.equal((await request(origin, "GET", "/api/concepts/two-images")).value.version, 2);
+    assert.equal((await request(origin, "GET", "/api/concepts/two-images")).value.locales.en.wiki_url, "");
+    const badUrl = await request(origin, "PATCH", "/api/concepts/two-images", { expected_version: 2, changes: { "locales.en.wiki_url": "http://example.invalid/en" }, media: { en: { action: "set", data: blue.toString("base64") } } });
+    assert.equal(badUrl.status, 400);
+    assert.equal((await fetch(`${origin}/api/assets/${hash(blue)}`)).status, 404);
+    const replaced = await request(origin, "PATCH", "/api/concepts/two-images", { expected_version: 2, changes: { "locales.en.wiki_url": "https://example.invalid/en" }, media: { cn: { action: "set", data: blue.toString("base64") }, en: { action: "set", data: red.toString("base64") } } });
+    assert.equal(replaced.status, 200);
+    assert.equal(replaced.value.version, 3);
+    assert.equal(replaced.value.locales.cn.cover_image, hash(blue));
+    assert.equal(replaced.value.locales.en.cover_image, hash(red));
+    const removed = await request(origin, "PATCH", "/api/concepts/two-images", { expected_version: 3, changes: { "locales.cn.wiki_url": "" }, media: { cn: { action: "remove" } } });
+    assert.equal(removed.status, 200);
+    assert.equal(removed.value.locales.cn.cover_image, "");
+    assert.equal(removed.value.locales.en.cover_image, hash(red));
+    assert.equal((await fetch(`${origin}/api/assets/${hash(blue)}`)).status, 200);
+    const revisions = (await request(origin, "GET", "/api/concepts/two-images/revisions")).value.revisions;
+    assert.equal(revisions.length, 4);
+    assert.ok(revisions[2].changes.some((change) => change.path === "locales.cn.cover_image" && change.before === "" && change.after === hash(red)));
+    assert.ok(revisions[1].changes.some((change) => change.path === "locales.cn.cover_image" && change.before === hash(red) && change.after === hash(blue)));
+    assert.ok(revisions[1].changes.some((change) => change.path === "locales.en.wiki_url"));
+    await app.close();
+    app = createApiServer({ dbPath });
+    origin = await listen();
+    assert.equal((await request(origin, "GET", "/api/concepts/two-images")).value.locales.en.cover_image, hash(red));
+    assert.deepEqual(Buffer.from(await (await fetch(`${origin}/api/assets/${hash(red)}`)).arrayBuffer()), red);
+    assert.deepEqual(Buffer.from(await (await fetch(`${origin}/api/assets/${hash(blue)}`)).arrayBuffer()), blue);
   } finally {
     await app.close();
     rmSync(directory, { recursive: true, force: true });
