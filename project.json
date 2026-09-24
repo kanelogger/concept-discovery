@@ -3,7 +3,7 @@
   "project": {
     "id": "concept-discovery",
     "stage": "p1-implementation",
-    "product_status": "partial-0023"
+    "product_status": "partial-0024"
   },
   "runtime": {
     "node_major": 24

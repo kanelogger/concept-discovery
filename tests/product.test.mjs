@@ -56,3 +56,50 @@ test("public API persists one bilingual identity and field-path revisions", asyn
     rmSync(directory, { recursive: true, force: true });
   }
 });
+
+test("catalog search publishes each language independently and survives restart", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "concept-discovery-search-"));
+  const dbPath = join(directory, "registry.sqlite");
+  let app = createApiServer({ dbPath });
+  const listen = async () => {
+    await new Promise((resolve) => app.server.listen(0, "127.0.0.1", resolve));
+    return `http://127.0.0.1:${app.server.address().port}`;
+  };
+  const query = (origin, params) => request(origin, "GET", `/api/concepts?${new URLSearchParams(params)}`);
+  try {
+    let origin = await listen();
+    const created = await request(origin, "POST", "/api/concepts", {
+      id: "inversion", domains: ["reasoning"],
+      locales: {
+        cn: { name: "逆向思维", aliases: ["反向思考", " 反向思考 "], description: "从失败倒推", source_text: "来源：未联网核验的纯文本", tags: ["决策"] },
+        en: { name: "Inversion", aliases: ["Reverse thinking"], description: "Think backward", source_text: "   ", tags: ["Decision"] },
+      },
+    });
+    assert.equal(created.status, 201);
+    assert.deepEqual(created.value.locales.cn.aliases, ["反向思考"]);
+    assert.equal(created.value.locales.en.source_text, "");
+    assert.equal(created.value.readiness.cn.browsable, true);
+    assert.equal(created.value.readiness.en.browsable, false);
+    assert.equal((await query(origin, { locale: "cn", view: "browse" })).value.count, 1);
+    assert.equal((await query(origin, { locale: "en", view: "browse" })).value.count, 0);
+    assert.equal((await query(origin, { locale: "cn", view: "browse", q: "反向思考" })).value.count, 1);
+    assert.equal((await query(origin, { locale: "cn", view: "browse", q: "Think backward" })).value.count, 0);
+    assert.equal((await query(origin, { locale: "cn", view: "browse", tag: "决策", domain: "reasoning" })).value.count, 1);
+    assert.equal((await query(origin, { locale: "cn", view: "browse", tag: "Decision" })).value.count, 0);
+    const managedEn = await query(origin, { locale: "en", view: "manage", status: "draft" });
+    assert.equal(managedEn.value.count, 1);
+    assert.deepEqual(managedEn.value.concepts[0].readiness.en.browse_missing, ["source_text"]);
+    assert.equal((await query(origin, { locale: "en", view: "manage", q: "逆向思维" })).value.count, 0);
+    const completed = await request(origin, "PATCH", "/api/concepts/inversion", { expected_version: 1, changes: { "locales.en.source_text": "English source" } });
+    assert.equal(completed.value.readiness.en.browsable, true);
+    assert.equal((await query(origin, { locale: "en", view: "browse", q: "Reverse thinking" })).value.count, 1);
+    await app.close();
+    app = createApiServer({ dbPath });
+    origin = await listen();
+    assert.equal((await query(origin, { locale: "en", view: "browse", q: "Inversion" })).value.count, 1);
+    assert.equal((await query(origin, { locale: "cn", view: "browse", q: "Inversion" })).value.count, 0);
+  } finally {
+    await app.close();
+    rmSync(directory, { recursive: true, force: true });
+  }
+});

@@ -26,7 +26,10 @@ export function createApiServer({ dbPath, fallback } = {}) {
     try {
       const path = url.pathname.split("/").filter(Boolean);
       if (path.length === 2 && path[1] === "concepts") {
-        if (request.method === "GET") return json(response, 200, { concepts: registry.list() });
+        if (request.method === "GET") {
+          const concepts = registry.query(Object.fromEntries(url.searchParams));
+          return json(response, 200, { count: concepts.length, concepts });
+        }
         if (request.method === "POST") return json(response, 201, registry.create(await body(request)));
       }
       if (path.length >= 3 && path[1] === "concepts") {

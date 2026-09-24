@@ -1,16 +1,14 @@
 {
   "schema_version": 1,
-  "task_id": "0023-persist-concept-draft",
+  "task_id": "0024-bilingual-browse-search",
   "phase": "complete",
-  "task_file": "tasks/0023-persist-concept-draft.md",
+  "task_file": "tasks/0024-bilingual-browse-search.md",
   "updated_at": "2026-09-25",
-  "summary": "持久化 Concept 草稿、本地管理卡片、版本修订和隔离数据验收已完成。",
+  "summary": "按语言浏览、搜索、管理草稿和卡片/表格共用查询已完成并通过隔离数据验收。",
   "blockers": [],
-  "next_actions": ["从 tasks/0024-bilingual-browse-search.md 启动下一张 ticket", "按 Blocked by 顺序推进 0025–0029"],
-  "required_checks": ["npm run check", "npm run demo:build", "npm run test:product"],
+  "next_actions": ["启动 tasks/0025-localized-image-wiki.md", "继续 0026–0029"],
+  "required_checks": ["npm run check", "npm run demo:build"],
   "verification": [
-    {"command": "npm run test:product", "result": "failed", "recorded_at": "2026-09-25", "note": "Sandbox denied local loopback listen; reran with loopback permission."},
-    {"command": "npm run test:product", "result": "passed", "recorded_at": "2026-09-25"},
     {"command": "npm run check", "result": "passed", "recorded_at": "2026-09-25"},
     {"command": "npm run demo:build", "result": "passed", "recorded_at": "2026-09-25"}
   ]

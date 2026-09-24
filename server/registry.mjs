@@ -122,6 +122,27 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
     close: () => db.close(),
     get,
     list: () => db.prepare("SELECT data FROM concepts ORDER BY updated_at DESC, id").all().map((row) => publicConcept(JSON.parse(row.data))),
+    query: ({ locale = "cn", view = "manage", q = "", status = "all", tag = "", domain = "" } = {}) => {
+      if (!["cn", "en"].includes(locale)) bad("locale must be cn or en");
+      if (!["manage", "browse"].includes(view)) bad("view must be manage or browse");
+      if (!["all", "draft", "browsable", "recommendable"].includes(status)) bad("status is invalid");
+      if (domain && !domainCodes.has(domain)) bad("domain is invalid");
+      const needle = text(q, "q").toLocaleLowerCase();
+      const exactTag = text(tag, "tag");
+      return db.prepare("SELECT data FROM concepts ORDER BY updated_at DESC, id").all().map((row) => publicConcept(JSON.parse(row.data))).filter((concept) => {
+        const local = concept.locales[locale];
+        const ready = concept.readiness[locale];
+        if (concept.lifecycle_status !== "active") return false;
+        if (view === "browse" && !ready.browsable) return false;
+        if (status === "draft" && ready.browsable) return false;
+        if (status === "browsable" && !ready.browsable) return false;
+        if (status === "recommendable" && !ready.recommendable) return false;
+        if (exactTag && !local.tags.includes(exactTag)) return false;
+        if (domain && !concept.domains.includes(domain)) return false;
+        if (needle && ![local.name, ...local.aliases, local.description, ...local.tags].some((value) => value.toLocaleLowerCase().includes(needle))) return false;
+        return true;
+      });
+    },
     revisions: (id) => { get(id); return db.prepare("SELECT revision_id, concept_id, version_before, version_after, actor, operation, changed_at, changes FROM revisions WHERE concept_id = ? ORDER BY revision_id DESC").all(id).map((row) => ({ ...row, changes: JSON.parse(row.changes) })); },
     create: (input, actor = "local-user") => {
       const concept = fromInput(input);
