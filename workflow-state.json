@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "task_id": "0021-publish-p1-spec",
+  "task_id": "0030-publish-p1-implementation-tickets",
   "phase": "complete",
-  "task_file": "tasks/0021-publish-p1-spec.md",
-  "updated_at": "2026-09-24",
-  "summary": "综合 PRD、领域词汇和原型反馈，发布 Concept Schema、CRUD 与 Dashboard 的 P1 可实施规格及待实施任务。",
+  "task_file": "tasks/0030-publish-p1-implementation-tickets.md",
+  "updated_at": "2026-09-25",
+  "summary": "按用户确认的纵向切片和阻塞关系，发布 P1 Concept Schema、CRUD 与 Dashboard 七张实现 tickets。",
   "blockers": [],
-  "next_actions": ["从 tasks/0022-implement-concept-schema-crud-dashboard.md 启动 P1 实施并记录应用栈与存储选型", "按规格建立持久化 Concept Registry、Card First Web、Revision 与真实 Dashboard"],
+  "next_actions": ["从 tasks/0023-persist-concept-draft.md 启动首张无阻塞 ticket 并记录应用栈与存储选型", "依照各 ticket 的 Blocked by 关系推进后续切片"],
   "required_checks": ["npm run validate"],
-  "verification": [{"command": "npm run validate", "result": "passed", "recorded_at": "2026-09-24"}]
+  "verification": [{"command": "npm run validate", "result": "passed", "recorded_at": "2026-09-25"}]
 }
