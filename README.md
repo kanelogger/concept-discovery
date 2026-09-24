@@ -1,6 +1,6 @@
 # Concept Discovery · MVP implementation workspace
 
-This branch implements the MVP in ticket order. P1 tickets 0023–0029 provide the persistent Concept Registry, bilingual Card First CRUD, independent WebP/Wiki content, locale readiness, revisions, archive/restore/guarded deletion, and a real-data Dashboard. P2–P5 remain pending; see [backlog](tasks/backlog.md). The earlier memory-only UI remains on `codex/concept-crud-demo` for reference.
+This branch implements the MVP in ticket order. The fixed Goal scope is tickets 0023–0029 plus 0031–0040; new backlog entries do not expand it. P1 tickets 0023–0029 provide the persistent Concept Registry, bilingual Card First CRUD, independent WebP/Wiki content, locale readiness, revisions, archive/restore/guarded deletion, and a real-data Dashboard. P2–P5 remain pending; see [backlog](tasks/backlog.md). The earlier memory-only UI remains on `codex/concept-crud-demo` for reference.
 
 ## Run locally
 

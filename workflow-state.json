@@ -1,16 +1,14 @@
 {
   "schema_version": 1,
-  "task_id": "0029-real-registry-dashboard",
+  "task_id": "0031-publish-finite-mvp-tickets",
   "phase": "complete",
-  "task_file": "tasks/0029-real-registry-dashboard.md",
+  "task_file": "tasks/0031-publish-finite-mvp-tickets.md",
   "updated_at": "2026-09-25",
-  "summary": "真实 Registry Dashboard 与 P1 端到端验收已完成。",
+  "summary": "P2–P5 已限定为 0032–0040，并记录模型与真实评测资源依赖。",
   "blockers": [],
-  "next_actions": ["建立有限的 P2–P5 实施 tickets 与依赖", "定稿 P2 推荐结果、模型配置和评测契约"],
-  "required_checks": ["npm run check", "npm run demo:build", "npm run test:product"],
+  "next_actions": ["启动 tasks/0032-recommendation-contract-model-adapter.md", "等待用户选择真实模型接入方式"],
+  "required_checks": ["npm run validate"],
   "verification": [
-    {"command": "npm run test:product", "result": "passed", "recorded_at": "2026-09-25"},
-    {"command": "npm run check", "result": "passed", "recorded_at": "2026-09-25"},
-    {"command": "npm run demo:build", "result": "passed", "recorded_at": "2026-09-25"}
+    {"command": "npm run validate", "result": "passed", "recorded_at": "2026-09-25"}
   ]
 }
