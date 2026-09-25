@@ -3,8 +3,8 @@ import { openRegistry, RegistryError } from "./registry.mjs";
 import { configuredModelAdapter } from "./model-config.mjs";
 import { parseRecommendationRequest, RecommendationError, runRecommendation } from "./recommendation-contract.mjs";
 
-const json = (response, status, body) => {
-  response.writeHead(status, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });
+const json = (response, status, body, extraHeaders = {}) => {
+  response.writeHead(status, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", ...extraHeaders });
   response.end(JSON.stringify(body));
 };
 
@@ -38,7 +38,9 @@ export function createApiServer({ dbPath, fallback, modelAdapterFactory = config
       if (path.length === 2 && path[1] === "recommendations" && request.method === "POST") {
         const input = parseRecommendationRequest(await body(request, 64 * 1024));
         const concepts = registry.query({ locale: input.locale, view: "browse", status: "recommendable" });
-        return json(response, 200, await runRecommendation(input, concepts, modelAdapterFactory()));
+        const adapter = modelAdapterFactory();
+        const result = await runRecommendation(input, concepts, adapter);
+        return json(response, 200, result, { "X-Model-Provider": adapter.metadata?.provider || "unspecified", "X-Model-Name": adapter.metadata?.model || "unspecified" });
       }
       if (path.length === 2 && path[1] === "concepts") {
         if (request.method === "GET") {

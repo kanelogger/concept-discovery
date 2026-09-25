@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "dataset_kind": "synthetic",
+  "cases": [
+    { "id": "cn-failure-risk", "locale": "cn", "input": { "task": "我有两个具体方案和基本事实，想检查可能的失败风险。" }, "expected_ids": ["inversion"] },
+    { "id": "en-failure-risk", "locale": "en", "input": { "task": "I have two concrete options and facts. Help inspect likely failure risks." }, "expected_ids": ["inversion"] },
+    { "id": "cn-trivial-fact", "locale": "cn", "input": { "task": "2 加 2 等于几？" }, "expected_ids": [] },
+    { "id": "en-trivial-fact", "locale": "en", "input": { "task": "What is 2 plus 2?" }, "expected_ids": [] }
+  ]
+}

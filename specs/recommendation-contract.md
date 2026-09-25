@@ -37,4 +37,6 @@
 
 `POST /api/recommendations` 接受上述请求 JSON，最大请求体 64 KiB。服务端每次从 P1 的同一 SQLite Registry 读取指定语言的 active、recommendable Concept，实时检查模型配置，并返回上述公开输出；不写真实 Usage 事件。首次配置后无需重启本地服务。
 
+成功响应的 `X-Model-Provider` 与 `X-Model-Name` 只给出非敏感模型标识，供离线评测追溯；不包含 API key。
+
 无效请求返回 `400 invalid_recommendation_request`，模型配置/同意缺失返回相应 `503`，模型超时返回 `504 model_timeout`，上游或模型输出错误返回 `502`。正常空推荐返回 HTTP 200 与 `recommendations: []`。Web 不调用此接口，也不展示推荐或 Prompt。双语隔离由 Registry 资格、候选卡裁剪和结果 ID 校验共同保证；诊断与 Why Now 的实际语言和相关性仍由模型及 0034 离线案例检验。

@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "task_id": "0033-recommendation-api",
+  "task_id": "0034-offline-eval-harness",
   "phase": "complete",
-  "task_file": "tasks/0033-recommendation-api.md",
+  "task_file": "tasks/0034-offline-eval-harness.md",
   "updated_at": "2026-09-25",
-  "summary": "0033 正式同语言 Recommendation API 完成，双语 HTTP、隔离与六条真实模型合成烟测已验证。",
+  "summary": "0034 离线评测入口完成；正式 HTTP、双语/NONE 合成案例、指标与错误隔离已验证。",
   "blockers": [],
-  "next_actions": ["独立提交 0033 后启动 tasks/0034-offline-eval-harness.md"],
+  "next_actions": ["独立提交 0034 后启动 tasks/0035-concept-relation-crud.md"],
   "required_checks": ["npm run check", "npm run demo:build"],
   "verification": [
     {"command": "npm run check", "result": "passed", "recorded_at": "2026-09-25"},

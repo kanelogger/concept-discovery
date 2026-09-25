@@ -15,7 +15,8 @@
     "test:product": "node --test tests/product.test.mjs",
     "model:configure": "node scripts/configure-model.mjs",
     "model:smoke": "node scripts/smoke-deepseek.mjs",
-    "model:api-smoke": "node scripts/smoke-recommendation-api.mjs"
+    "model:api-smoke": "node scripts/smoke-recommendation-api.mjs",
+    "eval": "node scripts/evaluate.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

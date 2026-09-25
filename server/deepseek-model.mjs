@@ -8,6 +8,7 @@ const systemPrompt = `You recommend existing Concepts for a user's current task.
 export function createDeepseekAdapter(apiKey, { fetchImpl = fetch } = {}) {
   if (typeof apiKey !== "string" || !apiKey.trim()) throw new TypeError("DeepSeek API key is required");
   return {
+    metadata: { provider: "deepseek", model: DEEPSEEK_MODEL },
     async decide({ request, candidates }, { signal }) {
       const response = await fetchImpl(DEEPSEEK_ENDPOINT, {
         method: "POST",
