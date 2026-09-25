@@ -42,6 +42,13 @@ export function createApiServer({ dbPath, fallback, modelAdapterFactory = config
         const result = await runRecommendation(input, concepts, adapter);
         return json(response, 200, result, { "X-Model-Provider": adapter.metadata?.provider || "unspecified", "X-Model-Name": adapter.metadata?.model || "unspecified" });
       }
+      if (path.length === 2 && path[1] === "relations" && request.method === "POST") return json(response, 201, registry.createRelation(await body(request)));
+      if (path.length === 3 && path[1] === "relations") {
+        const id = Number(path[2]);
+        if (request.method === "GET") return json(response, 200, registry.getRelation(id));
+        if (request.method === "PATCH") return json(response, 200, registry.updateRelation(id, await body(request)));
+        if (request.method === "DELETE") return json(response, 200, registry.deleteRelation(id, await body(request)));
+      }
       if (path.length === 2 && path[1] === "concepts") {
         if (request.method === "GET") {
           const concepts = registry.query(Object.fromEntries(url.searchParams));
@@ -57,6 +64,7 @@ export function createApiServer({ dbPath, fallback, modelAdapterFactory = config
         if (path.length === 3 && request.method === "DELETE") return json(response, 200, registry.delete(id, await body(request)));
         if (path.length === 4 && path[3] === "preview" && request.method === "POST") return json(response, 200, registry.previewUpdate(id, await body(request)));
         if (path.length === 4 && path[3] === "revisions" && request.method === "GET") return json(response, 200, { revisions: registry.revisions(id) });
+        if (path.length === 4 && path[3] === "relations" && request.method === "GET") return json(response, 200, { relations: registry.listRelations(id, url.searchParams.get("locale")) });
         if (path.length === 4 && path[3] === "archive" && request.method === "POST") return json(response, 200, registry.archive(id, await body(request)));
         if (path.length === 4 && path[3] === "restore" && request.method === "POST") return json(response, 200, registry.restore(id, await body(request)));
       }

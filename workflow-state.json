@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "task_id": "0034-offline-eval-harness",
+  "task_id": "0035-concept-relation-crud",
   "phase": "complete",
-  "task_file": "tasks/0034-offline-eval-harness.md",
+  "task_file": "tasks/0035-concept-relation-crud.md",
   "updated_at": "2026-09-25",
-  "summary": "0034 离线评测入口完成；正式 HTTP、双语/NONE 合成案例、指标与错误隔离已验证。",
+  "summary": "0035 Relation CRUD、双语详情和引用约束完成，隔离 API、浏览器与公共检查通过；准备独立本地提交。",
   "blockers": [],
-  "next_actions": ["独立提交 0034 后启动 tasks/0035-concept-relation-crud.md"],
+  "next_actions": ["独立提交 0035", "按依赖顺序实施 0036 Relation 推荐排序信号"],
   "required_checks": ["npm run check", "npm run demo:build"],
   "verification": [
-    {"command": "npm run check", "result": "passed", "recorded_at": "2026-09-25"},
-    {"command": "npm run demo:build", "result": "passed", "recorded_at": "2026-09-25"}
+    { "command": "npm run check", "result": "passed", "recorded_at": "2026-09-25" },
+    { "command": "npm run demo:build", "result": "passed", "recorded_at": "2026-09-25" }
   ]
 }

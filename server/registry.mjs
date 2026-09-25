@@ -10,6 +10,8 @@ const intentCodes = new Set(["simplify", "reduce-complexity"]);
 const localeFields = new Set(["name", "aliases", "description", "cover_image", "wiki_url", "tags", "trigger", "avoid_when", "transform", "agent_instruction", "source_text"]);
 const listFields = new Set(["aliases", "tags", "trigger", "avoid_when", "transform"]);
 const sharedFields = new Set(["interaction_type", "epistemic_type", "domains", "intents"]);
+const relationTypes = new Set(["related_to", "often_used_with", "contrasts_with", "extends", "part_of"]);
+const symmetricRelations = new Set(["related_to", "often_used_with", "contrasts_with"]);
 
 export class RegistryError extends Error {
   constructor(status, code, message) {
@@ -97,6 +99,18 @@ function publicConcept(concept) {
   return { ...concept, readiness: { cn: readiness(concept, "cn"), en: readiness(concept, "en") } };
 }
 
+function normalizedRelation(input) {
+  if (!input || typeof input !== "object" || Array.isArray(input) || Object.keys(input).some((key) => !["source_concept_id", "target_concept_id", "relation_type", "note"].includes(key))) bad("Invalid Relation fields");
+  let { source_concept_id: source, target_concept_id: target, relation_type: type } = input;
+  if (typeof source !== "string" || typeof target !== "string" || !source || !target || source === target) bad("Relation needs two different Concept IDs");
+  if (!relationTypes.has(type)) bad("relation_type is invalid");
+  if (symmetricRelations.has(type) && source > target) [source, target] = [target, source];
+  const note = input.note ?? {};
+  if (!note || typeof note !== "object" || Array.isArray(note) || Object.keys(note).some((key) => !["cn", "en"].includes(key))) bad("Relation note must have cn/en text");
+  for (const locale of ["cn", "en"]) if (note[locale] !== undefined && typeof note[locale] !== "string") bad(`note.${locale} must be text`);
+  return { source_concept_id: source, target_concept_id: target, relation_type: type, note: { cn: note.cn?.trim() ?? "", en: note.en?.trim() ?? "" } };
+}
+
 function changesBetween(before, after, prefix = "") {
   const changes = [];
   for (const [field, next] of Object.entries(after)) {
@@ -150,8 +164,16 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
   const dbPath = resolve(path);
   mkdirSync(dirname(dbPath), { recursive: true });
   const db = new DatabaseSync(dbPath);
-  db.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; CREATE TABLE IF NOT EXISTS concepts (id TEXT PRIMARY KEY, data TEXT NOT NULL, version INTEGER NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL); CREATE TABLE IF NOT EXISTS revisions (revision_id INTEGER PRIMARY KEY AUTOINCREMENT, concept_id TEXT NOT NULL REFERENCES concepts(id) ON DELETE CASCADE, version_before INTEGER NOT NULL, version_after INTEGER NOT NULL, actor TEXT NOT NULL, operation TEXT NOT NULL, changed_at TEXT NOT NULL, changes TEXT NOT NULL); CREATE TABLE IF NOT EXISTS media_assets (hash TEXT PRIMARY KEY, mime_type TEXT NOT NULL, byte_size INTEGER NOT NULL, data BLOB NOT NULL, created_at TEXT NOT NULL); CREATE TABLE IF NOT EXISTS concept_references (concept_id TEXT NOT NULL REFERENCES concepts(id) ON DELETE RESTRICT, source_type TEXT NOT NULL, source_id TEXT NOT NULL, PRIMARY KEY (concept_id, source_type, source_id));");
+  db.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; CREATE TABLE IF NOT EXISTS concepts (id TEXT PRIMARY KEY, data TEXT NOT NULL, version INTEGER NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL); CREATE TABLE IF NOT EXISTS revisions (revision_id INTEGER PRIMARY KEY AUTOINCREMENT, concept_id TEXT NOT NULL REFERENCES concepts(id) ON DELETE CASCADE, version_before INTEGER NOT NULL, version_after INTEGER NOT NULL, actor TEXT NOT NULL, operation TEXT NOT NULL, changed_at TEXT NOT NULL, changes TEXT NOT NULL); CREATE TABLE IF NOT EXISTS media_assets (hash TEXT PRIMARY KEY, mime_type TEXT NOT NULL, byte_size INTEGER NOT NULL, data BLOB NOT NULL, created_at TEXT NOT NULL); CREATE TABLE IF NOT EXISTS concept_references (concept_id TEXT NOT NULL REFERENCES concepts(id) ON DELETE RESTRICT, source_type TEXT NOT NULL, source_id TEXT NOT NULL, PRIMARY KEY (concept_id, source_type, source_id)); CREATE TABLE IF NOT EXISTS concept_relations (id INTEGER PRIMARY KEY AUTOINCREMENT, source_concept_id TEXT NOT NULL REFERENCES concepts(id) ON DELETE RESTRICT, target_concept_id TEXT NOT NULL REFERENCES concepts(id) ON DELETE RESTRICT, relation_type TEXT NOT NULL, note_cn TEXT NOT NULL DEFAULT '', note_en TEXT NOT NULL DEFAULT '', version INTEGER NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(source_concept_id, target_concept_id, relation_type), CHECK(source_concept_id <> target_concept_id));");
   const readRow = db.prepare("SELECT data FROM concepts WHERE id = ?");
+  const relationRow = db.prepare("SELECT * FROM concept_relations WHERE id = ?");
+  const publicRelation = (row) => ({ id: row.id, source_concept_id: row.source_concept_id, target_concept_id: row.target_concept_id, relation_type: row.relation_type, note: { cn: row.note_cn, en: row.note_en }, version: row.version, created_at: row.created_at, updated_at: row.updated_at });
+  const getRelation = (id) => {
+    if (!Number.isInteger(id) || id < 1) bad("Relation ID must be a positive integer");
+    const row = relationRow.get(id);
+    if (!row) throw new RegistryError(404, "not_found", "Relation not found");
+    return publicRelation(row);
+  };
   const get = (id) => {
     const row = readRow.get(id);
     if (!row) throw new RegistryError(404, "not_found", `Concept ${id} not found`);
@@ -206,6 +228,74 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
   return {
     close: () => db.close(),
     get,
+    getRelation,
+    listRelations: (conceptId, locale) => {
+      get(conceptId);
+      if (!["cn", "en"].includes(locale)) bad("locale must be cn or en");
+      return db.prepare("SELECT * FROM concept_relations WHERE source_concept_id = ? OR target_concept_id = ? ORDER BY id").all(conceptId, conceptId).map((row) => {
+        const otherId = row.source_concept_id === conceptId ? row.target_concept_id : row.source_concept_id;
+        const otherRow = readRow.get(otherId);
+        const other = otherRow ? publicConcept(JSON.parse(otherRow.data)) : null;
+        const name = other?.locales[locale].name || null;
+        return { id: row.id, source_concept_id: row.source_concept_id, target_concept_id: row.target_concept_id, relation_type: row.relation_type,
+          direction: symmetricRelations.has(row.relation_type) ? "symmetric" : row.source_concept_id === conceptId ? "outgoing" : "incoming",
+          note: row[`note_${locale}`], version: row.version,
+          other: { id: otherId, name, status: other?.lifecycle_status || "missing", browsable: Boolean(other?.readiness[locale].browsable) },
+        };
+      });
+    },
+    createRelation: (input) => {
+      const relation = normalizedRelation(input);
+      for (const id of [relation.source_concept_id, relation.target_concept_id]) if (get(id).lifecycle_status !== "active") throw new RegistryError(409, "archived_concept", "New Relations require active Concepts");
+      const now = new Date().toISOString();
+      db.exec("BEGIN IMMEDIATE");
+      try {
+        const inserted = db.prepare("INSERT INTO concept_relations (source_concept_id, target_concept_id, relation_type, note_cn, note_en, version, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 1, ?, ?)").run(relation.source_concept_id, relation.target_concept_id, relation.relation_type, relation.note.cn, relation.note.en, now, now);
+        for (const id of [relation.source_concept_id, relation.target_concept_id]) db.prepare("INSERT INTO concept_references (concept_id, source_type, source_id) VALUES (?, 'relation', ?)").run(id, String(inserted.lastInsertRowid));
+        db.exec("COMMIT");
+        return getRelation(Number(inserted.lastInsertRowid));
+      } catch (error) { db.exec("ROLLBACK"); if (String(error).includes("UNIQUE constraint")) throw new RegistryError(409, "duplicate_relation", "Relation already exists"); throw error; }
+    },
+    updateRelation: (id, input) => {
+      const previous = getRelation(id);
+      if (!input || !Number.isInteger(input.expected_version) || !input.changes || typeof input.changes !== "object" || Array.isArray(input.changes) || Object.keys(input).some((key) => !["expected_version", "changes"].includes(key))) bad("expected_version and changes are required");
+      if (input.expected_version !== previous.version) throw new RegistryError(409, "version_conflict", "Relation changed; reload before saving");
+      if (Object.keys(input.changes).some((key) => !["source_concept_id", "target_concept_id", "relation_type", "note"].includes(key))) bad("Invalid Relation changes");
+      if (input.changes.note !== undefined && (!input.changes.note || typeof input.changes.note !== "object" || Array.isArray(input.changes.note))) bad("Relation note must have cn/en text");
+      const changed = (field) => own(input.changes, field) ? input.changes[field] : previous[field];
+      const next = normalizedRelation({
+        source_concept_id: changed("source_concept_id"),
+        target_concept_id: changed("target_concept_id"),
+        relation_type: changed("relation_type"),
+        note: { ...previous.note, ...input.changes.note },
+      });
+      if (next.source_concept_id !== previous.source_concept_id || next.target_concept_id !== previous.target_concept_id) {
+        for (const conceptId of [next.source_concept_id, next.target_concept_id]) if (get(conceptId).lifecycle_status !== "active") throw new RegistryError(409, "archived_concept", "Changed Relation endpoints must be active");
+      }
+      if (next.source_concept_id === previous.source_concept_id && next.target_concept_id === previous.target_concept_id && next.relation_type === previous.relation_type && JSON.stringify(next.note) === JSON.stringify(previous.note)) return previous;
+      const now = new Date().toISOString();
+      db.exec("BEGIN IMMEDIATE");
+      try {
+        const updated = db.prepare("UPDATE concept_relations SET source_concept_id = ?, target_concept_id = ?, relation_type = ?, note_cn = ?, note_en = ?, version = version + 1, updated_at = ? WHERE id = ? AND version = ?").run(next.source_concept_id, next.target_concept_id, next.relation_type, next.note.cn, next.note.en, now, id, previous.version);
+        if (!updated.changes) throw new RegistryError(409, "version_conflict", "Relation changed; reload before saving");
+        db.prepare("DELETE FROM concept_references WHERE source_type = 'relation' AND source_id = ?").run(String(id));
+        for (const conceptId of [next.source_concept_id, next.target_concept_id]) db.prepare("INSERT INTO concept_references (concept_id, source_type, source_id) VALUES (?, 'relation', ?)").run(conceptId, String(id));
+        db.exec("COMMIT");
+        return getRelation(id);
+      } catch (error) { db.exec("ROLLBACK"); if (String(error).includes("UNIQUE constraint")) throw new RegistryError(409, "duplicate_relation", "Relation already exists"); throw error; }
+    },
+    deleteRelation: (id, input) => {
+      const previous = getRelation(id);
+      if (!input || !Number.isInteger(input.expected_version) || input.expected_version !== previous.version || Object.keys(input).some((key) => key !== "expected_version")) throw new RegistryError(409, "version_conflict", "Relation changed; reload before deleting");
+      db.exec("BEGIN IMMEDIATE");
+      try {
+        db.prepare("DELETE FROM concept_references WHERE source_type = 'relation' AND source_id = ?").run(String(id));
+        const removed = db.prepare("DELETE FROM concept_relations WHERE id = ? AND version = ?").run(id, previous.version);
+        if (!removed.changes) throw new RegistryError(409, "version_conflict", "Relation changed; reload before deleting");
+        db.exec("COMMIT");
+        return { deleted: true, id };
+      } catch (error) { db.exec("ROLLBACK"); throw error; }
+    },
     asset: (hash) => {
       if (!/^[a-f0-9]{64}$/.test(hash)) throw new RegistryError(404, "not_found", "Image not found");
       const row = db.prepare("SELECT data, mime_type FROM media_assets WHERE hash = ?").get(hash);
