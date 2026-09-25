@@ -46,11 +46,13 @@
 
 2026-09-25 用户已明确验收通过**第一稿**，并要求继续此处列明的固定 ticket 范围。这是当前产品草稿的用户验收结论；它不替代维护者标注的 Eval、真实 Usage 或上述扩大范围 Gate。0041–0043 属同期另行开展的后续票据，尚有未提交并发修改，不计入本交接包的范围或检查结果。
 
+用户随后确认目前没有 25 条匿名真实任务及来源、50 条草案的逐条人工复核，也没有另一份真实使用数据库；真实主动 Skill 调用仍为 0。0040 保持未验收。已增补[离线数值判定入口](../../specs/eval-harness.md#0040-离线数值判定)，用于正式案例到位后核对冻结通过线；`numeric_passed` 仍需人工审查模型输出内容。当前共享工作树的 `npm run check` 为 73/73、构建通过，但包含未提交的 0041–0043 工作，不改变上文已提交第一稿的 67/67 检查证据。
+
 ## 用户验收步骤
 
 1. 在隔离工作区运行 `npm run doctor`、`npm run check`、`npm run demo:build`；审查 `git status --short --branch` 和本表逐票提交，不进行合并或部署。
 2. 将 `CONCEPT_DB_PATH` 设为 `/private/tmp/concept-discovery-mvp-demo/.local/knowledge-demo.sqlite`，运行 `npm start`，在 Web 查看 80 条目录、双语搜索、草稿、默认配图、修订与 Dashboard；用另一个新库测试新增、归档及 Relation 编辑，保留已导入验收库的证据。
 3. 若要实际向 DeepSeek 发起推荐，在终端运行 `npm run model:configure`，阅读外发说明并输入由你控制的可用密钥；未选远端时验证 `model_unavailable`。不要将密钥放入仓库或验收报告。
 4. 将 [项目 Skill](../../skills/concept-discovery/SKILL.md)按 [README](../../README.md#concept-discovery-skill) 链接到个人 skills 目录；分别用中文和英文明确调用，检查推荐、NONE、查看、忽略、选择、真实应用成果和 Dashboard 事件。普通任务不应自动触发。
-5. 按[人工复核表](eval-draft-review-2026-09-25.md)审阅 50 条 synthetic 草案，补入 25 条匿名真实任务并人工确认 Expected、来源，形成 `dataset_kind: "maintainer"` 的正式数据集；按 [评测契约](../../specs/eval-harness.md)运行 `npm run eval -- --cases PATH --baseUrl http://127.0.0.1:4173 --output PATH`，再对照[冻结通过线](../../eval/thresholds.initial.json)和诊断/Why Now 人工审查。报告不得混入真实 Usage。
+5. 按[人工复核表](eval-draft-review-2026-09-25.md)审阅 50 条 synthetic 草案，补入 25 条匿名真实任务并人工确认 Expected、来源，形成 `dataset_kind: "maintainer"` 的正式数据集；按 [评测契约](../../specs/eval-harness.md)运行 `npm run eval -- --cases PATH --baseUrl http://127.0.0.1:4173 --output PATH`，再按[离线数值判定步骤](../../specs/eval-harness.md#0040-离线数值判定)运行 `npm run eval:assess`，并人工复核诊断/Why Now。报告不得混入真实 Usage。
 6. 用真实用户主动调用累计 100 次推荐，核实目录出处和内容质量后，按 PRD §35 判定扩大范围 Gate。用户验收结论由你给出。

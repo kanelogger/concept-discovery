@@ -22,3 +22,11 @@
 | `over_recommendation` | 至少有一条输出 ID 不在 Expected 中的案例数 / 全部已评案例数 |
 
 这些数值不包含 Apply、Ignore、Not Useful 等真实使用指标。0034 的合成样例验证评测器和接口连通性，不建立质量通过线；维护者标注的 50 条案例、真实调用样本和最终门槛留待 0040。
+
+## 0040 离线数值判定
+
+正式报告生成后运行 `npm run eval:assess -- --cases .local/formal-cases.json --report .local/eval-report.json --review .local/eval-review.json --output .local/eval-assessment.json`。默认使用已冻结的 [初始工程通过线](../eval/thresholds.initial.json)，输出仍放在被忽略的 `.local` 中，权限 `0600`。判定器只读取文件，不调用模型或写 Usage。
+
+`--review` 文件是维护者完成案例标签复核后的声明，格式为 `{"schema_version":1,"reviewer_ref":"opaque-maintainer-id","reviewed_at":"2026-09-25T12:00:00Z","dataset_digest":"sha256","reviewed_case_ids":["case-id",...]}`。`dataset_digest` 可用 `datasetDigest(JSON.parse(readFileSync(PATH, "utf8")))`（导出自 [assess-offline.mjs](../eval/assess-offline.mjs)）计算，绑定包括任务文本和 Expected 在内的整份数据。工具只能检查声明完整和数据未在复核后变化；维护者必须实际审阅，不能从 synthetic 草案自动生成声明。
+
+判定器要求 `maintainer` 数据集至少 50 条，中文和英文各至少 25 条、Expected NONE 各至少 5 条，匿名真实任务及维护者撰写典型场景各至少 25 个不同的来源编号。它拒绝不完整报告、错误、混用模型、结构检查失败、报告与案例不一致或同一 Concept 在报告中出现不同版本；重新计算四项原指标和总体/分语言 NONE Recall，再与冻结通过线比较。结果为 `not_evaluable`、`numeric_failed` 或 `numeric_passed`。`numeric_passed` 仍需人工审查诊断和 Why Now 的语言、任务相关性、出处主张与多 Concept 覆盖；真实 Usage 和 Apply Rate 单独验收。

@@ -32,3 +32,9 @@ Status: needs-info
 ## 第一稿用户验收
 
 2026-09-25，用户明确回复“第一稿我验收通过”，并要求从已验收版本继续原定 ticket 范围。此结论记录为第一稿产品验收通过；它未提供 50 条维护者标注案例、正式 Eval 报告或 100 次真实 Skill 调用，因此本票仍为 `needs-info`，扩大范围 Gate 仍未达。原定范围保持 `0023–0029 + 0031–0040`。同期工作区另有 0041–0043 的未提交并发修改，均不计入本票验收或提交。
+
+同日用户进一步确认：目前没有 25 条匿名真实任务及来源，50 条草案 Expected 未逐条复核，也没有其他真实使用数据库；真实用户主动调用 Skill 的 Usage 为 0。用户要求保持本票未验收，继续完成不依赖外部材料的工作，且不能把测试或 synthetic 数据补作真实调用。
+
+## 正式数据到位后的离线判定准备
+
+新增 [离线数值判定器](../eval/assess-offline.mjs)及 `npm run eval:assess`：要求正式 maintainer 数据集与逐条人工复核声明相绑定，核对不同来源编号的配比、双语/NONE 数量、报告完整性、单一模型和目录版本一致性，重新计算总体与分语言指标及 NONE Recall，对照已冻结的初始通过线。结果明确区分 `not_evaluable`、`numeric_failed`、`numeric_passed`；即使数值通过，诊断和 Why Now 的内容仍须人工审查，真实 Usage 仍单独判定。`node --test tests/eval-acceptance.test.mjs` 5/5 通过；当前共享工作树 `npm run check` 73/73、`npm run demo:build`、`git diff --check` 通过，但该全量结果包含未提交的 0041–0043 并发变更，不作为这些票据的验收结论。
