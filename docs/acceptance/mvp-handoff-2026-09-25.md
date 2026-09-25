@@ -24,7 +24,7 @@
 | [0039](../../tasks/0039-skill-feedback-usage.md) | `55a2d5b` | 真实 Skill 五类事件、版本和状态互斥、重启、Dashboard 聚合；Eval 隔离。 |
 | [0040](../../tasks/0040-mvp-eval-acceptance.md) | **待完成** | 来源校验与本交接包已准备；80 条知识清单已审计但分类映射待定、尚未导入，维护者 Eval 案例、质量通过线和真实使用 Gate 尚缺。 |
 
-各票的具体命令、结果与限制记在对应 task。2026-09-25 的最终本地检查：`npm run doctor` 通过（Node 24.18.0、Git 2.55.0、正确工作区），`npm run check` 通过（64/64 测试、74 个 Markdown 链接校验），`npm run demo:build` 通过，`git diff --check` 通过。维护者数据 Eval 未运行；合成案例只验证机制。
+各票的具体命令、结果与限制记在对应 task。2026-09-25 的最终本地检查：`npm run doctor` 通过（Node 24.18.0、Git 2.55.0、正确工作区），`npm run check` 通过（64/64 测试、75 个 Markdown 链接校验），`npm run demo:build` 通过，`git diff --check` 通过。维护者数据 Eval 未运行；合成案例只验证机制。
 
 ## 已验证的本地路径
 
@@ -36,7 +36,7 @@
 
 | PRD / 0040 项 | 当前可观察状态 | 判定 |
 | --- | --- | --- |
-| 30 个 cn/en 均可推荐 Concept | 用户提供 [80 条知识清单的审计结果](knowledge-list-audit-2026-09-25.md)；当前受控分类不兼容，创建预览 0/80 通过，尚未导入。图片改为可选并显示默认配图。 | 未达；待分类映射与占位出处处理后在隔离库导入、核对。 |
+| 30 个 cn/en 均可推荐 Concept | 用户提供 [80 条知识清单的审计结果](knowledge-list-audit-2026-09-25.md)与[映射工作表](knowledge-list-mapping-worksheet-2026-09-25.md)；当前受控分类不兼容，创建预览 0/80 通过，尚未导入。图片改为可选并显示默认配图。 | 未达；待分类映射与占位出处处理后在隔离库导入、核对。 |
 | 50 条维护者标注、覆盖 cn/en、带来源的 Eval 案例 | 仓库仅有 [4 条明确标记 synthetic 的案例](../../eval/cases.synthetic.json)。 | 未达；不能用合成测试代替。 |
 | 100 次真实主动 Skill 推荐 | 隔离工作区没有真实使用数据库；自动化和离线 Eval 不计入。 | 未达；需要实际用户调用积累。 |
 | Top-1、Precision、NONE、过推及 Apply Rate 的通过线 | [PRD §40](../method-system-prd-v0.1.md#40-未决问题)仍列为待定。 | 需产品决策；未运行带人工标注的质量判定。 |

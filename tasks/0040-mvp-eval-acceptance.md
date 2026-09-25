@@ -20,9 +20,9 @@ Status: needs-info
 - [验收交接包](../docs/acceptance/mvp-handoff-2026-09-25.md)汇总固定票号范围、0023–0039 的独立提交、检查结果、真实/合成数据边界、Gate 缺口与用户验收步骤；未合并或部署。
 - `maintainer` 数据集现在强制每条案例具备 `source.kind` 和不含原文的 `source.ref`；评测报告保留来源标识。`node --test tests/eval-harness.test.mjs tests/skill-flow.test.mjs`：8/8 通过，覆盖来源格式与中文/英文 API → 选择 → Compose → 模拟 Agent 成果 → 反馈 Dashboard。自动化不能代替真实用户评判回答是否确实用了 Prompt。
 - 以独立 `/private/tmp/concept-mvp-gate-smoke.sqlite` 和端口 4180 运行实际 `npm start`：Web `/` 与 `/api/dashboard` HTTP 200；未配置模型的 Skill 返回 `model_unavailable` 和配置提示；前后 Usage run/event 为 0。服务已关闭，隔离数据库已清理。
-- `npm run doctor`、`npm run check`（64/64、74 个 Markdown 文件）、`npm run demo:build`、`git diff --check` 通过（2026-09-25）。本轮未运行 50 条维护者案例的 Eval，未验证真实应用率或数值通过线。
+- `npm run doctor`、`npm run check`（64/64、75 个 Markdown 文件）、`npm run demo:build`、`git diff --check` 通过（2026-09-25）。本轮未运行 50 条维护者案例的 Eval，未验证真实应用率或数值通过线。
 - 后续审查修正评测追溯：报告固定记录推荐响应时的 `concept_version`，每条案例重新读取 Registry；推荐与读取之间的版本变化令 `card_locale_match` 为 false，避免把后来编辑的版本误写成推荐版本。`node --test tests/eval-harness.test.mjs`：8/8 通过（含案例间和案例内编辑模拟）。
-- [知识清单导入前审计](../docs/acceptance/knowledge-list-audit-2026-09-25.md)：用户提供 80 条双语目录候选，但非人工标注 Eval。当前 Registry 创建预览 0/80 通过；39 条类型、79 条领域、80 条意图存在不兼容值，用户选择待其提供映射后再导入。无图默认配图的产品决定已落实到资格计算和 API 回归；22 条出处仍是明确的占位文案。
+- [知识清单导入前审计](../docs/acceptance/knowledge-list-audit-2026-09-25.md)与[映射工作表](../docs/acceptance/knowledge-list-mapping-worksheet-2026-09-25.md)：用户提供 80 条双语目录候选，但非人工标注 Eval。当前 Registry 创建预览 0/80 通过；39 条类型、79 条领域、80 条意图存在不兼容值，用户选择待其提供映射后再导入。无图默认配图的产品决定已落实到资格计算和 API 回归；22 条出处仍是明确的占位文案。
 
 ## 缺失资源和判定
 
