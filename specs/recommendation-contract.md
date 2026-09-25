@@ -12,7 +12,7 @@
 
 模型判定只接收 `diagnosis: string[]` 与 `recommendations: { id, reason, confidence, complementary_to? }[]`。`complementary_to` 是可选的先前入选 Concept ID 数组，用于明确确认互补关系；公开结果不暴露这个内部字段。每个 ID 必须属于本次候选且不重复，理由非空，`confidence` 为 0–1 的有限数。推荐条数不超过请求 `limit`，最多 3。模型提供的名称即使存在也不得用于公开输出。
 
-服务端根据请求语言的 Registry 数据填入公开的 `name`、当前 `concept_version` 与展示用 `card`（本语言 `description`、`tags`、`cover_image` 哈希以及共用类型），并回显请求 `locale`：
+服务端根据请求语言的 Registry 数据填入公开的 `name`、当前 `concept_version` 与展示用 `card`（本语言 `description`、`tags`、可为空的 `cover_image` 哈希以及共用类型），并回显请求 `locale`。`cover_image` 为空时客户端显示默认配图，不借用另一语言图片：
 
 ```json
 {

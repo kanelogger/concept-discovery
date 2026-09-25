@@ -75,6 +75,26 @@ test("Recommendation API uses the live Registry and sends only eligible same-loc
   });
 });
 
+test("Recommendation API includes a Concept without an uploaded cover", async () => {
+  const seen = [];
+  await withApi(() => ({ decide: async (payload) => {
+    seen.push(payload);
+    return { diagnosis: ["需要比较"], recommendations: [{ id: "no-cover", reason: "现在可用", confidence: 0.8 }] };
+  } }), async ({ registry, post }) => {
+    registry.create({ id: "no-cover", locales: locales("no-cover") });
+    assert.equal(registry.get("no-cover").readiness.cn.recommendable, true);
+    const withCover = registry.update("no-cover", { expected_version: 1, changes: {}, media: { cn: { action: "set", data: image } } });
+    assert.equal(withCover.readiness.cn.recommendable, true);
+    const removedCover = registry.update("no-cover", { expected_version: 2, changes: {}, media: { cn: { action: "remove" } } });
+    assert.equal(removedCover.readiness.cn.recommendable, true);
+    assert.equal(removedCover.locales.cn.cover_image, "");
+    const result = await post({ task: "如何选择", locale: "cn" });
+    assert.equal(result.status, 200);
+    assert.deepEqual(seen[0].candidates.map((candidate) => candidate.id), ["no-cover"]);
+    assert.equal(result.value.recommendations[0].card.cover_image, "");
+  });
+});
+
 test("Recommendation API separates unavailable model, provider error, invalid decision, and true NONE", async () => {
   const input = { task: "Decision", locale: "en" };
   await withApi(() => { throw new RecommendationError(503, "model_unavailable", "Configure model"); }, async ({ post }) => {

@@ -11,7 +11,7 @@
 - 当前工作区的 Skillbox 源码位于被 Git 忽略的 `docs/private-project/skillbox`，作为 Web、CRUD、Revision、Search、Recommend、Usage 的参考实现；本项目不 Fork Skillbox，具体代码移植与技术栈需逐项评估。参见 [PRD §5–§6](../docs/method-system-prd-v0.1.md#5-mvp-技术路线)。
 - Web 采用 Card First，只提供 Concept CRUD 与 Dashboard，不提供 Recommendation Playground 或生成 Prompt。Concept Card 展示标题、描述、WebP 配图与标签；两个类型字段可留空，只有已填写的类型才展示。Relation 支持 `related_to`、`often_used_with`、`contrasts_with`、`extends`、`part_of`，与暂缓的 Recipe 分离。参见 [PRD §8–§9](../docs/method-system-prd-v0.1.md#8-web-产品原则)、[§14](../docs/method-system-prd-v0.1.md#14-concept-relation)、[§27](../docs/method-system-prd-v0.1.md#27-web-页面)。
 - MVP 主线为 Concept CRUD → Recommendation API / Eval Harness → Relation → Skill → Feedback / Eval；Schema 与技术选型是各阶段的前置工作。参见 [PRD §34](../docs/method-system-prd-v0.1.md#34-mvp-实施顺序)。
-- 目录允许收录普通专业术语；某语言有名称、描述和出处文本即可浏览，补齐配图、触发场景和 Agent Instruction 后才进入该语言推荐池，不要求另一语言或两个类型字段齐备。Web、搜索、推荐、Apply 不混用另一语言的文案或图片。参见 [PRD §12](../docs/method-system-prd-v0.1.md#12-concept-数据模型)、[§20](../docs/method-system-prd-v0.1.md#20-搜索与推荐)。
+- 目录允许收录普通专业术语；某语言有名称、描述和出处文本即可浏览，补齐触发场景和 Agent Instruction 后进入该语言推荐池，不要求配图、另一语言或两个类型字段齐备。无图时显示默认配图；Web、搜索、推荐、Apply 不混用另一语言的文案或上传图片。参见 [PRD §12](../docs/method-system-prd-v0.1.md#12-concept-数据模型)、[§20](../docs/method-system-prd-v0.1.md#20-搜索与推荐)。
 - 每种语言有纯文本 `source_text`；该语言进入可浏览目录前要求非空，只检查非空，不联网核验出处。`wiki_url` 是可选的延伸阅读链接，缺失时隐藏入口，不跨语言回退。参见 [PRD §12](../docs/method-system-prd-v0.1.md#12-concept-数据模型)、[§27](../docs/method-system-prd-v0.1.md#27-web-页面)。
 - Skill 仅在明确命令或直接自然语言请求下运行；本地模型优先，远端模型在首次发送上下文前明确告知并由用户选择。没有可用模型时提示配置或选择，不伪造空推荐。参见 [PRD §24](../docs/method-system-prd-v0.1.md#24-推荐流程)、[§29](../docs/method-system-prd-v0.1.md#29-skill)。
 

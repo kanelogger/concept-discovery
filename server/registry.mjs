@@ -91,7 +91,7 @@ function fromInput(input, { requireName = true } = {}) {
 function readiness(concept, locale) {
   const data = concept.locales[locale];
   const browseMissing = ["name", "description", "source_text"].filter((field) => !data[field]);
-  const recommendMissing = [...browseMissing, ...(["cover_image", "trigger", "agent_instruction"].filter((field) => field === "trigger" ? data.trigger.length === 0 : !data[field]))];
+  const recommendMissing = [...browseMissing, ...(["trigger", "agent_instruction"].filter((field) => field === "trigger" ? data.trigger.length === 0 : !data[field]))];
   return { browsable: concept.lifecycle_status === "active" && browseMissing.length === 0, recommendable: concept.lifecycle_status === "active" && recommendMissing.length === 0, browse_missing: browseMissing, recommend_missing: recommendMissing };
 }
 

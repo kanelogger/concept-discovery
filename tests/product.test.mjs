@@ -183,6 +183,7 @@ test("recommendability preview uses the same per-language rules as saved records
     const created = await request(origin, "POST", "/api/concepts", { id: "readiness", locales: { cn: { name: "资格", description: "中文描述", source_text: "中文出处" }, en: { name: "Readiness", description: "English description", source_text: "English source" } } });
     assert.equal(created.value.readiness.cn.browsable, true);
     assert.equal(created.value.readiness.cn.recommendable, false);
+    assert.deepEqual(created.value.readiness.cn.recommend_missing, ["trigger", "agent_instruction"]);
     const update = { expected_version: 1, changes: { "locales.cn.trigger": ["  决策困难 ", "决策困难"], "locales.cn.avoid_when": ["信息不足"], "locales.cn.transform": ["明确选择"], "locales.cn.agent_instruction": "  帮助用户反向推演  ", "locales.en.trigger": ["Decision uncertainty"], "locales.en.agent_instruction": "Help reason backward", domains: ["reasoning"], intents: ["simplify"] }, media: { cn: { action: "set", data: red.toString("base64") }, en: { action: "set", data: blue.toString("base64") } } };
     const preview = await request(origin, "POST", "/api/concepts/readiness/preview", update);
     assert.equal(preview.status, 200);
@@ -194,6 +195,9 @@ test("recommendability preview uses the same per-language rules as saved records
     assert.equal(saved.value.version, 2);
     assert.equal(saved.value.readiness.cn.recommendable, true);
     assert.equal(saved.value.readiness.en.recommendable, true);
+    const removeImage = await request(origin, "POST", "/api/concepts/readiness/preview", { expected_version: 2, changes: {}, media: { cn: { action: "remove" } } });
+    assert.equal(removeImage.value.after.cn.recommendable, true);
+    assert.deepEqual(removeImage.value.after.cn.recommend_missing, []);
     assert.deepEqual(saved.value.locales.cn.trigger, ["决策困难"]);
     assert.equal(saved.value.locales.cn.agent_instruction, "帮助用户反向推演");
     assert.equal(saved.value.interaction_type, null);
@@ -223,6 +227,15 @@ test("recommendability preview uses the same per-language rules as saved records
     assert.ok(revisions[1].changes.some((change) => change.path === "locales.cn.agent_instruction"));
     assert.ok(revisions[1].changes.some((change) => change.path === "domains"));
     assert.equal(revisions[0].changes[0].path, "locales.cn.trigger");
+    const withoutImages = { id: "default-cover", locales: { cn: { name: "默认图", description: "中文描述", source_text: "中文出处", trigger: ["需要选择"], agent_instruction: "中文指引" }, en: { name: "Default cover", description: "English description", source_text: "English source", trigger: ["Choosing"], agent_instruction: "English instruction" } } };
+    const noImagePreview = await request(origin, "POST", "/api/concepts/preview", withoutImages);
+    assert.equal(noImagePreview.value.readiness.cn.recommendable, true);
+    assert.equal(noImagePreview.value.readiness.en.recommendable, true);
+    const noImageSaved = await request(origin, "POST", "/api/concepts", withoutImages);
+    assert.equal(noImageSaved.value.readiness.cn.recommendable, true);
+    assert.equal(noImageSaved.value.readiness.en.recommendable, true);
+    assert.equal(noImageSaved.value.locales.cn.cover_image, "");
+    assert.equal(noImageSaved.value.locales.en.cover_image, "");
   } finally {
     await app.close();
     rmSync(directory, { recursive: true, force: true });

@@ -16,6 +16,6 @@ P1 的 [Concept Schema、CRUD 与 Dashboard 规格](../specs/concept-schema-crud
 | 4 | Concept Discovery Skill · [0037](0037-contextual-prompt-composer.md) → [0038](0038-concept-discovery-skill.md) | 推荐接口和 Relation 可用 | 只在用户以命令或明确自然语言请求调用时运行；Agent 与 Web 读取同一 Registry，按用户 `locale` 推荐，用户选择后生成并执行同语言 Prompt；无模型时提示配置或选择，未经选择不上传上下文。 |
 | 5 | Feedback / Eval · [0039](0039-skill-feedback-usage.md) → [0040](0040-mvp-eval-acceptance.md) | Skill 接入 | 只记录 Skill 的真实推荐、查看、应用、忽略、无帮助及 `locale`；Dashboard 展示 Usage 统计，离线评测与真实使用分开。0040 汇总固定范围的技术验收，按 MVP Gate 决定是否扩大。 |
 
-首批目录候选仍须记录 `daily-knowledge(1).md` 的缺失或取得情况；六项优先补来源的是第一性原理、逆向思维、第二层思维、事件—局势—结构、安全边际、古德哈特定律，依据 [清洗稿 §6](../docs/method-registry-curated-v0.1.md#6-后续补充优先级)。候选可先存草稿；某语言有名称、描述和非空出处文本后可浏览，补齐配图、触发场景和 Agent Instruction 后可参与推荐。30 个双语齐备的目标用于扩张 Gate。
+首批目录候选仍须记录 `daily-knowledge(1).md` 的缺失或取得情况；六项优先补来源的是第一性原理、逆向思维、第二层思维、事件—局势—结构、安全边际、古德哈特定律，依据 [清洗稿 §6](../docs/method-registry-curated-v0.1.md#6-后续补充优先级)。候选可先存草稿；某语言有名称、描述和非空出处文本后可浏览，补齐触发场景和 Agent Instruction 后可参与推荐；无图时显示默认配图。30 个双语齐备的目标用于扩张 Gate。
 
 Markdown 批量导入、JSON/Markdown 导出、Web Recommendation Playground、Embedding、复杂 Rerank、用户偏好与 Recipe 推荐暂不排入主线；需要时依据真实使用证据另开任务。MVP 排除项见 [PRD §36](../docs/method-system-prd-v0.1.md#36-mvp-明确不做)。
