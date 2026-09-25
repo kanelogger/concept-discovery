@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "task_id": "0036-relation-ranking-signal",
+  "task_id": "0037-contextual-prompt-composer",
   "phase": "complete",
-  "task_file": "tasks/0036-relation-ranking-signal.md",
+  "task_file": "tasks/0037-contextual-prompt-composer.md",
   "updated_at": "2026-09-25",
-  "summary": "0036 Relation 互补同分排序完成；正式 HTTP 假模型回归、公共检查和构建通过。",
+  "summary": "0037 Skill 专用 Prompt Composer 完成；双语、最新版、输入结构隔离和失败边界通过测试。",
   "blockers": [],
-  "next_actions": ["独立提交 0036", "按依赖顺序实施 0037 Prompt Composer"],
+  "next_actions": ["独立提交 0037", "按依赖顺序实施 0038 Concept Discovery Skill"],
   "required_checks": ["npm run check", "npm run demo:build"],
   "verification": [
     { "command": "npm run check", "result": "passed", "recorded_at": "2026-09-25" },
