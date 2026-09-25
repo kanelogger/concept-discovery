@@ -9,7 +9,7 @@
 | [0023](../../tasks/0023-persist-concept-draft.md) | `3e17acf` | SQLite Concept 草稿与 Revision，隔离 API 持久化测试。 |
 | [0024](../../tasks/0024-bilingual-browse-search.md) | `b647047`，修正 `0e1042e` | 双语目录、搜索及长页滚动，API 与浏览器验收。 |
 | [0025](../../tasks/0025-localized-image-wiki.md) | `7bade73` | 分语言 WebP/Wiki 修改与原子保存测试。 |
-| [0026](../../tasks/0026-recommendable-locale-readiness.md) | `b7f4803` | 推荐资格预览与降级提示，API 测试。 |
+| [0026](../../tasks/0026-recommendable-locale-readiness.md) | `b7f4803`，配图规则修订 `e8bcd79` | 推荐资格预览与降级提示；无上传配图仍可推荐，Web 显示默认配图，API 回归通过。 |
 | [0027](../../tasks/0027-revision-history-conflicts.md) | `46b8be9` | 修订对比与过期编辑冲突恢复测试。 |
 | [0028](../../tasks/0028-archive-restore-delete-concept.md) | `2b1ddc4` | 归档、恢复、引用保护删除及媒体清理测试。 |
 | [0029](../../tasks/0029-real-registry-dashboard.md) | `36c1e04` | Dashboard 从同一 Registry 聚合目录及修订；P1 浏览器验收。 |
@@ -22,9 +22,9 @@
 | [0037](../../tasks/0037-contextual-prompt-composer.md) | `56aa3e7` | 最新同语言 Concept 的上下文化 Prompt；原文 JSON 数据隔离和失败边界测试。 |
 | [0038](../../tasks/0038-concept-discovery-skill.md) | `94876ca` | 主动调用 Skill、选择后 Compose、双语/NONE/无模型 CLI 路径；Skill 格式校验。 |
 | [0039](../../tasks/0039-skill-feedback-usage.md) | `55a2d5b` | 真实 Skill 五类事件、版本和状态互斥、重启、Dashboard 聚合；Eval 隔离。 |
-| [0040](../../tasks/0040-mvp-eval-acceptance.md) | **待完成** | 来源校验与本交接包已准备；维护者案例、质量通过线和真实使用 Gate 尚缺，不能宣称通过。 |
+| [0040](../../tasks/0040-mvp-eval-acceptance.md) | **待完成** | 来源校验与本交接包已准备；80 条知识清单已审计但分类映射待定、尚未导入，维护者 Eval 案例、质量通过线和真实使用 Gate 尚缺。 |
 
-各票的具体命令、结果与限制记在对应 task。2026-09-25 的最终本地检查：`npm run doctor` 通过（Node 24.18.0、Git 2.55.0、正确工作区），`npm run check` 通过（63/63 测试、73 个 Markdown 链接校验），`npm run demo:build` 通过，`git diff --check` 通过。维护者数据 Eval 未运行；合成案例只验证机制。
+各票的具体命令、结果与限制记在对应 task。2026-09-25 的最终本地检查：`npm run doctor` 通过（Node 24.18.0、Git 2.55.0、正确工作区），`npm run check` 通过（64/64 测试、74 个 Markdown 链接校验），`npm run demo:build` 通过，`git diff --check` 通过。维护者数据 Eval 未运行；合成案例只验证机制。
 
 ## 已验证的本地路径
 
@@ -36,11 +36,11 @@
 
 | PRD / 0040 项 | 当前可观察状态 | 判定 |
 | --- | --- | --- |
-| 30 个 cn/en 均可推荐 Concept | 本独立工作区未建立正式目录数据库；只有测试中的临时 Concept。 | 未达；首批目录和双语内容需维护者提供。 |
+| 30 个 cn/en 均可推荐 Concept | 用户提供 [80 条知识清单的审计结果](knowledge-list-audit-2026-09-25.md)；当前受控分类不兼容，原样预览 0/80 通过，尚未导入。图片改为可选并显示默认配图。 | 未达；待分类映射与占位出处处理后在隔离库导入、核对。 |
 | 50 条维护者标注、覆盖 cn/en、带来源的 Eval 案例 | 仓库仅有 [4 条明确标记 synthetic 的案例](../../eval/cases.synthetic.json)。 | 未达；不能用合成测试代替。 |
 | 100 次真实主动 Skill 推荐 | 隔离工作区没有真实使用数据库；自动化和离线 Eval 不计入。 | 未达；需要实际用户调用积累。 |
 | Top-1、Precision、NONE、过推及 Apply Rate 的通过线 | [PRD §40](../method-system-prd-v0.1.md#40-未决问题)仍列为待定。 | 需产品决策；未运行带人工标注的质量判定。 |
-| 初始 Concept 的真实出处 | 原始 `daily-knowledge(1).md` 未提供。 | 可先草稿；不能编造出处或将清洗稿的结构化转译当原文。 |
+| 初始 Concept 的真实出处 | 原始 `daily-knowledge(1).md` 与知识清单声明的原始来源文件均未提供；清单至少 22 条有明确占位出处。 | 可先草稿；不能把占位语或结构化转译当原文。 |
 
 30/50/100 是扩大目录和分发范围前的 Gate。当前可进入**技术路径的用户验收准备**，但 0040 的人工质量验收与扩大范围 Gate 尚未通过。
 
