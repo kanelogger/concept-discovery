@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "task_id": "0035-concept-relation-crud",
+  "task_id": "0036-relation-ranking-signal",
   "phase": "complete",
-  "task_file": "tasks/0035-concept-relation-crud.md",
+  "task_file": "tasks/0036-relation-ranking-signal.md",
   "updated_at": "2026-09-25",
-  "summary": "0035 Relation CRUD、双语详情和引用约束完成，隔离 API、浏览器与公共检查通过；准备独立本地提交。",
+  "summary": "0036 Relation 互补同分排序完成；正式 HTTP 假模型回归、公共检查和构建通过。",
   "blockers": [],
-  "next_actions": ["独立提交 0035", "按依赖顺序实施 0036 Relation 推荐排序信号"],
+  "next_actions": ["独立提交 0036", "按依赖顺序实施 0037 Prompt Composer"],
   "required_checks": ["npm run check", "npm run demo:build"],
   "verification": [
     { "command": "npm run check", "result": "passed", "recorded_at": "2026-09-25" },

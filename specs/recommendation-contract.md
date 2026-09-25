@@ -1,6 +1,6 @@
-# Recommendation API 契约（P2 实施中）
+# Recommendation API 契约
 
-状态：0032 已实现提供方无关的契约、隔离适配边界与 DeepSeek 适配器；模型决定见 [ADR 0003](../docs/adr/0003-deepseek-model-adapter.md)。来源为 [PRD §20–§25](../docs/method-system-prd-v0.1.md#20-搜索与推荐)与 [产品契约](product-contract.md)。未完成 0033 前，本文不代表已上线的推荐接口。
+状态：0032–0034 已实现契约、DeepSeek 适配器、正式 HTTP 接口和离线评测；0036 接入 Relation 的同分排序。模型决定见 [ADR 0003](../docs/adr/0003-deepseek-model-adapter.md)。来源为 [PRD §20–§25](../docs/method-system-prd-v0.1.md#20-搜索与推荐)与 [产品契约](product-contract.md)。
 
 ## 请求与资格
 
@@ -10,7 +10,7 @@
 
 ## 模型判定与公开输出
 
-模型判定只接收 `diagnosis: string[]` 与 `recommendations: { id, reason, confidence }[]`。每个 ID 必须属于本次候选且不重复，理由非空，`confidence` 为 0–1 的有限数。推荐条数不超过请求 `limit`，最多 3。模型提供的名称即使存在也不得用于公开输出。
+模型判定只接收 `diagnosis: string[]` 与 `recommendations: { id, reason, confidence, complementary_to? }[]`。`complementary_to` 是可选的先前入选 Concept ID 数组，用于明确确认互补关系；公开结果不暴露这个内部字段。每个 ID 必须属于本次候选且不重复，理由非空，`confidence` 为 0–1 的有限数。推荐条数不超过请求 `limit`，最多 3。模型提供的名称即使存在也不得用于公开输出。
 
 服务端根据请求语言的 Registry 数据填入公开的 `name` 与展示用 `card`（本语言 `description`、`tags`、`cover_image` 哈希以及共用类型），并回显请求 `locale`：
 
@@ -26,6 +26,12 @@
 ```
 
 正常 NONE 使用 `recommendations: []`。诊断与 Why Now 的语义质量、`avoid_when`、互补性及低增益判断由 0033 的提示与 0034 的离线案例验收，单靠结构校验不能证明。
+
+## Relation 同分排序（0036）
+
+服务端只从当次同语言 active、recommendable 候选池读取关系。模型先独立决定 0–3 条及置信度；Relation 不加入候选、不增加推荐数，也不覆盖禁用条件判断。仅当某个已入选项的 `complementary_to` 指向当前同分组之前的已入选项、两者在 Registry 中有 `often_used_with` 关系时，才在该同分组内优先展示该项。首项和不同置信度的先后次序固定；同分组成员互指、没有有效关系或模型未确认互补时保持原顺序。不叠加数值权重。
+
+`extends` 与 `part_of` 保留存储方向，不自动解释为互补，也不改变排序。关系事实与模型互补判断须同时成立；模型仍可能产生语义误判，最终质量由离线和真实使用数据评估。
 
 ## 模型与数据边界
 

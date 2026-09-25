@@ -92,3 +92,42 @@ test("Recommendation API separates unavailable model, provider error, invalid de
     assert.deepEqual(await post(input), { status: 200, value: { locale: "en", diagnosis: [], recommendations: [] } });
   });
 });
+
+test("Relation breaks only model-confirmed complementary ties without adding or reviving Concepts", async () => {
+  let decision = { diagnosis: ["多个视角"], recommendations: [
+    { id: "one", reason: "主视角", confidence: 0.9 },
+    { id: "two", reason: "第二视角", confidence: 0.7 },
+    { id: "three", reason: "互补视角", confidence: 0.7, complementary_to: ["one"] },
+  ] };
+  await withApi(() => ({ decide: async () => decision }), async ({ registry, post }) => {
+    for (const id of ["one", "two", "three"]) publish(registry, id);
+    const input = { task: "需要比较互补方案", locale: "cn", limit: 3 };
+    const ids = async () => (await post(input)).value.recommendations.map((item) => item.id);
+    assert.deepEqual(await ids(), ["one", "two", "three"]);
+    const directed = registry.createRelation({ source_concept_id: "one", target_concept_id: "three", relation_type: "extends" });
+    assert.deepEqual(await ids(), ["one", "two", "three"]);
+    registry.updateRelation(directed.id, { expected_version: 1, changes: { relation_type: "part_of" } });
+    assert.deepEqual(await ids(), ["one", "two", "three"]);
+    registry.updateRelation(directed.id, { expected_version: 2, changes: { relation_type: "often_used_with" } });
+    assert.deepEqual(await ids(), ["one", "three", "two"]);
+    registry.createRelation({ source_concept_id: "two", target_concept_id: "three", relation_type: "often_used_with" });
+    decision.recommendations[2].complementary_to = ["two"];
+    assert.deepEqual(await ids(), ["one", "two", "three"]);
+    decision = { diagnosis: ["多个视角"], recommendations: [
+      { id: "one", reason: "主视角", confidence: 0.9 },
+      { id: "two", reason: "第二视角", confidence: 0.7 },
+      { id: "three", reason: "仍需判断互补", confidence: 0.7 },
+    ] };
+    assert.deepEqual(await ids(), ["one", "two", "three"]);
+    decision.recommendations[2].complementary_to = ["one"];
+    decision.recommendations[2].confidence = 0.6;
+    assert.deepEqual(await ids(), ["one", "two", "three"]);
+    decision.recommendations = decision.recommendations.slice(0, 2);
+    assert.deepEqual(await ids(), ["one", "two"]);
+    registry.archive("three", { expected_version: 2 });
+    decision.recommendations.push({ id: "three", reason: "不得复活", confidence: 0.7, complementary_to: ["one"] });
+    const rejected = await post(input);
+    assert.equal(rejected.status, 502);
+    assert.equal(rejected.value.error, "invalid_model_decision");
+  });
+});

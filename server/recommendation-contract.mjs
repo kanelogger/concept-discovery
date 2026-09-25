@@ -46,7 +46,7 @@ export function compactCandidateCards(concepts, locale) {
   });
 }
 
-export function assembleRecommendationResult(request, decision, candidates) {
+export function assembleRecommendationResult(request, decision, candidates, relations = []) {
   if (!record(request) || !["cn", "en"].includes(request.locale) || !Number.isInteger(request.limit) || request.limit < 1 || request.limit > 3) invalidRequest("Normalized request is required");
   if (!record(decision) || !Array.isArray(decision.diagnosis) || !Array.isArray(decision.recommendations)) invalidDecision("Model decision needs diagnosis and recommendations");
   if (Object.keys(decision).some((field) => !["diagnosis", "recommendations"].includes(field))) invalidDecision("Unknown model decision field");
@@ -57,11 +57,15 @@ export function assembleRecommendationResult(request, decision, candidates) {
   if (decision.recommendations.length > request.limit || decision.recommendations.length > 3) invalidDecision("Too many recommendations");
   const eligible = new Map(candidates.filter((concept) => concept.lifecycle_status === "active" && concept.readiness?.[request.locale]?.recommendable).map((concept) => [concept.id, concept]));
   const seen = new Set();
+  const complementary = new Map();
   const recommendations = decision.recommendations.map((item) => {
-    if (!record(item) || Object.keys(item).some((field) => !["id", "reason", "confidence"].includes(field))) invalidDecision("Invalid recommendation fields");
+    if (!record(item) || Object.keys(item).some((field) => !["id", "reason", "confidence", "complementary_to"].includes(field))) invalidDecision("Invalid recommendation fields");
     if (typeof item.id !== "string" || !eligible.has(item.id) || seen.has(item.id)) invalidDecision("Recommendation ID is unknown, ineligible, or repeated");
     if (typeof item.reason !== "string" || !item.reason.trim()) invalidDecision("Why Now reason is required");
     if (typeof item.confidence !== "number" || !Number.isFinite(item.confidence) || item.confidence < 0 || item.confidence > 1) invalidDecision("confidence must be between 0 and 1");
+    const links = own(item, "complementary_to") ? item.complementary_to : [];
+    if (!Array.isArray(links) || links.some((id) => typeof id !== "string" || !seen.has(id)) || new Set(links).size !== links.length) invalidDecision("complementary_to must name distinct earlier recommendations");
+    complementary.set(item.id, links);
     seen.add(item.id);
     const concept = eligible.get(item.id);
     const local = concept.locales[request.locale];
@@ -73,6 +77,16 @@ export function assembleRecommendationResult(request, decision, candidates) {
       epistemic_type: concept.epistemic_type,
     } };
   });
+  const paired = new Set(relations.filter((relation) => relation.relation_type === "often_used_with").map((relation) => [relation.source_concept_id, relation.target_concept_id].sort().join("\0")));
+  for (let start = 1; start < recommendations.length;) {
+    let end = start + 1;
+    while (end < recommendations.length && recommendations[end].confidence === recommendations[start].confidence) end++;
+    const earlierIds = new Set(recommendations.slice(0, start).map((item) => item.id));
+    const hasConfirmedPair = (item) => complementary.get(item.id).some((otherId) => earlierIds.has(otherId) && paired.has([item.id, otherId].sort().join("\0")));
+    const ranked = recommendations.slice(start, end).sort((a, b) => Number(hasConfirmedPair(b)) - Number(hasConfirmedPair(a)));
+    recommendations.splice(start, end - start, ...ranked);
+    start = end;
+  }
   return { locale: request.locale, diagnosis, recommendations };
 }
 
@@ -80,7 +94,7 @@ export function unavailableModel() {
   throw new RecommendationError(503, "model_unavailable", "Configure a local model or explicitly choose a remote model before recommending");
 }
 
-export async function runRecommendation(input, concepts, adapter, { timeoutMs = 30_000 } = {}) {
+export async function runRecommendation(input, concepts, adapter, { timeoutMs = 30_000, relations = [] } = {}) {
   const request = parseRecommendationRequest(input);
   if (!adapter || typeof adapter.decide !== "function") unavailableModel();
   if (!Number.isInteger(timeoutMs) || timeoutMs < 1) throw new TypeError("timeoutMs must be a positive integer");
@@ -97,7 +111,7 @@ export async function runRecommendation(input, concepts, adapter, { timeoutMs = 
         }, timeoutMs);
       }),
     ]);
-    return assembleRecommendationResult(request, decision, concepts);
+    return assembleRecommendationResult(request, decision, concepts, relations);
   } catch (error) {
     if (error instanceof RecommendationError) throw error;
     throw new RecommendationError(502, "model_failed", "Model decision failed");

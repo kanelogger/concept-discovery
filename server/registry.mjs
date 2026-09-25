@@ -229,6 +229,11 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
     close: () => db.close(),
     get,
     getRelation,
+    relationsForCandidates: (conceptIds) => {
+      const ids = new Set(conceptIds);
+      return db.prepare("SELECT source_concept_id, target_concept_id, relation_type FROM concept_relations ORDER BY id").all()
+        .filter((row) => ids.has(row.source_concept_id) && ids.has(row.target_concept_id));
+    },
     listRelations: (conceptId, locale) => {
       get(conceptId);
       if (!["cn", "en"].includes(locale)) bad("locale must be cn or en");

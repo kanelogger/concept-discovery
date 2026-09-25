@@ -51,6 +51,23 @@ test("model output rejects hallucinated candidates, duplicates, excessive result
   assert.throws(() => unavailableModel(), { code: "model_unavailable", status: 503 });
 });
 
+test("complementary claims must reference earlier selected Concepts and stay internal", () => {
+  const request = parseRecommendationRequest({ task: "Compare", locale: "cn", limit: 2 });
+  const second = { ...concept, id: "other" };
+  for (const links of [["missing"], ["other"], ["inversion", "inversion"], "inversion", null]) {
+    assert.throws(() => assembleRecommendationResult(request, { diagnosis: [], recommendations: [
+      { id: "inversion", reason: "First", confidence: 0.8 },
+      { id: "other", reason: "Second", confidence: 0.8, complementary_to: links },
+    ] }, [concept, second]), { code: "invalid_model_decision" });
+  }
+  const valid = assembleRecommendationResult(request, { diagnosis: [], recommendations: [
+    { id: "inversion", reason: "First", confidence: 0.8 },
+    { id: "other", reason: "Second", confidence: 0.8, complementary_to: ["inversion"] },
+  ] }, [concept, second], [{ source_concept_id: "inversion", target_concept_id: "other", relation_type: "often_used_with" }]);
+  assert.deepEqual(valid.recommendations.map((item) => item.id), ["inversion", "other"]);
+  assert.equal("complementary_to" in valid.recommendations[1], false);
+});
+
 test("isolated adapter receives only compact same-locale cards and returns a checked result", async () => {
   const result = await runRecommendation({ task: "怎样选择", locale: "cn" }, [concept], {
     async decide(payload, { signal }) {

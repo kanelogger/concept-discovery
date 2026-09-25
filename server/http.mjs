@@ -39,7 +39,8 @@ export function createApiServer({ dbPath, fallback, modelAdapterFactory = config
         const input = parseRecommendationRequest(await body(request, 64 * 1024));
         const concepts = registry.query({ locale: input.locale, view: "browse", status: "recommendable" });
         const adapter = modelAdapterFactory();
-        const result = await runRecommendation(input, concepts, adapter);
+        const relations = registry.relationsForCandidates(concepts.map((concept) => concept.id));
+        const result = await runRecommendation(input, concepts, adapter, { relations });
         return json(response, 200, result, { "X-Model-Provider": adapter.metadata?.provider || "unspecified", "X-Model-Name": adapter.metadata?.model || "unspecified" });
       }
       if (path.length === 2 && path[1] === "relations" && request.method === "POST") return json(response, 201, registry.createRelation(await body(request)));
