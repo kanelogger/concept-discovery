@@ -27,7 +27,7 @@
 
 ## 当前实现边界
 
-独立 `codex/concept-mvp-demo` 工作区已实现可运行的 P1 Registry、Web CRUD 与 Dashboard，以及 0032–0034 的推荐接口、模型配置和开发用离线评测、0035–0036 的 Relation CRUD、详情展示与互补同分排序、0037 的 [Prompt Composer](prompt-composer.md) 模块；运行时和可执行命令分别见 [运行时](../docs/agent-environment/runtime.md)、[命令契约](../docs/agent-environment/commands.md)。Skill 调用与应用、Feedback 和最终 Eval Gate 尚未实现。PRD 中的 `concept-discovery start`、目录树、JSON / YAML 和 UI 示例均为设计输入，不是当前可用接口。当前自动化与浏览器检查通过不代表 MVP 或用户验收通过。
+独立 `codex/concept-mvp-demo` 工作区已实现可运行的 P1 Registry、Web CRUD 与 Dashboard，以及 0032–0034 的推荐接口、模型配置和开发用离线评测、0035–0036 的 Relation CRUD、详情展示与互补同分排序、0037 的 [Prompt Composer](prompt-composer.md) 模块与 0038 的 [Concept Discovery Skill](../skills/concept-discovery/SKILL.md)；运行时和可执行命令分别见 [运行时](../docs/agent-environment/runtime.md)、[命令契约](../docs/agent-environment/commands.md)。Feedback 和最终 Eval Gate 尚未实现。PRD 中的 `concept-discovery start`、目录树、JSON / YAML 和 UI 示例均为设计输入，不是当前可用接口。当前自动化与浏览器检查通过不代表 MVP 或用户验收通过。
 
 ## 待定契约：材料冲突与字段缺口
 

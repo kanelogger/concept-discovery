@@ -16,6 +16,8 @@
 | `npm run model:smoke` | 用合成任务直连 `deepseek-flash` 验证适配器；密钥隐藏输入且不保存 | 向 DeepSeek API 发送合成文本 |
 | `npm run model:api-smoke` | 用临时 SQLite 与本地 HTTP API 发起六条中英合成推荐任务；密钥隐藏输入且不保存 | 本地回环端口、向 DeepSeek API 发送合成文本 |
 | `npm run eval -- --cases PATH --baseUrl http://127.0.0.1:4173 --output PATH` | 经正式 API 顺序运行离线案例，输出不含原始任务文本的逐案例与指标报告；默认数据是合成示例 | 调用本地服务；若已选择远端模型，本地服务会向其发送案例文本；报告写入被忽略的 `.local` |
+| `node scripts/skill-discovery.mjs recommend < input.json` | 用户明确触发 Skill 后，经本地正式推荐 API 获取 0–3 项；stdin JSON 包含 `invocation` 和显式语言的 `request` | 本地回环端口；已选择远端时会向提供方发送请求内容；不写日志 |
+| `node scripts/skill-discovery.mjs compose < input.json` | 用户选定已展示的 Concept 后，从同一 Registry 读取最新版生成 Prompt，供 Agent 实际应用 | 本地数据库只读；Prompt 输出到 stdout，不保存 |
 
 新机器先按 [.node-version](../../.node-version) 准备 Node 24，再运行安装、doctor 和 check。运行时检查失败应修正环境，不绕过 engines 限制。新增依赖时提交对应锁文件、明确安装网络需求并更新环境决策。
 

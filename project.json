@@ -2,8 +2,8 @@
   "schema_version": 1,
   "project": {
     "id": "concept-discovery",
-    "stage": "p2-implementation",
-    "product_status": "p1-complete"
+    "stage": "p4-implementation",
+    "product_status": "mvp-in-progress"
   },
   "runtime": {
     "node_major": 24
@@ -52,7 +52,7 @@
   ],
   "services": [{ "name": "local-concept-registry", "command": "npm start", "bind": "127.0.0.1:4173", "database": ".local/concept-discovery.sqlite" }],
   "capabilities": {
-    "project_skills": [],
+    "project_skills": ["skills/concept-discovery/SKILL.md"],
     "connectors": []
   }
 }

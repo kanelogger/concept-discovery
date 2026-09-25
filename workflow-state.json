@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "task_id": "0037-contextual-prompt-composer",
+  "task_id": "0038-concept-discovery-skill",
   "phase": "complete",
-  "task_file": "tasks/0037-contextual-prompt-composer.md",
+  "task_file": "tasks/0038-concept-discovery-skill.md",
   "updated_at": "2026-09-25",
-  "summary": "0037 Skill 专用 Prompt Composer 完成；双语、最新版、输入结构隔离和失败边界通过测试。",
+  "summary": "0038 项目级 Concept Discovery Skill 与本地两阶段 CLI 完成；主动触发、双语、选择、NONE 和模型缺失通过隔离测试。",
   "blockers": [],
-  "next_actions": ["独立提交 0037", "按依赖顺序实施 0038 Concept Discovery Skill"],
+  "next_actions": ["独立提交 0038", "按依赖顺序实施 0039 Skill Feedback 与 Usage"],
   "required_checks": ["npm run check", "npm run demo:build"],
   "verification": [
     { "command": "npm run check", "result": "passed", "recorded_at": "2026-09-25" },

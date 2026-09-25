@@ -37,3 +37,7 @@ Use the default triage state names in task Markdown. See `docs/agents/triage-lab
 ### Domain docs
 
 Read the active task and relevant product contract and ADRs before domain work. See `docs/agents/domain.md`.
+
+### Concept Discovery
+
+When the user explicitly invokes Concept Discovery or directly asks for applicable Concepts, read [the project Skill](skills/concept-discovery/SKILL.md). Ordinary tasks do not trigger recommendations.
