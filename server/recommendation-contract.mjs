@@ -55,7 +55,7 @@ export function assembleRecommendationResult(request, decision, candidates) {
     return item.trim();
   });
   if (decision.recommendations.length > request.limit || decision.recommendations.length > 3) invalidDecision("Too many recommendations");
-  const eligible = new Map(compactCandidateCards(candidates, request.locale).map((card) => [card.id, card]));
+  const eligible = new Map(candidates.filter((concept) => concept.lifecycle_status === "active" && concept.readiness?.[request.locale]?.recommendable).map((concept) => [concept.id, concept]));
   const seen = new Set();
   const recommendations = decision.recommendations.map((item) => {
     if (!record(item) || Object.keys(item).some((field) => !["id", "reason", "confidence"].includes(field))) invalidDecision("Invalid recommendation fields");
@@ -63,7 +63,15 @@ export function assembleRecommendationResult(request, decision, candidates) {
     if (typeof item.reason !== "string" || !item.reason.trim()) invalidDecision("Why Now reason is required");
     if (typeof item.confidence !== "number" || !Number.isFinite(item.confidence) || item.confidence < 0 || item.confidence > 1) invalidDecision("confidence must be between 0 and 1");
     seen.add(item.id);
-    return { id: item.id, name: eligible.get(item.id).name, reason: item.reason.trim(), confidence: item.confidence };
+    const concept = eligible.get(item.id);
+    const local = concept.locales[request.locale];
+    return { id: item.id, name: local.name, reason: item.reason.trim(), confidence: item.confidence, card: {
+      description: local.description,
+      tags: local.tags ?? [],
+      cover_image: local.cover_image ?? "",
+      interaction_type: concept.interaction_type,
+      epistemic_type: concept.epistemic_type,
+    } };
   });
   return { locale: request.locale, diagnosis, recommendations };
 }

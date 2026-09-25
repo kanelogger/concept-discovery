@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "task_id": "0032-recommendation-contract-model-adapter",
+  "task_id": "0033-recommendation-api",
   "phase": "complete",
-  "task_file": "tasks/0032-recommendation-contract-model-adapter.md",
+  "task_file": "tasks/0033-recommendation-api.md",
   "updated_at": "2026-09-25",
-  "summary": "0032 推荐契约与 DeepSeek 模型适配完成；首次配置、真实烟测、公共检查与构建均已验证。",
+  "summary": "0033 正式同语言 Recommendation API 完成，双语 HTTP、隔离与六条真实模型合成烟测已验证。",
   "blockers": [],
-  "next_actions": ["独立提交 0032 后启动 tasks/0033-recommendation-api.md"],
+  "next_actions": ["独立提交 0033 后启动 tasks/0034-offline-eval-harness.md"],
   "required_checks": ["npm run check", "npm run demo:build"],
   "verification": [
     {"command": "npm run check", "result": "passed", "recorded_at": "2026-09-25"},

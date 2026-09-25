@@ -1,21 +1,25 @@
 import { createServer } from "node:http";
 import { openRegistry, RegistryError } from "./registry.mjs";
+import { configuredModelAdapter } from "./model-config.mjs";
+import { parseRecommendationRequest, RecommendationError, runRecommendation } from "./recommendation-contract.mjs";
 
 const json = (response, status, body) => {
   response.writeHead(status, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });
   response.end(JSON.stringify(body));
 };
 
-async function body(request) {
-  let raw = "";
+async function body(request, maxBytes = 32 * 1024 * 1024) {
+  const chunks = [];
+  let size = 0;
   for await (const chunk of request) {
-    raw += chunk;
-    if (raw.length > 32 * 1024 * 1024) throw new RegistryError(413, "too_large", "Request too large");
+    size += chunk.length;
+    if (size > maxBytes) throw new RegistryError(413, "too_large", "Request too large");
+    chunks.push(chunk);
   }
-  try { return JSON.parse(raw); } catch { throw new RegistryError(400, "invalid_json", "Invalid JSON body"); }
+  try { return JSON.parse(Buffer.concat(chunks).toString("utf8")); } catch { throw new RegistryError(400, "invalid_json", "Invalid JSON body"); }
 }
 
-export function createApiServer({ dbPath, fallback } = {}) {
+export function createApiServer({ dbPath, fallback, modelAdapterFactory = configuredModelAdapter } = {}) {
   const registry = openRegistry(dbPath);
   const server = createServer(async (request, response) => {
     const url = new URL(request.url, "http://localhost");
@@ -31,6 +35,11 @@ export function createApiServer({ dbPath, fallback } = {}) {
         return response.end(asset.data);
       }
       if (path.length === 2 && path[1] === "dashboard" && request.method === "GET") return json(response, 200, registry.dashboard());
+      if (path.length === 2 && path[1] === "recommendations" && request.method === "POST") {
+        const input = parseRecommendationRequest(await body(request, 64 * 1024));
+        const concepts = registry.query({ locale: input.locale, view: "browse", status: "recommendable" });
+        return json(response, 200, await runRecommendation(input, concepts, modelAdapterFactory()));
+      }
       if (path.length === 2 && path[1] === "concepts") {
         if (request.method === "GET") {
           const concepts = registry.query(Object.fromEntries(url.searchParams));
@@ -51,7 +60,7 @@ export function createApiServer({ dbPath, fallback } = {}) {
       }
       json(response, 404, { error: "not_found", message: "Not found" });
     } catch (error) {
-      if (error instanceof RegistryError) json(response, error.status, { error: error.code, message: error.message });
+      if (error instanceof RegistryError || error instanceof RecommendationError) json(response, error.status, { error: error.code, message: error.message });
       else { console.error(error); json(response, 500, { error: "internal_error", message: "Internal error" }); }
     }
   });

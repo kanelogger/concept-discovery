@@ -30,7 +30,7 @@ test("compact cards contain only eligible requested-locale text and omit instruc
 test("model decision becomes a same-locale public result, including true NONE", () => {
   const request = parseRecommendationRequest({ task: "怎样选择", locale: "cn", limit: 3 });
   assert.deepEqual(assembleRecommendationResult(request, { diagnosis: ["选择过程缺少反向检验"], recommendations: [{ id: "inversion", reason: "  可从失败倒推  ", confidence: 0.8 }] }, [concept]), {
-    locale: "cn", diagnosis: ["选择过程缺少反向检验"], recommendations: [{ id: "inversion", name: "逆向思维", reason: "可从失败倒推", confidence: 0.8 }],
+    locale: "cn", diagnosis: ["选择过程缺少反向检验"], recommendations: [{ id: "inversion", name: "逆向思维", reason: "可从失败倒推", confidence: 0.8, card: { description: "从失败倒推", tags: [], cover_image: "private-cn-hash", interaction_type: "lens", epistemic_type: "heuristic" } }],
   });
   assert.deepEqual(assembleRecommendationResult(request, { diagnosis: [], recommendations: [] }, [concept]), { locale: "cn", diagnosis: [], recommendations: [] });
   assert.throws(() => assembleRecommendationResult(parseRecommendationRequest({ task: "Choose", locale: "en" }), { diagnosis: [], recommendations: [{ id: "inversion", reason: "Maybe", confidence: 0.5 }] }, [concept]), { code: "invalid_model_decision", status: 502 });
