@@ -65,6 +65,10 @@ test("explicit Skill call recommends through formal API and composes only an ele
     assert.ok(composed.prompt.includes(JSON.stringify({ task: request.task, context: request.context, response: request.response })));
     assert.equal(composed.prompt.includes("Work backward from failure"), false);
     assert.equal(registry.dashboard().usage.events.applied, 0);
+    const chineseResult = composed.prompt.includes("从失败倒推") ? "从失败路径反推 A 和 B 的风险，再比较可逆性。" : "";
+    assert.ok(chineseResult);
+    registry.recordSkillEvent(recommended.run_id, "inversion", "applied");
+    assert.equal(registry.dashboard().usage.locales.cn.events.applied, 1);
 
     const english = { task: "Compare options", locale: "en" };
     const cliRecommended = await cli("recommend", { invocation: "direct_request", request: english }, { CONCEPT_API_URL: origin, CONCEPT_DB_PATH: dbPath });
@@ -79,7 +83,7 @@ test("explicit Skill call recommends through formal API and composes only an ele
     const simulatedAgentAnswer = JSON.parse(cliComposed.stdout).prompt.includes("Work backward from failure") ? "I worked backward from failure to compare the options." : "";
     assert.ok(simulatedAgentAnswer);
     assert.equal((await cli("feedback", { run_id: enRunId, concept_id: "inversion", event: "applied" }, { CONCEPT_DB_PATH: dbPath })).code, 0);
-    assert.equal(registry.dashboard().usage.events.applied, 1);
+    assert.equal(registry.dashboard().usage.events.applied, 2);
 
     const none = await recommendForSkill({ invocation: "command", request: { task: "2 + 2", locale: "cn" } }, { origin, registry });
     assert.deepEqual(none.recommendations, []);

@@ -12,9 +12,13 @@ export function validateDataset(dataset) {
     if (!["cn", "en"].includes(item.locale) || !item.input || Object.hasOwn(item.input, "locale")) throw new Error(`${item.id}: explicit case locale and input without locale are required`);
     const input = parseRecommendationRequest({ ...item.input, locale: item.locale });
     if (!Array.isArray(item.expected_ids) || item.expected_ids.length > 3 || item.expected_ids.some((id) => typeof id !== "string" || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) || new Set(item.expected_ids).size !== item.expected_ids.length) throw new Error(`${item.id}: expected_ids must contain 0 to 3 unique Concept IDs`);
-    return { id: item.id, locale: item.locale, input, expected_ids: item.expected_ids };
+    const source = item.source;
+    if (dataset.dataset_kind === "maintainer" && (!source || !["maintainer_authored", "real_task_anonymized"].includes(source.kind) || typeof source.ref !== "string" || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(source.ref) || Object.keys(source).some((key) => !["kind", "ref"].includes(key)))) throw new Error(`${item.id}: maintainer case needs an opaque source kind and ref`);
+    return { id: item.id, locale: item.locale, input, expected_ids: item.expected_ids, ...(dataset.dataset_kind === "maintainer" ? { source } : {}) };
   });
 }
+
+const caseTrace = (item) => ({ id: item.id, locale: item.locale, expected_ids: item.expected_ids, ...(item.source ? { source: item.source } : {}) });
 
 function localBaseUrl(baseUrl) {
   const url = new URL(baseUrl);
@@ -32,17 +36,17 @@ export async function evaluateDataset(dataset, { baseUrl = "http://127.0.0.1:417
     try {
       response = await fetchImpl(`${origin}/api/recommendations`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(item.input) });
     } catch {
-      results.push({ id: item.id, locale: item.locale, expected_ids: item.expected_ids, status: "error", error: "network_error", http_status: 0 });
+      results.push({ ...caseTrace(item), status: "error", error: "network_error", http_status: 0 });
       continue;
     }
     let body;
     try { body = await response.json(); } catch { body = null; }
     if (!response.ok) {
-      results.push({ id: item.id, locale: item.locale, expected_ids: item.expected_ids, status: "error", error: typeof body?.error === "string" ? body.error : "http_error", http_status: response.status });
+      results.push({ ...caseTrace(item), status: "error", error: typeof body?.error === "string" ? body.error : "http_error", http_status: response.status });
       continue;
     }
     if (!body || body.locale !== item.locale || !Array.isArray(body.diagnosis) || body.diagnosis.some((value) => typeof value !== "string") || !Array.isArray(body.recommendations) || body.recommendations.length > item.input.limit || body.recommendations.some((value) => !value || typeof value.id !== "string" || typeof value.reason !== "string")) {
-      results.push({ id: item.id, locale: item.locale, expected_ids: item.expected_ids, status: "error", error: "invalid_api_response", http_status: response.status });
+      results.push({ ...caseTrace(item), status: "error", error: "invalid_api_response", http_status: response.status });
       continue;
     }
     let cardLocaleMatch = true;
@@ -65,7 +69,7 @@ export async function evaluateDataset(dataset, { baseUrl = "http://127.0.0.1:417
       })) cardLocaleMatch = false;
     }
     results.push({
-      id: item.id, locale: item.locale, expected_ids: item.expected_ids, status: "ok",
+      ...caseTrace(item), status: "ok",
       output_ids: body.recommendations.map((recommendation) => recommendation.id),
       concept_versions: Object.fromEntries(body.recommendations.map((recommendation) => [recommendation.id, conceptCache.get(recommendation.id)?.version ?? null])),
       model: { provider: response.headers.get("x-model-provider") || "unspecified", name: response.headers.get("x-model-name") || "unspecified" },

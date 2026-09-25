@@ -1,15 +1,17 @@
 {
   "schema_version": 1,
-  "task_id": "0039-skill-feedback-usage",
-  "phase": "complete",
-  "task_file": "tasks/0039-skill-feedback-usage.md",
+  "task_id": "0040-mvp-eval-acceptance",
+  "phase": "blocked",
+  "task_file": "tasks/0040-mvp-eval-acceptance.md",
   "updated_at": "2026-09-25",
-  "summary": "0039 真实 Skill Usage、状态转移、引用约束及 Dashboard 聚合完成，Eval 保持隔离。",
-  "blockers": [],
-  "next_actions": ["独立提交 0039", "按依赖顺序执行 0040 MVP Gate 与人工数据审查"],
+  "summary": "0040 本地技术检查和逐票验收包已备；缺维护者标注案例与数值通过线，人工质量 Eval 未运行，扩大范围 Gate 未达。",
+  "blockers": ["需要至少 50 条含 cn/en、Expected 与来源的维护者标注案例，以及质量指标数值通过线；当前仅 4 条 synthetic 案例。", "30 个双语可推荐 Concept 与 100 次真实主动 Skill 推荐尚无外部数据，扩大范围 Gate 未达。"],
+  "next_actions": ["取得维护者案例路径和数值通过线后运行正式离线 Eval", "人工复核 Why Now 与真实 Prompt 应用并更新 0040", "待真实目录和使用样本达到 PRD §35 后判定扩大范围 Gate"],
   "required_checks": ["npm run check", "npm run demo:build"],
   "verification": [
+    { "command": "npm run doctor", "result": "passed", "recorded_at": "2026-09-25" },
     { "command": "npm run check", "result": "passed", "recorded_at": "2026-09-25" },
-    { "command": "npm run demo:build", "result": "passed", "recorded_at": "2026-09-25" }
+    { "command": "npm run demo:build", "result": "passed", "recorded_at": "2026-09-25" },
+    { "command": "maintainer-labeled Eval (50 cases)", "result": "skipped", "recorded_at": "2026-09-25" }
   ]
 }

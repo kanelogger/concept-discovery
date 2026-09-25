@@ -119,3 +119,15 @@ test("case validation rejects ambiguous locales and nonlocal API targets", async
   const invalid = await evaluateDataset({ ...sample, cases: [sample.cases[0]] }, { fetchImpl: async () => new Response(JSON.stringify({ locale: "cn", diagnosis: [], recommendations: [null] }), { status: 200 }) });
   assert.equal(invalid.cases[0].error, "invalid_api_response");
 });
+
+test("maintainer cases require traceable opaque source metadata in the report", async () => {
+  const draft = { ...sample, dataset_kind: "maintainer", cases: [sample.cases[0]] };
+  assert.throws(() => validateDataset(draft), /source kind and ref/);
+  const source = { kind: "maintainer_authored", ref: "review-set-01" };
+  const dataset = { ...draft, cases: [{ ...draft.cases[0], source }] };
+  assert.deepEqual(validateDataset(dataset)[0].source, source);
+  assert.throws(() => validateDataset({ ...dataset, cases: [{ ...dataset.cases[0], source: { ...source, ref: "private task text" } }] }), /source kind and ref/);
+  const report = await evaluateDataset(dataset, { fetchImpl: async () => new Response(JSON.stringify({ locale: "cn", diagnosis: ["无需方法"], recommendations: [] }), { status: 200 }) });
+  assert.deepEqual(report.cases[0].source, source);
+  assert.equal(report.dataset_kind, "maintainer");
+});

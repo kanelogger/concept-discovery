@@ -6,7 +6,7 @@
 
 先启动本地服务，再运行 `npm run eval -- --cases PATH --baseUrl http://127.0.0.1:4173 --output PATH`。默认案例是 [四条合成示例](../eval/cases.synthetic.json)，默认报告写入被忽略的 `.local/eval-report.json`，权限 `0600`。实际案例可能包含私有任务文本，建议放在被忽略的 `.local` 中。评测器只接受本地 HTTP origin，按案例顺序 `POST /api/recommendations`，再以 `GET /api/concepts/:id` 核对推荐卡的语言与版本；不写推荐、查看、应用或忽略等真实 Usage 事件。服务若已配置远端 DeepSeek，案例文本会按用户此前的明确选择发往该模型。
 
-案例 JSON 使用 `schema_version: 1`、`dataset_kind: "synthetic" | "maintainer"` 和非空 `cases`。每个案例须有唯一 `id`、显式 `locale: "cn" | "en"`、`input` 中的任务/可选上下文以及 `expected_ids`：空数组表示 NONE；最多 3 个跨语言共用 Concept ID。`input` 不再写 `locale`，防止与案例语言冲突。
+案例 JSON 使用 `schema_version: 1`、`dataset_kind: "synthetic" | "maintainer"` 和非空 `cases`。每个案例须有唯一 `id`、显式 `locale: "cn" | "en"`、`input` 中的任务/可选上下文以及维护者标注的 `expected_ids`：空数组表示 NONE；最多 3 个跨语言共用 Concept ID。`input` 不再写 `locale`，防止与案例语言冲突。`maintainer` 案例还须有 `source: { "kind": "maintainer_authored" | "real_task_anonymized", "ref": "不含原文的来源编号" }`；报告保留该来源标识以追溯标注。不要把真实对话、姓名或 URL 填入 `ref`。
 
 报告只含案例 ID、语言、Expected/输出 ID、Concept 版本、非敏感模型标识、HTTP 错误码和结构检查结果，不复制原始任务、诊断或 Why Now 文本。模型标识来自正式接口响应头；若假适配器未提供标识，报告明确写 `unspecified`。`diagnosis_present` 和 `why_now_present` 只验证文本存在，`card_locale_match` 对照 Registry 的指定语言字段；诊断与理由是否真正使用该语言、是否有帮助，仍需人工复核。
 
