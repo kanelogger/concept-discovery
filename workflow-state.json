@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "task_id": "0038-concept-discovery-skill",
+  "task_id": "0039-skill-feedback-usage",
   "phase": "complete",
-  "task_file": "tasks/0038-concept-discovery-skill.md",
+  "task_file": "tasks/0039-skill-feedback-usage.md",
   "updated_at": "2026-09-25",
-  "summary": "0038 项目级 Concept Discovery Skill 与本地两阶段 CLI 完成；主动触发、双语、选择、NONE 和模型缺失通过隔离测试。",
+  "summary": "0039 真实 Skill Usage、状态转移、引用约束及 Dashboard 聚合完成，Eval 保持隔离。",
   "blockers": [],
-  "next_actions": ["独立提交 0038", "按依赖顺序实施 0039 Skill Feedback 与 Usage"],
+  "next_actions": ["独立提交 0039", "按依赖顺序执行 0040 MVP Gate 与人工数据审查"],
   "required_checks": ["npm run check", "npm run demo:build"],
   "verification": [
     { "command": "npm run check", "result": "passed", "recorded_at": "2026-09-25" },

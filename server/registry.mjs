@@ -1,6 +1,6 @@
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
 
 const interactionTypes = new Set(["operator", "lens", "procedure"]);
@@ -165,6 +165,7 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
   mkdirSync(dirname(dbPath), { recursive: true });
   const db = new DatabaseSync(dbPath);
   db.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; CREATE TABLE IF NOT EXISTS concepts (id TEXT PRIMARY KEY, data TEXT NOT NULL, version INTEGER NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL); CREATE TABLE IF NOT EXISTS revisions (revision_id INTEGER PRIMARY KEY AUTOINCREMENT, concept_id TEXT NOT NULL REFERENCES concepts(id) ON DELETE CASCADE, version_before INTEGER NOT NULL, version_after INTEGER NOT NULL, actor TEXT NOT NULL, operation TEXT NOT NULL, changed_at TEXT NOT NULL, changes TEXT NOT NULL); CREATE TABLE IF NOT EXISTS media_assets (hash TEXT PRIMARY KEY, mime_type TEXT NOT NULL, byte_size INTEGER NOT NULL, data BLOB NOT NULL, created_at TEXT NOT NULL); CREATE TABLE IF NOT EXISTS concept_references (concept_id TEXT NOT NULL REFERENCES concepts(id) ON DELETE RESTRICT, source_type TEXT NOT NULL, source_id TEXT NOT NULL, PRIMARY KEY (concept_id, source_type, source_id)); CREATE TABLE IF NOT EXISTS concept_relations (id INTEGER PRIMARY KEY AUTOINCREMENT, source_concept_id TEXT NOT NULL REFERENCES concepts(id) ON DELETE RESTRICT, target_concept_id TEXT NOT NULL REFERENCES concepts(id) ON DELETE RESTRICT, relation_type TEXT NOT NULL, note_cn TEXT NOT NULL DEFAULT '', note_en TEXT NOT NULL DEFAULT '', version INTEGER NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(source_concept_id, target_concept_id, relation_type), CHECK(source_concept_id <> target_concept_id));");
+  db.exec("CREATE TABLE IF NOT EXISTS skill_runs (run_id TEXT PRIMARY KEY, task_id TEXT NOT NULL, locale TEXT NOT NULL CHECK(locale IN ('cn','en')), result_count INTEGER NOT NULL, created_at TEXT NOT NULL); CREATE TABLE IF NOT EXISTS skill_recommendations (run_id TEXT NOT NULL REFERENCES skill_runs(run_id), concept_id TEXT NOT NULL, concept_version INTEGER NOT NULL, PRIMARY KEY(run_id, concept_id)); CREATE TABLE IF NOT EXISTS skill_preparations (run_id TEXT NOT NULL, concept_id TEXT NOT NULL, concept_version INTEGER NOT NULL, prepared_at TEXT NOT NULL, PRIMARY KEY(run_id, concept_id), FOREIGN KEY(run_id, concept_id) REFERENCES skill_recommendations(run_id, concept_id)); CREATE TABLE IF NOT EXISTS skill_usage_events (event_id INTEGER PRIMARY KEY AUTOINCREMENT, run_id TEXT NOT NULL, concept_id TEXT NOT NULL, concept_version INTEGER NOT NULL, locale TEXT NOT NULL, event_type TEXT NOT NULL, occurred_at TEXT NOT NULL, UNIQUE(run_id, concept_id, event_type), FOREIGN KEY(run_id, concept_id) REFERENCES skill_recommendations(run_id, concept_id));");
   const readRow = db.prepare("SELECT data FROM concepts WHERE id = ?");
   const relationRow = db.prepare("SELECT * FROM concept_relations WHERE id = ?");
   const publicRelation = (row) => ({ id: row.id, source_concept_id: row.source_concept_id, target_concept_id: row.target_concept_id, relation_type: row.relation_type, note: { cn: row.note_cn, en: row.note_en }, version: row.version, created_at: row.created_at, updated_at: row.updated_at });
@@ -173,6 +174,13 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
     const row = relationRow.get(id);
     if (!row) throw new RegistryError(404, "not_found", "Relation not found");
     return publicRelation(row);
+  };
+  const skillRun = (runId) => {
+    if (typeof runId !== "string" || !/^[0-9a-f-]{36}$/.test(runId)) bad("run_id is invalid");
+    const run = db.prepare("SELECT * FROM skill_runs WHERE run_id = ?").get(runId);
+    if (!run) throw new RegistryError(404, "skill_run_not_found", "Skill run not found");
+    const recommendations = db.prepare("SELECT concept_id, concept_version FROM skill_recommendations WHERE run_id = ? ORDER BY rowid").all(runId);
+    return { ...run, recommendations };
   };
   const get = (id) => {
     const row = readRow.get(id);
@@ -229,6 +237,57 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
     close: () => db.close(),
     get,
     getRelation,
+    skillRun,
+    createSkillRun: ({ locale, recommendations }) => {
+      if (!["cn", "en"].includes(locale) || !Array.isArray(recommendations) || recommendations.length > 3) bad("Invalid Skill recommendations");
+      for (const item of recommendations) if (!item || typeof item.id !== "string" || !Number.isInteger(item.concept_version) || item.concept_version < 1) bad("Invalid Skill recommendation version");
+      if (new Set(recommendations.map((item) => item.id)).size !== recommendations.length) bad("Duplicate Skill recommendation");
+      const run_id = randomUUID();
+      const task_id = randomUUID();
+      const timestamp = new Date().toISOString();
+      db.exec("BEGIN IMMEDIATE");
+      try {
+        db.prepare("INSERT INTO skill_runs (run_id, task_id, locale, result_count, created_at) VALUES (?, ?, ?, ?, ?)").run(run_id, task_id, locale, recommendations.length, timestamp);
+        for (const item of recommendations) {
+          db.prepare("INSERT INTO skill_recommendations (run_id, concept_id, concept_version) VALUES (?, ?, ?)").run(run_id, item.id, item.concept_version);
+          db.prepare("INSERT INTO concept_references (concept_id, source_type, source_id) VALUES (?, 'skill_run', ?)").run(item.id, run_id);
+          db.prepare("INSERT INTO skill_usage_events (run_id, concept_id, concept_version, locale, event_type, occurred_at) VALUES (?, ?, ?, ?, 'recommended', ?)").run(run_id, item.id, item.concept_version, locale, timestamp);
+        }
+        db.exec("COMMIT");
+        return { run_id, task_id, locale, recommended_ids: recommendations.map((item) => item.id) };
+      } catch (error) { db.exec("ROLLBACK"); throw error; }
+    },
+    prepareSkillSelection: (runId, conceptId, locale, conceptVersion) => {
+      const run = skillRun(runId);
+      if (run.locale !== locale || !run.recommendations.some((item) => item.concept_id === conceptId) || !Number.isInteger(conceptVersion) || conceptVersion < 1) throw new RegistryError(409, "selection_not_recommended", "Selected Concept was not recommended in this run and locale");
+      db.exec("BEGIN IMMEDIATE");
+      try {
+        const events = new Set(db.prepare("SELECT event_type FROM skill_usage_events WHERE run_id = ? AND concept_id = ?").all(runId, conceptId).map((row) => row.event_type));
+        if (["applied", "ignored", "not_useful"].some((event) => events.has(event))) throw new RegistryError(409, "invalid_usage_transition", "This recommendation can no longer be prepared");
+        db.prepare("INSERT INTO skill_preparations (run_id, concept_id, concept_version, prepared_at) VALUES (?, ?, ?, ?) ON CONFLICT(run_id, concept_id) DO UPDATE SET concept_version = excluded.concept_version, prepared_at = excluded.prepared_at").run(runId, conceptId, conceptVersion, new Date().toISOString());
+        db.exec("COMMIT");
+        return { run_id: runId, concept_id: conceptId, concept_version: conceptVersion, prepared: true };
+      } catch (error) { db.exec("ROLLBACK"); throw error; }
+    },
+    recordSkillEvent: (runId, conceptId, eventType) => {
+      if (!["viewed", "applied", "ignored", "not_useful"].includes(eventType)) bad("Invalid Skill event type");
+      const run = skillRun(runId);
+      const recommendation = run.recommendations.find((item) => item.concept_id === conceptId);
+      if (!recommendation) throw new RegistryError(409, "selection_not_recommended", "Concept was not recommended in this run");
+      db.exec("BEGIN IMMEDIATE");
+      try {
+        const events = new Set(db.prepare("SELECT event_type FROM skill_usage_events WHERE run_id = ? AND concept_id = ?").all(runId, conceptId).map((row) => row.event_type));
+        const prepared = db.prepare("SELECT concept_version FROM skill_preparations WHERE run_id = ? AND concept_id = ?").get(runId, conceptId);
+        if (events.has(eventType) || (eventType === "ignored" && (prepared || events.has("viewed") || events.has("applied") || events.has("not_useful"))) || (eventType === "not_useful" && (!events.has("viewed") || events.has("applied"))) || (eventType === "applied" && (!prepared || events.has("ignored") || events.has("not_useful")))) {
+          throw new RegistryError(409, "invalid_usage_transition", "Skill event conflicts with the current recommendation state");
+        }
+        const conceptVersion = eventType === "applied" ? prepared.concept_version : recommendation.concept_version;
+        const timestamp = new Date().toISOString();
+        db.prepare("INSERT INTO skill_usage_events (run_id, concept_id, concept_version, locale, event_type, occurred_at) VALUES (?, ?, ?, ?, ?, ?)").run(runId, conceptId, conceptVersion, run.locale, eventType, timestamp);
+        db.exec("COMMIT");
+        return { task_id: run.task_id, run_id: runId, concept_id: conceptId, concept_version: conceptVersion, locale: run.locale, event: eventType, timestamp };
+      } catch (error) { db.exec("ROLLBACK"); throw error; }
+    },
     relationsForCandidates: (conceptIds) => {
       const ids = new Set(conceptIds);
       return db.prepare("SELECT source_concept_id, target_concept_id, relation_type FROM concept_relations ORDER BY id").all()
@@ -320,12 +379,24 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
         const affected_languages = ["cn", "en"].filter((locale) => paths.some((path) => path.startsWith(`locales.${locale}.`)) || ["archive", "restore"].includes(row.operation));
         return { revision_id: row.revision_id, concept_id: row.concept_id, version: row.version_after, operation: row.operation, changed_at: row.changed_at, affected_languages, shared_changes: paths.some((path) => !path.startsWith("locales.")), changed_paths: paths };
       });
+      const emptyEvents = () => ({ recommended: 0, viewed: 0, applied: 0, ignored: 0, not_useful: 0 });
+      const usage = { runs_total: 0, none_runs: 0, events: emptyEvents(), locales: { cn: { runs_total: 0, none_runs: 0, events: emptyEvents() }, en: { runs_total: 0, none_runs: 0, events: emptyEvents() } } };
+      for (const row of db.prepare("SELECT locale, result_count, COUNT(*) AS total FROM skill_runs GROUP BY locale, result_count").all()) {
+        usage.runs_total += row.total;
+        usage.locales[row.locale].runs_total += row.total;
+        if (row.result_count === 0) { usage.none_runs += row.total; usage.locales[row.locale].none_runs += row.total; }
+      }
+      for (const row of db.prepare("SELECT locale, event_type, COUNT(*) AS total FROM skill_usage_events GROUP BY locale, event_type").all()) {
+        usage.events[row.event_type] += row.total;
+        usage.locales[row.locale].events[row.event_type] = row.total;
+      }
       return {
         active_total: active.length,
         both_draft: active.filter((concept) => !concept.readiness.cn.browsable && !concept.readiness.en.browsable).length,
         locales,
         archived_total: concepts.length - active.length,
         recent_revisions,
+        usage,
       };
     },
     query: ({ locale = "cn", view = "manage", q = "", status = "all", tag = "", domain = "" } = {}) => {

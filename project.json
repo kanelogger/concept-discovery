@@ -2,7 +2,7 @@
   "schema_version": 1,
   "project": {
     "id": "concept-discovery",
-    "stage": "p4-implementation",
+    "stage": "p5-implementation",
     "product_status": "mvp-in-progress"
   },
   "runtime": {

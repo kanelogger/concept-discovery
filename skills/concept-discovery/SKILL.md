@@ -15,6 +15,8 @@ description: 用户明确调用 concept-discovery，或直接要求为当前任�
 - 返回模型未配置、同意缺失或本地模型不可用的错误时，解释当前无法推荐。首次使用远端 DeepSeek 前让用户在终端运行 `npm run model:configure`，阅读外发说明并自行选择；未经选择不发送任务到远端。不要在聊天或仓库中保存密钥。
 - 有结果时展示最多三项的当前语言名称与 Why Now 理由，并让用户选择 Apply、查看详情或忽略。查看详情可用本地 `GET /api/concepts/:id`；不要把查看当作应用。用户拒绝后正常继续任务。
 
-收到用户明确选择后，将原请求、已展示的 `recommended_ids` 和 `selected_id` 经标准输入传给 `node scripts/skill-discovery.mjs compose`。此命令从同一 Registry 读取最新版并返回所选语言 Prompt；若 Concept 已归档或失去资格，说明无法应用并重新推荐。Agent 应将返回的 Prompt 实际用于当前任务，在最终答复中给出经 Concept 处理的成果；只展示 Prompt 或卡片不算 Apply。不要把 Composer 加进 Web。
+`recommend` 返回 `run_id` 和匿名 `task_id`；保存 `run_id` 供本次交互使用。打开某项详情后，用 `{ "run_id": "...", "concept_id": "...", "event": "viewed" }` 经标准输入调用 `node scripts/skill-discovery.mjs feedback`。用户未查看而忽略时记录 `ignored`；查看后主动反馈无帮助时记录 `not_useful`。这些操作都不生成 Prompt。
 
-两阶段调用的 JSON 可由 Agent 在内存中构造并通过带引号的 heredoc 提供给命令。该 Skill 的项目源码在 `skills/concept-discovery/`；在 Codex 中安装时，将此目录链接到个人 skills 目录。此项目提交不修改用户全局 skills 配置。Usage 事件由后续 0039 接入；在此之前不要伪造应用次数。
+收到用户明确选择后，将原请求、`run_id` 和 `selected_id` 经标准输入传给 `node scripts/skill-discovery.mjs compose`。此命令只接受该次真正推荐过的 Concept，从同一 Registry 读取最新版并返回所选语言 Prompt；若 Concept 已归档或失去资格，说明无法应用并重新推荐。Agent 应将返回的 Prompt 实际用于当前任务，形成经 Concept 处理的成果；只展示 Prompt 或卡片不算 Apply。只有成果已经完成，才用同一 `run_id`、`concept_id` 调用 `feedback` 并设 `event: "applied"`。Compose 本身只记准备状态，不记应用。不要把 Composer 加进 Web。
+
+调用的 JSON 可由 Agent 在内存中构造并通过带引号的 heredoc 提供给命令。该 Skill 的项目源码在 `skills/concept-discovery/`；在 Codex 中安装时，将此目录链接到个人 skills 目录。此项目提交不修改用户全局 skills 配置。离线 Eval 只调用正式推荐 API，不走本 Skill 包装层，也不计入 Usage。

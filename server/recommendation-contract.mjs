@@ -69,7 +69,7 @@ export function assembleRecommendationResult(request, decision, candidates, rela
     seen.add(item.id);
     const concept = eligible.get(item.id);
     const local = concept.locales[request.locale];
-    return { id: item.id, name: local.name, reason: item.reason.trim(), confidence: item.confidence, card: {
+    return { id: item.id, concept_version: concept.version, name: local.name, reason: item.reason.trim(), confidence: item.confidence, card: {
       description: local.description,
       tags: local.tags ?? [],
       cover_image: local.cover_image ?? "",

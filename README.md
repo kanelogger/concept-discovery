@@ -1,6 +1,6 @@
 # Concept Discovery · MVP implementation workspace
 
-This branch implements the MVP in ticket order. The fixed Goal scope is tickets 0023–0029 plus 0031–0040; new backlog entries do not expand it. P1–P4 are implemented, including the [Concept Discovery Skill](skills/concept-discovery/SKILL.md). Feedback and the final Eval Gate remain in [backlog](tasks/backlog.md). The earlier memory-only UI remains on `codex/concept-crud-demo` for reference.
+This branch implements the MVP in ticket order. The fixed Goal scope is tickets 0023–0029 plus 0031–0040; new backlog entries do not expand it. P1–P4 and 0039 Skill Usage/Feedback are implemented, including the [Concept Discovery Skill](skills/concept-discovery/SKILL.md). The final Eval Gate remains in [backlog](tasks/backlog.md). The earlier memory-only UI remains on `codex/concept-crud-demo` for reference.
 
 ## Run locally
 

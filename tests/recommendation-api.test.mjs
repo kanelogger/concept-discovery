@@ -47,7 +47,7 @@ test("Recommendation API uses the live Registry and sends only eligible same-loc
 
     const one = await post({ task: "如何选择", locale: "cn" });
     assert.equal(one.status, 200);
-    assert.deepEqual(one.value.recommendations, [{ id: "one", name: "中文 one", reason: "现在适用", confidence: 0.8, card: { description: "中文描述 one", tags: [], cover_image: registry.get("one").locales.cn.cover_image, interaction_type: null, epistemic_type: null } }]);
+    assert.deepEqual(one.value.recommendations, [{ id: "one", concept_version: 2, name: "中文 one", reason: "现在适用", confidence: 0.8, card: { description: "中文描述 one", tags: [], cover_image: registry.get("one").locales.cn.cover_image, interaction_type: null, epistemic_type: null } }]);
     assert.equal(seen[0].request.limit, 1);
     assert.deepEqual(seen[0].candidates.map((candidate) => candidate.id).sort(), ["one", "three", "two"]);
     assert.deepEqual(seen[0].candidates[0].avoid_when, ["缺少事实"]);
