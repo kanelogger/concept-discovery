@@ -38,3 +38,7 @@ Status: needs-info
 ## 正式数据到位后的离线判定准备
 
 新增 [离线数值判定器](../eval/assess-offline.mjs)及 `npm run eval:assess`：要求正式 maintainer 数据集与逐条人工复核声明相绑定，核对不同来源编号的配比、双语/NONE 数量、报告完整性、单一模型和目录版本一致性，重新计算总体与分语言指标及 NONE Recall，对照已冻结的初始通过线。结果明确区分 `not_evaluable`、`numeric_failed`、`numeric_passed`；即使数值通过，诊断和 Why Now 的内容仍须人工审查，真实 Usage 仍单独判定。`node --test tests/eval-acceptance.test.mjs` 5/5 通过；当前共享工作树 `npm run check` 73/73、`npm run demo:build`、`git diff --check` 通过，但该全量结果包含未提交的 0041–0043 并发变更，不作为这些票据的验收结论。
+
+## 私有内测准备
+
+2026-09-26 用户说明产品尚未发布、没有可提供的真实使用库，要求先准备不公开部署的私有内测与匿名数据收集，不以 synthetic 或测试调用补数，也不再要求现在提供不存在的库。新增[私有内测手册](../docs/acceptance/invited-pilot-runbook-2026-09-26.md)：固定已审查提交、独立本机数据库与零 Usage 基线、受邀参与者告知、明确主动调用、去标识化真实任务、独立 Eval 许可、撤回和复核、冻结后正式 Gate。新增只读 `npm run pilot:usage` 核对每次 Skill run 与私有会话清单、按 24 小时/全部终态反馈计算 Apply Rate，并把来源真实性保留为人工审查项。临时测试库上的 `node --test tests/pilot-usage.test.mjs` 3/3 通过；当前共享工作树 `npm run check` 76/76（80 个 Markdown）、`npm run demo:build`、`npm run doctor`、`git diff --check` 通过，其中包含未提交的 0041–0043 并发修改。内测尚未启动，当前真实 Usage 仍为 0；0040 `needs-info` 和正式质量 Gate 不变。
