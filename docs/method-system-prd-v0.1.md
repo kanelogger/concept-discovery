@@ -364,6 +364,12 @@ principle
 framework
 law
 bias
+concept
+effect
+fallacy
+method
+model
+theory
 ```
 
 - `formal_model`：有严格数学或逻辑形式的模型。
@@ -373,6 +379,14 @@ bias
 - `framework`：组织思考的多组件框架。
 - `law`：以定律形式表述的规律。
 - `bias`：系统性认知偏差。
+- `concept`：一般概念，不暗示证据等级。
+- `effect`：命名效应，不自动视为已核实的实证发现。
+- `fallacy`：推理谬误，不强制归为认知偏差。
+- `method`：方法，不预设其交互形态。
+- `model`：模型，不自动视为形式模型。
+- `theory`：解释性理论，不自动视为指导原则。
+
+新增值保留用户目录的原始分类；完整受控代码及双语展示标签见[共享词表](../shared/taxonomy.json)。
 
 # 14. Concept Relation
 

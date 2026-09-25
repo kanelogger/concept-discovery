@@ -2,11 +2,12 @@ import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { createHash, randomUUID } from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
+import taxonomy from "../shared/taxonomy.json" with { type: "json" };
 
-const interactionTypes = new Set(["operator", "lens", "procedure"]);
-const epistemicTypes = new Set(["formal_model", "empirical_finding", "heuristic", "principle", "framework", "law", "bias"]);
-const domainCodes = new Set(["reasoning", "communication"]);
-const intentCodes = new Set(["simplify", "reduce-complexity"]);
+const interactionTypes = new Set(taxonomy.interaction_types.map(({ code }) => code));
+const epistemicTypes = new Set(taxonomy.epistemic_types.map(({ code }) => code));
+const domainCodes = new Set(taxonomy.domains.map(({ code }) => code));
+const intentCodes = new Set(taxonomy.intents.map(({ code }) => code));
 const localeFields = new Set(["name", "aliases", "description", "cover_image", "wiki_url", "tags", "trigger", "avoid_when", "transform", "agent_instruction", "source_text"]);
 const listFields = new Set(["aliases", "tags", "trigger", "avoid_when", "transform"]);
 const sharedFields = new Set(["interaction_type", "epistemic_type", "domains", "intents"]);

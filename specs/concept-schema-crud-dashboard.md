@@ -48,8 +48,8 @@
 ### 数据边界
 
 - Concept Registry 是 Web 与后续推荐能力共用的唯一事实源。本阶段实现持久化 Concept、媒体引用、修订与目录查询；不复用独立原型的内存状态或复制其代码。Skillbox 仅作参考，技术选型另行记录。
-- 跨语言共用字段：`id`、`lifecycle_status`、`interaction_type`、`epistemic_type`、`domains`、`intents`、`version`、`created_at`、`updated_at`。`id` 是创建时确定且不可变的唯一 slug，只接受小写字母、数字和中间连字符；重复 ID 拒绝。`interaction_type` 可空，填写时限于 `operator` / `lens` / `procedure`；`epistemic_type` 可空，填写时限于 `formal_model` / `empirical_finding` / `heuristic` / `principle` / `framework` / `law` / `bias`。空类型不显示，也不影响语言资格；已填写类型的界面标签按当前语言显示。
-- `domains` / `intents` 是跨语言共用的受控代码集合，空集合允许。P1 用明确维护的代码表提供选项，初始至少包含 PRD 示例 `reasoning` / `communication` 与 `simplify` / `reduce-complexity`；后续扩展代码表不改变 Concept Schema。未知代码拒绝，不把自由输入误存为受控值。
+- 跨语言共用字段：`id`、`lifecycle_status`、`interaction_type`、`epistemic_type`、`domains`、`intents`、`version`、`created_at`、`updated_at`。`id` 是创建时确定且不可变的唯一 slug，只接受小写字母、数字和中间连字符；重复 ID 拒绝。`interaction_type` 可空，填写时限于 `operator` / `lens` / `procedure`；`epistemic_type` 可空，允许值见[共享受控词表](../shared/taxonomy.json)，在原有七种上增加 `concept` / `effect` / `fallacy` / `method` / `model` / `theory`。空类型不显示，也不影响语言资格；已填写类型的界面标签按当前语言显示。新增类型保留来源原值，不强行折算为 `formal_model` 或 `empirical_finding`。
+- `domains` / `intents` 是跨语言共用的受控代码集合，空集合允许。[共享受控词表](../shared/taxonomy.json)收录原有代码和知识清单的 48 种领域、24 种意图，服务端校验、编辑器选项与双语标签共用同一份数据。未知代码拒绝，不把自由输入误存为受控值；扩充代码表不改变 Concept Schema。
 - `locales.cn` 与 `locales.en` 各自保存 `name`、`aliases`、`description`、`cover_image`、`wiki_url`、`tags`、`trigger`、`avoid_when`、`transform`、`agent_instruction`、`source_text`。两种语言共用 Concept 身份与全局版本，不共享文案、标签、图片或 Wiki 链接；当前语言缺字段时不借用另一语言。创建时至少一个语言有非空名称，其余语言内容可留空。
 - `aliases`、`tags`、`trigger`、`avoid_when`、`transform` 是该语言的文本列表；去除空白项并去重。名称、描述、Agent 应用指引和出处在资格判断前去除首尾空白；仅有空白字符不算齐备。
 - `source_text` 是每种语言的单个纯文本字段。保存时仅按去除首尾空白后的非空性判断可浏览资格；不解析成结构化引用，不请求外部网站，也不核验真实性。草稿允许为空。`wiki_url` 是可选的单个绝对 HTTPS URL；填入时校验 URL 结构，缺失时隐藏延伸阅读入口，绝不代替出处文本。
