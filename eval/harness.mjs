@@ -29,7 +29,6 @@ function localBaseUrl(baseUrl) {
 export async function evaluateDataset(dataset, { baseUrl = "http://127.0.0.1:4173", fetchImpl = fetch } = {}) {
   const cases = validateDataset(dataset);
   const origin = localBaseUrl(baseUrl);
-  const conceptCache = new Map();
   const results = [];
   for (const item of cases) {
     let response;
@@ -45,22 +44,20 @@ export async function evaluateDataset(dataset, { baseUrl = "http://127.0.0.1:417
       results.push({ ...caseTrace(item), status: "error", error: typeof body?.error === "string" ? body.error : "http_error", http_status: response.status });
       continue;
     }
-    if (!body || body.locale !== item.locale || !Array.isArray(body.diagnosis) || body.diagnosis.some((value) => typeof value !== "string") || !Array.isArray(body.recommendations) || body.recommendations.length > item.input.limit || body.recommendations.some((value) => !value || typeof value.id !== "string" || typeof value.reason !== "string")) {
+    if (!body || body.locale !== item.locale || !Array.isArray(body.diagnosis) || body.diagnosis.some((value) => typeof value !== "string") || !Array.isArray(body.recommendations) || body.recommendations.length > item.input.limit || body.recommendations.some((value) => !value || typeof value.id !== "string" || !Number.isInteger(value.concept_version) || value.concept_version < 1 || typeof value.reason !== "string")) {
       results.push({ ...caseTrace(item), status: "error", error: "invalid_api_response", http_status: response.status });
       continue;
     }
     let cardLocaleMatch = true;
     for (const recommendation of body.recommendations) {
       if (typeof recommendation.id !== "string") { cardLocaleMatch = false; continue; }
-      if (!conceptCache.has(recommendation.id)) {
-        try {
-          const conceptResponse = await fetchImpl(`${origin}/api/concepts/${encodeURIComponent(recommendation.id)}`);
-          conceptCache.set(recommendation.id, conceptResponse.ok ? await conceptResponse.json() : null);
-        } catch { conceptCache.set(recommendation.id, null); }
-      }
-      const concept = conceptCache.get(recommendation.id);
+      let concept;
+      try {
+        const conceptResponse = await fetchImpl(`${origin}/api/concepts/${encodeURIComponent(recommendation.id)}`);
+        concept = conceptResponse.ok ? await conceptResponse.json() : null;
+      } catch { concept = null; }
       const local = concept?.locales?.[item.locale];
-      if (!local || !concept?.readiness?.[item.locale]?.recommendable || recommendation.name !== local.name || !same(recommendation.card, {
+      if (!local || !concept?.readiness?.[item.locale]?.recommendable || recommendation.concept_version !== concept.version || recommendation.name !== local.name || !same(recommendation.card, {
         description: local.description,
         tags: local.tags,
         cover_image: local.cover_image,
@@ -71,7 +68,7 @@ export async function evaluateDataset(dataset, { baseUrl = "http://127.0.0.1:417
     results.push({
       ...caseTrace(item), status: "ok",
       output_ids: body.recommendations.map((recommendation) => recommendation.id),
-      concept_versions: Object.fromEntries(body.recommendations.map((recommendation) => [recommendation.id, conceptCache.get(recommendation.id)?.version ?? null])),
+      concept_versions: Object.fromEntries(body.recommendations.map((recommendation) => [recommendation.id, recommendation.concept_version])),
       model: { provider: response.headers.get("x-model-provider") || "unspecified", name: response.headers.get("x-model-name") || "unspecified" },
       checks: {
         diagnosis_present: body.diagnosis.length > 0 && body.diagnosis.every((value) => typeof value === "string" && value.trim()),

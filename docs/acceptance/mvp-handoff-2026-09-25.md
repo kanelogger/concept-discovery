@@ -16,7 +16,7 @@
 | [0031](../../tasks/0031-publish-finite-mvp-tickets.md) | `6dc9284` | 固定余下 0032–0040 的范围与依赖，未把整个 backlog 作为完成条件。 |
 | [0032](../../tasks/0032-recommendation-contract-model-adapter.md) | `ad69b83` | 推荐契约、首次远端配置、DeepSeek 适配与真实合成烟测。 |
 | [0033](../../tasks/0033-recommendation-api.md) | `bb88e62` | 正式推荐 API、同语言实时池；六条合成任务真实 DeepSeek API 烟测。 |
-| [0034](../../tasks/0034-offline-eval-harness.md) | `cbccea4` | 正式 HTTP 评测入口、双语/NONE 合成案例与四指标报告；不记 Usage。 |
+| [0034](../../tasks/0034-offline-eval-harness.md) | `cbccea4` | 正式 HTTP 评测入口、双语/NONE 合成案例与四指标报告；不记 Usage。0040 审查补充推荐时版本核对。 |
 | [0035](../../tasks/0035-concept-relation-crud.md) | `738743e` | 五种 Relation、双语备注、引用约束；隔离 API 与浏览器新增/编辑/删除。 |
 | [0036](../../tasks/0036-relation-ranking-signal.md) | `45832be` | 模型确认互补、同分且有 `often_used_with` 时稳定排序；正式 HTTP 假模型回归。 |
 | [0037](../../tasks/0037-contextual-prompt-composer.md) | `56aa3e7` | 最新同语言 Concept 的上下文化 Prompt；原文 JSON 数据隔离和失败边界测试。 |
@@ -24,7 +24,7 @@
 | [0039](../../tasks/0039-skill-feedback-usage.md) | `55a2d5b` | 真实 Skill 五类事件、版本和状态互斥、重启、Dashboard 聚合；Eval 隔离。 |
 | [0040](../../tasks/0040-mvp-eval-acceptance.md) | **待完成** | 来源校验与本交接包已准备；维护者案例、质量通过线和真实使用 Gate 尚缺，不能宣称通过。 |
 
-各票的具体命令、结果与限制记在对应 task。2026-09-25 的最终本地检查：`npm run doctor` 通过（Node 24.18.0、Git 2.55.0、正确工作区），`npm run check` 通过（61/61 测试、73 个 Markdown 链接校验），`npm run demo:build` 通过，`git diff --check` 通过。维护者数据 Eval 未运行；合成案例只验证机制。
+各票的具体命令、结果与限制记在对应 task。2026-09-25 的最终本地检查：`npm run doctor` 通过（Node 24.18.0、Git 2.55.0、正确工作区），`npm run check` 通过（63/63 测试、73 个 Markdown 链接校验），`npm run demo:build` 通过，`git diff --check` 通过。维护者数据 Eval 未运行；合成案例只验证机制。
 
 ## 已验证的本地路径
 

@@ -8,7 +8,7 @@
 
 案例 JSON 使用 `schema_version: 1`、`dataset_kind: "synthetic" | "maintainer"` 和非空 `cases`。每个案例须有唯一 `id`、显式 `locale: "cn" | "en"`、`input` 中的任务/可选上下文以及维护者标注的 `expected_ids`：空数组表示 NONE；最多 3 个跨语言共用 Concept ID。`input` 不再写 `locale`，防止与案例语言冲突。`maintainer` 案例还须有 `source: { "kind": "maintainer_authored" | "real_task_anonymized", "ref": "不含原文的来源编号" }`；报告保留该来源标识以追溯标注。不要把真实对话、姓名或 URL 填入 `ref`。
 
-报告只含案例 ID、语言、Expected/输出 ID、Concept 版本、非敏感模型标识、HTTP 错误码和结构检查结果，不复制原始任务、诊断或 Why Now 文本。模型标识来自正式接口响应头；若假适配器未提供标识，报告明确写 `unspecified`。`diagnosis_present` 和 `why_now_present` 只验证文本存在，`card_locale_match` 对照 Registry 的指定语言字段；诊断与理由是否真正使用该语言、是否有帮助，仍需人工复核。
+报告只含案例 ID、语言、Expected/输出 ID、推荐响应当时的 Concept 版本、非敏感模型标识、HTTP 错误码和结构检查结果，不复制原始任务、诊断或 Why Now 文本。模型标识来自正式接口响应头；若假适配器未提供标识，报告明确写 `unspecified`。`diagnosis_present` 和 `why_now_present` 只验证文本存在。每条案例重新读取 Registry；`card_locale_match` 对照指定语言字段及版本，若推荐响应与随后的读取之间发生编辑则标为不匹配。诊断与理由是否真正使用该语言、是否有帮助，仍需人工复核。
 
 ## 指标口径
 

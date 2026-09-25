@@ -42,6 +42,7 @@ test("synthetic bilingual cases run through the real HTTP API and produce tracea
     assert.equal(report.evaluated_count, 4);
     assert.equal(report.error_count, 0);
     assert.deepEqual(report.models, [{ provider: "fake", name: "case-switch" }]);
+    assert.equal(report.cases[0].concept_versions.inversion, 2);
     assert.deepEqual(report.metrics, {
       top1_hit: { numerator: 2, denominator: 2, value: 1 },
       recommendation_precision: { numerator: 2, denominator: 2, value: 1 },
@@ -64,6 +65,40 @@ test("synthetic bilingual cases run through the real HTTP API and produce tracea
     assert.equal(JSON.parse(readFileSync(reportPath, "utf8")).metrics.top1_hit.value, 1);
     assert.equal(statSync(reportPath).mode & 0o777, 0o600);
     assert.equal(readFileSync(reportPath, "utf8").includes("两个具体方案"), false);
+  });
+});
+
+test("Eval reports the recommendation-time version and detects a later Registry edit", async () => {
+  const adapter = { decide: async () => ({ diagnosis: ["检查风险"], recommendations: [{ id: "inversion", reason: "倒推失败", confidence: 0.8 }] }) };
+  await withServer(() => adapter, async ({ baseUrl }) => {
+    const report = await evaluateDataset({ ...sample, cases: [sample.cases[0]] }, { baseUrl, fetchImpl: async (url, options) => {
+      const response = await fetch(url, options);
+      if (!new URL(url).pathname.startsWith("/api/concepts/")) return response;
+      const concept = await response.json();
+      return new Response(JSON.stringify({ ...concept, version: concept.version + 1 }), { status: 200 });
+    } });
+    assert.equal(report.cases[0].concept_versions.inversion, 2);
+    assert.equal(report.cases[0].checks.card_locale_match, false);
+  });
+});
+
+test("Eval refreshes the same Concept for each case after a Registry edit", async () => {
+  const adapter = { decide: async () => ({ diagnosis: ["检查风险"], recommendations: [{ id: "inversion", reason: "倒推失败", confidence: 0.8 }] }) };
+  await withServer(() => adapter, async ({ app, baseUrl }) => {
+    let conceptGets = 0;
+    const dataset = { ...sample, cases: [sample.cases[0], { ...sample.cases[0], id: "cn-second" }] };
+    const report = await evaluateDataset(dataset, { baseUrl, fetchImpl: async (url, options) => {
+      const response = await fetch(url, options);
+      if (new URL(url).pathname !== "/api/concepts/inversion") return response;
+      conceptGets += 1;
+      if (conceptGets !== 1) return response;
+      const firstVersion = await response.json();
+      app.registry.update("inversion", { expected_version: 2, changes: { "locales.cn.description": "修订后描述" } });
+      return new Response(JSON.stringify(firstVersion), { status: 200 });
+    } });
+    assert.equal(conceptGets, 2);
+    assert.deepEqual(report.cases.map((item) => item.concept_versions.inversion), [2, 3]);
+    assert.ok(report.cases.every((item) => item.checks.card_locale_match));
   });
 });
 
