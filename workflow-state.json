@@ -5,7 +5,7 @@
   "task_file": "tasks/0040-mvp-eval-acceptance.md",
   "updated_at": "2026-09-25",
   "summary": "0040 本地技术检查和逐票验收包已备；80 条双语知识清单已审计但分类映射待定、尚未导入，维护者标注 Eval 和数值通过线仍缺，扩大范围 Gate 未达。",
-  "blockers": ["需要至少 50 条含 cn/en、Expected 与来源的维护者标注案例，以及质量指标数值通过线；当前仅 4 条 synthetic 案例。", "用户提供的 80 条双语 Concept 清单需分类映射和占位出处处理；原样预览 0/80 可导入。", "100 次真实主动 Skill 推荐尚无外部数据，扩大范围 Gate 未达。"],
+  "blockers": ["需要至少 50 条含 cn/en、Expected 与来源的维护者标注案例，以及质量指标数值通过线；当前仅 4 条 synthetic 案例。", "用户提供的 80 条双语 Concept 清单需分类映射和占位出处处理；创建预览 0/80 可导入。", "100 次真实主动 Skill 推荐尚无外部数据，扩大范围 Gate 未达。"],
   "next_actions": ["取得分类映射及占位出处处理决定后在隔离库预览、导入并核对双语目录", "取得维护者案例路径和数值通过线后运行正式离线 Eval", "人工复核 Why Now 与真实 Prompt 应用并更新 0040", "待真实目录和使用样本达到 PRD §35 后判定扩大范围 Gate"],
   "required_checks": ["npm run check", "npm run demo:build"],
   "verification": [

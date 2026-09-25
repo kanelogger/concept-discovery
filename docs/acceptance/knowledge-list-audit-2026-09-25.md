@@ -4,7 +4,7 @@
 
 ## Registry 预览结果
 
-用当前 `Registry.previewCreate` 对每条原字段只读预览，**0/80 可原样导入**。当前契约仅接受 `formal_model`、`empirical_finding`、`heuristic`、`principle`、`framework`、`law`、`bias` 等 `epistemic_type`；39 条使用未支持值（`concept` 2、`effect` 13、`fallacy` 4、`method` 6、`model` 11、`theory` 3）。79 条含未支持的 `domains` 代码，80 条含未支持的 `intents` 代码。其 `source` 和 `schema_reference` 字段指向的 `raw/past/daily-knowledge-methodology.md`、`raw/2026/09/day/2026-09-24/case.json` 在用户给出的仓库位置均不存在。
+审计时去掉创建接口不接收、且由 Registry 自动赋值的 `lifecycle_status` 包装字段，再用 `Registry.previewCreate` 对其余原字段只读预览，**0/80 可直接导入**。当前契约仅接受 `formal_model`、`empirical_finding`、`heuristic`、`principle`、`framework`、`law`、`bias` 等 `epistemic_type`；39 条使用未支持值（`concept` 2、`effect` 13、`fallacy` 4、`method` 6、`model` 11、`theory` 3）。79 条含未支持的领域代码（共 48 种），80 条含未支持的意图代码（共 24 种）。其 `source` 和 `schema_reference` 字段指向的 `raw/past/daily-knowledge-methodology.md`、`raw/2026/09/day/2026-09-24/case.json` 在用户给出的仓库位置均不存在。
 
 每条均有中英文名称、描述、非空 `source_text`、触发场景和 Agent 指引；160 个语言图片字段都为空。用户已决定无图时显示默认配图，图片不再是推荐资格条件。只保留 ID 与语言内容作 **只读投影** 后，80/80 机械上双语可浏览、双语可推荐；这不等于已导入、已核实出处或达到 30 个真实双语 Concept 的 Gate。至少 22 条 Concept 的出处明写“示例出处：请替换…”等占位文案；非空校验会误将这些文案算作出处，正式导入前需要处理。
 
