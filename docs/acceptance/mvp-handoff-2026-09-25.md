@@ -22,7 +22,7 @@
 | [0037](../../tasks/0037-contextual-prompt-composer.md) | `56aa3e7` | 最新同语言 Concept 的上下文化 Prompt；原文 JSON 数据隔离和失败边界测试。 |
 | [0038](../../tasks/0038-concept-discovery-skill.md) | `94876ca` | 主动调用 Skill、选择后 Compose、双语/NONE/无模型 CLI 路径；Skill 格式校验。 |
 | [0039](../../tasks/0039-skill-feedback-usage.md) | `55a2d5b` | 真实 Skill 五类事件、版本和状态互斥、重启、Dashboard 聚合；Eval 隔离。 |
-| [0040](../../tasks/0040-mvp-eval-acceptance.md) | 分类 `5f942ff`、导入 `4645a1c`、本交接包 | 80 条知识清单按清理报告导入独立库；50 条 Eval 草案仅为 synthetic，人工标注、正式 Eval 和真实使用 Gate 尚缺。 |
+| [0040](../../tasks/0040-mvp-eval-acceptance.md) | 分类 `5f942ff`、导入 `4645a1c`、第一稿验收 `3b60651`、离线判定 `92ba015`、本交接包 | 80 条知识清单按清理报告导入独立库；50 条 Eval 草案仅为 synthetic，人工标注、正式 Eval 和真实使用 Gate 尚缺。 |
 
 各票的具体命令、结果与限制记在对应 task。2026-09-25 的本地检查：`npm run doctor` 通过（Node 24.18.0、Git 2.55.0、正确工作区），`npm run check` 通过（67/67 测试、76 个 Markdown 链接校验），`npm run demo:build` 通过，`git diff --check` 通过。维护者数据 Eval 未运行；合成案例只验证机制。
 
