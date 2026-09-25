@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "status": "initial_thresholds_selected_under_user_delegation",
+  "basis": "Initial engineering acceptance policy, not a statistically calibrated production guarantee.",
+  "freeze_before_model_run": true,
+  "formal_dataset_requirements": {
+    "case_count_min": 50,
+    "locales": {
+      "cn": 25,
+      "en": 25
+    },
+    "human_review_required": true,
+    "source_mix_for_50": {
+      "real_task_anonymized": 25,
+      "maintainer_authored_typical_scenarios": 25
+    },
+    "none_cases_min": {
+      "cn": 5,
+      "en": 5
+    }
+  },
+  "offline": {
+    "error_count_max": 0,
+    "structural_checks_all_true": true,
+    "top1_hit_min": 0.8,
+    "recommendation_precision_min": 0.85,
+    "none_precision_min": 0.9,
+    "over_recommendation_max": 0.1,
+    "none_recall_min": 0.8,
+    "per_locale": {
+      "top1_hit_min": 0.75,
+      "recommendation_precision_min": 0.8,
+      "over_recommendation_max": 0.12,
+      "none_recall_min": 0.8
+    },
+    "null_metric_policy": "Not evaluable; cannot pass",
+    "partial_run_policy": "Not evaluable; cannot pass"
+  },
+  "none_recall_definition": "Correct empty outputs / all expected NONE cases; derive from report.cases, since existing harness does not publish this metric.",
+  "human_review": {
+    "all_cases": [
+      "Diagnosis and Why Now use requested language",
+      "Why Now relates to concrete task facts rather than repeating a generic trigger",
+      "No unsupported source claim or fabricated task fact"
+    ],
+    "multi_concept_cases": "Each requested complementary aspect should be covered; review misses explicitly because Top-1 alone does not verify all expected IDs."
+  },
+  "real_usage": {
+    "min_real_skill_runs": 100,
+    "min_runs_per_locale": 30,
+    "apply_rate_min": 0.3,
+    "apply_rate_definition": "Distinct (run_id, concept_id) pairs with applied / distinct pairs with recommended, among runs whose feedback window has closed. NONE runs have no recommendation pair and are not denominator entries.",
+    "feedback_window": "24 hours after the run, or explicit terminal feedback for all recommended items; report unresolved count separately.",
+    "offline_data_counted": false,
+    "threshold_status": "Initial observation threshold; not measured from the synthetic dataset."
+  }
+}
