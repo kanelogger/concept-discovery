@@ -12,7 +12,9 @@
     "demo": "node server/start.mjs",
     "demo:build": "tsc --noEmit && vite build",
     "start": "node server/start.mjs",
-    "test:product": "node --test tests/product.test.mjs"
+    "test:product": "node --test tests/product.test.mjs",
+    "model:configure": "node scripts/configure-model.mjs",
+    "model:smoke": "node scripts/smoke-deepseek.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

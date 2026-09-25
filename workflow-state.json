@@ -1,14 +1,15 @@
 {
   "schema_version": 1,
-  "task_id": "0031-publish-finite-mvp-tickets",
+  "task_id": "0032-recommendation-contract-model-adapter",
   "phase": "complete",
-  "task_file": "tasks/0031-publish-finite-mvp-tickets.md",
+  "task_file": "tasks/0032-recommendation-contract-model-adapter.md",
   "updated_at": "2026-09-25",
-  "summary": "P2–P5 已限定为 0032–0040，并记录模型与真实评测资源依赖。",
+  "summary": "0032 推荐契约与 DeepSeek 模型适配完成；首次配置、真实烟测、公共检查与构建均已验证。",
   "blockers": [],
-  "next_actions": ["启动 tasks/0032-recommendation-contract-model-adapter.md", "等待用户选择真实模型接入方式"],
-  "required_checks": ["npm run validate"],
+  "next_actions": ["独立提交 0032 后启动 tasks/0033-recommendation-api.md"],
+  "required_checks": ["npm run check", "npm run demo:build"],
   "verification": [
-    {"command": "npm run validate", "result": "passed", "recorded_at": "2026-09-25"}
+    {"command": "npm run check", "result": "passed", "recorded_at": "2026-09-25"},
+    {"command": "npm run demo:build", "result": "passed", "recorded_at": "2026-09-25"}
   ]
 }

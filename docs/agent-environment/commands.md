@@ -12,6 +12,8 @@
 | `npm run test:product` | 单独执行 Registry/API 持久化测试 | 离线、临时目录、本地回环端口 |
 | `npm run demo:build` | TypeScript 检查并打包正式 Web 入口 | 离线，写 `dist` |
 | `npm start` | 在 127.0.0.1:4173 启动本地 API 与 Web；`CONCEPT_DB_PATH` 可指定隔离数据库 | 本地回环端口，写 `.local` 或指定路径 |
+| `npm run model:configure` | 首次选择远端 DeepSeek 并隐藏输入密钥，保存到被忽略的 `.env` | 本地配置写入；本命令不调用外网 |
+| `npm run model:smoke` | 用合成任务直连 `deepseek-flash` 验证适配器；密钥隐藏输入且不保存 | 向 DeepSeek API 发送合成文本 |
 
 新机器先按 [.node-version](../../.node-version) 准备 Node 24，再运行安装、doctor 和 check。运行时检查失败应修正环境，不绕过 engines 限制。新增依赖时提交对应锁文件、明确安装网络需求并更新环境决策。
 
