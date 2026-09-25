@@ -2,7 +2,7 @@
 
 Status: needs-info
 
-实施记录：2026-09-25 在独立 `codex/concept-mvp-demo` 工作区启动；前置 0039 已以 `55a2d5b` 提交。当前工作区只有明确标记的四条 synthetic 案例，未提供维护者标注 Eval 或 100 次真实主动调用。用户已提供 80 条双语 Concept 清单，但分类映射待定、尚未导入；先完成可独立验证的验收路径、数据来源校验与逐票交接，外部 Gate 保持未达。
+实施记录：2026-09-25 在独立 `codex/concept-mvp-demo` 工作区启动；前置 0039 已以 `55a2d5b` 提交。用户提供的 80 条双语目录已按明确映射和占位清理报告导入新隔离库；50 条新增 Eval 草案均标记 synthetic。维护者人工标注、正式 Eval 与 100 次真实主动调用仍缺，扩大范围 Gate 未达。
 
 **What to build:** 运行已标注的双语 Eval、完整本地路径和项目检查，汇总 0023–0029、0031–0040 的逐票提交、验收证据、已知限制与用户操作步骤。
 
@@ -12,7 +12,7 @@ Status: needs-info
 
 - [ ] Eval 案例有维护者标注的 Expected、`locale` 与来源；报告命中、精准、NONE 与过推结果，不把合成数据算作真实使用。
 - [ ] 从本地服务到 Skill 推荐、用户选择、Prompt 执行、反馈 Dashboard 的双语路径和无模型分支可复现；`npm run check`、构建和产品验收通过。
-- [ ] 汇总有限范围 `0023–0029 + 0031–0040` 的逐票提交、通过/未运行检查、未决问题、风险和最终用户验收步骤；工作树可审查，不合并或部署。
+- [x] 汇总有限范围 `0023–0029 + 0031–0040` 的逐票提交、通过/未运行检查、未决问题、风险和最终用户验收步骤；工作树可审查，不合并或部署。
 - [x] PRD 的 30 个双语齐备 Concept、50 条人工案例、100 次真实主动调用及数值通过线属于扩大范围前的 Gate；缺少时明确标未达，不伪造为本轮代码通过。
 
 ## 已完成的独立准备与证据
@@ -22,8 +22,9 @@ Status: needs-info
 - 以独立 `/private/tmp/concept-mvp-gate-smoke.sqlite` 和端口 4180 运行实际 `npm start`：Web `/` 与 `/api/dashboard` HTTP 200；未配置模型的 Skill 返回 `model_unavailable` 和配置提示；前后 Usage run/event 为 0。服务已关闭，隔离数据库已清理。
 - `npm run doctor`、`npm run check`（64/64、75 个 Markdown 文件）、`npm run demo:build`、`git diff --check` 通过（2026-09-25）。本轮未运行 50 条维护者案例的 Eval，未验证真实应用率或数值通过线。
 - 后续审查修正评测追溯：报告固定记录推荐响应时的 `concept_version`，每条案例重新读取 Registry；推荐与读取之间的版本变化令 `card_locale_match` 为 false，避免把后来编辑的版本误写成推荐版本。`node --test tests/eval-harness.test.mjs`：8/8 通过（含案例间和案例内编辑模拟）。
-- [知识清单导入前审计](../docs/acceptance/knowledge-list-audit-2026-09-25.md)与[映射工作表](../docs/acceptance/knowledge-list-mapping-worksheet-2026-09-25.md)：用户提供 80 条双语目录候选，但非人工标注 Eval。当前 Registry 创建预览 0/80 通过；39 条类型、79 条领域、80 条意图存在不兼容值，用户选择待其提供映射后再导入。无图默认配图的产品决定已落实到资格计算和 API 回归；22 条出处仍是明确的占位文案。
+- [知识清单审计及导入更新](../docs/acceptance/knowledge-list-audit-2026-09-25.md)与[已填写的映射工作表](../docs/acceptance/knowledge-list-mapping-worksheet-2026-09-25.md)：扩充受控词表保留全部来源分类；原始 SHA-256 `619abeaf8811cfeacea504fe63523fae32c42d58df39d48ed5d6d3c85f1b131e`，只清空 22 条中的 43 个明确占位出处语言字段。正常 Registry 写入新库 80/80 成功；重启后 active 80、中文可推荐 59、英文 58、双语均可推荐 58、真实 Usage 0。每条版本 1 且恰有一条创建修订。无图默认配图已落实；14 个其余出处说明仍需核实。
+- 分类代码实现提交 `5f942ff`、导入与 Eval 草案提交 `4645a1c`。导入脚本拒绝覆盖已存在的数据库，测试涵盖字段核对与未经报告的变更；`npm run check` 67/67 通过。50 条 [synthetic 草案](../eval/cases.draft.synthetic.json)的结构、语言分布、NONE 和 Expected ID 资格均已校验；[人工复核表](../docs/acceptance/eval-draft-review-2026-09-25.md)待维护者填写，当前人工复核 0、真实日志 0。初始数值线已在模型评测前冻结于 [thresholds.initial.json](../eval/thresholds.initial.json)，属本次委托下制定的工程线，尚未经真实样本校准。
 
 ## 缺失资源和判定
 
-仓库只有 [4 条 synthetic 案例](../eval/cases.synthetic.json)，独立工作区没有正式目录或真实 Usage 数据库。维护者需提供至少 50 条含 cn/en、Expected 和 `source.kind/ref` 的标注案例及四项推荐指标的数值通过线；若要判定 Apply Rate 还需定义其分母和通过线。80 条知识清单须先解决分类映射和占位出处，不能原样导入并宣称满足 30 个双语 Concept Gate。100 次真实主动调用也未达。收到案例与决定后，按 [评测契约](../specs/eval-harness.md)在私有路径运行正式 API Eval，复核语言与 Why Now，更新本票证据并再提交。人工用户验收尚未开始。
+现有 50 条新增案例均为 synthetic，不能改标签冒充真实日志。维护者需逐条审核 Expected 和来源，加入 25 条匿名真实任务，形成满足 [评测契约](../specs/eval-harness.md)的至少 50 条正式案例；随后用已冻结数值线运行正式 API Eval，并人工复核诊断、Why Now 与多 Concept 覆盖。目录的 58 条双语机械资格满足 30 条数量条件，具体来源和内容质量仍需复核。100 次真实主动调用与 Apply Rate 数据尚无。人工用户验收尚未开始。

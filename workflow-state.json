@@ -4,14 +4,48 @@
   "phase": "blocked",
   "task_file": "tasks/0040-mvp-eval-acceptance.md",
   "updated_at": "2026-09-25",
-  "summary": "0040 本地技术检查和逐票验收包已备；80 条双语知识清单已审计但分类映射待定、尚未导入，维护者标注 Eval 和数值通过线仍缺，扩大范围 Gate 未达。",
-  "blockers": ["需要至少 50 条含 cn/en、Expected 与来源的维护者标注案例，以及质量指标数值通过线；当前仅 4 条 synthetic 案例。", "用户提供的 80 条双语 Concept 清单需分类映射和占位出处处理；创建预览 0/80 可导入。", "100 次真实主动 Skill 推荐尚无外部数据，扩大范围 Gate 未达。"],
-  "next_actions": ["取得分类映射及占位出处处理决定后在隔离库预览、导入并核对双语目录", "取得维护者案例路径和数值通过线后运行正式离线 Eval", "人工复核 Why Now 与真实 Prompt 应用并更新 0040", "待真实目录和使用样本达到 PRD §35 后判定扩大范围 Gate"],
-  "required_checks": ["npm run check", "npm run demo:build"],
+  "summary": "0040 技术路径与验收包已备；80 条目录已按清理报告导入独立库，58 条双语满足机械推荐资格。50 条 Eval 草案仅为 synthetic，维护者标注与真实调用仍缺，扩大范围 Gate 未达。",
+  "blockers": [
+    "缺至少 50 条维护者人工复核并具备来源的正式 Eval 案例，其中 25 条需来自匿名真实任务；当前草案 50 条均为 synthetic、人工复核 0。",
+    "缺正式模型 Eval、诊断/Why Now 人工复核；初始通过线已冻结但尚无正式结果。",
+    "缺 100 次真实主动 Skill 推荐及 Apply Rate 观察数据；隔离库真实 Usage 为 0。",
+    "导入目录的来源质量仍需人工复核；原始来源文件未取得，另有 14 个非明确占位出处说明待核实。"
+  ],
+  "next_actions": [
+    "维护者复核 Eval 草案，补齐 25 条匿名真实任务与来源，冻结正式数据集",
+    "在隔离库和已冻结通过线下运行正式双语 API Eval，复核诊断、Why Now、多 Concept 与 NONE Recall",
+    "真实使用累计至少 100 次主动 Skill 推荐并观察 Apply Rate，按 PRD §35 判定扩大范围 Gate",
+    "用户按验收交接包审查目录内容、双语流程及逐票提交"
+  ],
+  "required_checks": [
+    "npm run check",
+    "npm run demo:build"
+  ],
   "verification": [
-    { "command": "npm run doctor", "result": "passed", "recorded_at": "2026-09-25" },
-    { "command": "npm run check", "result": "passed", "recorded_at": "2026-09-25" },
-    { "command": "npm run demo:build", "result": "passed", "recorded_at": "2026-09-25" },
-    { "command": "maintainer-labeled Eval (50 cases)", "result": "skipped", "recorded_at": "2026-09-25" }
+    {
+      "command": "npm run doctor",
+      "result": "passed",
+      "recorded_at": "2026-09-25"
+    },
+    {
+      "command": "npm run check",
+      "result": "passed",
+      "recorded_at": "2026-09-25"
+    },
+    {
+      "command": "npm run demo:build",
+      "result": "passed",
+      "recorded_at": "2026-09-25"
+    },
+    {
+      "command": "knowledge import to isolated SQLite",
+      "result": "passed",
+      "recorded_at": "2026-09-25"
+    },
+    {
+      "command": "maintainer-labeled Eval (50 cases)",
+      "result": "skipped",
+      "recorded_at": "2026-09-25"
+    }
   ]
 }

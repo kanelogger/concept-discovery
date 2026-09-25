@@ -13,3 +13,9 @@
 - 用户确认这份 JSON 用于目录，要求原文件保持不变，并在提供分类映射后再导入。[分类映射工作表](knowledge-list-mapping-worksheet-2026-09-25.md)列出全部不兼容代码与出现次数；导入时不得静默清空这些字段。
 - 占位出处如何处理仍待用户决定。真实出处不作外部自动核验，但占位语不能作为已完成来源的证据。
 - 取得映射后，在隔离数据库先做全量预览和冲突检查，再导入；核对每条 ID、双语字段、Revision、Dashboard 与推荐池。提供含人工 Expected 的独立 Eval 数据集后才运行 0040 正式质量评测。100 次真实主动调用仍须从真实 Usage 取得。
+
+## 2026-09-25 导入后更新
+
+上文保留导入前的审计快照。随后按[已填写的映射决定](knowledge-list-mapping-worksheet-2026-09-25.md)扩充受控词表，使用 [import-knowledge-list.mjs](../../scripts/import-knowledge-list.mjs)把清洗后的目录写入 `/private/tmp/concept-discovery-mvp-demo/.local/knowledge-demo.sqlite`。原始输入、清洗输入及逐字段报告的副本保存在该工作区 `.local/knowledge-import-inputs/`（被 Git 忽略）；脚本核对原文件 SHA-256、80 个 ID、逐字段清理报告，只接受清空 22 条 Concept 的 43 个占位 `source_text` 字段，并拒绝覆盖已有数据库。用户原文件未改写。
+
+实际库重启后核对：80 条均为 active、各 1 条创建 Revision；中文 59 条、英文 58 条满足机械推荐资格，双语同时满足 58 条；真实 Skill Usage 0 次。50 条 [synthetic Eval 草案](../../eval/cases.draft.synthetic.json)通过结构校验，25 条中文、25 条英文，10 条 Expected NONE；非空 Expected ID 在相应语言均可推荐。这些数字不证明出处准确、模型推荐质量或人工验收完成。另有 14 个非明确占位的出处说明被标为未经核实，需人工复核；原始资料路径仍未取得。

@@ -22,9 +22,9 @@
 | [0037](../../tasks/0037-contextual-prompt-composer.md) | `56aa3e7` | 最新同语言 Concept 的上下文化 Prompt；原文 JSON 数据隔离和失败边界测试。 |
 | [0038](../../tasks/0038-concept-discovery-skill.md) | `94876ca` | 主动调用 Skill、选择后 Compose、双语/NONE/无模型 CLI 路径；Skill 格式校验。 |
 | [0039](../../tasks/0039-skill-feedback-usage.md) | `55a2d5b` | 真实 Skill 五类事件、版本和状态互斥、重启、Dashboard 聚合；Eval 隔离。 |
-| [0040](../../tasks/0040-mvp-eval-acceptance.md) | **待完成** | 来源校验与本交接包已准备；80 条知识清单已审计但分类映射待定、尚未导入，维护者 Eval 案例、质量通过线和真实使用 Gate 尚缺。 |
+| [0040](../../tasks/0040-mvp-eval-acceptance.md) | 分类 `5f942ff`、导入 `4645a1c`、本交接包 | 80 条知识清单按清理报告导入独立库；50 条 Eval 草案仅为 synthetic，人工标注、正式 Eval 和真实使用 Gate 尚缺。 |
 
-各票的具体命令、结果与限制记在对应 task。2026-09-25 的最终本地检查：`npm run doctor` 通过（Node 24.18.0、Git 2.55.0、正确工作区），`npm run check` 通过（64/64 测试、75 个 Markdown 链接校验），`npm run demo:build` 通过，`git diff --check` 通过。维护者数据 Eval 未运行；合成案例只验证机制。
+各票的具体命令、结果与限制记在对应 task。2026-09-25 的本地检查：`npm run doctor` 通过（Node 24.18.0、Git 2.55.0、正确工作区），`npm run check` 通过（67/67 测试、76 个 Markdown 链接校验），`npm run demo:build` 通过，`git diff --check` 通过。维护者数据 Eval 未运行；合成案例只验证机制。
 
 ## 已验证的本地路径
 
@@ -36,19 +36,19 @@
 
 | PRD / 0040 项 | 当前可观察状态 | 判定 |
 | --- | --- | --- |
-| 30 个 cn/en 均可推荐 Concept | 用户提供 [80 条知识清单的审计结果](knowledge-list-audit-2026-09-25.md)与[映射工作表](knowledge-list-mapping-worksheet-2026-09-25.md)；当前受控分类不兼容，创建预览 0/80 通过，尚未导入。图片改为可选并显示默认配图。 | 未达；待分类映射与占位出处处理后在隔离库导入、核对。 |
-| 50 条维护者标注、覆盖 cn/en、带来源的 Eval 案例 | 仓库仅有 [4 条明确标记 synthetic 的案例](../../eval/cases.synthetic.json)。 | 未达；不能用合成测试代替。 |
+| 30 个 cn/en 均可推荐 Concept | 用户提供的 [80 条知识清单](knowledge-list-audit-2026-09-25.md)按[映射决定](knowledge-list-mapping-worksheet-2026-09-25.md)导入新隔离库；58 条双语均满足非空字段资格，中文 59、英文 58。 | 数量与机械资格已达；出处、内容仍待人工复核。 |
+| 50 条维护者标注、覆盖 cn/en、带来源的 Eval 案例 | 新增 [50 条 synthetic 草案](../../eval/cases.draft.synthetic.json)，25 条中文、25 条英文；[人工复核表](eval-draft-review-2026-09-25.md)尚未填写，真实日志 0。 | 未达；不能用合成测试代替。 |
 | 100 次真实主动 Skill 推荐 | 隔离工作区没有真实使用数据库；自动化和离线 Eval 不计入。 | 未达；需要实际用户调用积累。 |
-| Top-1、Precision、NONE、过推及 Apply Rate 的通过线 | [PRD §40](../method-system-prd-v0.1.md#40-未决问题)仍列为待定。 | 需产品决策；未运行带人工标注的质量判定。 |
-| 初始 Concept 的真实出处 | 原始 `daily-knowledge(1).md` 与知识清单声明的原始来源文件均未提供；清单至少 22 条有明确占位出处。 | 可先草稿；不能把占位语或结构化转译当原文。 |
+| Top-1、Precision、NONE、过推及 Apply Rate 的通过线 | [初始工程线](../../eval/thresholds.initial.json)在模型评测前冻结，含分语言与 NONE Recall；来自本次委托，尚无真实样本校准。 | 判定规则已备；正式数据与正式模型评测未运行。 |
+| 初始 Concept 的真实出处 | 原始 `daily-knowledge(1).md` 与清单声明的原始来源文件均未提供；22 条的 43 个占位语言字段已清空，另 14 个说明标记待核实。 | 可保留草稿；来源质量仍需人工审查。 |
 
-30/50/100 是扩大目录和分发范围前的 Gate。当前可进入**技术路径的用户验收准备**，但 0040 的人工质量验收与扩大范围 Gate 尚未通过。
+30/50/100 是扩大目录和分发范围前的 Gate。当前仅 30 条双语机械资格条件满足；0040 的人工质量验收与扩大范围 Gate 尚未通过。
 
 ## 用户验收步骤
 
 1. 在隔离工作区运行 `npm run doctor`、`npm run check`、`npm run demo:build`；审查 `git status --short --branch` 和本表逐票提交，不进行合并或部署。
-2. 设置新的 `CONCEPT_DB_PATH`，运行 `npm start`；在 Web 建立至少一条中文、英文均可推荐的测试 Concept，检查草稿、配图、搜索、修订、归档与 Dashboard；再建立和修改 Relation，确认双语备注与方向。
+2. 将 `CONCEPT_DB_PATH` 设为 `/private/tmp/concept-discovery-mvp-demo/.local/knowledge-demo.sqlite`，运行 `npm start`，在 Web 查看 80 条目录、双语搜索、草稿、默认配图、修订与 Dashboard；用另一个新库测试新增、归档及 Relation 编辑，保留已导入验收库的证据。
 3. 若要实际向 DeepSeek 发起推荐，在终端运行 `npm run model:configure`，阅读外发说明并输入由你控制的可用密钥；未选远端时验证 `model_unavailable`。不要将密钥放入仓库或验收报告。
 4. 将 [项目 Skill](../../skills/concept-discovery/SKILL.md)按 [README](../../README.md#concept-discovery-skill) 链接到个人 skills 目录；分别用中文和英文明确调用，检查推荐、NONE、查看、忽略、选择、真实应用成果和 Dashboard 事件。普通任务不应自动触发。
-5. 把至少 50 条经维护者标注的双语案例以 `dataset_kind: "maintainer"`、`source.kind/ref`、`locale`、`expected_ids` 提供在被忽略的私有路径；按 [评测契约](../../specs/eval-harness.md)运行 `npm run eval -- --cases PATH --baseUrl http://127.0.0.1:4173 --output PATH`，人工复核诊断/Why Now 的语言和相关性。给出数值通过线后，再判定各项指标；报告不得混入真实 Usage。
-6. 用真实用户主动调用累计 100 次推荐，并补齐 30 个双语可推荐 Concept 后，按 PRD §35 判定扩大范围 Gate。用户验收结论由你给出。
+5. 按[人工复核表](eval-draft-review-2026-09-25.md)审阅 50 条 synthetic 草案，补入 25 条匿名真实任务并人工确认 Expected、来源，形成 `dataset_kind: "maintainer"` 的正式数据集；按 [评测契约](../../specs/eval-harness.md)运行 `npm run eval -- --cases PATH --baseUrl http://127.0.0.1:4173 --output PATH`，再对照[冻结通过线](../../eval/thresholds.initial.json)和诊断/Why Now 人工审查。报告不得混入真实 Usage。
+6. 用真实用户主动调用累计 100 次推荐，核实目录出处和内容质量后，按 PRD §35 判定扩大范围 Gate。用户验收结论由你给出。
