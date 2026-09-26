@@ -1,34 +1,19 @@
 {
   "schema_version": 1,
-  "task_id": "0040-mvp-eval-acceptance",
-  "phase": "blocked",
-  "task_file": "tasks/0040-mvp-eval-acceptance.md",
-  "updated_at": "2026-09-25",
-  "summary": "0040 技术路径与验收包已备；80 条目录已按清理报告导入独立库，58 条双语满足机械推荐资格。50 条 Eval 草案仅为 synthetic，维护者标注与真实调用仍缺，扩大范围 Gate 未达。",
-  "blockers": [
-    "缺至少 50 条维护者人工复核并具备来源的正式 Eval 案例，其中 25 条需来自匿名真实任务；当前草案 50 条均为 synthetic、人工复核 0。",
-    "缺正式模型 Eval、诊断/Why Now 人工复核；初始通过线已冻结但尚无正式结果。",
-    "缺 100 次真实主动 Skill 推荐及 Apply Rate 观察数据；隔离库真实 Usage 为 0。",
-    "导入目录的来源质量仍需人工复核；原始来源文件未取得，另有 14 个非明确占位出处说明待核实。"
-  ],
-  "next_actions": [
-    "维护者复核 Eval 草案，补齐 25 条匿名真实任务与来源，冻结正式数据集",
-    "在隔离库和已冻结通过线下运行正式双语 API Eval，复核诊断、Why Now、多 Concept 与 NONE Recall",
-    "真实使用累计至少 100 次主动 Skill 推荐并观察 Apply Rate，按 PRD §35 判定扩大范围 Gate",
-    "用户按验收交接包审查目录内容、双语流程及逐票提交"
-  ],
+  "task_id": "0043-soft-delete-terminology",
+  "phase": "complete",
+  "task_file": "tasks/0043-soft-delete-terminology.md",
+  "updated_at": "2026-09-26",
+  "summary": "0043 完成活跃 Concept 软删除文案统一：卡片、表格和详情弹窗均显示删除/Delete，并使用同一条可恢复的归档确认提示。此前 0042 多图工作和用户验收事项保留在对应任务记录中。",
+  "blockers": [],
+  "next_actions": ["用户在 demo 中复验删除文案一致性及 0042 多图验收。"],
   "required_checks": [
-    "npm run check",
+    "npm run validate",
     "npm run demo:build"
   ],
   "verification": [
     {
-      "command": "npm run doctor",
-      "result": "passed",
-      "recorded_at": "2026-09-25"
-    },
-    {
-      "command": "npm run check",
+      "command": "npm run validate",
       "result": "passed",
       "recorded_at": "2026-09-25"
     },
@@ -38,13 +23,13 @@
       "recorded_at": "2026-09-25"
     },
     {
-      "command": "knowledge import to isolated SQLite",
+      "command": "npm run check",
       "result": "passed",
-      "recorded_at": "2026-09-25"
+      "recorded_at": "2026-09-26"
     },
     {
-      "command": "maintainer-labeled Eval (50 cases)",
-      "result": "skipped",
+      "command": "git diff --check",
+      "result": "passed",
       "recorded_at": "2026-09-25"
     }
   ]

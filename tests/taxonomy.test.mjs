@@ -23,6 +23,15 @@ test("expanded controlled taxonomy preserves catalog values and rejects unknown 
     assert.deepEqual(created.domains, ["psychology", "software-engineering"]);
     assert.deepEqual(created.intents, ["avoid-error", "decide"]);
     assert.deepEqual(registry.query({ locale: "cn", view: "browse", domain: "psychology" }).map(({ id }) => id), ["classification-sample"]);
+    registry.create({
+      id: "classification-secondary", domains: ["statistics"],
+      locales: { cn: { name: "统计分类" } },
+    });
+    assert.deepEqual(
+      registry.query({ locale: "cn", domain: "psychology,statistics" }).map(({ id }) => id).sort(),
+      ["classification-sample", "classification-secondary"],
+    );
+    assert.throws(() => registry.query({ domain: "psychology,unknown-domain" }), /domain is invalid/);
     const updated = registry.update("classification-sample", { expected_version: 1, changes: { epistemic_type: "fallacy", domains: ["statistics"], intents: ["evaluate"] } });
     assert.equal(updated.epistemic_type, "fallacy");
     assert.deepEqual(updated.domains, ["statistics"]);

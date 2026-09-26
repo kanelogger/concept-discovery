@@ -166,6 +166,52 @@ test("localized WebP and Wiki edits commit atomically and preserve historical as
   }
 });
 
+test("Concept creation and editing support multiple ordered images per locale and removing individual images", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "concept-discovery-image-list-"));
+  const app = createApiServer({ dbPath: join(directory, "registry.sqlite") });
+  const red = readFileSync(new URL("./fixtures/red.webp", import.meta.url));
+  const blue = readFileSync(new URL("./fixtures/blue.webp", import.meta.url));
+  const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
+  try {
+    await new Promise((resolve) => app.server.listen(0, "127.0.0.1", resolve));
+    const origin = `http://127.0.0.1:${app.server.address().port}`;
+    const created = await request(origin, "POST", "/api/concepts", {
+      id: "localized-image-gallery",
+      media: {
+        cn: { action: "sync", images: [{ data: red.toString("base64") }, { data: blue.toString("base64") }] },
+        en: { action: "sync", images: [{ data: blue.toString("base64") }, { data: red.toString("base64") }] },
+      },
+      locales: { cn: { name: "多图中文", description: "描述", source_text: "出处" }, en: { name: "Gallery", description: "Description", source_text: "Source" } },
+    });
+    assert.equal(created.status, 201);
+    assert.deepEqual(created.value.locales.cn.cover_images, [hash(red), hash(blue)]);
+    assert.deepEqual(created.value.locales.en.cover_images, [hash(blue), hash(red)]);
+    assert.equal(created.value.locales.cn.cover_image, hash(red));
+    assert.equal(created.value.locales.en.cover_image, hash(blue));
+    assert.equal((await fetch(`${origin}/api/assets/${hash(red)}`)).status, 200);
+    assert.equal((await fetch(`${origin}/api/assets/${hash(blue)}`)).status, 200);
+
+    const edited = await request(origin, "PATCH", "/api/concepts/localized-image-gallery", {
+      expected_version: 1, changes: {}, media: { cn: { action: "sync", images: [{ hash: hash(blue) }] } },
+    });
+    assert.equal(edited.status, 200);
+    assert.deepEqual(edited.value.locales.cn.cover_images, [hash(blue)]);
+    assert.equal(edited.value.locales.cn.cover_image, hash(blue));
+    assert.deepEqual(edited.value.locales.en.cover_images, [hash(blue), hash(red)]);
+
+    const removed = await request(origin, "PATCH", "/api/concepts/localized-image-gallery", {
+      expected_version: 2, changes: {}, media: { en: { action: "sync", images: [{ hash: hash(red) }] } },
+    });
+    assert.equal(removed.status, 200);
+    assert.deepEqual(removed.value.locales.en.cover_images, [hash(red)]);
+    assert.equal(removed.value.locales.en.cover_image, hash(red));
+    assert.equal((await fetch(`${origin}/api/assets/${hash(blue)}`)).status, 200, "historical revisions keep removed assets available");
+  } finally {
+    await app.close();
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
 test("recommendability preview uses the same per-language rules as saved records", async () => {
   const directory = mkdtempSync(join(tmpdir(), "concept-discovery-readiness-"));
   const dbPath = join(directory, "registry.sqlite");

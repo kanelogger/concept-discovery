@@ -19,3 +19,8 @@ P1 的 [Concept Schema、CRUD 与 Dashboard 规格](../specs/concept-schema-crud
 首批目录候选仍须记录 `daily-knowledge(1).md` 的缺失或取得情况；六项优先补来源的是第一性原理、逆向思维、第二层思维、事件—局势—结构、安全边际、古德哈特定律，依据 [清洗稿 §6](../docs/method-registry-curated-v0.1.md#6-后续补充优先级)。候选可先存草稿；某语言有名称、描述和非空出处文本后可浏览，补齐触发场景和 Agent Instruction 后可参与推荐；无图时显示默认配图。30 个双语齐备的目标用于扩张 Gate。
 
 Markdown 批量导入、JSON/Markdown 导出、Web Recommendation Playground、Embedding、复杂 Rerank、用户偏好与 Recipe 推荐暂不排入主线；需要时依据真实使用证据另开任务。MVP 排除项见 [PRD §36](../docs/method-system-prd-v0.1.md#36-mvp-明确不做)。
+
+## 验收反馈修复
+
+- [0041：合并 Concept 浏览与管理并修复领域选择](0041-management-library-domain-picker.md)（当前独立 demo 后续验收反馈；不扩大 0023–0029 + 0031–0040 的已固定范围）。
+- [0042：支持 Concept 双语多图上传、管理与预览](0042-concept-multi-image-upload.md)（后续验收反馈；不扩大 0023–0029 + 0031–0040 的已固定范围）。
