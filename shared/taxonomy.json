@@ -1,0 +1,470 @@
+{
+  "interaction_types": [
+    {
+      "code": "operator",
+      "cn": "算子",
+      "en": "Operator"
+    },
+    {
+      "code": "lens",
+      "cn": "视角",
+      "en": "Lens"
+    },
+    {
+      "code": "procedure",
+      "cn": "流程",
+      "en": "Procedure"
+    }
+  ],
+  "epistemic_types": [
+    {
+      "code": "bias",
+      "cn": "偏差",
+      "en": "Bias"
+    },
+    {
+      "code": "concept",
+      "cn": "概念",
+      "en": "Concept"
+    },
+    {
+      "code": "effect",
+      "cn": "效应",
+      "en": "Effect"
+    },
+    {
+      "code": "empirical_finding",
+      "cn": "实证发现",
+      "en": "Empirical finding"
+    },
+    {
+      "code": "fallacy",
+      "cn": "谬误",
+      "en": "Fallacy"
+    },
+    {
+      "code": "formal_model",
+      "cn": "形式模型",
+      "en": "Formal model"
+    },
+    {
+      "code": "framework",
+      "cn": "框架",
+      "en": "Framework"
+    },
+    {
+      "code": "heuristic",
+      "cn": "启发式",
+      "en": "Heuristic"
+    },
+    {
+      "code": "law",
+      "cn": "定律",
+      "en": "Law"
+    },
+    {
+      "code": "method",
+      "cn": "方法",
+      "en": "Method"
+    },
+    {
+      "code": "model",
+      "cn": "模型",
+      "en": "Model"
+    },
+    {
+      "code": "principle",
+      "cn": "原则",
+      "en": "Principle"
+    },
+    {
+      "code": "theory",
+      "cn": "理论",
+      "en": "Theory"
+    }
+  ],
+  "domains": [
+    {
+      "code": "api-design",
+      "cn": "API 设计",
+      "en": "API design"
+    },
+    {
+      "code": "attention",
+      "cn": "注意力",
+      "en": "Attention"
+    },
+    {
+      "code": "behavior",
+      "cn": "行为",
+      "en": "Behavior"
+    },
+    {
+      "code": "behavioral-economics",
+      "cn": "行为经济学",
+      "en": "Behavioral economics"
+    },
+    {
+      "code": "collaboration",
+      "cn": "协作",
+      "en": "Collaboration"
+    },
+    {
+      "code": "communication",
+      "cn": "沟通",
+      "en": "Communication"
+    },
+    {
+      "code": "competition",
+      "cn": "竞争",
+      "en": "Competition"
+    },
+    {
+      "code": "computing",
+      "cn": "计算",
+      "en": "Computing"
+    },
+    {
+      "code": "criminology",
+      "cn": "犯罪学",
+      "en": "Criminology"
+    },
+    {
+      "code": "culture",
+      "cn": "文化",
+      "en": "Culture"
+    },
+    {
+      "code": "decision-making",
+      "cn": "决策",
+      "en": "Decision making"
+    },
+    {
+      "code": "ecology",
+      "cn": "生态学",
+      "en": "Ecology"
+    },
+    {
+      "code": "economics",
+      "cn": "经济学",
+      "en": "Economics"
+    },
+    {
+      "code": "education",
+      "cn": "教育",
+      "en": "Education"
+    },
+    {
+      "code": "engineering",
+      "cn": "工程",
+      "en": "Engineering"
+    },
+    {
+      "code": "ethics",
+      "cn": "伦理",
+      "en": "Ethics"
+    },
+    {
+      "code": "evaluation",
+      "cn": "评估",
+      "en": "Evaluation"
+    },
+    {
+      "code": "evolution",
+      "cn": "进化",
+      "en": "Evolution"
+    },
+    {
+      "code": "finance",
+      "cn": "金融",
+      "en": "Finance"
+    },
+    {
+      "code": "game-theory",
+      "cn": "博弈论",
+      "en": "Game theory"
+    },
+    {
+      "code": "innovation",
+      "cn": "创新",
+      "en": "Innovation"
+    },
+    {
+      "code": "internet",
+      "cn": "互联网",
+      "en": "Internet"
+    },
+    {
+      "code": "investing",
+      "cn": "投资",
+      "en": "Investing"
+    },
+    {
+      "code": "judgment",
+      "cn": "判断",
+      "en": "Judgment"
+    },
+    {
+      "code": "learning",
+      "cn": "学习",
+      "en": "Learning"
+    },
+    {
+      "code": "logic",
+      "cn": "逻辑",
+      "en": "Logic"
+    },
+    {
+      "code": "management",
+      "cn": "管理",
+      "en": "Management"
+    },
+    {
+      "code": "mathematics",
+      "cn": "数学",
+      "en": "Mathematics"
+    },
+    {
+      "code": "measurement",
+      "cn": "测量",
+      "en": "Measurement"
+    },
+    {
+      "code": "media",
+      "cn": "媒体",
+      "en": "Media"
+    },
+    {
+      "code": "medicine",
+      "cn": "医学",
+      "en": "Medicine"
+    },
+    {
+      "code": "methodology",
+      "cn": "方法论",
+      "en": "Methodology"
+    },
+    {
+      "code": "operations-research",
+      "cn": "运筹学",
+      "en": "Operations research"
+    },
+    {
+      "code": "organization",
+      "cn": "组织",
+      "en": "Organization"
+    },
+    {
+      "code": "persuasion",
+      "cn": "说服",
+      "en": "Persuasion"
+    },
+    {
+      "code": "philosophy",
+      "cn": "哲学",
+      "en": "Philosophy"
+    },
+    {
+      "code": "planning",
+      "cn": "规划",
+      "en": "Planning"
+    },
+    {
+      "code": "probability",
+      "cn": "概率",
+      "en": "Probability"
+    },
+    {
+      "code": "problem-solving",
+      "cn": "问题解决",
+      "en": "Problem solving"
+    },
+    {
+      "code": "productivity",
+      "cn": "生产力",
+      "en": "Productivity"
+    },
+    {
+      "code": "psychology",
+      "cn": "心理学",
+      "en": "Psychology"
+    },
+    {
+      "code": "reasoning",
+      "cn": "推理",
+      "en": "Reasoning"
+    },
+    {
+      "code": "research",
+      "cn": "研究",
+      "en": "Research"
+    },
+    {
+      "code": "risk",
+      "cn": "风险",
+      "en": "Risk"
+    },
+    {
+      "code": "science",
+      "cn": "科学",
+      "en": "Science"
+    },
+    {
+      "code": "sociology",
+      "cn": "社会学",
+      "en": "Sociology"
+    },
+    {
+      "code": "software-engineering",
+      "cn": "软件工程",
+      "en": "Software engineering"
+    },
+    {
+      "code": "statistics",
+      "cn": "统计学",
+      "en": "Statistics"
+    },
+    {
+      "code": "systems",
+      "cn": "系统",
+      "en": "Systems"
+    },
+    {
+      "code": "systems-thinking",
+      "cn": "系统思维",
+      "en": "Systems thinking"
+    }
+  ],
+  "intents": [
+    {
+      "code": "argue",
+      "cn": "论证",
+      "en": "Argue"
+    },
+    {
+      "code": "avoid-error",
+      "cn": "避免错误",
+      "en": "Avoid error"
+    },
+    {
+      "code": "collaborate",
+      "cn": "协作",
+      "en": "Collaborate"
+    },
+    {
+      "code": "communicate",
+      "cn": "沟通",
+      "en": "Communicate"
+    },
+    {
+      "code": "decide",
+      "cn": "决策",
+      "en": "Decide"
+    },
+    {
+      "code": "decompose",
+      "cn": "拆解",
+      "en": "Decompose"
+    },
+    {
+      "code": "design",
+      "cn": "设计",
+      "en": "Design"
+    },
+    {
+      "code": "empathize",
+      "cn": "共情",
+      "en": "Empathize"
+    },
+    {
+      "code": "evaluate",
+      "cn": "评估",
+      "en": "Evaluate"
+    },
+    {
+      "code": "explain",
+      "cn": "解释",
+      "en": "Explain"
+    },
+    {
+      "code": "identify-risk",
+      "cn": "识别风险",
+      "en": "Identify risk"
+    },
+    {
+      "code": "improve",
+      "cn": "改进",
+      "en": "Improve"
+    },
+    {
+      "code": "innovate",
+      "cn": "创新",
+      "en": "Innovate"
+    },
+    {
+      "code": "manage",
+      "cn": "管理",
+      "en": "Manage"
+    },
+    {
+      "code": "measure",
+      "cn": "测量",
+      "en": "Measure"
+    },
+    {
+      "code": "negotiate",
+      "cn": "谈判",
+      "en": "Negotiate"
+    },
+    {
+      "code": "obtain",
+      "cn": "获取",
+      "en": "Obtain"
+    },
+    {
+      "code": "plan",
+      "cn": "规划",
+      "en": "Plan"
+    },
+    {
+      "code": "predict",
+      "cn": "预测",
+      "en": "Predict"
+    },
+    {
+      "code": "reduce-complexity",
+      "cn": "降低复杂度",
+      "en": "Reduce complexity"
+    },
+    {
+      "code": "reflect",
+      "cn": "反思",
+      "en": "Reflect"
+    },
+    {
+      "code": "simplify",
+      "cn": "简化",
+      "en": "Simplify"
+    },
+    {
+      "code": "simulate",
+      "cn": "模拟",
+      "en": "Simulate"
+    },
+    {
+      "code": "test",
+      "cn": "测试",
+      "en": "Test"
+    },
+    {
+      "code": "verify",
+      "cn": "验证",
+      "en": "Verify"
+    },
+    {
+      "code": "visualize",
+      "cn": "可视化",
+      "en": "Visualize"
+    }
+  ]
+}

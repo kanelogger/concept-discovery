@@ -1,35 +1,23 @@
-# concept-discovery
+# Concept Discovery · MVP implementation workspace
 
-基于当前任务和对话上下文，发现有价值的方法论，并生成可执行的 Prompt。产品计划由本地 Concept System 和 Agent 端 Concept Discovery Skill 组成。
+This branch implements the MVP in ticket order. The fixed Goal scope is tickets 0023–0029 plus 0031–0040; new backlog entries do not expand it. P1–P4 and 0039 Skill Usage/Feedback are implemented, including the [Concept Discovery Skill](skills/concept-discovery/SKILL.md). The final Eval Gate remains in [backlog](tasks/backlog.md). The earlier memory-only UI remains on `codex/concept-crud-demo` for reference.
 
-**当前状态：协作开发环境已初始化，产品尚未实现。** 本仓库目前提供产品材料、任务交接和可运行的环境检查；尚无 Web UI、服务、正式 Registry 或推荐 Skill。
-
-## 开始开发
-
-需要 Node.js 24、npm 和 Git。在仓库根目录执行：
+## Run locally
 
 ```sh
-npm ci --ignore-scripts
-npm run doctor
-npm run check
+npm ci
+npm start
 ```
 
-当前无第三方依赖，也不需要 API Key、数据库或网络服务。`doctor` 检查当前机器的工具链；`check` 校验协作契约、文档本地链接并运行工具测试，不代表产品验收通过。完整命令见 [环境命令](docs/agent-environment/commands.md)。
+Open `http://127.0.0.1:4173`. The service stores data in `.local/concept-discovery.sqlite` by default. Set `CONCEPT_DB_PATH` to another file for isolated demos or tests. The Web reads and writes the same Registry API used by the product tests.
 
-## 人与 Agent 如何协作
+```sh
+npm run check
+npm run demo:build
+```
 
-1. 新会话先读 [AGENTS.md](AGENTS.md) 和 [当前任务状态](workflow-state.json)，沿索引加载本次需要的材料。
-2. 用 [任务模板](workflow/task-template.md) 写清目标、范围和可观察的验收条件；流程见 [协作工作流](workflow/README.md)。
-3. 在任务授权范围内完成本地实现和验证；并行任务先划分文件所有权，交接留下证据、阻塞和下一步。
-4. 交付前运行相称检查，更新任务及状态，审查差异后形成独立本地提交。推送和发布按用户指令执行。
+The editor accepts immutable lowercase slugs and at least one language name, then saves independent names, aliases, descriptions, tags, source text, WebP covers and optional HTTPS Wiki links per language. Save a draft before adding a cover. The Card First library searches only browsable content in the selected language; management shows drafts and missing fields. Archive, Dashboard, Recommendation API and Relation management are available locally.
 
-## 资料入口
+## Concept Discovery Skill
 
-| 入口                                                 | 内容                             |
-| ---------------------------------------------------- | -------------------------------- |
-| [文档索引](docs/README.md)                           | 两份原始产品输入及其状态         |
-| [产品契约与未决事项](specs/product-contract.md)      | 产品方向、材料差异、未来验收边界 |
-| [环境索引](AI_ENVIRONMENT.md)                        | 真实可用的命令、能力和 CI 差异   |
-| [开发待办](tasks/backlog.md)                         | 下一阶段任务及验收条件           |
-| [初始化记录](tasks/0001-bootstrap.md)                | 本次范围、决策与验证证据         |
-| [环境决策](docs/adr/0001-collaboration-bootstrap.md) | 为什么采用当前最小协作底座       |
+The project Skill lives at [skills/concept-discovery/SKILL.md](skills/concept-discovery/SKILL.md). For Codex discovery after accepting this demo, link its folder into your personal skills directory, for example `ln -s "$PWD/skills/concept-discovery" "$HOME/.codex/skills/concept-discovery"` from this repository root. This demo does not alter global skills configuration. Invoke `/concept-discovery` or directly ask for applicable Concepts; ordinary tasks do not trigger it. The Skill calls the local recommendation API, shows the result, waits for your selection, then composes and applies the selected Concept to the current task. First remote use requires the interactive `npm run model:configure`; it explains which task content leaves this machine and records the choice in an ignored local `.env`.

@@ -10,14 +10,15 @@
 - 第一阶段是本地单用户，不包含多用户、云同步、Marketplace、复杂向量数据库或大规模推荐算法平台。参见 [PRD §5](../docs/method-system-prd-v0.1.md#5-mvp-技术路线)、[§36](../docs/method-system-prd-v0.1.md#36-mvp-明确不做)。
 - 当前工作区的 Skillbox 源码位于被 Git 忽略的 `docs/private-project/skillbox`，作为 Web、CRUD、Revision、Search、Recommend、Usage 的参考实现；本项目不 Fork Skillbox，具体代码移植与技术栈需逐项评估。参见 [PRD §5–§6](../docs/method-system-prd-v0.1.md#5-mvp-技术路线)。
 - Web 采用 Card First，只提供 Concept CRUD 与 Dashboard，不提供 Recommendation Playground 或生成 Prompt。Concept Card 展示标题、描述、WebP 配图与标签；两个类型字段可留空，只有已填写的类型才展示。Relation 支持 `related_to`、`often_used_with`、`contrasts_with`、`extends`、`part_of`，与暂缓的 Recipe 分离。参见 [PRD §8–§9](../docs/method-system-prd-v0.1.md#8-web-产品原则)、[§14](../docs/method-system-prd-v0.1.md#14-concept-relation)、[§27](../docs/method-system-prd-v0.1.md#27-web-页面)。
+- Web 只保留一个 Concept 管理视图，合并当前语言的浏览、搜索、筛选、详情、创建、编辑、归档/恢复、受保护删除和修订；Dashboard 独立显示目录与使用统计。2026-09-25 最终验收反馈后写入，具体行为见 [P1 CRUD 规格](concept-schema-crud-dashboard.md)。
 - MVP 主线为 Concept CRUD → Recommendation API / Eval Harness → Relation → Skill → Feedback / Eval；Schema 与技术选型是各阶段的前置工作。参见 [PRD §34](../docs/method-system-prd-v0.1.md#34-mvp-实施顺序)。
-- 目录允许收录普通专业术语；某语言有名称、描述和出处文本即可浏览，补齐配图、触发场景和 Agent Instruction 后才进入该语言推荐池，不要求另一语言或两个类型字段齐备。Web、搜索、推荐、Apply 不混用另一语言的文案或图片。参见 [PRD §12](../docs/method-system-prd-v0.1.md#12-concept-数据模型)、[§20](../docs/method-system-prd-v0.1.md#20-搜索与推荐)。
+- 目录允许收录普通专业术语；某语言有名称、描述和出处文本即可浏览，补齐触发场景和 Agent Instruction 后进入该语言推荐池，不要求配图、另一语言或两个类型字段齐备。每语言支持多张独立图片和逐张移除；无图时显示默认配图。Web、搜索、推荐、Apply 不混用另一语言的文案或上传图片。参见 [PRD §12](../docs/method-system-prd-v0.1.md#12-concept-数据模型)、[§20](../docs/method-system-prd-v0.1.md#20-搜索与推荐)。
 - 每种语言有纯文本 `source_text`；该语言进入可浏览目录前要求非空，只检查非空，不联网核验出处。`wiki_url` 是可选的延伸阅读链接，缺失时隐藏入口，不跨语言回退。参见 [PRD §12](../docs/method-system-prd-v0.1.md#12-concept-数据模型)、[§27](../docs/method-system-prd-v0.1.md#27-web-页面)。
 - Skill 仅在明确命令或直接自然语言请求下运行；本地模型优先，远端模型在首次发送上下文前明确告知并由用户选择。没有可用模型时提示配置或选择，不伪造空推荐。参见 [PRD §24](../docs/method-system-prd-v0.1.md#24-推荐流程)、[§29](../docs/method-system-prd-v0.1.md#29-skill)。
 
 ## P1 可实施规格
 
-[Concept Schema、CRUD 与 Dashboard 实施规格](concept-schema-crud-dashboard.md) 明确了跨语言和各语言字段、派生的浏览/推荐资格、归档生命周期、Revision、Card First Web 与 Dashboard 的真实数据口径。该规格由 [待实施任务](../tasks/0022-implement-concept-schema-crud-dashboard.md) 承接；当前仓库仍没有正式产品实现。应用框架与存储选型在实施前记录，后续推荐、Relation、Skill 与 Feedback 另行定稿。
+[Concept Schema、CRUD 与 Dashboard 实施规格](concept-schema-crud-dashboard.md) 明确了跨语言和各语言字段、派生的浏览/推荐资格、归档生命周期、Revision、Card First Web 与 Dashboard 的真实数据口径。该规格由 [P1 实施任务](../tasks/0022-implement-concept-schema-crud-dashboard.md) 承接，已在独立 `codex/concept-mvp-demo` 工作区按 0023–0029 完成；应用栈与存储见 [ADR 0002](../docs/adr/0002-local-product-stack.md)。推荐接口与离线评测见 0032–0034；Relation 的存储和展示见 [关系契约](concept-relations.md)，推荐排序留给 0036。
 
 ## 命名与版本
 
@@ -27,9 +28,7 @@
 
 ## 当前实现边界
 
-当前仓库初始化交付人和 Agent 协作所需的导航、任务流程、运行时约束与检查入口。运行时和可执行命令分别见 [运行时](../docs/agent-environment/runtime.md)、[命令契约](../docs/agent-environment/commands.md)。
-
-应用框架、产品服务、Concept Schema、正式 Registry、Web UI、推荐与 Compose 业务 Skills 均未实现。PRD 中的 `concept-discovery start`、目录树、JSON / YAML 和 UI 示例均为设计输入，不是当前可用接口。协作环境检查通过不代表产品验收通过。
+独立 `codex/concept-mvp-demo` 工作区已实现可运行的 P1 Registry、Web CRUD 与 Dashboard，以及 0032–0034 的推荐接口、模型配置和开发用离线评测、0035–0036 的 Relation CRUD、详情展示与互补同分排序、0037 的 [Prompt Composer](prompt-composer.md) 模块、0038 的 [Concept Discovery Skill](../skills/concept-discovery/SKILL.md)、0039 的 [真实 Usage/Feedback](skill-usage.md)；运行时和可执行命令分别见 [运行时](../docs/agent-environment/runtime.md)、[命令契约](../docs/agent-environment/commands.md)。最终 Eval Gate 尚未完成。PRD 中的 `concept-discovery start`、目录树、JSON / YAML 和 UI 示例均为设计输入，不是当前可用接口。当前自动化与浏览器检查通过不代表 MVP 或用户验收通过。
 
 ## 待定契约：材料冲突与字段缺口
 
@@ -53,6 +52,8 @@
 [清洗稿 §3](../docs/method-registry-curated-v0.1.md#3-core-methods)列出的 30 个 Core 是目录导入候选，不因旧稿分类自动具备推荐资格。MVP 可先录入名称和出处文本；每种语言的推荐资格取决于该语言内容是否齐备。30 个双语均可推荐的 Concept 是扩大范围前的证据目标，不阻止单语言的早期使用。
 
 清洗稿称来源是 `daily-knowledge(1).md`，该原始文件未提供，无法核验其原文、完整性或逐条出处。清洗稿已说明 Trigger / Transform / Instruction 是结构化转译，不能作为原文直接引述。MVP 对用户录入的 `source_text` 只检查非空，不自动验证真假。
+
+2026-09-25 接续的 80 条双语知识清单采用保留原分类值的导入决定：在现有受控词表上显式增加 6 种 `epistemic_type`、48 种 `domains` 和 24 种 `intents`，服务端与 Web 共用[词表及双语标签](../shared/taxonomy.json)，未知代码仍拒绝。明确的占位出处按语言清空，使该语言保留为草稿；其余出处仍未经过外部真实性核验。知识清单与人工标注 Eval 是两种独立输入。
 
 [清洗稿 §6 P0](../docs/method-registry-curated-v0.1.md#6-后续补充优先级)把第一性原理、逆向思维、第二层思维、事件—局势—结构、安全边际、古德哈特定律列为优先补定义与来源的六项。MVP 允许先以目录草稿记录缺口；进入某语言推荐池前填写非空出处文本及该语言必需内容。不编造引用。
 

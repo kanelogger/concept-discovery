@@ -1,12 +1,36 @@
 {
   "schema_version": 1,
-  "task_id": "0030-publish-p1-implementation-tickets",
+  "task_id": "0043-soft-delete-terminology",
   "phase": "complete",
-  "task_file": "tasks/0030-publish-p1-implementation-tickets.md",
-  "updated_at": "2026-09-25",
-  "summary": "按用户确认的纵向切片和阻塞关系，发布 P1 Concept Schema、CRUD 与 Dashboard 七张实现 tickets。",
+  "task_file": "tasks/0043-soft-delete-terminology.md",
+  "updated_at": "2026-09-26",
+  "summary": "0043 完成活跃 Concept 软删除文案统一：卡片、表格和详情弹窗均显示删除/Delete，并使用同一条可恢复的归档确认提示。此前 0042 多图工作和用户验收事项保留在对应任务记录中。",
   "blockers": [],
-  "next_actions": ["从 tasks/0023-persist-concept-draft.md 启动首张无阻塞 ticket 并记录应用栈与存储选型", "依照各 ticket 的 Blocked by 关系推进后续切片"],
-  "required_checks": ["npm run validate"],
-  "verification": [{"command": "npm run validate", "result": "passed", "recorded_at": "2026-09-25"}]
+  "next_actions": ["用户在 demo 中复验删除文案一致性及 0042 多图验收。"],
+  "required_checks": [
+    "npm run validate",
+    "npm run demo:build"
+  ],
+  "verification": [
+    {
+      "command": "npm run validate",
+      "result": "passed",
+      "recorded_at": "2026-09-25"
+    },
+    {
+      "command": "npm run demo:build",
+      "result": "passed",
+      "recorded_at": "2026-09-25"
+    },
+    {
+      "command": "npm run check",
+      "result": "passed",
+      "recorded_at": "2026-09-26"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed",
+      "recorded_at": "2026-09-25"
+    }
+  ]
 }

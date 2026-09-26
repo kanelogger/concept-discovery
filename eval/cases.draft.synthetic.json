@@ -1,0 +1,544 @@
+{
+  "schema_version": 1,
+  "dataset_kind": "synthetic",
+  "cases": [
+    {
+      "id": "cn-testable-claim",
+      "locale": "cn",
+      "input": {
+        "task": "团队说某项增长策略无论成功、失败还是没有变化都证明策略正确。我想在试点前写出什么可观察结果会让我们放弃这个说法。",
+        "limit": 1
+      },
+      "expected_ids": [
+        "falsifiability"
+      ]
+    },
+    {
+      "id": "en-testable-claim",
+      "locale": "en",
+      "input": {
+        "task": "A vendor says its training program works, but explains every disappointing result as evidence that more training is needed. Help me define an observation that would count against the claim before a pilot.",
+        "limit": 1
+      },
+      "expected_ids": [
+        "falsifiability"
+      ]
+    },
+    {
+      "id": "cn-beginner-explanation",
+      "locale": "cn",
+      "input": {
+        "task": "我给刚入职、从未接触这个系统的同事讲操作流程，自己觉得简单，对方却连第一步的术语都看不懂。请帮我找出讲解中默认对方已知的前提并重写。",
+        "limit": 1
+      },
+      "expected_ids": [
+        "curse-of-knowledge"
+      ]
+    },
+    {
+      "id": "en-beginner-explanation",
+      "locale": "en",
+      "input": {
+        "task": "I wrote onboarding instructions for volunteers who have never used our scheduling tool. They stop at terms I thought were obvious. Help me identify assumed background knowledge and explain the first steps.",
+        "limit": 1
+      },
+      "expected_ids": [
+        "curse-of-knowledge"
+      ]
+    },
+    {
+      "id": "cn-missing-failures",
+      "locale": "cn",
+      "input": {
+        "task": "我们只访谈了成功续费的客户，就认定所有客户都喜欢复杂功能。流失客户和没有完成试用的人没进访谈名单。请检查这个结论的样本缺口。",
+        "limit": 1
+      },
+      "expected_ids": [
+        "survivorship-bias"
+      ]
+    },
+    {
+      "id": "en-missing-failures",
+      "locale": "en",
+      "input": {
+        "task": "Our report studies only startups still operating after five years and concludes that their early habits guarantee success. We have no records for firms that closed. Help me identify the missing evidence.",
+        "limit": 1
+      },
+      "expected_ids": [
+        "survivorship-bias"
+      ]
+    },
+    {
+      "id": "cn-single-point-failure",
+      "locale": "cn",
+      "input": {
+        "task": "内部文档只有一台服务器保存，停机后所有人都无法工作。请为关键文件设计多个独立副本、恢复演练和单点故障的替代路径。",
+        "limit": 1
+      },
+      "expected_ids": [
+        "redundancy-backup"
+      ]
+    },
+    {
+      "id": "en-single-point-failure",
+      "locale": "en",
+      "input": {
+        "task": "Our workshop has one copy of every machine configuration on a single laptop. Design independent backups and a tested recovery path so a lost laptop cannot halt production.",
+        "limit": 1
+      },
+      "expected_ids": [
+        "redundancy-backup"
+      ]
+    },
+    {
+      "id": "cn-uncertain-inputs",
+      "locale": "cn",
+      "input": {
+        "task": "活动人数可能在 80 到 180 之间，单人耗材和到货延迟也有分布。没有简单解析公式，我想反复抽样模拟总成本，估计超预算的比例。",
+        "limit": 1
+      },
+      "expected_ids": [
+        "monte-carlo-method"
+      ]
+    },
+    {
+      "id": "en-uncertain-inputs",
+      "locale": "en",
+      "input": {
+        "task": "A warehouse model has uncertain daily demand, repair time, and delivery delay. I have estimated distributions and want repeated random simulations to estimate the chance of running out of stock.",
+        "limit": 1
+      },
+      "expected_ids": [
+        "monte-carlo-method"
+      ]
+    },
+    {
+      "id": "cn-fewer-assumptions",
+      "locale": "cn",
+      "input": {
+        "task": "一次故障有两个解释，都能解释目前日志。A 只需一个已经观测到的配置错误，B 还要假设三个没有证据的同时故障。帮我比较先检验哪种解释。",
+        "limit": 1
+      },
+      "expected_ids": [
+        "occams-razor"
+      ]
+    },
+    {
+      "id": "en-fewer-assumptions",
+      "locale": "en",
+      "input": {
+        "task": "Two explanations fit a printer failure. One uses a loose cable we observed; the other assumes several unseen software faults at once. Help prioritize a test while keeping both explanations falsifiable.",
+        "limit": 1
+      },
+      "expected_ids": [
+        "occams-razor"
+      ]
+    },
+    {
+      "id": "cn-extraordinary-claim",
+      "locale": "cn",
+      "input": {
+        "task": "有人宣称新装置完全不耗能却能持续输出电力，给出的证据只有一段剪辑视频。我需要设计与这一异常主张强度相匹配的证据要求。",
+        "limit": 1
+      },
+      "expected_ids": [
+        "sagans-standard"
+      ]
+    },
+    {
+      "id": "en-extraordinary-claim",
+      "locale": "en",
+      "input": {
+        "task": "A supplier claims a storage device retains data forever with no failure under any conditions, supported only by a testimonial. Help specify the independent evidence such a sweeping claim would require.",
+        "limit": 1
+      },
+      "expected_ids": [
+        "sagans-standard"
+      ]
+    },
+    {
+      "id": "cn-structured-discussion",
+      "locale": "cn",
+      "input": {
+        "task": "评审会上有人只讲风险，有人只讲愿景，有人只讲个人感受，讨论互相打断。请安排轮次，让所有人依次讨论事实、情感、风险、收益、创意和会议过程。",
+        "limit": 1
+      },
+      "expected_ids": [
+        "six-thinking-hats"
+      ]
+    },
+    {
+      "id": "en-structured-discussion",
+      "locale": "en",
+      "input": {
+        "task": "Our community committee mixes factual questions, worries, enthusiasm, and new ideas in the same argument. Design a discussion where everyone examines the same mode of thinking at each stage.",
+        "limit": 1
+      },
+      "expected_ids": [
+        "six-thinking-hats"
+      ]
+    },
+    {
+      "id": "cn-fair-rules",
+      "locale": "cn",
+      "input": {
+        "task": "我要设计轮班制度，自己也可能被分到资历最浅、通勤最远或照顾家人的任一位置。请先假设不知道自己将在哪个位置，再审查规则是否公平。",
+        "limit": 1
+      },
+      "expected_ids": [
+        "veil-of-ignorance"
+      ]
+    },
+    {
+      "id": "en-fair-rules",
+      "locale": "en",
+      "input": {
+        "task": "We are setting access rules for a shared laboratory. Review them as if we did not know whether we would be a new researcher, a senior researcher, or someone with limited working hours.",
+        "limit": 1
+      },
+      "expected_ids": [
+        "veil-of-ignorance"
+      ]
+    },
+    {
+      "id": "cn-late-project-staffing",
+      "locale": "cn",
+      "input": {
+        "task": "软件发布已经延迟，经理要立刻加入十名不熟悉代码的新同事。现有三位骨干还要培训和协调他们。请评估这种补救是否反而拖慢交付。",
+        "limit": 1
+      },
+      "expected_ids": [
+        "brooks-law"
+      ]
+    },
+    {
+      "id": "en-late-project-staffing",
+      "locale": "en",
+      "input": {
+        "task": "A software migration is late. The proposed rescue doubles the team with engineers who need onboarding from the people on the critical path. Evaluate the coordination and training cost before we commit.",
+        "limit": 1
+      },
+      "expected_ids": [
+        "brooks-law"
+      ]
+    },
+    {
+      "id": "cn-organization-architecture",
+      "locale": "cn",
+      "input": {
+        "task": "四个团队各自负责一个系统模块，接口边界恰好复制了部门边界，跨模块体验因此很差。请从沟通结构与系统结构的关系寻找改善办法。",
+        "limit": 1
+      },
+      "expected_ids": [
+        "conways-law"
+      ]
+    },
+    {
+      "id": "en-organization-architecture",
+      "locale": "en",
+      "input": {
+        "task": "Our product consists of disconnected services that mirror reporting lines rather than user journeys. Help examine how communication between teams shapes those boundaries.",
+        "limit": 1
+      },
+      "expected_ids": [
+        "conways-law"
+      ]
+    },
+    {
+      "id": "cn-observable-api-behavior",
+      "locale": "cn",
+      "input": {
+        "task": "API 文档从未承诺结果排序，但大量客户已依赖现在的顺序。我们准备调整实现，想评估这种未写进文档的可观察行为是否也构成兼容性风险。",
+        "limit": 1
+      },
+      "expected_ids": [
+        "hyrums-law"
+      ]
+    },
+    {
+      "id": "en-observable-api-behavior",
+      "locale": "en",
+      "input": {
+        "task": "A library has always returned errors with a particular string format, although the docs make no promise about it. Many clients parse that string. Plan a change that accounts for those dependencies.",
+        "limit": 1
+      },
+      "expected_ids": [
+        "hyrums-law"
+      ]
+    },
+    {
+      "id": "cn-target-distorts-metric",
+      "locale": "cn",
+      "input": {
+        "task": "客服开始按关单数量发奖金，结果大家很快关单，客户又反复重开。请分析为什么原来衡量服务效率的指标变成考核目标后失真，并设计约束。",
+        "limit": 1
+      },
+      "expected_ids": [
+        "goodharts-law"
+      ]
+    },
+    {
+      "id": "en-target-distorts-metric",
+      "locale": "en",
+      "input": {
+        "task": "A help center rewards agents for short calls. Average call time fell, but unresolved problems and repeat calls rose. Help redesign measurement so the target does not undermine the outcome.",
+        "limit": 1
+      },
+      "expected_ids": [
+        "goodharts-law"
+      ]
+    },
+    {
+      "id": "cn-pre-mortem",
+      "locale": "cn",
+      "input": {
+        "task": "上线计划看起来都很乐观。我想先假设一个月后上线彻底失败，列出使失败成为必然的条件，再把这些条件转成今天的检查项。",
+        "limit": 1
+      },
+      "expected_ids": [
+        "inversion"
+      ]
+    },
+    {
+      "id": "en-pre-mortem",
+      "locale": "en",
+      "input": {
+        "task": "Before opening a new community service, assume it has failed badly after a month. Work backward to identify preventable conditions that would cause that failure and turn them into checks.",
+        "limit": 1
+      },
+      "expected_ids": [
+        "inversion"
+      ]
+    },
+    {
+      "id": "cn-downstream-effects",
+      "locale": "cn",
+      "input": {
+        "task": "取消审核可以立刻缩短交付时间，但可能改变返工、信任和后续流程。我想逐层追问直接结果发生后还会引起什么变化。",
+        "limit": 1
+      },
+      "expected_ids": [
+        "second-order-thinking"
+      ]
+    },
+    {
+      "id": "en-downstream-effects",
+      "locale": "en",
+      "input": {
+        "task": "Removing appointment limits could improve access immediately, but may change waiting time, staff workload, and future demand. Trace consequences beyond the first benefit.",
+        "limit": 1
+      },
+      "expected_ids": [
+        "second-order-thinking"
+      ]
+    },
+    {
+      "id": "cn-rebuild-from-constraints",
+      "locale": "cn",
+      "input": {
+        "task": "采购团队只按同行现成报价估计设备成本。我想先列出必须满足的物理功能、材料和制造约束，再从这些基本事实重新构建可行方案。",
+        "limit": 1
+      },
+      "expected_ids": [
+        "first-principles"
+      ]
+    },
+    {
+      "id": "en-rebuild-from-constraints",
+      "locale": "en",
+      "input": {
+        "task": "Our packaging design copies competitors by habit. Rebuild the design from required protection, shipping constraints, material properties, and manufacturing limits before comparing existing solutions.",
+        "limit": 1
+      },
+      "expected_ids": [
+        "first-principles"
+      ]
+    },
+    {
+      "id": "cn-recurring-structure",
+      "locale": "cn",
+      "input": {
+        "task": "每次客户投诉我们都临时加班解决，但同类投诉连续六个月重复。我想区分单次事件、长期模式和背后的排班与激励结构，找到能减少复发的修改。",
+        "limit": 1
+      },
+      "expected_ids": [
+        "three-levels-of-understanding"
+      ]
+    },
+    {
+      "id": "en-recurring-structure",
+      "locale": "en",
+      "input": {
+        "task": "The same handoff failure recurs every quarter despite individual fixes. Separate incidents, recurring patterns, and underlying ownership and feedback structures before choosing an intervention.",
+        "limit": 1
+      },
+      "expected_ids": [
+        "three-levels-of-understanding"
+      ]
+    },
+    {
+      "id": "cn-failure-and-buffer",
+      "locale": "cn",
+      "input": {
+        "task": "一次发布窗口只有两小时。请先从发布失败倒推关键风险，再针对回滚耗时的不确定性预留明确缓冲；我需要这两个互补视角。",
+        "limit": 2
+      },
+      "expected_ids": [
+        "inversion",
+        "margin-of-safety"
+      ]
+    },
+    {
+      "id": "en-failure-and-buffer",
+      "locale": "en",
+      "input": {
+        "task": "A festival setup has a hard opening time. First work backward from a failed opening, then allocate buffers for uncertain setup duration and recovery. I need both failure analysis and reserve capacity.",
+        "limit": 2
+      },
+      "expected_ids": [
+        "inversion",
+        "margin-of-safety"
+      ]
+    },
+    {
+      "id": "cn-metric-and-sample",
+      "locale": "cn",
+      "input": {
+        "task": "培训项目按结业率发奖金，评估报告又只访问毕业学员。请分别检查激励指标是否诱发放水，以及未结业者被排除后对效果结论的影响。",
+        "limit": 2
+      },
+      "expected_ids": [
+        "goodharts-law",
+        "survivorship-bias"
+      ]
+    },
+    {
+      "id": "en-metric-and-sample",
+      "locale": "en",
+      "input": {
+        "task": "A support program rewards completion counts and measures satisfaction only among completers. Evaluate both gaming of the target and the exclusion of people who dropped out.",
+        "limit": 2
+      },
+      "expected_ids": [
+        "goodharts-law",
+        "survivorship-bias"
+      ]
+    },
+    {
+      "id": "cn-shared-resource-governance",
+      "locale": "cn",
+      "input": {
+        "task": "多个团队无限占用同一个有限 GPU 池。请依次分析共享资源为何被过度占用、在不知道自己属于大团队还是小团队时制定公平配额、再推演配额对排队和绕行行为的后续影响。",
+        "limit": 3
+      },
+      "expected_ids": [
+        "tragedy-of-the-commons",
+        "veil-of-ignorance",
+        "second-order-thinking"
+      ]
+    },
+    {
+      "id": "en-shared-resource-governance",
+      "locale": "en",
+      "input": {
+        "task": "Several groups can reserve unlimited time on a finite shared telescope. Explain the overuse incentives, design rules without knowing which group we belong to, and trace how the rules may change future behavior.",
+        "limit": 3
+      },
+      "expected_ids": [
+        "tragedy-of-the-commons",
+        "veil-of-ignorance",
+        "second-order-thinking"
+      ]
+    },
+    {
+      "id": "cn-none-arithmetic",
+      "locale": "cn",
+      "input": {
+        "task": "只给出计算结果：17 + 26。",
+        "limit": 1
+      },
+      "expected_ids": []
+    },
+    {
+      "id": "cn-none-literal-translation",
+      "locale": "cn",
+      "input": {
+        "task": "把这句话译成英文，只返回译文，不补充建议：我们已经准备好回滚步骤和独立备份。",
+        "limit": 1
+      },
+      "expected_ids": []
+    },
+    {
+      "id": "cn-none-sort-values",
+      "locale": "cn",
+      "input": {
+        "task": "把这些整数按从小到大排列，只返回数组：[7, 2, 9, 1]。",
+        "limit": 1
+      },
+      "expected_ids": []
+    },
+    {
+      "id": "cn-none-extract-emails",
+      "locale": "cn",
+      "input": {
+        "task": "从“联系人 a@example.com 和 b@example.com”中提取邮箱地址，每行一个，不补充说明。",
+        "limit": 1
+      },
+      "expected_ids": []
+    },
+    {
+      "id": "cn-none-format-json",
+      "locale": "cn",
+      "input": {
+        "task": "把键值 name=demo、enabled=true 写成合法 JSON，只返回 JSON。",
+        "limit": 1
+      },
+      "expected_ids": []
+    },
+    {
+      "id": "en-none-arithmetic",
+      "locale": "en",
+      "input": {
+        "task": "Return only the result of 9 times 8.",
+        "limit": 1
+      },
+      "expected_ids": []
+    },
+    {
+      "id": "en-none-literal-translation",
+      "locale": "en",
+      "input": {
+        "task": "Translate into Chinese and return only the translation, without advice: Adding more engineers may delay an already late software project.",
+        "limit": 1
+      },
+      "expected_ids": []
+    },
+    {
+      "id": "en-none-sort-values",
+      "locale": "en",
+      "input": {
+        "task": "Sort these words alphabetically and return only the list: pear, apple, banana.",
+        "limit": 1
+      },
+      "expected_ids": []
+    },
+    {
+      "id": "en-none-extract-ids",
+      "locale": "en",
+      "input": {
+        "task": "Extract only the order IDs from this text, one per line: shipped order A-104 and pending order B-207.",
+        "limit": 1
+      },
+      "expected_ids": []
+    },
+    {
+      "id": "en-none-format-json",
+      "locale": "en",
+      "input": {
+        "task": "Convert title=note and count=3 into a JSON object. Return only valid JSON.",
+        "limit": 1
+      },
+      "expected_ids": []
+    }
+  ]
+}

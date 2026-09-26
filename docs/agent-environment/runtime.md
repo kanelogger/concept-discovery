@@ -1,14 +1,14 @@
 # 运行环境与能力
 
-适用范围：协作检查工具；产品运行时尚未选型。维护者为环境变更执行者。机器、工具链或权限变化后重新探测，不延用旧权限。
+适用范围：协作检查工具与独立 `codex/concept-mvp-demo` 工作区；P1 产品运行时与存储见 [ADR 0002](../adr/0002-local-product-stack.md)。维护者为环境变更执行者。机器、工具链或权限变化后重新探测，不延用旧权限。
 
 | 事实 | 2026-09-23 观测与证据 | 刷新条件 |
 | --- | --- | --- |
 | Node | 本地 `node --version` 为 v24.18.0；仓库约定 Node 24 | 机器 / 运行时变化，运行 doctor |
 | npm | 本地 `npm --version` 为 12.0.2；不固定补丁版本 | Node / npm 更新 |
 | Git | 本地 `git status --short --branch` 可读，初始化前为 main | 新 checkout / worktree |
-| 依赖 | package.json / package-lock.json；无第三方包 | 依赖改动 |
-| 服务 | project.json 中 `services: []`；无产品服务、数据库、端口 | 新增运行服务 |
+| 依赖 | package.json / package-lock.json；P1 Web 使用 React/Vite 与 Node 内建 SQLite | 依赖改动 |
+| 服务 | `npm start` 默认绑定 `127.0.0.1:4173`；数据库默认 `.local/concept-discovery.sqlite`，可用 `CONCEPT_DB_PATH` 指向隔离库 | 新服务或配置变化 |
 | 项目 Skills / Connector | project.json 登记为空 | 实际引入并验证后更新 |
 | 原始知识来源 | 清洗稿提到 daily-knowledge(1).md，当前未提供 | 用户提供来源或准入任务补证据 |
 
@@ -19,7 +19,7 @@ doctor 只报告运行时可直接探测的结果。包管理器安装成功、A
 - 环境验证不调用模型、HTTP API、浏览器或外部账户。
 - 仓库内源文件、规则、文档、状态属于任务工作范围。`.local/`、`.env*`、日志及测试产物不进入版本库；`.env.example` 可用于未来非敏感配置模板。
 - 可读 / 可写目录、网络和 GUI 能力由当前执行环境决定。遇到沙箱限制，先用允许的方式完成独立工作，再报告具体受阻动作。
-- 测试只写临时目录并清理。没有常驻进程需要停止，没有迁移或清理用户数据的初始化动作。
+- 产品 API 测试只写临时目录并清理；本地 Web 服务按需由 `npm start` 启动、Ctrl-C 停止。没有迁移或清理用户数据的初始化动作。
 - 发布和外部写入边界见 [安全规则](../../rules/security.md)。
 
 后续注册服务需同时登记配置位置、绑定地址、数据目录、依赖、启停命令、健康检查、资源清理方式，并在真实本地环境验证。

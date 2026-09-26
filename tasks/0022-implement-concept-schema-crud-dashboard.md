@@ -1,10 +1,10 @@
 # 0022：实施 Concept Schema、CRUD 与 Dashboard
 
-Status: ready-for-agent
+Status: done
 
 ## 目标与范围
 
-按 [P1 实施规格](../specs/concept-schema-crud-dashboard.md) 建立持久化 Concept Registry、本地 Card First Web、按语言资格判定、Revision 与真实目录 Dashboard。此任务承接 PRD 的 P1；当前尚未开始实施。
+按 [P1 实施规格](../specs/concept-schema-crud-dashboard.md) 建立持久化 Concept Registry、本地 Card First Web、按语言资格判定、Revision 与真实目录 Dashboard。此任务由 0023–0029 七张纵向 tickets 完成。
 
 ## 验收条件
 
@@ -14,20 +14,21 @@ Status: ready-for-agent
 
 ## 工作分工与进度
 
-- 负责人：待实施 Agent；应用栈、存储与文件所有权在启动任务时确定。
-- 进度：ready-for-agent；未写产品代码、未运行产品验收。
+- 负责人：`codex/concept-mvp-demo` 独立工作区；应用栈与存储见 [ADR 0002](../docs/adr/0002-local-product-stack.md)。
+- 进度：0023–0029 全部完成，每张 ticket 均有独立本地提交、验收证据与实际执行的检查记录。
 
 ## 决策与未决事项
 
-- 业务契约以规格为准；应用框架和存储产品需在动工前按项目流程记录决定。
-- 独立 demo 仅供交互参考，不合并或复制生产代码。
+- P1 业务契约以规格为准；应用框架、Node HTTP 服务与 SQLite 存储已由 ADR 0002 记录。旧内存 demo 仅作交互参考。
+- WebP 校验覆盖容器与首图像块签名，不执行完整像素解码；见 0025。未来 Relation/Usage 外部引用须写入 `concept_references` 才能维持永久删除限制；见 0028。
 
 ## 验证证据
 
 | 日期 | 命令或审查 | 结果 / 退出码 | 证据及未覆盖范围 |
 | --- | --- | --- | --- |
-| 待实施 | 产品验收与公共检查 | pending | 尚未实施，不能沿用 demo 或规格发布检查。 |
+| 2026-09-25 | 0023–0029 逐票隔离 API 与浏览器验收 | passed | 草稿持久化、双语目录/图片、资格降级、修订冲突、归档/恢复/删除、Dashboard 转变与重启；详见各子 ticket。 |
+| 2026-09-25 | `npm run test:product`、`npm run check`、`npm run demo:build` | passed | 0029 最终执行结果与退出码记录在其任务文件；公共检查含仓库校验和产品测试。 |
 
 ## 交接
 
-从 [P1 实施规格](../specs/concept-schema-crud-dashboard.md) 与 [产品契约](../specs/product-contract.md) 开始；启动实施时新建或接管工作流状态，按实际实现更新证据。
+P1 已具备本地验收条件；从 `npm start` 启动 Web 与同一 Registry。MVP 整体仍需 P2–P5，有限 ticket 范围将在下一任务中定稿。用户最终验收前不合并或部署。
