@@ -22,5 +22,15 @@ Markdown 批量导入、JSON/Markdown 导出、Web Recommendation Playground、E
 
 ## 验收反馈修复
 
-- [0041：合并 Concept 浏览与管理并修复领域选择](0041-management-library-domain-picker.md)（当前独立 demo 后续验收反馈；不扩大 0023–0029 + 0031–0040 的已固定范围）。
-- [0042：支持 Concept 双语多图上传、管理与预览](0042-concept-multi-image-upload.md)（后续验收反馈；不扩大 0023–0029 + 0031–0040 的已固定范围）。
+- [0041：合并 Concept 浏览与管理并修复领域选择](0041-management-library-domain-picker.md)（个人试用版已验收；不扩大 0023–0029 + 0031–0040 的已固定范围）。
+- [0042：支持 Concept 双语多图上传、管理与预览](0042-concept-multi-image-upload.md)（个人试用版已验收；不扩大 0023–0029 + 0031–0040 的已固定范围）。
+- [0043：统一软删除文案](0043-soft-delete-terminology.md)（个人试用版已验收）。
+
+## 0040 正式质量验收 TODO
+
+个人试用版已获用户验收，可继续本地使用。以下事项随真实使用自然积累，不阻塞当前版本：
+
+- [ ] 收集至少 25 条经同意、去标识化的真实任务及不含原文的来源编号；不使用测试调用或 synthetic 数据补数。
+- [ ] 维护者逐条复核 Expected、`locale` 与来源，冻结至少 50 条正式双语 Eval 案例。
+- [ ] 自然积累并核对真实用户主动调用 Skill 的 Usage、双语分布与 Apply Rate；现有数据尚未确认为正式 Gate 证据。
+- [ ] 使用冻结数据集运行正式离线评测和数值判定，人工复核诊断、Why Now、目录出处与内容质量；在 [0040](0040-mvp-eval-acceptance.md) 中记录最终 Gate 结论。

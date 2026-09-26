@@ -1,6 +1,6 @@
 # 0042：支持 Concept 双语多图上传、管理与预览
 
-Status: ready-for-human
+Status: complete
 
 ## 目标与范围
 
@@ -38,4 +38,4 @@ Status: ready-for-human
 
 ## 交接
 
-2026-09-26 当前 demo 快照重新运行 `npm run check`，76/76 通过；`npm run demo:build` 与 `git diff --check` 通过。代码仍待用户正式验收，不合并。验收时可在管理视图搜索“禀赋效应”，点击详情验证每语言两张图，并在新增/编辑表单验证多选上传与逐张移除。
+2026-09-26 当前 demo 快照重新运行 `npm run check`，76/76 通过；`npm run demo:build` 与 `git diff --check` 通过。用户随后确认以运行在 `http://127.0.0.1:4181/` 的新版为准，并已验收该版本，本票随个人试用阶段完成。多图可在管理视图搜索“禀赋效应”后查看，每语言两张图；新增/编辑表单支持多选上传与逐张移除。0040 正式质量 Gate 留作后续 TODO。

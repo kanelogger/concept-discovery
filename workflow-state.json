@@ -4,9 +4,9 @@
   "phase": "complete",
   "task_file": "tasks/0043-soft-delete-terminology.md",
   "updated_at": "2026-09-26",
-  "summary": "0043 完成活跃 Concept 软删除文案统一：卡片、表格和详情弹窗均显示删除/Delete，并使用同一条可恢复的归档确认提示。此前 0042 多图工作和用户验收事项保留在对应任务记录中。",
+  "summary": "用户已验收 4181 新版个人试用阶段；0041–0043 的界面反馈完成。0040 正式质量验收继续留待真实任务自然积累与人工复核。",
   "blockers": [],
-  "next_actions": ["用户在 demo 中复验删除文案一致性及 0042 多图验收。"],
+  "next_actions": ["继续使用已验收的个人试用版；0040 的正式质量缺口见 tasks/backlog.md TODO，自然积累真实证据后再验收。"],
   "required_checks": [
     "npm run validate",
     "npm run demo:build"
@@ -31,6 +31,16 @@
       "command": "git diff --check",
       "result": "passed",
       "recorded_at": "2026-09-25"
+    },
+    {
+      "command": "npm run validate",
+      "result": "passed",
+      "recorded_at": "2026-09-26"
+    },
+    {
+      "command": "npm run demo:build",
+      "result": "passed",
+      "recorded_at": "2026-09-26"
     }
   ]
 }
