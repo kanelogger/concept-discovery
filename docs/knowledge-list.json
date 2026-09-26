@@ -1,0 +1,2887 @@
+{
+  "source": "raw/past/daily-knowledge-methodology.md",
+  "schema_reference": "raw/2026/09/day/2026-09-24/case.json",
+  "count": 80,
+  "items": [
+    {
+      "id": "falsifiability",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "principle",
+      "domains": ["science", "reasoning"],
+      "intents": ["evaluate", "verify"],
+      "locales": {
+        "cn": {
+          "name": "证伪主义/可证伪性",
+          "aliases": ["波普尔证伪标准"],
+          "description": "一个理论要有价值，必须存在有可能证明它是错误的情形；不可证伪的理论没有科学价值。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Falsifiability",
+          "tags": ["科学哲学", "思维原则"],
+          "trigger": ["判断一个理论是否科学", "评估假说价值"],
+          "avoid_when": ["讨论形而上学或价值命题时"],
+          "transform": ["找出该理论的潜在反例", "检验理论是否允许反例存在", "可证伪则保留并不断修正"],
+          "agent_instruction": "评估一个主张时，先问：什么证据能证明它错？如果没有任何情形能证明它错，它就不具备科学价值。",
+          "source_text": "卡尔·波普尔《科学发现的逻辑》（1934）。"
+        },
+        "en": {
+          "name": "Falsifiability",
+          "aliases": ["Popper's criterion of falsifiability"],
+          "description": "A theory is valuable only if there is a possible observation that could prove it wrong; unfalsifiable theories lack scientific value.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Falsifiability",
+          "tags": ["philosophy of science", "thinking principle"],
+          "trigger": ["Judging whether a theory is scientific", "Evaluating the value of a hypothesis"],
+          "avoid_when": ["When discussing metaphysical or value propositions"],
+          "transform": ["Identify potential counterexamples", "Check whether the theory permits counterexamples", "Keep revising falsifiable theories"],
+          "agent_instruction": "When evaluating a claim, ask first: what evidence could prove it wrong? If nothing could, it has no scientific value.",
+          "source_text": "Karl Popper, The Logic of Scientific Discovery (1934)."
+        }
+      }
+    },
+    {
+      "id": "fallacy-of-composition",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "fallacy",
+      "domains": ["logic", "reasoning"],
+      "intents": ["avoid-error", "argue"],
+      "locales": {
+        "cn": {
+          "name": "合成谬误",
+          "aliases": ["Fallacy of Composition"],
+          "description": "对局部成立的东西，仅仅因为它对局部成立，就断言它对整体也必然成立。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Fallacy_of_composition",
+          "tags": ["逻辑谬误", "批判性思维"],
+          "trigger": ["从个体特征推断整体特征", "论证中出现'每个人……所以整体……'"],
+          "avoid_when": ["整体确实是部分的简单加总时（少数情形）"],
+          "transform": ["区分局部性质与整体性质", "检查部分之间是否存在相互作用", "寻找反例（如公地悲剧）"],
+          "agent_instruction": "从'每个部分都……'推出'所以整体也……'之前，先检查部分之间是否存在相互作用或结构效应。",
+          "source_text": "由萨缪尔森提出（原文标注）。"
+        },
+        "en": {
+          "name": "Fallacy of Composition",
+          "aliases": [],
+          "description": "Assuming that what is true for a part must also be true for the whole, merely because it is true for the part.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Fallacy_of_composition",
+          "tags": ["logical fallacy", "critical thinking"],
+          "trigger": ["Inferring whole from parts", "Arguments of the form 'everyone... so the whole...'"],
+          "avoid_when": ["When the whole is a simple additive sum of parts (rare)"],
+          "transform": ["Distinguish properties of parts from properties of the whole", "Check for interactions among parts", "Look for counterexamples such as the tragedy of the commons"],
+          "agent_instruction": "Before inferring 'so the whole...' from 'every part...', check whether interactions among parts create structural effects.",
+          "source_text": "Attributed to Paul Samuelson (as noted in the source text)."
+        }
+      }
+    },
+    {
+      "id": "fallacy-of-division",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "fallacy",
+      "domains": ["logic", "reasoning"],
+      "intents": ["avoid-error", "argue"],
+      "locales": {
+        "cn": {
+          "name": "分解谬误",
+          "aliases": ["Fallacy of Division"],
+          "description": "整体具有某种性质，就断言其每一部分或元素也具有该性质。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Fallacy_of_division",
+          "tags": ["逻辑谬误", "批判性思维"],
+          "trigger": ["从整体属性推断个体属性", "论证中出现'……很强，所以每个成员都强'"],
+          "avoid_when": [],
+          "transform": ["区分整体性质与个体性质", "检查属性是否在整体与部分之间可转移", "寻找反例"],
+          "agent_instruction": "从整体性质推断个体性质之前，先检验该性质是否能在整体与部分之间转换。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Fallacy of Division",
+          "aliases": [],
+          "description": "Assuming that if a whole has a property, every part or element of it must also have that property.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Fallacy_of_division",
+          "tags": ["logical fallacy", "critical thinking"],
+          "trigger": ["Inferring individual traits from group traits", "Arguments of the form 'the team is strong, so every member is strong'"],
+          "avoid_when": [],
+          "transform": ["Distinguish properties of wholes from properties of parts", "Check whether the property transfers", "Look for counterexamples"],
+          "agent_instruction": "Before inferring part-level properties from whole-level properties, verify that the property actually transfers.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "barnum-effect",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "bias",
+      "domains": ["psychology", "judgment"],
+      "intents": ["avoid-error", "evaluate"],
+      "locales": {
+        "cn": {
+          "name": "巴纳姆效应",
+          "aliases": ["Barnum effect", "福勒效应"],
+          "description": "人们倾向于接受模糊、泛泛而谈的描述，并认为它精确适用于自己。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Barnum_effect",
+          "tags": ["认知偏差", "心理学"],
+          "trigger": ["评估星座、性格测试、算命等描述时"],
+          "avoid_when": [],
+          "transform": ["识别描述是否模糊通用", "检查它是否适用于几乎所有人", "用他人检验该描述"],
+          "agent_instruction": "面对'说中了你'的性格描述时，先检查这条描述是否对任何人都成立。",
+          "source_text": "1948 年伯特伦·福勒（Bertram Forer）提出。"
+        },
+        "en": {
+          "name": "Barnum Effect",
+          "aliases": ["Forer effect"],
+          "description": "People tend to accept vague, general statements as accurate descriptions of themselves.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Barnum_effect",
+          "tags": ["cognitive bias", "psychology"],
+          "trigger": ["Evaluating horoscopes, personality tests, or fortune-telling statements"],
+          "avoid_when": [],
+          "transform": ["Check whether the statement is vague and generic", "Test whether it applies to almost everyone", "Try the statement on other people"],
+          "agent_instruction": "When a personality description feels accurate, check whether it would feel accurate to anyone.",
+          "source_text": "Bertram Forer, 1948."
+        }
+      }
+    },
+    {
+      "id": "curse-of-knowledge",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "bias",
+      "domains": ["psychology", "communication"],
+      "intents": ["communicate", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "知识诅咒",
+          "aliases": ["The Curse of Knowledge"],
+          "description": "掌握知识的人很难想象缺乏这种知识的人的状态，从而导致表达不清和沟通失败。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Curse_of_knowledge",
+          "tags": ["认知偏差", "沟通"],
+          "trigger": ["向新手解释专业内容", "设计教学、文档、产品说明"],
+          "avoid_when": [],
+          "transform": ["先盘点受众已知什么、未知什么", "用具体例子替代行话", "让目标受众实测理解程度"],
+          "agent_instruction": "表达前先切换到听众视角：他们脑子里没有你知道的背景，把抽象内容落到具体例子上。",
+          "source_text": "源于 1990 年伊丽莎白·牛顿在斯坦福所做的'敲击者与听众'实验。"
+        },
+        "en": {
+          "name": "Curse of Knowledge",
+          "aliases": [],
+          "description": "People who know something find it hard to imagine what it is like not to know it, causing unclear communication.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Curse_of_knowledge",
+          "tags": ["cognitive bias", "communication"],
+          "trigger": ["Explaining expertise to novices", "Designing teaching material, docs, or product instructions"],
+          "avoid_when": [],
+          "transform": ["Inventory what the audience knows and does not know", "Replace jargon with concrete examples", "Test comprehension on real audience members"],
+          "agent_instruction": "Before communicating, switch to the listener's perspective: they lack your background, so anchor abstract content in concrete examples.",
+          "source_text": "Elizabeth Newton's 1990 Stanford 'tappers and listeners' experiment."
+        }
+      }
+    },
+    {
+      "id": "self-proof-trap",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "effect",
+      "domains": ["psychology", "communication"],
+      "intents": ["avoid-error", "argue"],
+      "locales": {
+        "cn": {
+          "name": "自证陷阱",
+          "aliases": ["Self-justification trap"],
+          "description": "急于自证清白时反而陷入对方预设的逻辑困境，越解释越被动。",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["心理效应", "辩论", "人际"],
+          "trigger": ["被贴标签、被冤枉、被要求自证时"],
+          "avoid_when": ["在需要澄清事实的正式程序中（举证责任明确时）"],
+          "transform": ["识别对方是否在审判者位置贴标签", "记住'谁质疑谁举证'", "把自证变成他证，跳出对方逻辑"],
+          "agent_instruction": "面对质疑时不要急于自证——把举证责任交还对方，要求对方先拿出证据。",
+          "source_text": "原文引《让子弹飞》胡万情节作为例子。"
+        },
+        "en": {
+          "name": "Self-proof Trap",
+          "aliases": [],
+          "description": "Rushing to prove one's innocence traps you in the accuser's frame; the more you explain, the more passive you become.",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["psychological effect", "debate", "interpersonal"],
+          "trigger": ["Being labeled, accused, or demanded to prove yourself"],
+          "avoid_when": ["In formal procedures with clear burden of proof"],
+          "transform": ["Notice if the other party is judging and labeling you", "Remember: whoever questions must provide evidence", "Shift from self-proof to demanding their proof"],
+          "agent_instruction": "When challenged, do not rush to justify yourself—return the burden of proof and ask the challenger for evidence first.",
+          "source_text": "Source text uses a scene from Let the Bullets Fly (Hu Wan) as an example."
+        }
+      }
+    },
+    {
+      "id": "law-of-large-numbers",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "law",
+      "domains": ["statistics", "mathematics"],
+      "intents": ["predict", "evaluate"],
+      "locales": {
+        "cn": {
+          "name": "大数定理",
+          "aliases": ["Law of Large Numbers", "大数法则"],
+          "description": "随着样本数增加，样本均值趋近于总体均值，随机事件的平均值具有稳定性和可预测性。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Law_of_large_numbers",
+          "tags": ["统计", "概率"],
+          "trigger": ["用小样本估计总体", "判断随机事件长期趋势"],
+          "avoid_when": ["小样本、非独立样本情形下推断个体结果"],
+          "transform": ["确认样本随机且独立", "扩大样本量", "用样本均值估计总体均值"],
+          "agent_instruction": "用样本推断总体前先检查样本的随机性和数量，样本越大，均值估计越可靠。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Law of Large Numbers",
+          "aliases": [],
+          "description": "As the sample size grows, the sample mean converges to the population mean, making averages of random events stable and predictable.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Law_of_large_numbers",
+          "tags": ["statistics", "probability"],
+          "trigger": ["Estimating a population from a sample", "Judging long-run trends of random events"],
+          "avoid_when": ["Inferring individual outcomes from small or non-independent samples"],
+          "transform": ["Verify the sample is random and independent", "Increase the sample size", "Estimate the population mean from the sample mean"],
+          "agent_instruction": "Before inferring a population from a sample, check the sample's randomness and size; larger samples give more reliable means.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "mean-reversion",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "model",
+      "domains": ["statistics", "finance"],
+      "intents": ["predict", "decide"],
+      "locales": {
+        "cn": {
+          "name": "均值回归",
+          "aliases": ["Mean Reversion", "回归平庸"],
+          "description": "价格或价值偏离长期平均水平后，总体趋势是向其历史均值回落。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Regression_toward_the_mean",
+          "tags": ["统计", "金融", "思维模型"],
+          "trigger": ["价格或表现极端偏离历史水平", "评估业绩是能力还是运气"],
+          "avoid_when": ["存在结构性变化使旧均值失效时"],
+          "transform": ["确定长期均值参考线", "识别当前偏离程度", "判断回归动力与结构性例外"],
+          "agent_instruction": "看到极端高或极端低的表现时，先问：这是能力变化，还是只是偏离均值后的必然回落？",
+          "source_text": "1886 年 Francis Galton 研究人类身高时发现，称之为'回归平庸'。"
+        },
+        "en": {
+          "name": "Mean Reversion",
+          "aliases": ["Regression toward the mean"],
+          "description": "Prices or values that deviate from their long-run average tend to move back toward it.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Regression_toward_the_mean",
+          "tags": ["statistics", "finance", "mental model"],
+          "trigger": ["Prices or performance deviate extremely from historical levels", "Assessing whether success is skill or luck"],
+          "avoid_when": ["When structural changes invalidate the old mean"],
+          "transform": ["Establish the long-run mean as reference", "Measure the current deviation", "Judge reversion forces and structural exceptions"],
+          "agent_instruction": "When you see extreme highs or lows, ask first: is this a change in ability, or an inevitable pullback from the mean?",
+          "source_text": "Discovered by Francis Galton in 1886 while studying human height ('regression to mediocrity')."
+        }
+      }
+    },
+    {
+      "id": "matthew-effect",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "effect",
+      "domains": ["sociology", "economics"],
+      "intents": ["explain", "evaluate"],
+      "locales": {
+        "cn": {
+          "name": "马太效应",
+          "aliases": ["Matthew Effect"],
+          "description": "因起始条件不平等，优势者获得更多资源和机会，劣势者进一步落后，不平等自我放大。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Matthew_effect",
+          "tags": ["社会学", "经济学", "思维模型"],
+          "trigger": ["分析教育、财富、平台中的两极分化", "评估起步优势的长期影响"],
+          "avoid_when": [],
+          "transform": ["识别初始条件差异", "追踪资源与机会的反馈循环", "寻找打破循环的干预点"],
+          "agent_instruction": "看到'强者愈强'的现象时，追溯其初始条件差异和正反馈回路，而不是归因于个人品质。",
+          "source_text": "社会学家罗伯特·K·莫顿（Robert K. Merton）1968 年提出，灵感来自《圣经》马太福音。"
+        },
+        "en": {
+          "name": "Matthew Effect",
+          "aliases": [],
+          "description": "Initial inequality compounds: the advantaged gain more resources and opportunities while the disadvantaged fall further behind.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Matthew_effect",
+          "tags": ["sociology", "economics", "mental model"],
+          "trigger": ["Analyzing polarization in education, wealth, or platforms", "Evaluating long-term effects of head starts"],
+          "avoid_when": [],
+          "transform": ["Identify initial condition gaps", "Trace the feedback loop of resources and opportunities", "Find intervention points that break the loop"],
+          "agent_instruction": "When you see 'the strong get stronger', trace initial-condition gaps and positive-feedback loops instead of attributing it to personal merit.",
+          "source_text": "Coined by sociologist Robert K. Merton in 1968, inspired by the Gospel of Matthew."
+        }
+      }
+    },
+    {
+      "id": "gamblers-fallacy",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "fallacy",
+      "domains": ["statistics", "probability"],
+      "intents": ["avoid-error", "decide"],
+      "locales": {
+        "cn": {
+          "name": "赌徒谬误",
+          "aliases": ["Gambler's Fallacy", "蒙地卡罗谬误"],
+          "description": "错误地认为独立随机事件的概率会被之前的结果改变。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Gambler%27s_fallacy",
+          "tags": ["概率", "逻辑谬误"],
+          "trigger": ["连续出现同一结果后判断下一次概率", "任何'该轮到我了'式的推理"],
+          "avoid_when": ["事件确实存在自相关（非独立）时"],
+          "transform": ["确认事件是否独立", "若独立，则历史结果不改变下一次概率", "按真实概率决策"],
+          "agent_instruction": "判断'下一次'的概率前，先确认事件之间是否真的相关；独立事件没有'该轮到'一说。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Gambler's Fallacy",
+          "aliases": ["Monte Carlo fallacy"],
+          "description": "The erroneous belief that the odds of an independent random event are changed by previous outcomes.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Gambler%27s_fallacy",
+          "tags": ["probability", "logical fallacy"],
+          "trigger": ["Judging the next outcome after a streak", "Any 'it's due' style reasoning"],
+          "avoid_when": ["When events are genuinely autocorrelated (not independent)"],
+          "transform": ["Verify whether the events are independent", "If independent, past outcomes do not change the next probability", "Decide by true probabilities"],
+          "agent_instruction": "Before judging the odds of 'the next one', verify whether the events are truly related; independent events have no 'due' moment.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "gamblers-ruin",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "law",
+      "domains": ["probability", "risk"],
+      "intents": ["evaluate", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "赌徒输光定理",
+          "aliases": ["Gambler's Ruin"],
+          "description": "在重复博弈中，赌徒以很高概率最终输光全部赌资；目标越大、赌注越大，输光概率越高。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Gambler%27s_ruin",
+          "tags": ["概率", "风险管理"],
+          "trigger": ["评估重复下注、加杠杆的风险", "判断'赢了就走'策略是否可行"],
+          "avoid_when": [],
+          "transform": ["确认赌局独立且胜率", "用 P(a)=1-a/b 估算输光概率", "输光概率高时退出游戏或降低暴露"],
+          "agent_instruction": "任何'不断加注、最终一把翻身'的策略，先用赌徒输光定理算一算归零概率。",
+          "source_text": "原文参考：https://www.bilibili.com/video/BV1Wb411c7ig"
+        },
+        "en": {
+          "name": "Gambler's Ruin",
+          "aliases": [],
+          "description": "In repeated betting, a gambler has a high probability of losing the entire bankroll; the bigger the target and stakes, the higher the ruin probability.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Gambler%27s_ruin",
+          "tags": ["probability", "risk management"],
+          "trigger": ["Assessing repeated betting or leveraged risk", "Judging whether a 'win and walk away' strategy works"],
+          "avoid_when": [],
+          "transform": ["Confirm the game is independent with known win rate", "Estimate ruin probability with P(a)=1-a/b", "If ruin probability is high, exit or reduce exposure"],
+          "agent_instruction": "For any 'keep raising and win it all back eventually' strategy, compute the ruin probability first.",
+          "source_text": "Source text cites: https://www.bilibili.com/video/BV1Wb411c7ig"
+        }
+      }
+    },
+    {
+      "id": "echo-chamber",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "effect",
+      "domains": ["psychology", "media"],
+      "intents": ["avoid-error", "evaluate"],
+      "locales": {
+        "cn": {
+          "name": "回音室效应",
+          "aliases": ["Echo Chamber", "信息回音室", "同温层效应"],
+          "description": "封闭环境中相近意见被不断重复和扭曲，使身处其中的人把扭曲的故事当成事实的全部。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Echo_chamber_(media)",
+          "tags": ["认知偏差", "信息环境"],
+          "trigger": ["信息来源高度同质", "观点变得越来越极端"],
+          "avoid_when": [],
+          "transform": ["识别信息源是否单一", "主动接触对立观点", "多问几个为什么并反思"],
+          "agent_instruction": "定期检查自己的信息食谱：如果所有来源都同意你，你很可能在回音室里。",
+          "source_text": "心理学家凯斯·桑斯坦（Cass Sunstein）提出。"
+        },
+        "en": {
+          "name": "Echo Chamber Effect",
+          "aliases": ["Filter bubble"],
+          "description": "In a closed environment, similar opinions repeat and distort until occupants mistake the distorted story for the whole truth.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Echo_chamber_(media)",
+          "tags": ["cognitive bias", "information environment"],
+          "trigger": ["Highly homogeneous information sources", "Views becoming increasingly extreme"],
+          "avoid_when": [],
+          "transform": ["Check whether sources are single-sided", "Deliberately seek opposing views", "Ask why repeatedly and reflect"],
+          "agent_instruction": "Audit your information diet regularly: if every source agrees with you, you are probably in an echo chamber.",
+          "source_text": "Proposed by psychologist Cass Sunstein."
+        }
+      }
+    },
+    {
+      "id": "broken-windows",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "theory",
+      "domains": ["criminology", "sociology"],
+      "intents": ["explain", "design"],
+      "locales": {
+        "cn": {
+          "name": "破窗效应",
+          "aliases": ["Broken Windows Theory"],
+          "description": "环境中的失序信号若不及时修复，会被模仿和放大，导致问题恶化。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Broken_windows_theory",
+          "tags": ["环境心理学", "管理"],
+          "trigger": ["环境中出现未被纠正的不良现象", "团队规范开始松动时"],
+          "avoid_when": ["用于为过度执法或歧视性治理辩护时"],
+          "transform": ["及时发现环境中的'破窗'", "第一时间修复和纠正", "建立防再发的机制"],
+          "agent_instruction": "看到第一个'破窗'——第一个未被处理的违规、缺陷、失信——立即修复，不要等它变成常态。",
+          "source_text": "由詹姆士·威尔逊（James Q. Wilson）和乔治·凯林（George L. Kelling）提出。"
+        },
+        "en": {
+          "name": "Broken Windows Theory",
+          "aliases": [],
+          "description": "Untended signs of disorder invite imitation and escalation, causing problems to worsen if not promptly fixed.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Broken_windows_theory",
+          "tags": ["environmental psychology", "management"],
+          "trigger": ["Unchecked bad behavior in the environment", "When team norms start slipping"],
+          "avoid_when": ["When used to justify over-policing or discriminatory enforcement"],
+          "transform": ["Spot the first 'broken window' early", "Fix and correct it immediately", "Build mechanisms that prevent recurrence"],
+          "agent_instruction": "When you see the first broken window—the first unaddressed violation, defect, or breach of trust—fix it immediately before it becomes the norm.",
+          "source_text": "Proposed by James Q. Wilson and George L. Kelling."
+        }
+      }
+    },
+    {
+      "id": "fundamental-attribution-error",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "bias",
+      "domains": ["psychology", "judgment"],
+      "intents": ["avoid-error", "evaluate"],
+      "locales": {
+        "cn": {
+          "name": "基本归因错误",
+          "aliases": ["Fundamental Attribution Error"],
+          "description": "解释他人行为时高估个性等内在因素，低估情境因素。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Fundamental_attribution_error",
+          "tags": ["认知偏差", "归因"],
+          "trigger": ["评价他人行为的原因", "出现'他一定是故意的'式判断"],
+          "avoid_when": [],
+          "transform": ["先列出可能的情境因素", "再考虑个性因素", "对比两种解释的证据强度"],
+          "agent_instruction": "评判他人之前，先问：换成是我在他的处境里，我会怎么做？",
+          "source_text": "研究者李·罗斯（Lee Ross）对该错误进行了解释（原文标注）。"
+        },
+        "en": {
+          "name": "Fundamental Attribution Error",
+          "aliases": [],
+          "description": "When explaining others' behavior, overemphasizing dispositional factors and underestimating situational factors.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Fundamental_attribution_error",
+          "tags": ["cognitive bias", "attribution"],
+          "trigger": ["Explaining why someone acted a certain way", "Judgments like 'he must have done it on purpose'"],
+          "avoid_when": [],
+          "transform": ["List possible situational factors first", "Then consider dispositional factors", "Compare the evidence for both"],
+          "agent_instruction": "Before judging someone, ask: what would I have done in their situation?",
+          "source_text": "Explained by researcher Lee Ross (as noted in the source text)."
+        }
+      }
+    },
+    {
+      "id": "survivorship-bias",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "bias",
+      "domains": ["statistics", "reasoning"],
+      "intents": ["avoid-error", "evaluate"],
+      "locales": {
+        "cn": {
+          "name": "幸存者偏差",
+          "aliases": ["Survivorship Bias"],
+          "description": "只观察到幸存样本而忽略被淘汰者，导致对总体的判断出现系统性偏差。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Survivorship_bias",
+          "tags": ["统计偏差", "认知偏差"],
+          "trigger": ["分析成功案例总结'成功学'", "数据中缺失失败样本"],
+          "avoid_when": [],
+          "transform": ["问'没回来的飞机在哪里'", "主动寻找看不见的样本", "用全量数据替代可见样本"],
+          "agent_instruction": "研究成功者之前，先找出失败者在哪里、他们为什么没被统计到。",
+          "source_text": "二战美军轰炸机装甲案例：哥伦比亚大学沃德教授（Abraham Wald）主张加强引擎与机尾。"
+        },
+        "en": {
+          "name": "Survivorship Bias",
+          "aliases": [],
+          "description": "Observing only surviving samples while ignoring those that failed leads to systematically skewed conclusions about the whole.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Survivorship_bias",
+          "tags": ["statistical bias", "cognitive bias"],
+          "trigger": ["Learning 'success formulas' from winners only", "When failure cases are missing from data"],
+          "avoid_when": [],
+          "transform": ["Ask where the missing samples are", "Actively search for invisible cases", "Replace visible samples with complete data"],
+          "agent_instruction": "Before studying successes, find out where the failures are and why they were never counted.",
+          "source_text": "WWII US bomber armor case: Abraham Wald of Columbia argued for reinforcing engines and tails."
+        }
+      }
+    },
+    {
+      "id": "group-polarization",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "effect",
+      "domains": ["psychology", "sociology"],
+      "intents": ["explain", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "群体极化",
+          "aliases": ["Group Polarization"],
+          "description": "群体讨论使成员观点趋向极端，中间立场减少。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Group_polarization",
+          "tags": ["社会心理", "群体决策"],
+          "trigger": ["争议性议题的群体讨论", "观点同质化的小圈子"],
+          "avoid_when": [],
+          "transform": ["识别观点是否在向极端漂移", "引入异质信息和反方角色", "保护中间立场的表达空间"],
+          "agent_instruction": "群体讨论后如果共识更强、更绝对了，警惕这不是'想清楚了'，而是极化了。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Group Polarization",
+          "aliases": [],
+          "description": "Group discussion drives members' views toward extremes while the middle ground shrinks.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Group_polarization",
+          "tags": ["social psychology", "group decision"],
+          "trigger": ["Group discussion on controversial topics", "Homogeneous opinion circles"],
+          "avoid_when": [],
+          "transform": ["Detect drift toward extremes", "Introduce heterogeneous information and dissenting roles", "Protect room for middle-ground voices"],
+          "agent_instruction": "If a group discussion ends with stronger, more absolute consensus, suspect polarization rather than clearer thinking.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "redundancy-backup",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "model",
+      "domains": ["engineering", "systems"],
+      "intents": ["design", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "冗余备份模型",
+          "aliases": ["Redundancy Model"],
+          "description": "为关键部件创建多个副本并分散存储，用冗余换取可靠性和可用性。",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["工程", "可靠性", "思维模型"],
+          "trigger": ["设计不能单点失效的系统", "重要数据的存储方案"],
+          "avoid_when": ["成本或复杂性远超故障损失时"],
+          "transform": ["识别关键部件", "创建多副本并异地分布", "解决副本一致性同步"],
+          "agent_instruction": "任何'坏了就完了'的部件，默认给它做冗余：多副本、异地、可恢复。",
+          "source_text": "工程学模型（原文标注，更新日期 2023/7/8）。"
+        },
+        "en": {
+          "name": "Redundancy Backup Model",
+          "aliases": [],
+          "description": "Create multiple copies of critical components and distribute them to trade redundancy for reliability and availability.",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["engineering", "reliability", "mental model"],
+          "trigger": ["Designing systems that must not have a single point of failure", "Storage plans for important data"],
+          "avoid_when": ["When cost or complexity far exceeds the loss from failure"],
+          "transform": ["Identify critical components", "Create multiple copies across locations", "Solve consistency among copies"],
+          "agent_instruction": "For any component whose failure is fatal, default to redundancy: multiple copies, offsite, recoverable.",
+          "source_text": "Engineering model (noted in source text, updated 2023/7/8)."
+        }
+      }
+    },
+    {
+      "id": "compound-interest",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "model",
+      "domains": ["mathematics", "finance"],
+      "intents": ["predict", "plan"],
+      "locales": {
+        "cn": {
+          "name": "复利模型",
+          "aliases": ["Compound Interest", "复利效应"],
+          "description": "利息加入本金后继续产生利息，增长随时间呈指数级放大。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Compound_interest",
+          "tags": ["数学", "投资", "思维模型"],
+          "trigger": ["长期投资回报估算", "评估习惯、知识的长期积累"],
+          "avoid_when": ["利率或频率剧烈波动时直接套用公式"],
+          "transform": ["确定本金与利率", "确认复利频率", "推演多期增长并考虑通胀、税收"],
+          "agent_instruction": "评估任何'长期积累'的事物（金钱、能力、用户）时，用复利视角看它的指数后半段，而不只是线性前半段。",
+          "source_text": "数学模型（原文标注，2023/7/9）。"
+        },
+        "en": {
+          "name": "Compound Interest Model",
+          "aliases": [],
+          "description": "Interest is added to the principal and itself earns interest, producing exponential growth over time.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Compound_interest",
+          "tags": ["mathematics", "investment", "mental model"],
+          "trigger": ["Estimating long-term investment returns", "Evaluating long-term accumulation of habits or knowledge"],
+          "avoid_when": ["When rates or frequency fluctuate sharply"],
+          "transform": ["Set principal and rate", "Confirm compounding frequency", "Project multi-period growth with inflation and taxes"],
+          "agent_instruction": "When assessing anything that accumulates over time (money, skill, users), look at the exponential second half, not just the linear first half.",
+          "source_text": "Mathematical model (noted in source text, 2023/7/9)."
+        }
+      }
+    },
+    {
+      "id": "cyber-balkanization",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "effect",
+      "domains": ["sociology", "internet"],
+      "intents": ["explain", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "网络巴尔干化",
+          "aliases": ["Cyber-Balkanization"],
+          "description": "算法推荐与选择性接触使网络群体内部同质化、群体间隔绝，信息空间碎片化。",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["社会学", "信息环境"],
+          "trigger": ["分析舆论撕裂、信息孤岛", "评估推荐算法的影响"],
+          "avoid_when": [],
+          "transform": ["识别群体内的同质化强化", "识别群体间的隔离结构", "主动跨圈获取信息"],
+          "agent_instruction": "发现自己的信息流里完全没有反对声音时，这就是网络巴尔干化的入口。",
+          "source_text": "MIT 教授马歇尔·范·阿尔斯泰（Marshall Van Alstyne）与埃里克·布林约尔松（Erik Brynjolfsson）1997 年提出。"
+        },
+        "en": {
+          "name": "Cyber-Balkanization",
+          "aliases": [],
+          "description": "Algorithmic recommendation and selective exposure make online groups homogeneous internally and isolated from each other, fragmenting the information space.",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["sociology", "information environment"],
+          "trigger": ["Analyzing opinion fragmentation and information islands", "Evaluating recommendation algorithms"],
+          "avoid_when": [],
+          "transform": ["Identify in-group homogenization", "Identify inter-group isolation", "Deliberately cross information boundaries"],
+          "agent_instruction": "When your feed contains no opposing voices at all, you are at the entrance of cyber-balkanization.",
+          "source_text": "Proposed by MIT professors Marshall Van Alstyne and Erik Brynjolfsson in 1997."
+        }
+      }
+    },
+    {
+      "id": "monte-carlo-method",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "method",
+      "domains": ["statistics", "computing"],
+      "intents": ["simulate", "predict"],
+      "locales": {
+        "cn": {
+          "name": "蒙特卡洛法",
+          "aliases": ["Monte Carlo Method", "蒙地卡罗方法"],
+          "description": "通过大量随机抽样和统计模拟，为无法解析求解的复杂问题给出数值解。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Monte_Carlo_method",
+          "tags": ["统计", "计算方法"],
+          "trigger": ["问题无法解析求解", "需要评估复杂系统的概率分布"],
+          "avoid_when": ["精度要求高但算力不足时", "可以解析求解的简单问题"],
+          "transform": ["为问题建立概率模型", "大量随机抽样", "统计样本结果收敛到近似解"],
+          "agent_instruction": "当一个问题算不出精确解时，把它变成一个概率模型，用大量随机试验逼出近似答案。",
+          "source_text": "统计学方法（原文标注，2023/7/11）。"
+        },
+        "en": {
+          "name": "Monte Carlo Method",
+          "aliases": [],
+          "description": "Solve complex problems numerically through massive random sampling and statistical simulation.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Monte_Carlo_method",
+          "tags": ["statistics", "computational method"],
+          "trigger": ["Problems with no analytic solution", "Estimating probability distributions of complex systems"],
+          "avoid_when": ["When high precision is required but compute is limited", "Simple problems solvable analytically"],
+          "transform": ["Build a probabilistic model", "Sample massively at random", "Aggregate samples into a converged approximation"],
+          "agent_instruction": "When a problem has no closed-form solution, turn it into a probability model and approximate the answer with massive random trials.",
+          "source_text": "Statistical method (noted in source text, 2023/7/11)."
+        }
+      }
+    },
+    {
+      "id": "occams-razor",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "principle",
+      "domains": ["reasoning", "science"],
+      "intents": ["simplify", "evaluate"],
+      "locales": {
+        "cn": {
+          "name": "奥卡姆剃刀",
+          "aliases": ["Occam's Razor"],
+          "description": "解释同一现象时，选择假设最少、最简单的解释，避免引入不必要的实体。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Occam%27s_razor",
+          "tags": ["思维原则", "简约性"],
+          "trigger": ["存在多个 competing 解释", "理论变得越来越复杂时"],
+          "avoid_when": ["简单解释忽略了关键机制时", "需要证据权衡而非比较假设数量时"],
+          "transform": ["列出所有候选解释", "比较假设数量与可验证性", "选最简单且可检验的解释"],
+          "agent_instruction": "面对多个解释时，优先检验假设最少、最直接的解释，但不以简单代替证据。",
+          "source_text": "14 世纪奥卡姆的威廉（William of Ockham）提出的简约性原则。"
+        },
+        "en": {
+          "name": "Occam's Razor",
+          "aliases": [],
+          "description": "Among competing explanations, choose the one with the fewest assumptions and avoid unnecessary entities.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Occam%27s_razor",
+          "tags": ["thinking principle", "simplicity"],
+          "trigger": ["Multiple competing explanations", "A theory growing ever more complex"],
+          "avoid_when": ["When the simple explanation misses key mechanisms", "When evidence outweighs assumption counting"],
+          "transform": ["List all candidate explanations", "Compare assumption counts and testability", "Pick the simplest testable one"],
+          "agent_instruction": "Among competing explanations, test the one with the fewest assumptions first, but never substitute simplicity for evidence.",
+          "source_text": "Principle of parsimony by William of Ockham (14th century)."
+        }
+      }
+    },
+    {
+      "id": "hanlons-razor",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "heuristic",
+      "domains": ["psychology", "judgment"],
+      "intents": ["simplify", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "汉隆剃刀",
+          "aliases": ["Hanlon's Razor"],
+          "description": "可以归咎于愚蠢的事情，不要归咎于恶意。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Hanlon%27s_razor",
+          "tags": ["判断模型", "思维原则"],
+          "trigger": ["被冒犯、被阻碍时的第一反应", "分析他人造成的麻烦"],
+          "avoid_when": ["有证据表明存在恶意时", "对显而易见的有害行为视若无睹时"],
+          "transform": ["先假设是无知或失误", "与对方沟通找根因", "用证据排除恶意后才升级判断"],
+          "agent_instruction": "被别人的错误惹恼时，默认它是愚蠢而非恶意，然后沟通如何避免下次再犯。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Hanlon's Razor",
+          "aliases": [],
+          "description": "Never attribute to malice that which can be adequately explained by stupidity.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Hanlon%27s_razor",
+          "tags": ["judgment model", "thinking principle"],
+          "trigger": ["First reaction to being offended or blocked", "Analyzing trouble caused by others"],
+          "avoid_when": ["When there is evidence of malice", "Never excuse plainly harmful behavior"],
+          "transform": ["Assume ignorance or error first", "Communicate to find the root cause", "Upgrade to malice only with evidence"],
+          "agent_instruction": "When annoyed by someone's mistake, default to stupidity rather than malice, then communicate to prevent recurrence.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "hitchens-razor",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "principle",
+      "domains": ["reasoning", "philosophy"],
+      "intents": ["evaluate", "argue"],
+      "locales": {
+        "cn": {
+          "name": "希钦斯剃刀",
+          "aliases": ["Hitchens's Razor"],
+          "description": "凡是无证据的断言，也可以无证据地驳回。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Hitchens%27s_razor",
+          "tags": ["思维原则", "证据"],
+          "trigger": ["面对没有证据支持的断言", "宗教、阴谋论等不可验证主张"],
+          "avoid_when": ["对方有足够证据支持主张时"],
+          "transform": ["检查断言是否有证据", "无证据则直接驳回", "把举证责任交回主张者"],
+          "agent_instruction": "对没有证据的主张，你没有义务反驳其内容，只需指出它缺乏证据。",
+          "source_text": "以克里斯托弗·希钦斯（Christopher Hitchens）命名。"
+        },
+        "en": {
+          "name": "Hitchens's Razor",
+          "aliases": [],
+          "description": "What can be asserted without evidence can be dismissed without evidence.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Hitchens%27s_razor",
+          "tags": ["thinking principle", "evidence"],
+          "trigger": ["Facing assertions without evidence", "Unverifiable claims like religion or conspiracy theories"],
+          "avoid_when": ["When the claim is backed by sufficient evidence"],
+          "transform": ["Check whether the assertion has evidence", "Dismiss it if none", "Return the burden of proof to the claimant"],
+          "agent_instruction": "For claims made without evidence, you are not obliged to rebut the content—just point out the absence of evidence.",
+          "source_text": "Named after Christopher Hitchens."
+        }
+      }
+    },
+    {
+      "id": "sagans-standard",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "principle",
+      "domains": ["science", "reasoning"],
+      "intents": ["evaluate", "verify"],
+      "locales": {
+        "cn": {
+          "name": "萨根标准",
+          "aliases": ["Sagan's Standard", "ECREE"],
+          "description": "非同寻常的主张，需要非同寻常的证据。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Extraordinary_claims_require_extraordinary_evidence",
+          "tags": ["思维原则", "科学证据"],
+          "trigger": ["评估惊人主张（外星人、神迹、奇效产品）", "证据强度与主张强度不匹配时"],
+          "avoid_when": ["受技术或伦理限制无法获得直接证据的领域，需灵活应用"],
+          "transform": ["评估主张的'非同寻常'程度", "按主张强度要求对应证据", "证据须可观察、可验证、可复现"],
+          "agent_instruction": "主张越惊人，要求的证据等级越高；缺乏可验证证据的惊人主张直接降级处理。",
+          "source_text": "卡尔·萨根（Carl Sagan）提出的科学推理标准。"
+        },
+        "en": {
+          "name": "Sagan's Standard",
+          "aliases": ["Extraordinary claims require extraordinary evidence"],
+          "description": "Extraordinary claims require extraordinary evidence.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Extraordinary_claims_require_extraordinary_evidence",
+          "tags": ["thinking principle", "scientific evidence"],
+          "trigger": ["Evaluating astonishing claims (aliens, miracles, miracle products)", "When evidence strength mismatches claim strength"],
+          "avoid_when": ["Fields where direct evidence is limited by technology or ethics—apply flexibly"],
+          "transform": ["Rate the extraordinariness of the claim", "Demand evidence proportional to the claim", "Require observable, verifiable, reproducible evidence"],
+          "agent_instruction": "The more extraordinary the claim, the higher the required evidence bar; downgrade astonishing claims lacking verifiable evidence.",
+          "source_text": "Scientific reasoning standard by Carl Sagan."
+        }
+      }
+    },
+    {
+      "id": "confirmation-bias",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "bias",
+      "domains": ["psychology", "reasoning"],
+      "intents": ["avoid-error", "evaluate"],
+      "locales": {
+        "cn": {
+          "name": "确认偏见",
+          "aliases": ["Confirmation Bias", "确认性偏差"],
+          "description": "倾向于寻找和接受支持已有信念的证据，选择性回忆有利细节，忽视或拒绝相反的证据。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Confirmation_bias",
+          "tags": ["认知偏差", "批判性思维"],
+          "trigger": ["先有结论再找证据", "筛选信息支持自己立场", "带有强烈情绪的问题"],
+          "avoid_when": [],
+          "transform": ["列出会证明自己错了的证据", "主动寻找反方最强论证", "让第三方审查证据选择", "已有成见难改时在双方立场中求同存异"],
+          "agent_instruction": "证明一个观点前，先写下'什么证据会让我改变主意'，然后认真去找。",
+          "source_text": "原文分两条记录（2023/7/16 确认偏见、2023/8/6 确认性偏差），内容指向同一现象，已合并。"
+        },
+        "en": {
+          "name": "Confirmation Bias",
+          "aliases": [],
+          "description": "Tendency to seek and accept evidence supporting existing beliefs while ignoring or rejecting contradictory evidence.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Confirmation_bias",
+          "tags": ["cognitive bias", "critical thinking"],
+          "trigger": ["Having a conclusion before finding evidence", "Filtering information to support your side"],
+          "avoid_when": [],
+          "transform": ["List evidence that would prove you wrong", "Actively seek the strongest opposing argument", "Have a third party audit your evidence selection"],
+          "agent_instruction": "Before proving a point, write down 'what evidence would change my mind'—then genuinely look for it.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "cognitive-dissonance",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "theory",
+      "domains": ["psychology", "behavior"],
+      "intents": ["explain", "reflect"],
+      "locales": {
+        "cn": {
+          "name": "认知失调",
+          "aliases": ["Cognitive Dissonance"],
+          "description": "两种认知不一致时产生紧张不安，人会自发调整信念或行为来恢复一致。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Cognitive_dissonance",
+          "tags": ["心理学", "行为学"],
+          "trigger": ["行为与信念矛盾（知道熬夜有害还在刷手机）", "决策后为选择找理由"],
+          "avoid_when": [],
+          "transform": ["识别不一致的两条认知", "选择改变行为或改变信念", "警惕为消失调而扭曲事实"],
+          "agent_instruction": "感到'说服自己'的冲动时，停下来：你是在基于证据更新观点，还是为了消除不适而合理化？",
+          "source_text": "原文未提供出处（通常归于 Leon Festinger，1957《认知失调论》）。"
+        },
+        "en": {
+          "name": "Cognitive Dissonance",
+          "aliases": [],
+          "description": "Inconsistency between two cognitions creates tension, and people spontaneously adjust beliefs or behavior to restore consistency.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Cognitive_dissonance",
+          "tags": ["psychology", "behavior"],
+          "trigger": ["Behavior contradicting beliefs (knowing late nights are harmful yet scrolling)", "Rationalizing after decisions"],
+          "avoid_when": [],
+          "transform": ["Identify the two conflicting cognitions", "Choose to change behavior or belief", "Beware of twisting facts to relieve dissonance"],
+          "agent_instruction": "When you feel the urge to 'talk yourself into it', pause: are you updating based on evidence or rationalizing to relieve discomfort?",
+          "source_text": "No source given in the original text (usually attributed to Leon Festinger, 1957)."
+        }
+      }
+    },
+    {
+      "id": "primacy-effect",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "effect",
+      "domains": ["psychology", "judgment"],
+      "intents": ["avoid-error", "communicate"],
+      "locales": {
+        "cn": {
+          "name": "首因效应",
+          "aliases": ["Primacy Effect", "先入为主"],
+          "description": "最早接收到的信息在印象和决策中获得不成比例的影响力。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Serial-position_effect",
+          "tags": ["心理学", "认知偏差"],
+          "trigger": ["面试、谈判、演讲的开场", "评估一系列信息"],
+          "avoid_when": [],
+          "transform": ["意识到第一印象的加权作用", "重要信息不要只放在开头", "决策前重新通览全部信息"],
+          "agent_instruction": "做重要评估时，刻意把早期印象清零，重新基于全部证据打分。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Primacy Effect",
+          "aliases": [],
+          "description": "The earliest information received exerts disproportionate influence on impressions and decisions.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Serial-position_effect",
+          "tags": ["psychology", "cognitive bias"],
+          "trigger": ["Openings of interviews, negotiations, speeches", "Evaluating a series of information"],
+          "avoid_when": [],
+          "transform": ["Be aware of the weighting of first impressions", "Do not put critical information only at the start", "Review all evidence before deciding"],
+          "agent_instruction": "For important evaluations, deliberately reset early impressions and re-score based on the full evidence.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "knowledge-distillation",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "method",
+      "domains": ["learning", "education"],
+      "intents": ["simplify", "communicate"],
+      "locales": {
+        "cn": {
+          "name": "知识蒸馏",
+          "aliases": ["Knowledge Distillation", "知识提炼"],
+          "description": "把复杂知识提取核心、去除冗余，转化为易于理解和记忆的形式。",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["学习方法", "教学"],
+          "trigger": ["学习或教授复杂概念", "把长内容浓缩成摘要、图表"],
+          "avoid_when": ["简化会丢失关键约束导致误解时"],
+          "transform": ["提取核心概念与关键信息", "去除冗余细节", "转为总结、图表、实例等形式"],
+          "agent_instruction": "学会一个东西的标志是你能蒸馏它：砍掉细节，保留骨架，用自己的例子复述。",
+          "source_text": "原文为教育学意义的学习策略（非机器学习中的模型蒸馏，更新日期 2023/7/23）。"
+        },
+        "en": {
+          "name": "Knowledge Distillation",
+          "aliases": [],
+          "description": "Extract the core of complex knowledge, remove redundancy, and turn it into forms that are easy to understand and remember.",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["learning method", "teaching"],
+          "trigger": ["Learning or teaching complex concepts", "Condensing long content into summaries or diagrams"],
+          "avoid_when": ["When simplification loses key constraints and causes misunderstanding"],
+          "transform": ["Extract core concepts and key information", "Remove redundant detail", "Convert into summaries, diagrams, or examples"],
+          "agent_instruction": "The sign of truly knowing something is that you can distill it: cut the detail, keep the skeleton, retell it in your own examples.",
+          "source_text": "Pedagogical learning strategy in the source text (not ML model distillation, updated 2023/7/23)."
+        }
+      }
+    },
+    {
+      "id": "evidence-based-practice",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "method",
+      "domains": ["methodology", "medicine"],
+      "intents": ["decide", "verify"],
+      "locales": {
+        "cn": {
+          "name": "循证实践",
+          "aliases": ["Evidence-Based Practice", "EBP"],
+          "description": "决策应尽量以客观研究证据为依据，并持续监测更新。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Evidence-based_practice",
+          "tags": ["方法学", "决策"],
+          "trigger": ["需要在海量信息中快速做专业决策", "制定策略或干预措施"],
+          "avoid_when": ["紧急情况或资源极度受限", "实践者缺乏评估研究的能力"],
+          "transform": ["提出具体问题", "系统收集证据", "用 GRADE 等工具评估证据质量", "整合证据并制定、实施、评估决策"],
+          "agent_instruction": "做重要决策时，把'我觉得'换成'证据显示'：先查研究，再定方案，实施后复盘。",
+          "source_text": "受循证医学启发延伸出的方法学。原文参考：https://mp.weixin.qq.com/s/zAzycUiZb1Tcm7kbiKmpxA"
+        },
+        "en": {
+          "name": "Evidence-Based Practice",
+          "aliases": ["EBP"],
+          "description": "Decisions should be grounded in objective research evidence and continuously monitored and updated.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Evidence-based_practice",
+          "tags": ["methodology", "decision-making"],
+          "trigger": ["Making professional decisions amid information overload", "Designing strategies or interventions"],
+          "avoid_when": ["Emergencies or severely resource-constrained settings", "When practitioners lack skills to appraise research"],
+          "transform": ["Ask a specific question", "Systematically gather evidence", "Appraise quality with tools like GRADE", "Integrate, implement, and evaluate the decision"],
+          "agent_instruction": "For important decisions, replace 'I think' with 'evidence shows': research first, then decide, then review after implementation.",
+          "source_text": "Methodology extended from evidence-based medicine. Reference: https://mp.weixin.qq.com/s/zAzycUiZb1Tcm7kbiKmpxA"
+        }
+      }
+    },
+    {
+      "id": "anchoring-effect",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "bias",
+      "domains": ["psychology", "decision-making"],
+      "intents": ["avoid-error", "negotiate"],
+      "locales": {
+        "cn": {
+          "name": "沉锚效应/锚定效应",
+          "aliases": ["Anchoring Effect"],
+          "description": "最初接触到的数字或参考点会锚定后续判断，即使它毫不相关。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Anchoring_effect",
+          "tags": ["认知偏差", "决策"],
+          "trigger": ["定价、报价、谈判", "看到'原价''均价'等参考数字时"],
+          "avoid_when": [],
+          "transform": ["识别环境中的锚", "主动设定独立参考点", "基于价值而非锚定价做决策"],
+          "agent_instruction": "谈判和估价时，先独立估算价值，再去看对方给的数字。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Anchoring Effect",
+          "aliases": [],
+          "description": "The first number or reference point encountered anchors subsequent judgments, even if it is irrelevant.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Anchoring_effect",
+          "tags": ["cognitive bias", "decision-making"],
+          "trigger": ["Pricing, quoting, negotiating", "Seeing reference numbers like 'original price'"],
+          "avoid_when": [],
+          "transform": ["Notice the anchors in the environment", "Set an independent reference point", "Decide by value, not anchor"],
+          "agent_instruction": "In negotiation and valuation, estimate the value independently before looking at the other side's number.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "dunning-kruger-effect",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "bias",
+      "domains": ["psychology", "judgment"],
+      "intents": ["reflect", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "邓宁-克鲁格效应/达克效应",
+          "aliases": ["Dunning-Kruger Effect", "达克效应"],
+          "description": "能力差的人倾向于高估自己，能力强的人倾向于低估自己。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Dunning%E2%80%93Kruger_effect",
+          "tags": ["认知偏差", "自我评估"],
+          "trigger": ["面对'自信满满'的判断", "评估自己或他人的能力"],
+          "avoid_when": [],
+          "transform": ["检查自信的依据是什么", "请他人不留情面地批判", "对极度自信保持警惕"],
+          "agent_instruction": "自信不能作为能力的证据；问一句'这个判断的依据是什么'，再找敢反对你的人。",
+          "source_text": "路径：愚昧山峰-绝望之谷-开悟之坡-持续平稳高原（原文未标注提出者）。"
+        },
+        "en": {
+          "name": "Dunning-Kruger Effect",
+          "aliases": ["D-K effect"],
+          "description": "The less competent tend to overestimate themselves while the highly competent tend to underestimate themselves.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Dunning%E2%80%93Kruger_effect",
+          "tags": ["cognitive bias", "self-assessment"],
+          "trigger": ["Facing overconfident judgments", "Assessing your own or others' competence"],
+          "avoid_when": [],
+          "transform": ["Check what the confidence is based on", "Invite blunt criticism", "Stay skeptical of extreme confidence"],
+          "agent_instruction": "Confidence is not evidence of competence; ask 'what is this judgment based on' and find people willing to disagree.",
+          "source_text": "Path: Mount Stupid - Valley of Despair - Slope of Enlightenment - Plateau of Sustainability."
+        }
+      }
+    },
+    {
+      "id": "opportunity-cost",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "model",
+      "domains": ["economics", "decision-making"],
+      "intents": ["decide", "evaluate"],
+      "locales": {
+        "cn": {
+          "name": "机会成本",
+          "aliases": ["Opportunity Cost", "替代性成本"],
+          "description": "被放弃的最佳选择的价值，是做任何决策真实付出的代价。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Opportunity_cost",
+          "tags": ["经济学", "决策"],
+          "trigger": ["在多选项之间取舍", "评估时间、资源的最佳用途"],
+          "avoid_when": [],
+          "transform": ["列出所有可行选项", "评估每个选项的价值", "用被放弃的最高价值选项衡量真实成本"],
+          "agent_instruction": "说'是'之前，先想清楚你对什么说了'不'——那才是这决策的真实价格。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Opportunity Cost",
+          "aliases": ["Alternative cost"],
+          "description": "The value of the best option forgone is the true price of any decision.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Opportunity_cost",
+          "tags": ["economics", "decision-making"],
+          "trigger": ["Choosing among options", "Assessing the best use of time and resources"],
+          "avoid_when": [],
+          "transform": ["List all viable options", "Value each option", "Measure true cost by the highest-value option forgone"],
+          "agent_instruction": "Before saying yes, be clear about what you are saying no to—that is the real price of the decision.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "sunk-cost",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "model",
+      "domains": ["economics", "decision-making"],
+      "intents": ["decide", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "沉没成本",
+          "aliases": ["Sunk Cost"],
+          "description": "已经付出且不可收回的成本，不应影响未来的决策。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Sunk_cost",
+          "tags": ["经济学", "决策", "思维模型"],
+          "trigger": ["因为'已经投入了'而想继续", "项目中途评估是否该停"],
+          "avoid_when": [],
+          "transform": ["区分已沉没成本与未来可变成本", "假设自己今天重新决策", "只比较未来的收益与成本"],
+          "agent_instruction": "问自己：如果今天从零开始，我还会选择继续吗？不会就停。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Sunk Cost",
+          "aliases": [],
+          "description": "Costs already paid and unrecoverable should not influence future decisions.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Sunk_cost",
+          "tags": ["economics", "decision-making", "mental model"],
+          "trigger": ["Wanting to continue because 'so much was invested'", "Mid-project go/no-go evaluation"],
+          "avoid_when": [],
+          "transform": ["Separate sunk costs from future variable costs", "Pretend you are deciding fresh today", "Compare only future benefits and costs"],
+          "agent_instruction": "Ask: if I were starting fresh today, would I still choose to continue? If not, stop.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "decision-tree",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "method",
+      "domains": ["decision-making", "operations-research"],
+      "intents": ["decide", "visualize"],
+      "locales": {
+        "cn": {
+          "name": "决策树",
+          "aliases": ["Decision Tree"],
+          "description": "把决策路径、概率分支和结果可视化，帮助做出客观理性的选择。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Decision_tree",
+          "tags": ["决策方法", "运筹学"],
+          "trigger": ["复杂多阶段决策", "需要比较不同方案的预期价值"],
+          "avoid_when": ["输入数据不稳定时结论易失效"],
+          "transform": ["确定根节点问题", "展开方案分支与概率分支", "结合沉没成本思维计算各路径价值"],
+          "agent_instruction": "重大决策画成树：每个选择点、每种结果的概率和代价都写出来，再算期望值。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Decision Tree",
+          "aliases": [],
+          "description": "Visualize decision paths, probability branches, and outcomes to make objective, rational choices.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Decision_tree",
+          "tags": ["decision method", "operations research"],
+          "trigger": ["Complex multi-stage decisions", "Comparing expected values of options"],
+          "avoid_when": ["When unstable input data makes conclusions fragile"],
+          "transform": ["Define the root question", "Expand option and probability branches", "Compute path values with sunk-cost awareness"],
+          "agent_instruction": "For major decisions, draw the tree: every choice point, every outcome's probability and cost—then compute expected values.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "stimulus-thinking-response",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "heuristic",
+      "domains": ["psychology", "decision-making"],
+      "intents": ["reflect", "decide"],
+      "locales": {
+        "cn": {
+          "name": "非 SR（刺激-思考-反应）",
+          "aliases": ["Not Stimulus-Response", "刺激-思考-反应"],
+          "description": "在刺激与反应之间插入思考过程，把被动应答变成主动选择。",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["思维方法", "心理"],
+          "trigger": ["情绪化的即时反应即将发生时", "习惯性、自动化行为模式"],
+          "avoid_when": [],
+          "transform": ["察觉刺激", "停顿并思考", "选择反应而非自动应答"],
+          "agent_instruction": "被激怒、被打断、被催促时，先停一拍：这是你想做的反应，还是条件反射？",
+          "source_text": "背景：华生 20 世纪初基于巴甫洛夫实验提出'刺激-反应'行为学习理论，非 SR 在其间插入思考。"
+        },
+        "en": {
+          "name": "Stimulus-Thinking-Response",
+          "aliases": ["Not Stimulus-Response"],
+          "description": "Insert thinking between stimulus and response, turning passive reaction into active choice.",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["thinking method", "psychology"],
+          "trigger": ["When an emotional instant reaction is about to fire", "Habitual, automatic behavior patterns"],
+          "avoid_when": [],
+          "transform": ["Notice the stimulus", "Pause and think", "Choose the response instead of auto-reacting"],
+          "agent_instruction": "When provoked, interrupted, or rushed, pause for a beat: is this the response you choose, or a reflex?",
+          "source_text": "Background: Watson's stimulus-response theory (early 20th century); non-SR inserts thinking in between."
+        }
+      }
+    },
+    {
+      "id": "availability-bias",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "bias",
+      "domains": ["psychology", "judgment"],
+      "intents": ["avoid-error", "evaluate"],
+      "locales": {
+        "cn": {
+          "name": "易得性偏差",
+          "aliases": ["Availability Bias", "可得性启发"],
+          "description": "凭容易想起的事例评估概率和风险，高估醒目事件的频率。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Availability_heuristic",
+          "tags": ["认知偏差", "风险评估"],
+          "trigger": ["刚看过相关新闻后的风险判断", "用印象代替统计"],
+          "avoid_when": [],
+          "transform": ["意识到媒体报道改变了记忆可得性", "查基础比率而非凭印象", "主动问 why 并用批判性思维评估"],
+          "agent_instruction": "判断'这种事常不常见'时，去查发生率数据，不要问自己能不能想起案例。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Availability Bias",
+          "aliases": ["Availability heuristic"],
+          "description": "Judging probability and risk by examples that come to mind easily, overestimating salient events.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Availability_heuristic",
+          "tags": ["cognitive bias", "risk assessment"],
+          "trigger": ["Risk judgment right after related news", "Substituting impressions for statistics"],
+          "avoid_when": [],
+          "transform": ["Notice that media coverage distorted recallability", "Look up base rates instead of impressions", "Ask why and evaluate critically"],
+          "agent_instruction": "When judging how common something is, look up the base rate instead of counting how many examples you can recall.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "six-thinking-hats",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "method",
+      "domains": ["reasoning", "collaboration"],
+      "intents": ["decide", "collaborate"],
+      "locales": {
+        "cn": {
+          "name": "六顶思考帽",
+          "aliases": ["Six Thinking Hats"],
+          "description": "用六种角色化思维模式（事实、情感、风险、乐观、创意、控制）引导全面系统的讨论。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Six_Thinking_Hats",
+          "tags": ["思维方法", "团队讨论"],
+          "trigger": ["团队讨论混乱、互相争吵", "需要系统性审视一个问题"],
+          "avoid_when": [],
+          "transform": ["白帽摆事实数据", "红帽表达直觉", "黑帽找风险", "黄帽找机会", "绿帽出创意", "蓝帽控流程"],
+          "agent_instruction": "讨论卡壳时，让大家轮流戴同一顶帽子：同一时刻全组只用一种模式思考。",
+          "source_text": "爱德华·德·波诺（Edward de Bono）提出的平行思考方法。"
+        },
+        "en": {
+          "name": "Six Thinking Hats",
+          "aliases": [],
+          "description": "Guide comprehensive discussion through six role-based modes: facts, emotion, risks, optimism, creativity, and process control.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Six_Thinking_Hats",
+          "tags": ["thinking method", "team discussion"],
+          "trigger": ["Chaotic or adversarial meetings", "Need to examine an issue systematically"],
+          "avoid_when": [],
+          "transform": ["White hat: facts", "Red hat: emotion", "Black hat: risks", "Yellow hat: benefits", "Green hat: creativity", "Blue hat: process"],
+          "agent_instruction": "When discussion stalls, have everyone wear the same hat at once: the whole group thinks in one mode at a time.",
+          "source_text": "Parallel thinking method by Edward de Bono."
+        }
+      }
+    },
+    {
+      "id": "social-desirability-bias",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "bias",
+      "domains": ["psychology", "research"],
+      "intents": ["avoid-error", "evaluate"],
+      "locales": {
+        "cn": {
+          "name": "社会期许偏差",
+          "aliases": ["Social Desirability Bias"],
+          "description": "人们倾向于给出符合社会期望的回答和行为，隐藏真实观点。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Social_desirability_bias",
+          "tags": ["认知偏差", "调查研究"],
+          "trigger": ["解读问卷、访谈、面试数据", "公开场合的意见表达"],
+          "avoid_when": [],
+          "transform": ["提供匿名性", "用间接提问替代直接提问", "在分析数据时修正偏差"],
+          "agent_instruction": "读调查数据时先打折：受访者可能在说'你想听的'，而不是真话。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Social Desirability Bias",
+          "aliases": [],
+          "description": "People tend to give socially acceptable answers and hide their true views.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Social_desirability_bias",
+          "tags": ["cognitive bias", "survey research"],
+          "trigger": ["Interpreting surveys, interviews, hiring data", "Public opinion expression"],
+          "avoid_when": [],
+          "transform": ["Provide anonymity", "Use indirect questions", "Correct for the bias when analyzing data"],
+          "agent_instruction": "Discount survey data: respondents may be telling you what you want to hear, not the truth.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "sampling-bias",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "bias",
+      "domains": ["statistics", "research"],
+      "intents": ["avoid-error", "evaluate"],
+      "locales": {
+        "cn": {
+          "name": "取样偏差",
+          "aliases": ["Sampling Bias"],
+          "description": "样本不能代表总体，导致统计结论无法推广，以偏概全。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Sampling_bias",
+          "tags": ["统计偏差", "研究方法"],
+          "trigger": ["使用便利样本下结论", "调查结果'看着不对'时"],
+          "avoid_when": [],
+          "transform": ["检查抽样方法是否随机", "检查样本来源覆盖哪些人、漏掉哪些人", "在结论中标注样本局限"],
+          "agent_instruction": "引用任何统计结论前，先问：这个样本是怎么选出来的？谁被漏掉了？",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Sampling Bias",
+          "aliases": [],
+          "description": "Samples that fail to represent the population, making conclusions ungeneralizable.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Sampling_bias",
+          "tags": ["statistical bias", "research method"],
+          "trigger": ["Drawing conclusions from convenience samples", "When survey results 'feel off'"],
+          "avoid_when": [],
+          "transform": ["Check whether sampling was random", "Check whom the source covered and missed", "State sample limitations with conclusions"],
+          "agent_instruction": "Before citing any statistic, ask: how was this sample selected, and who was left out?",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "hot-hand-fallacy",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "fallacy",
+      "domains": ["statistics", "probability"],
+      "intents": ["avoid-error", "decide"],
+      "locales": {
+        "cn": {
+          "name": "热手谬误",
+          "aliases": ["Hot-Hand Fallacy"],
+          "description": "错误地认为连续成功会延续，忽视独立事件之间互不影响。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Hot_hand",
+          "tags": ["概率", "逻辑谬误"],
+          "trigger": ["追涨杀跌、连赢加注", "'他手感好，接着投'式判断"],
+          "avoid_when": ["某些存在真实动量效应的特定情境"],
+          "transform": ["确认事件是否独立", "独立事件不按序列下注", "区分真实动量与随机 streak"],
+          "agent_instruction": "'连中三元所以下一发更稳'——除非存在真实的动量机制，否则这就是热手谬误。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Hot-Hand Fallacy",
+          "aliases": [],
+          "description": "Erroneously believing a streak of success will continue, ignoring that independent events do not influence each other.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Hot_hand",
+          "tags": ["probability", "logical fallacy"],
+          "trigger": ["Chasing wins, doubling down on streaks", "'He is on fire, keep feeding him' judgments"],
+          "avoid_when": ["Specific contexts with genuine momentum effects"],
+          "transform": ["Verify whether events are independent", "Never bet on sequence in independent events", "Separate real momentum from random streaks"],
+          "agent_instruction": "'Three hits in a row, the next one is safer'—unless a real momentum mechanism exists, this is the hot-hand fallacy.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "illusion-of-truth",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "effect",
+      "domains": ["psychology", "media"],
+      "intents": ["avoid-error", "evaluate"],
+      "locales": {
+        "cn": {
+          "name": "真相错觉效应",
+          "aliases": ["Illusion of Truth Effect"],
+          "description": "重复出现的信息更容易被当成真的，即使没有证据支持。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Illusory_truth_effect",
+          "tags": ["认知偏差", "传播"],
+          "trigger": ["判断广为流传的说法", "评估广告、宣传的效力"],
+          "avoid_when": [],
+          "transform": ["识别'熟悉感'不等于'真实性'", "回到信息源头核查", "多样化信息来源"],
+          "agent_instruction": "'到处都这么说'不是证据；核查原始出处，而不是统计出现次数。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Illusion of Truth Effect",
+          "aliases": ["Illusory truth effect"],
+          "description": "Repeated information is more likely to be believed, even without supporting evidence.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Illusory_truth_effect",
+          "tags": ["cognitive bias", "media"],
+          "trigger": ["Judging widely circulated claims", "Assessing the power of ads and propaganda"],
+          "avoid_when": [],
+          "transform": ["Recognize that familiarity is not truth", "Verify at the original source", "Diversify information sources"],
+          "agent_instruction": "'Everyone says so' is not evidence; check the original source instead of counting repetitions.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "false-consensus-effect",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "bias",
+      "domains": ["psychology", "judgment"],
+      "intents": ["avoid-error", "reflect"],
+      "locales": {
+        "cn": {
+          "name": "错误共识效应",
+          "aliases": ["False Consensus Effect"],
+          "description": "高估他人与自己观点一致的程度，以为所有人以同样方式思考。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/False_consensus_effect",
+          "tags": ["认知偏差", "社会判断"],
+          "trigger": ["把自己的观点当成'常识'", "小圈子内的共识判断"],
+          "avoid_when": [],
+          "transform": ["列出观点可能错的地方", "主动与不同群体交流", "用调查数据替代猜测"],
+          "agent_instruction": "'大家都这么认为'之前，先数一下：你这个'大家'到底有几个人、都是谁？",
+          "source_text": "社会心理学家 Ross 与 Koenig 1977 年提出（原文标注）。"
+        },
+        "en": {
+          "name": "False Consensus Effect",
+          "aliases": [],
+          "description": "Overestimating how much others agree with you, assuming everyone thinks the same way.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/False_consensus_effect",
+          "tags": ["cognitive bias", "social judgment"],
+          "trigger": ["Treating your view as 'common sense'", "Consensus judgment inside a small circle"],
+          "avoid_when": [],
+          "transform": ["List where your view could be wrong", "Talk to different groups", "Replace guessing with survey data"],
+          "agent_instruction": "Before saying 'everyone thinks so', count: how many people is your 'everyone', and who are they?",
+          "source_text": "Proposed by social psychologists Ross and Koenig in 1977 (as noted in the source text)."
+        }
+      }
+    },
+    {
+      "id": "analysis-paralysis",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "effect",
+      "domains": ["psychology", "decision-making"],
+      "intents": ["decide", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "分析瘫痪",
+          "aliases": ["Analysis Paralysis", "选择超载"],
+          "description": "选择过多、分析过度导致迟迟无法决策，错失机会。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Analysis_paralysis",
+          "tags": ["决策", "心理效应"],
+          "trigger": ["选项太多、信息过载", "陷入反复权衡的循环"],
+          "avoid_when": ["高风险决策确实需要充分分析时"],
+          "transform": ["明确核心目标", "只比较关键因素", "设定决策截止时间"],
+          "agent_instruction": "信息收集超过一个临界点就递减价值；设一个 deadline，到点用现有信息拍板。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Analysis Paralysis",
+          "aliases": ["Choice overload"],
+          "description": "Too many options and over-analysis freeze decision-making and cost opportunities.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Analysis_paralysis",
+          "tags": ["decision-making", "psychological effect"],
+          "trigger": ["Too many options, information overload", "Stuck in endless weighing loops"],
+          "avoid_when": ["High-stakes decisions that genuinely require full analysis"],
+          "transform": ["Clarify the core goal", "Compare only key factors", "Set a decision deadline"],
+          "agent_instruction": "Information gathering has diminishing returns past a threshold; set a deadline and decide with what you have.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "frequency-illusion",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "effect",
+      "domains": ["psychology", "attention"],
+      "intents": ["avoid-error", "reflect"],
+      "locales": {
+        "cn": {
+          "name": "频率错觉",
+          "aliases": ["Frequency Illusion"],
+          "description": "注意到某事物后，会觉得它出现的频率突然变高了，其实只是你的注意力变了。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Frequency_illusion",
+          "tags": ["认知偏差", "注意力"],
+          "trigger": ["刚买车后觉得满街都是同款", "刚学新概念后到处看见它"],
+          "avoid_when": [],
+          "transform": ["区分'频率变了'和'注意力变了'", "用计数或数据验证", "警惕据此高估事物重要性"],
+          "agent_instruction": "'最近怎么到处都是……'——先用数据验证，很可能只是你开始注意了。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Frequency Illusion",
+          "aliases": [],
+          "description": "After noticing something, it seems to appear far more often, when only your attention has changed.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Frequency_illusion",
+          "tags": ["cognitive bias", "attention"],
+          "trigger": ["Seeing your new car model everywhere", "Noticing a new concept all around"],
+          "avoid_when": [],
+          "transform": ["Separate 'frequency changed' from 'attention changed'", "Verify with counts or data", "Beware of overestimating importance"],
+          "agent_instruction": "'Why is X everywhere lately'—verify with data first; you probably just started noticing it.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "planning-fallacy",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "bias",
+      "domains": ["psychology", "planning"],
+      "intents": ["plan", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "规划谬误",
+          "aliases": ["Planning Fallacy"],
+          "description": "预测工期时只考虑最佳情况，系统性低估完成所需时间。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Planning_fallacy",
+          "tags": ["认知偏差", "规划"],
+          "trigger": ["做项目排期", "承诺交付时间"],
+          "avoid_when": ["紧急任务中乐观估计有动员作用时（有限适用）"],
+          "transform": ["参考过去同类任务的实际耗时", "逐项分解步骤并计入障碍", "加缓冲并跟踪复盘"],
+          "agent_instruction": "估工期时别问'顺利的话要多久'，去翻上一个类似项目实际花了多久。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Planning Fallacy",
+          "aliases": [],
+          "description": "Time estimates consider only the best case, systematically underestimating completion time.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Planning_fallacy",
+          "tags": ["cognitive bias", "planning"],
+          "trigger": ["Project scheduling", "Committing to delivery dates"],
+          "avoid_when": ["In emergencies where optimism mobilizes (limited use)"],
+          "transform": ["Reference actual durations of similar past tasks", "Break into steps including obstacles", "Add buffer and track afterwards"],
+          "agent_instruction": "When estimating, do not ask 'how long if all goes well'—look up how long the last similar project actually took.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "zero-risk-bias",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "bias",
+      "domains": ["psychology", "decision-making"],
+      "intents": ["avoid-error", "decide"],
+      "locales": {
+        "cn": {
+          "name": "零风险偏差",
+          "aliases": ["Zero-Risk Bias"],
+          "description": "人们过度偏好把风险降为零的选项，即使代价远高于收益。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Zero-risk_bias",
+          "tags": ["认知偏差", "风险决策"],
+          "trigger": ["安全、医疗、投资决策", "出现'彻底消除风险'的选项时"],
+          "avoid_when": [],
+          "transform": ["比较降低风险的边际成本与边际收益", "接受可控的小风险换取更大回报", "识别'零风险'选项的真实代价"],
+          "agent_instruction": "为了最后 1% 的风险消除付出不成比例的代价前，算算边际收益是否值得。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Zero-Risk Bias",
+          "aliases": [],
+          "description": "People over-prefer options that reduce risk to zero, even at disproportionate cost.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Zero-risk_bias",
+          "tags": ["cognitive bias", "risk decision"],
+          "trigger": ["Safety, medical, investment decisions", "When an 'eliminate risk entirely' option appears"],
+          "avoid_when": [],
+          "transform": ["Compare marginal cost and benefit of risk reduction", "Accept manageable small risks for larger returns", "Spot the real cost of 'zero risk' options"],
+          "agent_instruction": "Before paying a disproportionate price to eliminate the last 1% of risk, compute whether the marginal benefit is worth it.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "rhyme-as-reason",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "effect",
+      "domains": ["psychology", "persuasion"],
+      "intents": ["avoid-error", "communicate"],
+      "locales": {
+        "cn": {
+          "name": "韵律当理由效应",
+          "aliases": ["Rhyme as Reason Effect"],
+          "description": "押韵、顺口的句子被认为更真实、更有道理，即使内容毫无根据。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Rhyme-as-reason_effect",
+          "tags": ["认知偏差", "传播"],
+          "trigger": ["评估广告语、口号、谚语", "听到'顺口溜'式的结论"],
+          "avoid_when": [],
+          "transform": ["把韵律和内容分开评估", "只审查命题本身的事实与逻辑", "警惕自己用押韵记忆替代验证"],
+          "agent_instruction": "'说得顺口'和'说得对'是两回事；把口号翻译成普通句子再判断真伪。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Rhyme as Reason Effect",
+          "aliases": ["Eaton-Rosen phenomenon"],
+          "description": "Rhyming, fluent statements are judged as more truthful and reasonable even when contentless.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Rhyme-as-reason_effect",
+          "tags": ["cognitive bias", "persuasion"],
+          "trigger": ["Evaluating slogans and jingles", "Hearing proverb-style conclusions"],
+          "avoid_when": [],
+          "transform": ["Separate fluency from content", "Judge the proposition on facts and logic", "Beware of substituting memorability for verification"],
+          "agent_instruction": "'Sounds good' and 'is true' are different things; rewrite the slogan as a plain sentence before judging it.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "thick-skin-bias",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "bias",
+      "domains": ["psychology", "ethics"],
+      "intents": ["avoid-error", "empathize"],
+      "locales": {
+        "cn": {
+          "name": "皮糙肉厚偏见",
+          "aliases": ["Thick Skin Bias"],
+          "description": "认为吃过苦的人对新的痛苦更不敏感，从而系统性低估弱势者的痛苦。",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["认知偏差", "同理心"],
+          "trigger": ["评估他人的痛苦与需求", "制定对弱势群体的支持政策"],
+          "avoid_when": [],
+          "transform": ["识别'吃过苦=更耐痛'的默认假设", "了解未愈合创伤会放大而非缓冲伤害", "按真实需求而非推测的承受力分配支持"],
+          "agent_instruction": "不要因为某人'习惯了吃苦'就低估他的痛苦——未经愈合的伤口只会一碰就大出血。",
+          "source_text": "示例出处：请替换为可追溯的书名、作者或原始资料说明。"
+        },
+        "en": {
+          "name": "Thick Skin Bias",
+          "aliases": [],
+          "description": "Assuming people who have suffered are less sensitive to new suffering, systematically underestimating the pain of the disadvantaged.",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["cognitive bias", "empathy"],
+          "trigger": ["Assessing others' pain and needs", "Designing support for vulnerable groups"],
+          "avoid_when": [],
+          "transform": ["Spot the default 'suffered before = tougher' assumption", "Learn that unhealed trauma amplifies rather than buffers harm", "Allocate support by real need, not assumed tolerance"],
+          "agent_instruction": "Never discount someone's pain because they are 'used to hardship'—unhealed wounds bleed at the slightest touch.",
+          "source_text": "Example source: replace with a traceable book, author, or original material."
+        }
+      }
+    },
+    {
+      "id": "meritocracy-trap",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "concept",
+      "domains": ["sociology", "ethics"],
+      "intents": ["reflect", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "优绩主义陷阱",
+          "aliases": ["The Meritocracy Trap"],
+          "description": "成功者把成功全部归因于努力，从而傲慢地轻视'不够努力'的失败者，忘记运气与时代。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/The_Tyranny_of_Merit",
+          "tags": ["社会哲学", "归因"],
+          "trigger": ["'你穷是因为你不努力'式论断", "成功者评估自己的成就来源"],
+          "avoid_when": [],
+          "transform": ["盘点成功中的运气与助力因素", "对失败者保持谦卑", "区分'努力的运气'与'努力的价值'"],
+          "agent_instruction": "评价任何人的成败时，把家庭、时代、机遇放回等式——成功从来不只是个人努力的产物。",
+          "source_text": "迈克尔·桑德尔（Michael Sandel）相关论述（《优绩的暴政》The Tyranny of Merit）。"
+        },
+        "en": {
+          "name": "Meritocracy Trap",
+          "aliases": ["The Tyranny of Merit"],
+          "description": "Winners attribute success solely to effort, becoming arrogantly contemptuous of 'insufficiently hardworking' losers, forgetting luck and timing.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/The_Tyranny_of_Merit",
+          "tags": ["social philosophy", "attribution"],
+          "trigger": ["'Poor because lazy' style claims", "Winners auditing the sources of their success"],
+          "avoid_when": [],
+          "transform": ["Inventory luck and help in your success", "Stay humble toward the less fortunate", "Separate the luck of effort from the value of effort"],
+          "agent_instruction": "When judging anyone's success or failure, put family, era, and chance back into the equation—success is never the product of effort alone.",
+          "source_text": "Michael Sandel, The Tyranny of Merit."
+        }
+      }
+    },
+    {
+      "id": "antinomy",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "concept",
+      "domains": ["philosophy", "reasoning"],
+      "intents": ["evaluate", "simplify"],
+      "locales": {
+        "cn": {
+          "name": "二律背反",
+          "aliases": ["Antinomies"],
+          "description": "理性研究某些超验命题会得出自相矛盾的答案，这类问题在可认知范围之外。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Antinomy",
+          "tags": ["哲学", "认识论"],
+          "trigger": ["一个争论双方都'有理'且无法验证", "陷入形而上学空转时"],
+          "avoid_when": [],
+          "transform": ["识别命题是否超出可验证范围", "用可证伪性/萨根标准检验", "无法证明的命题标记为'无意义'并放下"],
+          "agent_instruction": "对一个争不清的问题，先问：它原则上可被验证吗？不可验证就不要再浪费精力。",
+          "source_text": "康德哲学概念（原文未标注，仅作背景）。"
+        },
+        "en": {
+          "name": "Antinomy",
+          "aliases": [],
+          "description": "Reason applied to certain transcendent propositions yields contradictory answers; such questions lie outside cognition.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Antinomy",
+          "tags": ["philosophy", "epistemology"],
+          "trigger": ["Debates where both sides 'have a point' and nothing is verifiable", "Metaphysical spinning"],
+          "avoid_when": [],
+          "transform": ["Check whether the proposition is verifiable in principle", "Test with falsifiability and Sagan's standard", "Mark unprovable propositions as meaningless and move on"],
+          "agent_instruction": "For an endless dispute, ask first: can it in principle be verified? If not, stop spending energy on it.",
+          "source_text": "Kantian philosophical concept (background note)."
+        }
+      }
+    },
+    {
+      "id": "cartesian-thinking",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "method",
+      "domains": ["reasoning", "problem-solving"],
+      "intents": ["decompose", "verify"],
+      "locales": {
+        "cn": {
+          "name": "笛卡尔思维模型",
+          "aliases": ["笛卡尔方法论", "Cartesian Method"],
+          "description": "对任何观点保持怀疑，把难题层层分解，先易后难整合，再全面检验。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Discourse_on_the_Method",
+          "tags": ["思维方法", "问题求解"],
+          "trigger": ["面对复杂难题无从下手", "需要验证一个流行说法"],
+          "avoid_when": ["时间紧迫需要快速直觉判断时"],
+          "transform": ["不轻易接纳观点", "把难题分层分模块拆解", "先易后难逐层整合", "全面考察校验"],
+          "agent_instruction": "遇到难题先拆：拆到最小可解单元，解决一个封装一个，最后组装并检验整体。",
+          "source_text": "勒内·笛卡尔《谈谈方法》（原文未标注书名）。"
+        },
+        "en": {
+          "name": "Cartesian Thinking Model",
+          "aliases": [],
+          "description": "Doubt every claim, decompose hard problems layer by layer, rebuild easy-to-hard, then verify exhaustively.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Discourse_on_the_Method",
+          "tags": ["thinking method", "problem solving"],
+          "trigger": ["Facing a complex problem with no entry point", "Need to verify a popular claim"],
+          "avoid_when": ["When fast intuitive judgment is required"],
+          "transform": ["Accept nothing lightly", "Decompose the problem into modules", "Integrate from easy to hard", "Verify comprehensively"],
+          "agent_instruction": "When facing a hard problem, decompose it to the smallest solvable units, solve and encapsulate one by one, then assemble and verify the whole.",
+          "source_text": "René Descartes, Discourse on the Method (book title not cited in the source text)."
+        }
+      }
+    },
+    {
+      "id": "prospect-theory",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "theory",
+      "domains": ["economics", "psychology"],
+      "intents": ["explain", "decide"],
+      "locales": {
+        "cn": {
+          "name": "展望理论",
+          "aliases": ["Prospect Theory", "前景理论"],
+          "description": "人们基于参考点而非绝对财富评估得失：获利时规避风险，损失时偏好冒险，且对损失更敏感。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Prospect_theory",
+          "tags": ["行为经济学", "决策理论"],
+          "trigger": ["解释看似不理性的风险选择", "设计定价、谈判、激励方案"],
+          "avoid_when": [],
+          "transform": ["找到对方的参考点", "用损失框架还是收益框架重构选项", "警惕确定效应与迷恋小概率"],
+          "agent_instruction": "设计选择时先找参考点：把选项描述成'得到'还是'失去'，会改变人们的风险偏好。",
+          "source_text": "丹尼尔·卡内曼与阿莫斯·特沃斯基提出。"
+        },
+        "en": {
+          "name": "Prospect Theory",
+          "aliases": [],
+          "description": "People evaluate gains and losses relative to a reference point: risk-averse in gains, risk-seeking in losses, and losses loom larger.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Prospect_theory",
+          "tags": ["behavioral economics", "decision theory"],
+          "trigger": ["Explaining seemingly irrational risk choices", "Designing pricing, negotiation, incentives"],
+          "avoid_when": [],
+          "transform": ["Find the reference point", "Reframe options as gain or loss", "Beware certainty effect and small-probability obsession"],
+          "agent_instruction": "When designing choices, find the reference point first: framing an option as a 'gain' or a 'loss' changes risk appetite.",
+          "source_text": "Daniel Kahneman and Amos Tversky."
+        }
+      }
+    },
+    {
+      "id": "veil-of-ignorance",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "model",
+      "domains": ["philosophy", "ethics"],
+      "intents": ["decide", "design"],
+      "locales": {
+        "cn": {
+          "name": "无知之幕",
+          "aliases": ["Veil of Ignorance"],
+          "description": "设计规则时假设自己不知道自己将处于哪个位置，从而推演出公平的原则。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Veil_of_ignorance",
+          "tags": ["政治哲学", "思想实验"],
+          "trigger": ["设计制度、规则、分配方案", "评估政策公平性"],
+          "avoid_when": [],
+          "transform": ["想象不知道自己是谁", "推演出对最弱势者最有利的方案", "以此检验规则是否公平"],
+          "agent_instruction": "制定规则前问自己：如果我不知道自己会是谁，我还愿意接受这条规则吗？",
+          "source_text": "约翰·罗尔斯（John Rawls）1971 年提出。"
+        },
+        "en": {
+          "name": "Veil of Ignorance",
+          "aliases": [],
+          "description": "Design rules as if you did not know which position you would occupy, yielding fair principles.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Veil_of_ignorance",
+          "tags": ["political philosophy", "thought experiment"],
+          "trigger": ["Designing institutions, rules, allocations", "Evaluating policy fairness"],
+          "avoid_when": [],
+          "transform": ["Imagine not knowing who you will be", "Derive the option best for the worst-off", "Test rules for fairness"],
+          "agent_instruction": "Before setting a rule, ask: if I did not know who I would be, would I still accept it?",
+          "source_text": "Proposed by John Rawls in 1971."
+        }
+      }
+    },
+    {
+      "id": "parkinsons-law",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "law",
+      "domains": ["software-engineering", "management"],
+      "intents": ["plan", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "帕金森定律",
+          "aliases": ["Parkinson's Law"],
+          "description": "工作会膨胀以填满可用于完成它的全部时间。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Parkinson%27s_law",
+          "tags": ["软件工程", "管理", "效率"],
+          "trigger": ["任务排期过松", "工作量随资源扩张"],
+          "avoid_when": ["创造性工作需要探索时间时"],
+          "transform": ["设定紧而合理的时间盒", "按交付价值而非忙碌程度评估", "定期检查膨胀的修饰性工作"],
+          "agent_instruction": "给一个任务两周它就会用两周；先砍到两天的时间盒，看还剩多少是真工作。",
+          "source_text": "西里尔·诺思科特·帕金森 1955 年在《经济学人》提出。"
+        },
+        "en": {
+          "name": "Parkinson's Law",
+          "aliases": [],
+          "description": "Work expands to fill the time available for its completion.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Parkinson%27s_law",
+          "tags": ["software engineering", "management", "efficiency"],
+          "trigger": ["Loosely scheduled tasks", "Workload expanding with resources"],
+          "avoid_when": ["When creative work needs exploration time"],
+          "transform": ["Set tight, reasonable timeboxes", "Evaluate by delivered value, not busyness", "Audit decorative work regularly"],
+          "agent_instruction": "Give a task two weeks and it will take two weeks; cut the timebox to two days and see what real work remains.",
+          "source_text": "C. Northcote Parkinson, The Economist, 1955."
+        }
+      }
+    },
+    {
+      "id": "hofstadters-law",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "law",
+      "domains": ["software-engineering", "planning"],
+      "intents": ["plan", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "霍夫斯塔特定律",
+          "aliases": ["Hofstadter's Law"],
+          "description": "事情总是比你预期的要长，即使你已经考虑了霍夫斯塔特定律。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Hofstadter%27s_law",
+          "tags": ["软件工程", "估算"],
+          "trigger": ["任何跨步骤协作的任务估算"],
+          "avoid_when": [],
+          "transform": ["基于历史数据而非乐观想象估算", "接受不可压缩时间", "为递归的不确定性再留缓冲"],
+          "agent_instruction": "估完时间后默认再乘一个系数——你已经在估算里纠正过的乐观，还不够。",
+          "source_text": "侯世达《哥德尔、艾舍尔、巴赫》（原文未标注）。"
+        },
+        "en": {
+          "name": "Hofstadter's Law",
+          "aliases": [],
+          "description": "Things always take longer than you expect, even when you take Hofstadter's Law into account.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Hofstadter%27s_law",
+          "tags": ["software engineering", "estimation"],
+          "trigger": ["Estimating any multi-step collaborative task"],
+          "avoid_when": [],
+          "transform": ["Estimate from historical data, not optimism", "Accept incompressible time", "Buffer for recursive uncertainty"],
+          "agent_instruction": "After estimating, multiply by a factor—the optimism you already corrected for is not enough.",
+          "source_text": "Douglas Hofstadter, Gödel, Escher, Bach (not cited in the source text)."
+        }
+      }
+    },
+    {
+      "id": "brooks-law",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "law",
+      "domains": ["software-engineering", "management"],
+      "intents": ["manage", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "布鲁克斯定律",
+          "aliases": ["Brooks's Law"],
+          "description": "向进度落后的软件项目增加人手，只会让它更加延期。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Brooks%27s_law",
+          "tags": ["软件工程", "项目管理"],
+          "trigger": ["项目延期后考虑加人", "团队规模快速扩张"],
+          "avoid_when": ["项目早期、任务高度可并行时"],
+          "transform": ["识别落后原因是范围还是人力", "砍需求、砍范围优先", "加人先算沟通成本"],
+          "agent_instruction": "落后项目的正确动作是砍范围，不是加人——新人 ramp-up 和沟通成本会吃掉贡献。",
+          "source_text": "弗雷德里克·布鲁克斯《人月神话》（原文标注 2023/7/4）。"
+        },
+        "en": {
+          "name": "Brooks's Law",
+          "aliases": [],
+          "description": "Adding people to a late software project makes it later.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Brooks%27s_law",
+          "tags": ["software engineering", "project management"],
+          "trigger": ["Considering adding staff to a late project", "Rapid team expansion"],
+          "avoid_when": ["Early-stage projects with highly parallelizable tasks"],
+          "transform": ["Diagnose whether the cause is scope or staffing", "Cut scope first", "Compute communication cost before adding people"],
+          "agent_instruction": "The right move for a late project is cutting scope, not adding people—onboarding and communication eat the contribution.",
+          "source_text": "Frederick Brooks, The Mythical Man-Month (noted 2023/7/4)."
+        }
+      }
+    },
+    {
+      "id": "conways-law",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "law",
+      "domains": ["software-engineering", "organization"],
+      "intents": ["design", "explain"],
+      "locales": {
+        "cn": {
+          "name": "康威定律",
+          "aliases": ["Conway's Law", "逆康威定律"],
+          "description": "组织设计的系统，是其内部沟通结构的复制品。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Conway%27s_law",
+          "tags": ["软件工程", "组织设计"],
+          "trigger": ["系统架构出现部门墙", "想用架构反向调整组织"],
+          "avoid_when": [],
+          "transform": ["把系统架构与组织沟通结构对照", "用逆康威定律：想做什么架构，先调组织结构", "强架构师角色部分抵消"],
+          "agent_instruction": "系统哪里别扭，就去组织结构图里找对应的沟通别扭；想改系统，先改组织。",
+          "source_text": "Melvin Conway，1967（原文未标注年份）。"
+        },
+        "en": {
+          "name": "Conway's Law",
+          "aliases": ["Inverse Conway maneuver"],
+          "description": "Organizations design systems that mirror their communication structures.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Conway%27s_law",
+          "tags": ["software engineering", "org design"],
+          "trigger": ["Department walls appearing in system architecture", "Adjusting org to drive architecture"],
+          "avoid_when": [],
+          "transform": ["Map system architecture to communication structure", "Use inverse Conway: change the org to get the architecture", "A strong architect partially offsets it"],
+          "agent_instruction": "Where the system is awkward, find the matching communication awkwardness in the org chart; to change the system, change the org first.",
+          "source_text": "Melvin Conway, 1967."
+        }
+      }
+    },
+    {
+      "id": "cunninghams-law",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "law",
+      "domains": ["internet", "communication"],
+      "intents": ["obtain", "test"],
+      "locales": {
+        "cn": {
+          "name": "坎宁安定律",
+          "aliases": ["Cunningham's Law"],
+          "description": "在互联网上获得正确答案的最佳方式不是提问，而是发布一个错误答案。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Ward_Cunningham",
+          "tags": ["互联网文化", "求知方法"],
+          "trigger": ["在成熟社区快速验证假设", "问题无人问津时"],
+          "avoid_when": ["新手聚集、无人纠错的社区", "代价高的故意传播错误"],
+          "transform": ["把假设以断言形式发布", "等待纠正并收集论据", "致谢并修正"],
+          "agent_instruction": "想验证一个判断，可以放出你的版本等打脸——但只在有人愿意纠正你的地方用。",
+          "source_text": "以 Ward Cunningham（Wiki 发明者）命名。"
+        },
+        "en": {
+          "name": "Cunningham's Law",
+          "aliases": [],
+          "description": "The best way to get the right answer on the internet is not to ask a question, but to post a wrong answer.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Ward_Cunningham",
+          "tags": ["internet culture", "inquiry method"],
+          "trigger": ["Quickly testing a hypothesis in a mature community", "When questions go unanswered"],
+          "avoid_when": ["Beginner-heavy communities with no one to correct", "When spreading errors is costly"],
+          "transform": ["Post your assumption as an assertion", "Collect the corrections and reasoning", "Acknowledge and fix"],
+          "agent_instruction": "To test a judgment, put your version out and wait to be corrected—but only where people will correct you.",
+          "source_text": "Named after Ward Cunningham, inventor of the Wiki."
+        }
+      }
+    },
+    {
+      "id": "sturgeons-law",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "law",
+      "domains": ["culture", "evaluation"],
+      "intents": ["evaluate", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "斯特金定律",
+          "aliases": ["Sturgeon's Law"],
+          "description": "任何事物 90% 都是垃圾——评价一个领域要看它最好的 10%。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Sturgeon%27s_law",
+          "tags": ["评价", "文化判断"],
+          "trigger": ["'XX 都是垃圾'式的全盘否定", "评估一个新领域值不值得进入"],
+          "avoid_when": [],
+          "transform": ["识别领域基数与平庸的普遍性", "找该领域最好的 10% 来评价", "同样审视自己是否属于 90%"],
+          "agent_instruction": "不要因为随机看到的 90% 就否定一个领域；评价它，去找它最好的 10%。",
+          "source_text": "科幻作家西奥多·斯特金（Theodore Sturgeon）提出（回应'科幻都是垃圾'）。"
+        },
+        "en": {
+          "name": "Sturgeon's Law",
+          "aliases": [],
+          "description": "Ninety percent of everything is crap—judge a field by its best ten percent.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Sturgeon%27s_law",
+          "tags": ["evaluation", "cultural judgment"],
+          "trigger": ["Blanket dismissals like 'all X is garbage'", "Assessing whether a new field is worth entering"],
+          "avoid_when": [],
+          "transform": ["Recognize the base rate of mediocrity", "Find the field's best 10% to judge it", "Check whether your own output is in the 90%"],
+          "agent_instruction": "Do not dismiss a field based on a random 90% sample; to evaluate it, find its best 10%.",
+          "source_text": "By science fiction writer Theodore Sturgeon (in reply to '90% of science fiction is crap')."
+        }
+      }
+    },
+    {
+      "id": "zawinskis-law",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "law",
+      "domains": ["software-engineering"],
+      "intents": ["design", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "扎温斯基定律",
+          "aliases": ["Zawinski's Law"],
+          "description": "每个程序都在持续扩展，直到能读邮件为止；不能这样扩展的程序会被能扩展的取代。",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["软件工程", "产品"],
+          "trigger": ["产品功能蔓延", "工具类产品开始平台化"],
+          "avoid_when": [],
+          "transform": ["识别产品是否正在走向'读邮件'", "评估每个新功能对维护力的吞噬", "为小工具保留 Unix 式的克制"],
+          "agent_instruction": "警惕你自己产品的'读邮件时刻'——它标志功能蔓延开始吞噬维护能力。",
+          "source_text": "Jamie Zawinski 对软件功能蔓延的描述。"
+        },
+        "en": {
+          "name": "Zawinski's Law",
+          "aliases": [],
+          "description": "Every program expands until it can read mail; those that cannot are replaced by those that can.",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["software engineering", "product"],
+          "trigger": ["Software feature creep", "Tool products becoming platforms"],
+          "avoid_when": [],
+          "transform": ["Spot whether the product is heading toward 'reading mail'", "Assess each feature's drain on maintainability", "Keep Unix-style restraint for small tools"],
+          "agent_instruction": "Beware your own product's 'reads mail' moment—it marks feature creep starting to eat maintainability.",
+          "source_text": "Jamie Zawinski's description of software feature creep."
+        }
+      }
+    },
+    {
+      "id": "hyrums-law",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "law",
+      "domains": ["software-engineering", "api-design"],
+      "intents": ["design", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "海勒姆定律",
+          "aliases": ["Hyrum's Law"],
+          "description": "当 API 的用户足够多时，文档承诺什么都不重要——系统的所有可观察行为都会被人依赖。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Hyrum%27s_law",
+          "tags": ["软件工程", "API 设计"],
+          "trigger": ["修改被广泛使用的接口或实现", "想修复一个'非预期'行为"],
+          "avoid_when": ["新系统、内部系统用户很少时"],
+          "transform": ["把任何可观察行为视为契约", "变更默认是破坏性的", "最小化 API 表面积并给迁移路径"],
+          "agent_instruction": "改任何被广泛依赖的东西之前，先假设某个下游正在依赖你要改的那个行为。",
+          "source_text": "Google 工程师 Hyrum Wright 提出。"
+        },
+        "en": {
+          "name": "Hyrum's Law",
+          "aliases": [],
+          "description": "With enough API users, it does not matter what you promise in the contract—every observable behavior will be depended upon.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Hyrum%27s_law",
+          "tags": ["software engineering", "API design"],
+          "trigger": ["Modifying widely used interfaces or implementations", "Wanting to fix an 'unexpected' behavior"],
+          "avoid_when": ["New or internal systems with few users"],
+          "transform": ["Treat every observable behavior as a contract", "Assume changes are breaking", "Minimize API surface and provide migration paths"],
+          "agent_instruction": "Before changing anything widely depended on, assume some downstream system relies on exactly the behavior you are about to change.",
+          "source_text": "Proposed by Google engineer Hyrum Wright."
+        }
+      }
+    },
+    {
+      "id": "prices-law",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "law",
+      "domains": ["productivity", "organization"],
+      "intents": ["manage", "evaluate"],
+      "locales": {
+        "cn": {
+          "name": "普赖斯定律",
+          "aliases": ["Price's Law"],
+          "description": "任何群体中，一半的工作由人数平方根的那部分人完成。",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["组织", "生产力分布"],
+          "trigger": ["评估团队产出集中度", "决定把资源投给谁"],
+          "avoid_when": [],
+          "transform": ["估算 √n 的核心贡献者", "识别并留住关键的少数", "避免误判不可见的支持性工作"],
+          "agent_instruction": "100 人的团队大约 10 人做了一半的活——找出你的 √n，把资源投给他们，同时别误伤支持性角色。",
+          "source_text": "Derek de Solla Price 在科学文献计量中的发现。"
+        },
+        "en": {
+          "name": "Price's Law",
+          "aliases": [],
+          "description": "Half of the work in any group is done by the square root of the number of people in it.",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["organization", "productivity distribution"],
+          "trigger": ["Assessing output concentration in a team", "Deciding where to allocate resources"],
+          "avoid_when": [],
+          "transform": ["Estimate the sqrt(n) core contributors", "Identify and retain the critical few", "Avoid misjudging invisible support work"],
+          "agent_instruction": "In a 100-person team about 10 people do half the work—find your sqrt(n), invest in them, and do not harm invisible support roles.",
+          "source_text": "Derek de Solla Price's finding in scientometrics."
+        }
+      }
+    },
+    {
+      "id": "ringelmann-effect",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "effect",
+      "domains": ["psychology", "organization"],
+      "intents": ["manage", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "林格尔曼效应",
+          "aliases": ["Ringelmann Effect"],
+          "description": "群体中个体的生产力随群体规模增大而下降：协调损失加社会惰化。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Ringelmann_effect",
+          "tags": ["社会心理", "团队管理"],
+          "trigger": ["大团队人效下降", "会议人数越来越多"],
+          "avoid_when": ["目标清晰、贡献可见、强协作的小团队"],
+          "transform": ["控制团队规模", "让每个人的贡献可识别", "减少协调层级"],
+          "agent_instruction": "人越多人均贡献越小——默认用小团队，并让每个人的产出可见。",
+          "source_text": "法国农业工程师 Ringelmann 的拉绳实验。"
+        },
+        "en": {
+          "name": "Ringelmann Effect",
+          "aliases": [],
+          "description": "Individual productivity declines as group size grows: coordination loss plus social loafing.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Ringelmann_effect",
+          "tags": ["social psychology", "team management"],
+          "trigger": ["Declining per-capita output in large teams", "Meetings growing ever larger"],
+          "avoid_when": ["Small teams with clear goals and visible contributions"],
+          "transform": ["Keep teams small", "Make each person's contribution identifiable", "Reduce coordination layers"],
+          "agent_instruction": "More people means less output per person—default to small teams and make everyone's work visible.",
+          "source_text": "French agricultural engineer Ringelmann's rope-pulling experiment."
+        }
+      }
+    },
+    {
+      "id": "goodharts-law",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "law",
+      "domains": ["economics", "measurement"],
+      "intents": ["design", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "古德哈特定律",
+          "aliases": ["Goodhart's Law", "古德哈特法则"],
+          "description": "一项指标一旦成为目标，它就不再是好指标。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Goodhart%27s_law",
+          "tags": ["度量", "管理", "激励设计"],
+          "trigger": ["设定 KPI、OKR", "用单一指标考核"],
+          "avoid_when": [],
+          "transform": ["指标组合使用", "定期检查指标与实际目标的背离", "保留不可优化的定性判断"],
+          "agent_instruction": "任何用于考核的指标都会被'优化'——问一句：这个指标还代表它原本想衡量的事吗？",
+          "source_text": "经济学家 Charles Goodhart 提出。"
+        },
+        "en": {
+          "name": "Goodhart's Law",
+          "aliases": [],
+          "description": "When a measure becomes a target, it ceases to be a good measure.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Goodhart%27s_law",
+          "tags": ["measurement", "management", "incentive design"],
+          "trigger": ["Setting KPIs and OKRs", "Assessing by a single metric"],
+          "avoid_when": [],
+          "transform": ["Use metric portfolios", "Audit divergence between metric and goal", "Keep ungameable qualitative judgment"],
+          "agent_instruction": "Any metric used for assessment will be gamed—ask: does this number still represent what it was meant to measure?",
+          "source_text": "By economist Charles Goodhart."
+        }
+      }
+    },
+    {
+      "id": "gilbs-law",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "law",
+      "domains": ["software-engineering", "measurement"],
+      "intents": ["measure", "improve"],
+      "locales": {
+        "cn": {
+          "name": "吉尔布定律",
+          "aliases": ["Gilb's Law"],
+          "description": "任何你需要量化的东西，都可以找到某种测量方法，这总比完全不测量要好。",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["度量", "软件工程"],
+          "trigger": ["有人说'这个没法度量'", "需要驱动改进但缺数据"],
+          "avoid_when": ["粗糙度量制造虚假精确感时", "测量成本超过收益时"],
+          "transform": ["拒绝'无法度量'的借口", "先上粗糙的度量", "与古德哈特定律配合：测但防博弈"],
+          "agent_instruction": "代码质量没法直接测？先测缺陷密度、圈复杂度、返工率——粗糙的测量好过不测量。",
+          "source_text": "Tom Gilb（软件工程度量先驱）提出。"
+        },
+        "en": {
+          "name": "Gilb's Law",
+          "aliases": [],
+          "description": "Anything you need to quantify can be measured in some way, which is better than not measuring at all.",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["measurement", "software engineering"],
+          "trigger": ["Hearing 'this cannot be measured'", "Needing data to drive improvement"],
+          "avoid_when": ["When crude metrics create false precision", "When measurement cost exceeds benefit"],
+          "transform": ["Reject the 'unmeasurable' excuse", "Start with crude metrics", "Pair with Goodhart: measure but prevent gaming"],
+          "agent_instruction": "Cannot measure code quality directly? Start with defect density, cyclomatic complexity, rework rate—crude measurement beats none.",
+          "source_text": "By Tom Gilb, software engineering metrics pioneer."
+        }
+      }
+    },
+    {
+      "id": "murphys-law",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "law",
+      "domains": ["engineering", "risk"],
+      "intents": ["design", "avoid-error"],
+      "locales": {
+        "cn": {
+          "name": "墨菲定律",
+          "aliases": ["Murphy's Law"],
+          "description": "凡是可能出错的事，就一定会出错——小概率事件在足够重复后必然发生。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Murphy%27s_law",
+          "tags": ["工程", "风险管理"],
+          "trigger": ["系统设计评审", "'应该不会出问题'式的侥幸心理"],
+          "avoid_when": [],
+          "transform": ["假设故障必然发生", "设计 fail-safe、冗余、熔断", "把'应该不会'视为危险信号"],
+          "agent_instruction": "没做备份的东西一定会坏、没设限额的资源一定会耗尽——设计时按'必然出错'来做。",
+          "source_text": "工程版概率思维（原文未标注具体人物）。"
+        },
+        "en": {
+          "name": "Murphy's Law",
+          "aliases": [],
+          "description": "Anything that can go wrong will go wrong—rare events become inevitable with enough repetition.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Murphy%27s_law",
+          "tags": ["engineering", "risk management"],
+          "trigger": ["System design reviews", "'It should be fine' style complacency"],
+          "avoid_when": [],
+          "transform": ["Assume failure will happen", "Design fail-safe, redundancy, circuit breakers", "Treat 'should be fine' as a red flag"],
+          "agent_instruction": "Whatever you did not back up will break; whatever you did not rate-limit will be exhausted—design assuming failure.",
+          "source_text": "Engineering version of probabilistic thinking (no person cited in the source text)."
+        }
+      }
+    },
+    {
+      "id": "inversion",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "heuristic",
+      "domains": ["reasoning"],
+      "intents": ["simplify", "identify-risk"],
+      "locales": {
+        "cn": {
+          "name": "逆向思维",
+          "aliases": ["逆向推演", "Inversion"],
+          "description": "从目标或失败结果倒推条件：不问'怎样成功'，先问'怎样必然失败'，然后避开它。",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["决策", "风险分析"],
+          "trigger": ["重要决策", "方案风险不明确"],
+          "avoid_when": ["缺少基本事实，无法建立合理的倒推条件"],
+          "transform": ["先定义目标或失败结果", "倒推出关键条件与风险", "逐条设防"],
+          "agent_instruction": "先明确目标或可能的失败结果，再倒推关键条件、风险和可采取的步骤。",
+          "source_text": "数学家雅可比：'反过来想，总是反过来想'；芒格推崇的思维方法。"
+        },
+        "en": {
+          "name": "Inversion",
+          "aliases": [],
+          "description": "Reason backward from a goal or failure state: instead of asking 'how to succeed', ask 'how to guarantee failure' and avoid it.",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["decision-making", "risk analysis"],
+          "trigger": ["Important decisions", "Unclear risks in a plan"],
+          "avoid_when": ["There is not enough information to define plausible conditions"],
+          "transform": ["Define the goal or failure state", "Work backward to identify conditions and risks", "Defend against each"],
+          "agent_instruction": "Start from the goal or a plausible failure state, then work backward to identify key conditions, risks, and practical steps.",
+          "source_text": "Carl Jacobi: 'Invert, always invert'; a method championed by Charlie Munger."
+        }
+      }
+    },
+    {
+      "id": "second-order-thinking",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "heuristic",
+      "domains": ["reasoning", "decision-making"],
+      "intents": ["decide", "predict"],
+      "locales": {
+        "cn": {
+          "name": "第二层思维",
+          "aliases": ["Second-Order Thinking"],
+          "description": "在'会怎样'之后再问一句'然后呢'，推演结果的结果。",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["决策", "思维方法"],
+          "trigger": ["一阶后果很舒服的决策", "竞争激烈、预期博弈的场景"],
+          "avoid_when": ["过度推演导致分析瘫痪时"],
+          "transform": ["写出一阶后果", "逐层推演二阶、三阶后果", "特别审查'人人都这么做'时的均衡结果"],
+          "agent_instruction": "每个决策前问'然后呢'：这个动作的后果会引发什么新的后果？",
+          "source_text": "霍华德·马克斯《投资最重要的事》对第一层/第二层思维的区分。"
+        },
+        "en": {
+          "name": "Second-Order Thinking",
+          "aliases": [],
+          "description": "After asking 'what happens', ask 'and then what', reasoning through consequences of consequences.",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["decision-making", "thinking method"],
+          "trigger": ["Decisions with comfortable first-order outcomes", "Competitive, expectation-driven situations"],
+          "avoid_when": ["When over-thinking leads to analysis paralysis"],
+          "transform": ["Write down first-order outcomes", "Derive second- and third-order consequences", "Scrutinize the equilibrium when 'everyone does it'"],
+          "agent_instruction": "Before each decision ask 'and then what': what new consequences will this action's outcomes trigger?",
+          "source_text": "Howard Marks' distinction between first-level and second-level thinking in The Most Important Thing."
+        }
+      }
+    },
+    {
+      "id": "first-principles",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "heuristic",
+      "domains": ["reasoning", "innovation"],
+      "intents": ["decompose", "innovate"],
+      "locales": {
+        "cn": {
+          "name": "第一性原理",
+          "aliases": ["First Principles"],
+          "description": "把问题拆解到不可再分的基本事实，再从零重建解决方案，而不是靠类比。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/First_principle",
+          "tags": ["创新", "思维方法"],
+          "trigger": ["'历来如此'的价格与做法", "类比思维触及天花板时"],
+          "avoid_when": ["大多数日常问题——类比更快且足够", "时间和资源不允许深度拆解时"],
+          "transform": ["否定默认假设", "拆到物理/逻辑上成立的基本事实", "从零重建方案"],
+          "agent_instruction": "遇到'大家都这么做'时，问一句：这件事本质上是什么？物理上成立的边界在哪里？",
+          "source_text": "源自亚里士多德，因马斯克（火箭原材料成本仅为售价 2%）而流行。"
+        },
+        "en": {
+          "name": "First Principles",
+          "aliases": [],
+          "description": "Break a problem down to irreducible basic facts and rebuild the solution from scratch instead of reasoning by analogy.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/First_principle",
+          "tags": ["innovation", "thinking method"],
+          "trigger": ["'It has always been done this way' pricing or practice", "When analogy hits a ceiling"],
+          "avoid_when": ["Most everyday problems where analogy is fast and sufficient", "When time and budget forbid deep decomposition"],
+          "transform": ["Challenge default assumptions", "Reduce to physically/logically basic facts", "Rebuild from zero"],
+          "agent_instruction": "When facing 'everyone does it this way', ask: what is this thing fundamentally, and where are its physical limits?",
+          "source_text": "From Aristotle, popularized by Elon Musk (rocket raw material cost at 2% of sale price)."
+        }
+      }
+    },
+    {
+      "id": "three-levels-of-understanding",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "model",
+      "domains": ["systems-thinking", "reasoning"],
+      "intents": ["explain", "design"],
+      "locales": {
+        "cn": {
+          "name": "理解世界的三个层次：从事件、局势到结构",
+          "aliases": ["事件-局势-结构", "Three Levels of Understanding"],
+          "description": "事件是表象，局势是趋势，结构才是根因；在结构层发力才有杠杆。",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["系统思考", "问题分析"],
+          "trigger": ["同一个问题反复发生", "只会'救火'想找到杠杆解"],
+          "avoid_when": ["小问题不值得下沉到结构层分析时"],
+          "transform": ["事件层：发生了什么", "局势层：一直在发生什么", "结构层：什么导致了局势，在结构层做设计"],
+          "agent_instruction": "反复出现的问题，答案一定在上一层。问自己：这是第几次发生？",
+          "source_text": "彼得·圣吉《第五项修炼》、梅多斯《系统之美》的系统思考框架。"
+        },
+        "en": {
+          "name": "Three Levels of Understanding: Events, Trends, Structure",
+          "aliases": [],
+          "description": "Events are surface, trends are patterns, structure is the root cause; leverage lives at the structural level.",
+          "cover_image": "",
+          "wiki_url": "",
+          "tags": ["systems thinking", "problem analysis"],
+          "trigger": ["The same problem recurring", "Firefighting without leverage"],
+          "avoid_when": ["Small problems not worth structural-level analysis"],
+          "transform": ["Events: what happened", "Trends: what keeps happening", "Structure: what drives the trends—design there"],
+          "agent_instruction": "For recurring problems, the answer lies one level up. Ask yourself: how many times has this happened?",
+          "source_text": "Systems thinking framework from Peter Senge's The Fifth Discipline and Donella Meadows' Thinking in Systems."
+        }
+      }
+    },
+    {
+      "id": "margin-of-safety",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "heuristic",
+      "domains": ["investing", "engineering"],
+      "intents": ["avoid-error", "decide"],
+      "locales": {
+        "cn": {
+          "name": "安全边际",
+          "aliases": ["Margin of Safety"],
+          "description": "为不可知和错误留出缓冲：建承重 3 万吨的桥，只通行 1 万吨的车。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Margin_of_safety_(financial)",
+          "tags": ["投资", "可靠性", "思维模型"],
+          "trigger": ["估值买入", "可靠性设计", "承诺交付时间"],
+          "avoid_when": [],
+          "transform": ["承认预测必有误差", "买入/设计/承诺都打折扣", "让错误变得可承受"],
+          "agent_instruction": "你的预测一定会错，问题是错的时候死不死——安全边际让错误可承受。",
+          "source_text": "本杰明·格雷厄姆的价值投资概念（《聪明的投资者》）。"
+        },
+        "en": {
+          "name": "Margin of Safety",
+          "aliases": [],
+          "description": "Leave buffer for the unknowable and for error: build a bridge rated for 30,000 tons, let only 10,000 cross.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Margin_of_safety_(financial)",
+          "tags": ["investing", "reliability", "mental model"],
+          "trigger": ["Valuation-based buying", "Reliability engineering", "Committing to deadlines"],
+          "avoid_when": [],
+          "transform": ["Admit predictions must err", "Discount buying/design/promises", "Make errors survivable"],
+          "agent_instruction": "Your prediction will be wrong; the question is whether the mistake kills you—margin of safety makes errors survivable.",
+          "source_text": "Benjamin Graham's value-investing concept (The Intelligent Investor)."
+        }
+      }
+    },
+    {
+      "id": "power-law",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "model",
+      "domains": ["statistics", "economics"],
+      "intents": ["evaluate", "plan"],
+      "locales": {
+        "cn": {
+          "name": "幂律分布",
+          "aliases": ["Power Law", "二八定律（特例）"],
+          "description": "少数事件贡献大多数结果，平均值在这个世界里基本失效。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Power_law",
+          "tags": ["统计", "思维模型"],
+          "trigger": ["风投组合、内容流量、城市人口等高度不均的领域", "用'平均案例'做规划"],
+          "avoid_when": [],
+          "transform": ["识别领域是否幂律分布", "放弃平均思维", "全力提高命中右尾的概率和次数"],
+          "agent_instruction": "不要用'平均案例'规划人生和事业；先问你的领域结果是不是幂律的。",
+          "source_text": "二八定律是幂律的特例（原文未标注出处）。"
+        },
+        "en": {
+          "name": "Power Law",
+          "aliases": ["80/20 rule (special case)"],
+          "description": "A few events produce most of the results; averages fail in power-law worlds.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Power_law",
+          "tags": ["statistics", "mental model"],
+          "trigger": ["Highly skewed domains: VC portfolios, content traffic, city sizes", "Planning by the 'average case'"],
+          "avoid_when": [],
+          "transform": ["Check whether the domain is power-law distributed", "Abandon average-based planning", "Maximize the probability and number of right-tail hits"],
+          "agent_instruction": "Do not plan your life or career by the average case; first ask whether your field's outcomes follow a power law.",
+          "source_text": "The 80/20 rule is a special case of power-law distribution."
+        }
+      }
+    },
+    {
+      "id": "nash-equilibrium",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "model",
+      "domains": ["game-theory", "economics"],
+      "intents": ["explain", "design"],
+      "locales": {
+        "cn": {
+          "name": "纳什均衡",
+          "aliases": ["Nash Equilibrium"],
+          "description": "任何一方单独改变策略都不会变得更好的状态；均衡不等于最优。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Nash_equilibrium",
+          "tags": ["博弈论", "思维模型"],
+          "trigger": ["'所有人都不满意但谁都动不了'的僵局", "价格战、内卷、公地悲剧"],
+          "avoid_when": [],
+          "transform": ["识别均衡状态", "意识到个体理性导致集体非理性", "改变规则与收益结构而非劝说个体"],
+          "agent_instruction": "当你发现谁都动不了时，你正处在纳什均衡里——解法不在劝说个人，而在改变规则。",
+          "source_text": "约翰·纳什证明有限博弈中纳什均衡必然存在（原文未标注）。"
+        },
+        "en": {
+          "name": "Nash Equilibrium",
+          "aliases": [],
+          "description": "A state where no party can improve by unilaterally changing strategy; equilibrium is not optimality.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Nash_equilibrium",
+          "tags": ["game theory", "mental model"],
+          "trigger": ["Stalemates where 'nobody is happy but nobody moves'", "Price wars, involution, tragedy of the commons"],
+          "avoid_when": [],
+          "transform": ["Identify the equilibrium", "See individual rationality producing collective irrationality", "Change rules and payoffs instead of persuading individuals"],
+          "agent_instruction": "When nobody can move, you are in a Nash equilibrium—the solution is not persuading individuals but changing the rules.",
+          "source_text": "John Nash proved equilibrium existence in finite games."
+        }
+      }
+    },
+    {
+      "id": "greshams-law",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "law",
+      "domains": ["economics", "organization"],
+      "intents": ["explain", "design"],
+      "locales": {
+        "cn": {
+          "name": "格雷欣法则",
+          "aliases": ["Gresham's Law", "劣币驱逐良币"],
+          "description": "当'好的'与'坏的'被同一标准定价且可自由选择时，坏的会驱逐好的。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Gresham%27s_law",
+          "tags": ["经济学", "机制设计"],
+          "trigger": ["组织里低标准工作驱逐高标准", "柠檬市场、逆向选择"],
+          "avoid_when": ["自由定价、信息充分的市场（可能反转）"],
+          "transform": ["识别'良币消失'现象", "检查定价和奖惩机制", "修复价格信号而非谴责个人"],
+          "agent_instruction": "看到'良币消失'，去查定价和奖惩机制哪里出了问题，而不是谴责个人品质。",
+          "source_text": "托马斯·格雷欣 16 世纪提出（原文未标注）。"
+        },
+        "en": {
+          "name": "Gresham's Law",
+          "aliases": ["Bad money drives out good"],
+          "description": "When the good and the bad are priced the same and freely choosable, the bad drives out the good.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Gresham%27s_law",
+          "tags": ["economics", "mechanism design"],
+          "trigger": ["Low-standard work driving out high standards in organizations", "Lemon markets, adverse selection"],
+          "avoid_when": ["Free-priced, well-informed markets (may reverse)"],
+          "transform": ["Spot the disappearing 'good money'", "Audit pricing and incentive mechanisms", "Fix price signals instead of blaming individuals"],
+          "agent_instruction": "When good money disappears, find the broken pricing and incentive mechanism instead of blaming personal character.",
+          "source_text": "Sir Thomas Gresham, 16th century."
+        }
+      }
+    },
+    {
+      "id": "red-queen-effect",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "effect",
+      "domains": ["evolution", "competition"],
+      "intents": ["evaluate", "decide"],
+      "locales": {
+        "cn": {
+          "name": "红皇后效应",
+          "aliases": ["Red Queen Effect"],
+          "description": "共同进化的系统里大家都在进步，等于谁都没进步：你必须全力奔跑才能留在原地。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Red_Queen_hypothesis",
+          "tags": ["竞争", "进化"],
+          "trigger": ["军备竞赛式的相对竞争", "评估赛道选择"],
+          "avoid_when": [],
+          "transform": ["区分相对竞争与绝对增量", "评估赛道是否'留在原地'式", "选对赛道比全力奔跑重要"],
+          "agent_instruction": "努力前先问：这个赛道是'留在原地'式的相对竞争，还是能创造增量的绝对竞争？",
+          "source_text": "出自刘易斯·卡罗尔《爱丽丝镜中奇遇》红皇后的话；生物学上由 Leigh Van Valen 发展。"
+        },
+        "en": {
+          "name": "Red Queen Effect",
+          "aliases": [],
+          "description": "In co-evolving systems everyone improves, which means nobody gains: you must run as fast as you can to stay in place.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Red_Queen_hypothesis",
+          "tags": ["competition", "evolution"],
+          "trigger": ["Arms-race style relative competition", "Choosing arenas"],
+          "avoid_when": [],
+          "transform": ["Separate relative competition from absolute gains", "Assess whether the arena is 'stay in place' style", "Picking the right race beats running hard"],
+          "agent_instruction": "Before striving, ask: is this a 'run to stay in place' relative competition or an absolute-gains arena?",
+          "source_text": "From Lewis Carroll's Through the Looking-Glass; developed in biology by Leigh Van Valen."
+        }
+      }
+    },
+    {
+      "id": "tragedy-of-the-commons",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "model",
+      "domains": ["economics", "ecology"],
+      "intents": ["explain", "design"],
+      "locales": {
+        "cn": {
+          "name": "公地悲剧",
+          "aliases": ["Tragedy of the Commons"],
+          "description": "共享且有限的资源，在个体理性驱动下被过度使用直至毁灭。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Tragedy_of_the_commons",
+          "tags": ["经济学", "机制设计"],
+          "trigger": ["过度捕捞、地下水超采、环境污染", "任何'收益归自己、成本大家摊'的场景"],
+          "avoid_when": [],
+          "transform": ["识别共享资源与成本分摊结构", "选择解法：私有化、管制、社区自治", "改变成本分摊结构而非谴责素质"],
+          "agent_instruction": "悲剧不是道德问题而是结构问题；指责'素质低'永远无解，改变成本分摊结构才有解。",
+          "source_text": "加勒特·哈丁（Garrett Hardin）1968 年提出；奥斯特罗姆（Ostrom）发现社区可自组织规则。"
+        },
+        "en": {
+          "name": "Tragedy of the Commons",
+          "aliases": [],
+          "description": "Shared, finite resources get overused to destruction under individually rational behavior.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Tragedy_of_the_commons",
+          "tags": ["economics", "mechanism design"],
+          "trigger": ["Overfishing, groundwater depletion, pollution", "Any 'gains are mine, costs are shared' setup"],
+          "avoid_when": [],
+          "transform": ["Identify the shared resource and cost structure", "Pick a fix: privatization, regulation, community governance", "Change cost allocation instead of blaming morality"],
+          "agent_instruction": "The tragedy is structural, not moral; blaming 'low quality people' never solves it—changing cost allocation does.",
+          "source_text": "Garrett Hardin, 1968; Elinor Ostrom showed communities can self-organize governance."
+        }
+      }
+    },
+    {
+      "id": "ergodicity",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "model",
+      "domains": ["probability", "decision-making"],
+      "intents": ["avoid-error", "evaluate"],
+      "locales": {
+        "cn": {
+          "name": "遍历性",
+          "aliases": ["Ergodicity"],
+          "description": "群体平均收益不等于个体长期收益；对个体而言，'爆仓出局'是不可逆的。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Ergodicity",
+          "tags": ["概率", "决策", "风险"],
+          "trigger": ["用'长期平均会回归'安慰承担毁灭性风险的自己", "加杠杆、孤注一掷的决策"],
+          "avoid_when": [],
+          "transform": ["判断系统是否遍历", "识别归零风险", "先保证留在游戏里，再谈收益"],
+          "agent_instruction": "只要存在爆仓风险，群体平均对你就没有意义——你不能跟已经破产的人讲平均。",
+          "source_text": "数学概念，因塔勒布《肥尾效应》在决策领域流行。"
+        },
+        "en": {
+          "name": "Ergodicity",
+          "aliases": [],
+          "description": "The ensemble average is not the individual's time average; ruin is irreversible for the individual.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Ergodicity",
+          "tags": ["probability", "decision-making", "risk"],
+          "trigger": ["Comforting yourself with 'the long-run average reverts' while carrying ruin risk", "Leverage, all-in decisions"],
+          "avoid_when": [],
+          "transform": ["Judge whether the system is ergodic", "Identify ruin risks", "Stay in the game first, then talk returns"],
+          "agent_instruction": "Whenever ruin is possible, the ensemble average means nothing to you—you cannot talk averages with someone who went bankrupt.",
+          "source_text": "Mathematical concept popularized in decision-making by Nassim Taleb (Statistical Consequences of Fat Tails)."
+        }
+      }
+    },
+    {
+      "id": "lindy-effect",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "effect",
+      "domains": ["culture", "evaluation"],
+      "intents": ["evaluate", "decide"],
+      "locales": {
+        "cn": {
+          "name": "林迪效应",
+          "aliases": ["Lindy Effect"],
+          "description": "不会自然消亡的事物，每多存在一年，预期剩余寿命反而增加一年。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Lindy_effect",
+          "tags": ["时间筛选", "评估"],
+          "trigger": ["选择读什么、信什么、用什么", "评估新事物 vs 旧事物"],
+          "avoid_when": ["易腐事物（人、动物、短期产品）"],
+          "transform": ["区分事物是否易腐", "给经过时间检验的东西更高先验权重", "对新生儿事物保持怀疑"],
+          "agent_instruction": "能活过 100 年的书往往还有 100 年可活；给经过时间检验的东西更高的先验权重。",
+          "source_text": "纽约林迪餐厅的经验之谈，经塔勒布《反脆弱》推广。"
+        },
+        "en": {
+          "name": "Lindy Effect",
+          "aliases": [],
+          "description": "For things that do not age (books, ideas, technologies), each additional year of survival implies a longer remaining life expectancy.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Lindy_effect",
+          "tags": ["time filter", "evaluation"],
+          "trigger": ["Choosing what to read, believe, or use", "New vs old things"],
+          "avoid_when": ["Perishable things (people, animals, short-lived products)"],
+          "transform": ["Check whether the thing is perishable", "Give time-tested things higher prior weight", "Stay skeptical of newborns"],
+          "agent_instruction": "A book that survived 100 years probably has 100 more; give time-tested things higher prior weight.",
+          "source_text": "Lindy's delicatessen heuristic, popularized by Nassim Taleb in Antifragile."
+        }
+      }
+    },
+    {
+      "id": "peter-principle",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "principle",
+      "domains": ["organization", "management"],
+      "intents": ["explain", "design"],
+      "locales": {
+        "cn": {
+          "name": "彼得原理",
+          "aliases": ["Peter Principle"],
+          "description": "在层级组织中，员工倾向于晋升到其不能胜任的职位为止。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Peter_principle",
+          "tags": ["组织", "晋升"],
+          "trigger": ["优秀员工升任平庸管理者", "设计晋升机制"],
+          "avoid_when": [],
+          "transform": ["区分'上一岗位的业绩'与'下一岗位的能力'", "建立专业/管理双通道", "用试岗、轮岗、回退机制校正"],
+          "agent_instruction": "晋升奖励的是当前岗位的胜任，但新岗位需要完全不同的能力——评估的是下一岗位的能力，不是上一岗位的业绩。",
+          "source_text": "劳伦斯·彼得（Laurence J. Peter）1969 年提出。"
+        },
+        "en": {
+          "name": "Peter Principle",
+          "aliases": [],
+          "description": "In hierarchies, employees tend to rise to their level of incompetence.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Peter_principle",
+          "tags": ["organization", "promotion"],
+          "trigger": ["Great employees becoming mediocre managers", "Designing promotion systems"],
+          "avoid_when": [],
+          "transform": ["Separate 'performance in the current role' from 'ability for the next'", "Build dual IC/management tracks", "Correct with trials, rotations, and demotions"],
+          "agent_instruction": "Promotion rewards competence in the current role, but the new role needs different abilities—assess next-role ability, not past-role performance.",
+          "source_text": "Laurence J. Peter, 1969."
+        }
+      }
+    },
+    {
+      "id": "endowment-effect",
+      "lifecycle_status": "active",
+      "interaction_type": "lens",
+      "epistemic_type": "bias",
+      "domains": ["behavioral-economics", "psychology"],
+      "intents": ["avoid-error", "negotiate"],
+      "locales": {
+        "cn": {
+          "name": "禀赋效应",
+          "aliases": ["Endowment Effect"],
+          "description": "一旦拥有某物，你对它的估值就会系统性上升。",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Endowment_effect",
+          "tags": ["行为经济学", "认知偏差"],
+          "trigger": ["不愿卖出持仓、房子、自己写的代码", "买卖双方价差悬殊"],
+          "avoid_when": [],
+          "transform": ["意识到'拥有'改变估值", "问'若我现在没持有，愿意按现价买入吗'", "谈判时切换到对方视角"],
+          "agent_instruction": "定期以'如果我现在没持有它，我愿意以现价买入吗'自检存量决策。",
+          "source_text": "卡尼曼、塞勒等的经典咖啡杯实验（mug experiment）。"
+        },
+        "en": {
+          "name": "Endowment Effect",
+          "aliases": [],
+          "description": "Once you own something, your valuation of it rises systematically.",
+          "cover_image": "",
+          "wiki_url": "https://en.wikipedia.org/wiki/Endowment_effect",
+          "tags": ["behavioral economics", "cognitive bias"],
+          "trigger": ["Refusing to sell holdings, houses, or your own code", "Large bid-ask gaps"],
+          "avoid_when": [],
+          "transform": ["Notice that ownership distorts valuation", "Ask 'if I did not own it, would I buy it at this price'", "Switch to the counterparty's perspective in negotiation"],
+          "agent_instruction": "Regularly audit existing positions with 'if I did not hold it today, would I buy it at the current price'.",
+          "source_text": "Kahneman, Knetsch and Thaler's classic coffee mug experiment."
+        }
+      }
+    }
+  ]
+}
