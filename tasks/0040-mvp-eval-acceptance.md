@@ -42,3 +42,9 @@ Status: needs-info
 ## 私有内测准备
 
 2026-09-26 用户说明产品尚未发布、没有可提供的真实使用库，要求先准备不公开部署的私有内测与匿名数据收集，不以 synthetic 或测试调用补数，也不再要求现在提供不存在的库。新增[私有内测手册](../docs/acceptance/invited-pilot-runbook-2026-09-26.md)：固定已审查提交、独立本机数据库与零 Usage 基线、受邀参与者告知、明确主动调用、去标识化真实任务、独立 Eval 许可、撤回和复核、冻结后正式 Gate。新增只读 `npm run pilot:usage` 核对每次 Skill run 与私有会话清单、按 24 小时/全部终态反馈计算 Apply Rate，并把来源真实性保留为人工审查项。临时测试库上的 `node --test tests/pilot-usage.test.mjs` 3/3 通过；当前共享工作树 `npm run check` 76/76（80 个 Markdown）、`npm run demo:build`、`npm run doctor`、`git diff --check` 通过，其中包含未提交的 0041–0043 并发修改。内测尚未启动，当前真实 Usage 仍为 0；0040 `needs-info` 和正式质量 Gate 不变。
+
+## 个人试用版状态
+
+2026-09-26，用户确认“个人试用版可用；0040 正式质量验收待真实任务自然积累”。据此更新项目状态为 `personal-trial-available`。本票继续保持 `needs-info`：真实任务与真实主动 Skill 调用按自然使用积累，维护者随后复核匿名案例、Expected、来源和模型输出，再运行正式 Eval 与 Usage Gate。测试调用和 synthetic 案例均不补入真实使用数；本次状态确认不代表受邀私有内测已启动，也不授权合并或部署。
+
+本次状态更新后，`npm run check` 通过（76/76、80 个 Markdown）、`npm run demo:build`、`npm run doctor` 与 `git diff --check` 通过。初次沙箱内全量测试有 23 项因本机 `127.0.0.1` 监听被拒（`EPERM`）失败；允许本机监听后同一命令 76/76 通过。正式 Eval 与真实 Usage Gate 仍未运行。
