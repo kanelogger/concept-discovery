@@ -1,6 +1,6 @@
 # 0049：搜索与关系导航
 
-Status: planned
+Status: complete
 
 ## 目标与范围
 
@@ -12,7 +12,7 @@ Status: planned
 
 ## 工作分工与进度
 
-当前 Agent 独立负责，工作区为 `codex/web-knowledge-base`。尚未完成本任务。
+当前 Agent 独立负责，工作区为 `codex/web-knowledge-base`。搜索、批量关系预览、URL 状态与独立详情读取已完成。
 
 ## 决策与未决事项
 
@@ -20,7 +20,7 @@ Status: planned
 
 ## 验证证据
 
-待执行。
+2026-09-28：`node --test tests/knowledge-search.test.mjs tests/relations.test.mjs tests/knowledge-fields.test.mjs` 6/6 通过；`npm run check` 79/79 通过；`npm run demo:build` 通过。覆盖搜索排序与语言、关系可见性/方向/去重/不持久化、URL 往返与参数默认值。浏览器历史与滚动实测在 0051 执行。0048 的差异检查曾报告文件末尾额外空行，已在本任务清理。
 
 ## 交接
 

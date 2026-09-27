@@ -5,7 +5,14 @@ export type LocaleData = {
   agent_instruction: string; source_text: string;
 };
 export type Readiness = { browsable: boolean; recommendable: boolean; browse_missing: string[]; recommend_missing: string[] };
+export type RelationView = {
+  id: number; source_concept_id: string; target_concept_id: string;
+  relation_type: "related_to" | "often_used_with" | "contrasts_with" | "extends" | "part_of";
+  direction: "symmetric" | "outgoing" | "incoming"; note: string; version: number;
+  other: { id: string; name: string | null; status: "active" | "archived" | "missing"; browsable: boolean };
+};
 export type Concept = {
+  relation_preview?: RelationView[];
   id: string; lifecycle_status: "active" | "archived"; interaction_type: string | null;
   epistemic_type: string | null; domains: string[]; intents: string[];
   locales: Record<Locale, LocaleData>; version: number; created_at: string; updated_at: string;
@@ -90,4 +97,3 @@ export function createPayload(draft: Draft, preview = false, media?: Record<Loca
   const localeValues = (language: Locale) => Object.fromEntries(Object.entries(values).filter(([path]) => path.startsWith(`locales.${language}.`)).map(([path, value]) => [path.slice(11), value]));
   return { id: preview && !draft.id ? "preview-draft" : draft.id, interaction_type: values.interaction_type, epistemic_type: values.epistemic_type, domains: values.domains, intents: values.intents, locales: { cn: localeValues("cn"), en: localeValues("en") }, ...(media ? { media: mediaPayload(media) } : {}) };
 }
-

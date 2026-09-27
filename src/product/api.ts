@@ -8,4 +8,3 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   if (!response.ok) throw new ApiError(payload.message || "Request failed", payload.error || "request_failed", response.status);
   return payload as T;
 }
-

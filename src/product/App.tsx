@@ -10,16 +10,22 @@ import DashboardView from "./DashboardView";
 import ConceptCard from "./ConceptCard";
 import ConceptEditor from "./ConceptEditor";
 import ConceptDetailModal from "./ConceptDetail";
+import Modal from "./Modal";
+import { useNavigation } from "./useNavigation";
 function App() {
-  const [locale, setLocale] = useState<Locale>("cn");
-  const [section, setSection] = useState<"manage" | "dashboard">("manage");
-  const [density, setDensity] = useState<"cards" | "table">("cards");
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("all");
-  const [tag, setTag] = useState("");
-  const [domain, setDomain] = useState<string[]>([]);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const { navigation, navigate, set: setNavigation } = useNavigation();
+  const { locale, section, density, search, status, tag, domain, page, pageSize, concept: selectedId } = navigation;
+  const setLocale = (value: Locale) => setNavigation("locale", value);
+  const setDensity = (value: "cards" | "table") => setNavigation("density", value);
+  const setSearch = (value: string) => setNavigation("search", value);
+  const setStatus = (value: string) => setNavigation("status", value);
+  const setTag = (value: string) => setNavigation("tag", value);
+  const setDomain = (value: string[]) => setNavigation("domain", value);
+  const setPage = (value: number | ((page: number) => number)) => setNavigation("page", value);
+  const setPageSize = (value: number) => setNavigation("pageSize", value);
+  const openConcept = (id: string) => navigate({ concept: id, section: "manage" });
+  const closeConcept = () => navigate({ concept: null });
+  const [detailError, setDetailError] = useState("");
   const [concepts, setConcepts] = useState<Concept[]>([]);
   const [count, setCount] = useState(0);
   const [selected, setSelected] = useState<Concept | null>(null);
@@ -42,18 +48,31 @@ function App() {
   const currentPage = Math.min(page, pageCount);
   const pageConcepts = concepts.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
-  useEffect(() => { setPage(1); }, [locale, section, search, status, tag, domain]);
+  useEffect(() => {
+    setSelected(null); setDetailError("");
+    if (!selectedId) return;
+    let cancelled = false;
+    api<Concept>(`/api/concepts/${encodeURIComponent(selectedId)}`)
+      .then((concept) => { if (!cancelled) setSelected(concept); })
+      .catch((cause) => { if (!cancelled) setDetailError(cause instanceof Error ? cause.message : "Load failed"); });
+    return () => { cancelled = true; };
+  }, [selectedId, refreshKey]);
+  useEffect(() => {
+    if (selectedId || loading) return;
+    const frame = requestAnimationFrame(() => window.scrollTo(0, window.history.state?.listScroll ?? 0));
+    return () => cancelAnimationFrame(frame);
+  }, [selectedId, loading]);
 
   useEffect(() => {
     if (section === "dashboard") return;
     let cancelled = false;
     const timer = window.setTimeout(async () => {
-      const params = new URLSearchParams({ locale, view: section, q: search, status, tag, domain: domain.join(",") });
+      const params = new URLSearchParams({ locale, view: section, q: search, status, tag, domain: domain.join(","), include: "relation_preview" });
       try {
         const result = await api<{ count: number; concepts: Concept[] }>(`/api/concepts?${params}`);
         if (!cancelled) {
           setConcepts(result.concepts); setCount(result.count); setLoading(false); setError("");
-          setSelected((current) => current ? result.concepts.find((concept) => concept.id === current.id) ?? null : null);
+
         }
       } catch (cause) { if (!cancelled) { setError(cause instanceof Error ? cause.message : "Load failed"); setLoading(false); } }
     }, 120);
@@ -149,8 +168,7 @@ function App() {
         if (exits.length && !window.confirm(`${locale === "cn" ? "保存会降低语言资格：" : "Saving will lower locale readiness:"}\n${exits.join("\n")}\n${locale === "cn" ? "仍要保存吗？" : "Save anyway?"}`)) return;
         saved = await api<Concept>(`/api/concepts/${encodeURIComponent(editor.id)}`, { method: "PATCH", body: JSON.stringify(payload) });
       } else return;
-      setSelected(saved); setEditor(null); setSearch(""); setTag(""); setDomain([]); setStatus("all");
-      if (!saved.readiness[locale].browsable) setSection("manage");
+      setSelected(saved); setEditor(null); openConcept(saved.id);
       setRefreshKey((current) => current + 1);
     } catch (cause) {
       if (cause instanceof ApiError && cause.code === "version_conflict") setConflict(true);
@@ -158,7 +176,7 @@ function App() {
     }
     finally { setBusy(false); }
   };
-  const changeSection = (next: "manage" | "dashboard") => { setSection(next); setStatus("all"); setSearch(""); setTag(""); setDomain([]); setSelected(null); };
+  const changeSection = (next: "manage" | "dashboard") => navigate({ section: next, concept: null });
   const changeLifecycle = async (concept: Concept, next: "archive" | "restore") => {
     if (next === "archive") {
       const impact = (["cn", "en"] as const).map((language) => {
@@ -182,22 +200,17 @@ function App() {
     if (!window.confirm(locale === "cn" ? `永久删除 ${deleteCandidate.id} 及其修订和专属图片？此操作无法撤销。` : `Permanently delete ${deleteCandidate.id}, its revisions, and its unshared images? This cannot be undone.`)) return;
     try {
       await api(`/api/concepts/${encodeURIComponent(deleteCandidate.id)}`, { method: "DELETE", body: JSON.stringify({ expected_version: deleteCandidate.version, confirm_id: deleteCandidate.id }) });
-      setDeleteCandidate(null); setDeleteText(""); setDeleteError(""); setSelected(null); setError(""); setRefreshKey((key) => key + 1);
+      setDeleteCandidate(null); setDeleteText(""); setDeleteError(""); closeConcept(); setSelected(null); setError(""); setRefreshKey((key) => key + 1);
     } catch (cause) { setDeleteError(cause instanceof Error ? cause.message : "Delete failed"); }
   };
   const requestDelete = (concept: Concept) => { setDeleteCandidate(concept); setDeleteText(""); setDeleteError(""); };
-  const openRelatedConcept = async (id: string) => {
-    try {
-      const concept = await api<Concept>(`/api/concepts/${encodeURIComponent(id)}`);
-      setStatus("all"); setSearch(""); setTag(""); setDomain([]); setSelected(concept); setError("");
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "Concept failed to load"); }
-  };
+
 
   return <div className="min-h-screen bg-[#f7f8f5] text-slate-900">
     <header className="sticky top-0 z-30 grid h-16 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center border-b border-slate-200 bg-white/95 px-3 backdrop-blur md:px-10">
       <div className="flex min-w-0 items-center gap-2 sm:gap-3"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-900 text-white"><Compass size={19} /></div><div className="hidden min-w-0 sm:block"><div className="truncate text-sm font-semibold">Concept Discovery</div><div className="text-[11px] text-slate-500">Local Registry</div></div></div>
       <nav aria-label={locale === "cn" ? "主导航" : "Main navigation"} className="flex h-full items-center gap-0.5">{(["manage", "dashboard"] as const).map((item) => <button key={item} type="button" aria-current={section === item ? "page" : undefined} onClick={() => changeSection(item)} className={`inline-flex h-full items-center border-b-2 px-2 text-[11px] sm:px-3 sm:text-xs ${section === item ? "border-emerald-800 font-semibold text-emerald-900" : "border-transparent text-slate-500 hover:text-slate-800"}`}>{item === "manage" ? t.manage : "Dashboard"}</button>)}</nav>
-      <div className="flex justify-self-end items-center gap-1"><button type="button" onClick={() => { setLocale("cn"); setSelected(null); }} aria-pressed={locale === "cn"} className={`rounded-lg px-2 py-2 text-[11px] sm:px-3 sm:text-xs ${locale === "cn" ? "bg-emerald-900 text-white" : "text-slate-500 hover:bg-slate-100"}`}>中文</button><button type="button" onClick={() => { setLocale("en"); setSelected(null); }} aria-pressed={locale === "en"} className={`rounded-lg px-2 py-2 text-[11px] sm:px-3 sm:text-xs ${locale === "en" ? "bg-emerald-900 text-white" : "text-slate-500 hover:bg-slate-100"}`}>English</button></div>
+      <div className="flex justify-self-end items-center gap-1"><button type="button" onClick={() => { setLocale("cn"); }} aria-pressed={locale === "cn"} className={`rounded-lg px-2 py-2 text-[11px] sm:px-3 sm:text-xs ${locale === "cn" ? "bg-emerald-900 text-white" : "text-slate-500 hover:bg-slate-100"}`}>中文</button><button type="button" onClick={() => { setLocale("en"); }} aria-pressed={locale === "en"} className={`rounded-lg px-2 py-2 text-[11px] sm:px-3 sm:text-xs ${locale === "en" ? "bg-emerald-900 text-white" : "text-slate-500 hover:bg-slate-100"}`}>English</button></div>
     </header>
     <main className="mx-auto max-w-6xl px-5 pb-16 md:px-10">
       {section === "dashboard" ? <DashboardView data={dashboard} error={dashboardError} locale={locale} onRefresh={() => setRefreshKey((key) => key + 1)} /> : <>
@@ -205,9 +218,10 @@ function App() {
       <div className="sticky top-16 z-20 mb-5 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white/95 p-3 shadow-sm backdrop-blur"><label className="relative min-w-48 flex-1"><Search size={15} className="absolute left-3 top-3 text-slate-400" /><input value={search} onChange={(event) => setSearch(event.target.value)} aria-label={t.search} placeholder={t.search} className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-emerald-700" /></label><select value={status} onChange={(event) => setStatus(event.target.value)} aria-label="Status" className="rounded-lg border border-slate-200 px-3 py-2 text-sm"><option value="all">{t.all}</option>{section === "manage" && <option value="draft">{t.draft}</option>}<option value="browsable">{t.browsable}</option><option value="recommendable">{t.recommended}</option>{section === "manage" && <option value="archived">{t.archived}</option>}</select><input value={tag} onChange={(event) => setTag(event.target.value)} aria-label={t.tag} placeholder={t.tag} className="w-28 rounded-lg border border-slate-200 px-3 py-2 text-sm" /><div className="w-52 shrink-0"><TaxonomyPicker value={domain} options={taxonomy.domains} locale={locale} chooseLabel={t.chooseDomains} selectedLabel={t.selectedDomains} hint={t.selectDomainHint} confirmLabel={t.confirm} cancelLabel={t.cancel} onChange={setDomain} /></div><div className="ml-auto flex rounded-lg border border-slate-200 p-0.5"><button onClick={() => setDensity("cards")} aria-label="Card view" aria-pressed={density === "cards"} className={`rounded-md p-2 ${density === "cards" ? "bg-emerald-50 text-emerald-900" : "text-slate-400"}`}><Grid2X2 size={16} /></button><button onClick={() => setDensity("table")} aria-label="Table view" aria-pressed={density === "table"} className={`rounded-md p-2 ${density === "table" ? "bg-emerald-50 text-emerald-900" : "text-slate-400"}`}><List size={16} /></button></div></div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500"><span>{count} {t.result}</span><label className="flex items-center gap-2">{t.pageSize}<select aria-label={t.pageSize} value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1); }} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-700"><option value={10}>10</option><option value={20}>20</option><option value={50}>50</option></select></label></div>
       {error && !editor && <p role="alert" className="mb-5 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{error}</p>}
-      {loading ? <p className="text-sm text-slate-500">Loading…</p> : concepts.length === 0 ? <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-20 text-center"><BookOpen className="mx-auto mb-4 text-emerald-800" size={28} /><h2 className="font-medium">{t.empty}</h2></div> : density === "cards" ? <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{pageConcepts.map((concept) => <ConceptCard key={concept.id} concept={concept} locale={locale} manage={section === "manage"} selected={selected?.id === concept.id} onSelect={() => setSelected(concept)} onArchive={() => changeLifecycle(concept, "archive")} onRestore={() => changeLifecycle(concept, "restore")} onDelete={() => requestDelete(concept)} />)}</div> : <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white"><table className="w-full min-w-[650px] text-left text-sm"><thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="px-4 py-3">Concept</th><th className="px-4 py-3">{t.tag}</th><th className="px-4 py-3">Status</th>{section === "manage" && <th className="px-4 py-3">{t.actions}</th>}</tr></thead><tbody>{pageConcepts.map((concept) => <tr key={concept.id} className="border-t border-slate-100"><td className="px-4 py-3"><button type="button" onClick={() => setSelected(concept)} className="block max-w-sm text-left hover:underline"><span className="font-medium text-emerald-900">{concept.locales[locale].name || concept.id}</span><span className="mt-1 block truncate text-xs text-slate-500">{concept.locales[locale].description}</span></button></td><td className="px-4 py-3 text-slate-500">{concept.locales[locale].tags.join(", ")}</td><td className="px-4 py-3 text-slate-500">{concept.lifecycle_status === "archived" ? t.archived : concept.readiness[locale].recommendable ? t.recommended : concept.readiness[locale].browsable ? t.browsable : t.draft}</td>{section === "manage" && <td className="px-4 py-3"><div className="flex flex-wrap items-center gap-x-3 gap-y-1 whitespace-nowrap text-xs"><button type="button" onClick={() => setSelected(concept)} className="text-slate-600 hover:text-slate-900">{t.preview}</button><button type="button" onClick={() => begin(concept)} className="text-emerald-800 hover:text-emerald-950">{t.edit}</button>{concept.lifecycle_status === "active" ? <button type="button" onClick={() => changeLifecycle(concept, "archive")} className="text-rose-700 hover:text-rose-900">{t.delete}</button> : <><button type="button" onClick={() => changeLifecycle(concept, "restore")} className="text-emerald-800 hover:text-emerald-950">{locale === "cn" ? "恢复" : "Restore"}</button><button type="button" onClick={() => requestDelete(concept)} className="text-rose-700 hover:text-rose-900">{t.permanentlyDelete}</button></>}</div></td>}</tr>)}</tbody></table></div>}
+      {loading ? <p className="text-sm text-slate-500">Loading…</p> : concepts.length === 0 ? <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-20 text-center"><BookOpen className="mx-auto mb-4 text-emerald-800" size={28} /><h2 className="font-medium">{t.empty}</h2><p className="mt-3 text-sm text-slate-500">{locale === "cn" ? "试试其他关键词或调整筛选，也可以从草稿继续整理。" : "Try different keywords or filters, or continue editing drafts."}</p><button onClick={() => navigate({ status: "draft", search: "", tag: "", domain: [], page: 1 })} className="mt-4 text-sm text-emerald-800 underline">{locale === "cn" ? "查看草稿" : "View drafts"}</button></div> : density === "cards" ? <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{pageConcepts.map((concept) => <ConceptCard key={concept.id} concept={concept} locale={locale} manage={section === "manage"} selected={selected?.id === concept.id} onSelect={() => openConcept(concept.id)} onOpenRelated={openConcept} onArchive={() => changeLifecycle(concept, "archive")} onRestore={() => changeLifecycle(concept, "restore")} onDelete={() => requestDelete(concept)} />)}</div> : <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white"><table className="w-full min-w-[650px] text-left text-sm"><thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="px-4 py-3">Concept</th><th className="px-4 py-3">{t.tag}</th><th className="px-4 py-3">Status</th>{section === "manage" && <th className="px-4 py-3">{t.actions}</th>}</tr></thead><tbody>{pageConcepts.map((concept) => <tr key={concept.id} className="border-t border-slate-100"><td className="px-4 py-3"><button type="button" onClick={() => openConcept(concept.id)} className="block max-w-sm text-left hover:underline"><span className="font-medium text-emerald-900">{concept.locales[locale].name || concept.id}</span><span className="mt-1 block truncate text-xs text-slate-500">{concept.locales[locale].description}</span></button></td><td className="px-4 py-3 text-slate-500">{concept.locales[locale].tags.join(", ")}</td><td className="px-4 py-3 text-slate-500">{concept.lifecycle_status === "archived" ? t.archived : concept.readiness[locale].browsable ? t.browsable : t.draft}</td>{section === "manage" && <td className="px-4 py-3"><div className="flex flex-wrap items-center gap-x-3 gap-y-1 whitespace-nowrap text-xs"><button type="button" onClick={() => openConcept(concept.id)} className="text-slate-600 hover:text-slate-900">{t.preview}</button><button type="button" onClick={() => begin(concept)} className="text-emerald-800 hover:text-emerald-950">{t.edit}</button>{concept.lifecycle_status === "active" ? <button type="button" onClick={() => changeLifecycle(concept, "archive")} className="text-rose-700 hover:text-rose-900">{t.delete}</button> : <><button type="button" onClick={() => changeLifecycle(concept, "restore")} className="text-emerald-800 hover:text-emerald-950">{locale === "cn" ? "恢复" : "Restore"}</button><button type="button" onClick={() => requestDelete(concept)} className="text-rose-700 hover:text-rose-900">{t.permanentlyDelete}</button></>}</div></td>}</tr>)}</tbody></table></div>}
       {!loading && count > 0 && <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"><span className="text-xs text-slate-500">{(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, count)} / {count}</span><div className="flex items-center gap-3"><button type="button" onClick={() => setPage((value) => Math.max(1, value - 1))} disabled={currentPage === 1} className="rounded-lg border border-slate-200 px-3 py-1.5 disabled:cursor-not-allowed disabled:opacity-40">{t.previousPage}</button><span aria-live="polite" className="text-xs text-slate-600">{t.pageOf} {currentPage} {t.ofPages} {pageCount}{locale === "cn" ? " 页" : ""}</span><button type="button" onClick={() => setPage((value) => Math.min(pageCount, value + 1))} disabled={currentPage >= pageCount} className="rounded-lg border border-slate-200 px-3 py-1.5 disabled:cursor-not-allowed disabled:opacity-40">{t.nextPage}</button></div></div>}
-      {selected && <ConceptDetailModal concept={selected} locale={locale} manage={section === "manage"} refreshKey={refreshKey} onClose={() => setSelected(null)} onRefresh={() => setRefreshKey((key) => key + 1)} onEdit={() => begin(selected)} onArchive={() => changeLifecycle(selected, "archive")} onRestore={() => changeLifecycle(selected, "restore")} onDelete={() => requestDelete(selected)} onOpenRelatedConcept={openRelatedConcept} />}
+      {selectedId && selected?.id === selectedId && <ConceptDetailModal key={selectedId} concept={selected} locale={locale} manage={section === "manage"} refreshKey={refreshKey} onClose={closeConcept} onRefresh={() => setRefreshKey((key) => key + 1)} onEdit={() => begin(selected)} onArchive={() => changeLifecycle(selected, "archive")} onRestore={() => changeLifecycle(selected, "restore")} onDelete={() => requestDelete(selected)} onOpenRelatedConcept={openConcept} />}
+      {selectedId && selected?.id !== selectedId && <Modal title={selectedId} onClose={closeConcept}><div className="p-6"><p role={detailError ? "alert" : "status"}>{detailError || (locale === "cn" ? "读取中…" : "Loading…")}</p><button onClick={closeConcept} className="mt-4 text-emerald-800 underline">{locale === "cn" ? "返回列表" : "Back to library"}</button>{detailError && <button onClick={() => setRefreshKey((key) => key + 1)} className="ml-4 underline">{locale === "cn" ? "重试" : "Retry"}</button>}</div></Modal>}
       </>}
     </main>
     {editor && <ConceptEditor editor={editor} draft={draft} locale={locale} media={media} preview={preview} busy={busy} error={error} conflict={conflict} setField={setField} onSave={save} onClose={closeEditor} onReload={reloadEditor} onChooseImages={chooseImages} onRemoveImage={removeImage} />}

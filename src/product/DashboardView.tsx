@@ -15,4 +15,3 @@ export default function DashboardView({ data, error, locale, onRefresh }: { data
     </>}
   </section>;
 }
-

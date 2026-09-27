@@ -24,4 +24,3 @@ export default function TaxonomyPicker({ value, options, locale, label, chooseLa
 
   </div>;
 }
-

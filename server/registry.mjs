@@ -330,6 +330,28 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
       return db.prepare("SELECT source_concept_id, target_concept_id, relation_type FROM concept_relations ORDER BY id").all()
         .filter((row) => ids.has(row.source_concept_id) && ids.has(row.target_concept_id));
     },
+    relationPreviews: (concepts, locale) => {
+      if (!["cn", "en"].includes(locale)) bad("locale must be cn or en");
+      const previews = new Map(concepts.map((concept) => [concept.id, []]));
+      const targets = new Map(db.prepare("SELECT data FROM concepts").all().map((row) => {
+        const concept = publicConcept(JSON.parse(row.data));
+        return [concept.id, concept];
+      }));
+      for (const row of db.prepare("SELECT * FROM concept_relations ORDER BY id").all()) {
+        for (const currentId of [row.source_concept_id, row.target_concept_id]) {
+          const items = previews.get(currentId);
+          if (!items || items.length >= 2) continue;
+          const otherId = currentId === row.source_concept_id ? row.target_concept_id : row.source_concept_id;
+          const other = targets.get(otherId);
+          if (!other?.readiness[locale].browsable || items.some((item) => item.other.id === otherId)) continue;
+          items.push({ id: row.id, source_concept_id: row.source_concept_id, target_concept_id: row.target_concept_id,
+            relation_type: row.relation_type, direction: symmetricRelations.has(row.relation_type) ? "symmetric" : row.source_concept_id === currentId ? "outgoing" : "incoming",
+            note: row[`note_${locale}`], version: row.version,
+            other: { id: otherId, name: other.locales[locale].name, status: other.lifecycle_status, browsable: true } });
+        }
+      }
+      return concepts.map((concept) => ({ ...concept, relation_preview: previews.get(concept.id) }));
+    },
     listRelations: (conceptId, locale) => {
       get(conceptId);
       if (!["cn", "en"].includes(locale)) bad("locale must be cn or en");
@@ -445,6 +467,12 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
       if (selectedDomains.some((code) => !domainCodes.has(code))) bad("domain is invalid");
       const needle = text(q, "q").toLocaleLowerCase();
       const exactTag = text(tag, "tag");
+      const matchRank = (concept) => {
+        if (!needle) return 0;
+        const local = concept.locales[locale];
+        return [[local.name, ...local.aliases], local.trigger, [...local.questions, ...local.examples], [local.description, ...local.tags]]
+          .findIndex((values) => values.some((value) => value.toLocaleLowerCase().includes(needle)));
+      };
       return db.prepare("SELECT data FROM concepts ORDER BY updated_at DESC, id").all().map((row) => publicConcept(JSON.parse(row.data))).filter((concept) => {
         const local = concept.locales[locale];
         const ready = concept.readiness[locale];
@@ -456,9 +484,9 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
         if (status === "recommendable" && !ready.recommendable) return false;
         if (exactTag && !local.tags.includes(exactTag)) return false;
         if (selectedDomains.length && !selectedDomains.some((code) => concept.domains.includes(code))) return false;
-        if (needle && ![local.name, ...local.aliases, local.description, ...local.tags].some((value) => value.toLocaleLowerCase().includes(needle))) return false;
+        if (matchRank(concept) < 0) return false;
         return true;
-      });
+      }).sort((a, b) => matchRank(a) - matchRank(b) || b.updated_at.localeCompare(a.updated_at) || a.id.localeCompare(b.id));
     },
     revisions: (id) => { get(id); return db.prepare("SELECT revision_id, concept_id, version_before, version_after, actor, operation, changed_at, changes FROM revisions WHERE concept_id = ? ORDER BY revision_id DESC").all(id).map((row) => ({ ...row, changes: JSON.parse(row.changes) })); },
     create: (input, actor = "local-user") => {

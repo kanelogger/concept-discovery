@@ -52,7 +52,10 @@ export function createApiServer({ dbPath, fallback, modelAdapterFactory = config
       }
       if (path.length === 2 && path[1] === "concepts") {
         if (request.method === "GET") {
-          const concepts = registry.query(Object.fromEntries(url.searchParams));
+          let concepts = registry.query(Object.fromEntries(url.searchParams));
+          const include = url.searchParams.get("include");
+          if (include && include !== "relation_preview") throw new RegistryError(400, "invalid_input", "Unknown include");
+          if (include === "relation_preview") concepts = registry.relationPreviews(concepts, url.searchParams.get("locale") || "cn");
           return json(response, 200, { count: concepts.length, concepts });
         }
         if (request.method === "POST") return json(response, 201, registry.create(await body(request)));
