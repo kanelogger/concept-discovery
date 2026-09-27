@@ -1,6 +1,6 @@
 # 0050：双语样本与隔离演示
 
-Status: planned
+Status: complete
 
 ## 目标与范围
 
@@ -12,7 +12,7 @@ Status: planned
 
 ## 工作分工与进度
 
-当前 Agent 独立负责，工作区为 `codex/web-knowledge-base`。尚未完成本任务。
+当前 Agent 独立负责，工作区为 `codex/web-knowledge-base`。已提交 12 条双语样本、12 条解释性关系及安全准备脚本。
 
 ## 决策与未决事项
 
@@ -20,8 +20,13 @@ Status: planned
 
 ## 验证证据
 
-待执行。
+- `node --test tests/knowledge-samples.test.mjs`：3/3 通过；覆盖重启读取、12 条双语可浏览、每条有关联、已有主库/伴随文件/符号链接拒绝、重复 ID、错误引用、非法数组、创建关系中途失败清理。
+- 样本不填写 Agent 指令；可浏览但不可推荐，保持本阶段边界。
+- 来源已由实施 Agent 打开并核对，逐条 URL、标题、位置保存在样本 `source_text`；中文与英文定义对照、案例均为原创说明性示例。
+- 来源范围：TOC Institute（约束理论、五步法、局部优化）；Brent Wahba / LEI（瓶颈）；MIT Eytan Modiano（排队论）；Karl Sigman 2009 讲义（Little 定律）；Kanban University 指南/术语表（WIP、拉动）；Julia Wester（流动效率）；MIT Jérémie Gallien（资源利用率）；Rubinstein / Meyer / Evans 2001 论文摘要（切换）；Art Byrne / LEI（批量）。
+- Little 定律注明长期平均与统一边界；利用率不宣称等于交付效率；实验切换成本不外推固定效率损失。关系推论标记为编者关联。
+- 软件与来源核验完成；需求所说的维护者人工内容审阅需交付后由维护者进行，不以 Agent 审阅冒充人工签收。
 
 ## 交接
 
-完成后更新本记录及根状态，按任务形成独立本地提交。
+下一步 0051 在隔离库完成浏览器验收；维护者人工内容签收仍待执行。

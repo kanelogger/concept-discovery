@@ -3,7 +3,9 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "engines": { "node": ">=24 <25" },
+  "engines": {
+    "node": ">=24 <25"
+  },
   "scripts": {
     "doctor": "node scripts/doctor.mjs",
     "validate": "node scripts/validate.mjs",
@@ -12,13 +14,14 @@
     "demo": "node server/start.mjs",
     "demo:build": "tsc --noEmit && vite build",
     "start": "node server/start.mjs",
-    "test:product": "node --test tests/product.test.mjs",
+    "test:product": "node --test tests/product.test.mjs tests/knowledge-*.test.mjs",
     "model:configure": "node scripts/configure-model.mjs",
     "model:smoke": "node scripts/smoke-deepseek.mjs",
     "model:api-smoke": "node scripts/smoke-recommendation-api.mjs",
     "eval": "node scripts/evaluate.mjs",
     "eval:assess": "node scripts/assess-offline-eval.mjs",
-    "pilot:usage": "node scripts/pilot-usage-summary.mjs"
+    "pilot:usage": "node scripts/pilot-usage-summary.mjs",
+    "demo:prepare": "node scripts/prepare-knowledge-demo.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

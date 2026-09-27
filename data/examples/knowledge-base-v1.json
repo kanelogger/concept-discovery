@@ -1,0 +1,775 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-09-28",
+  "review_note": "Source and bilingual content reviewed by implementation agent; illustrative examples are original, not empirical outcome claims.",
+  "concepts": [
+    {
+      "id": "theory-of-constraints",
+      "interaction_type": "lens",
+      "epistemic_type": "theory",
+      "domains": [
+        "reasoning"
+      ],
+      "intents": [],
+      "locales": {
+        "cn": {
+          "name": "约束理论",
+          "aliases": [
+            "TOC"
+          ],
+          "description": "围绕限制系统整体产出的约束安排改进，并使其他环节配合它。",
+          "trigger": [
+            "大家都很忙但越来越慢，改进了很多部门却没有增加交付。"
+          ],
+          "questions": [
+            "当前限制整体交付的因素是什么？改善它会改变哪个结果？"
+          ],
+          "avoid_when": [
+            "未明确系统目标和边界时，不能凭忙碌程度判定唯一约束。"
+          ],
+          "examples": [
+            "说明性示例：团队每周写完 20 项功能却只能验收 5 项；先调查验收队列，再决定是否继续增加开发投入。"
+          ],
+          "tags": [
+            "流程改进"
+          ],
+          "source_text": "TOC Institute — Theory of Constraints, The Core Idea / Constraints / What is TOC\nhttps://www.tocinstitute.org/theory-of-constraints.html\n2026-09-28 查阅。定义据来源概括；情境、问题和案例为本库编写。"
+        },
+        "en": {
+          "name": "Theory of Constraints",
+          "aliases": [
+            "TOC"
+          ],
+          "description": "Improve system output by focusing on its limiting constraint and aligning other activities with it.",
+          "trigger": [
+            "Everyone is busy but delivery is getting slower."
+          ],
+          "questions": [
+            "What limits completed delivery, and which outcome would change if it improved?"
+          ],
+          "avoid_when": [
+            "Define the system goal and boundary before identifying a constraint; busyness alone is insufficient."
+          ],
+          "examples": [
+            "Illustrative example: A team codes 20 features but accepts only five weekly. Investigate the acceptance queue before adding developers."
+          ],
+          "tags": [
+            "flow-improvement"
+          ],
+          "source_text": "TOC Institute — Theory of Constraints, The Core Idea / Constraints / What is TOC\nhttps://www.tocinstitute.org/theory-of-constraints.html\nReviewed 2026-09-28. Definition summarized from source; prompts and examples written for this library."
+        }
+      }
+    },
+    {
+      "id": "five-focusing-steps",
+      "interaction_type": "procedure",
+      "epistemic_type": "method",
+      "domains": [
+        "reasoning"
+      ],
+      "intents": [],
+      "locales": {
+        "cn": {
+          "name": "五步聚焦法",
+          "aliases": [],
+          "description": "识别约束、充分利用约束、让其他环节配合、提升约束能力，再重新识别，避免惯性。",
+          "trigger": [
+            "已经找到卡点，却不知道先协调流程还是先增人。"
+          ],
+          "questions": [
+            "现有约束能力是否被浪费？其他环节需要怎样配合？"
+          ],
+          "avoid_when": [
+            "不能跳过验证约束，或把增人视为每次改进的第一步。"
+          ],
+          "examples": [
+            "说明性示例：先保护评审人的专注时段，让提交材料齐备；仍不够时再扩充评审能力，然后重新检查瓶颈。"
+          ],
+          "tags": [
+            "流程改进"
+          ],
+          "source_text": "TOC Institute — Five Focusing Steps, steps 1–5\nhttps://www.tocinstitute.org/five-focusing-steps.html\n2026-09-28 查阅。定义据来源概括；情境、问题和案例为本库编写。"
+        },
+        "en": {
+          "name": "Five Focusing Steps",
+          "aliases": [],
+          "description": "Identify the constraint, exploit it, subordinate other work, elevate it, and repeat without inertia.",
+          "trigger": [
+            "We found a bottleneck but are unsure whether to reorganize or hire first."
+          ],
+          "questions": [
+            "Is existing constraint capacity wasted, and what must other activities change?"
+          ],
+          "avoid_when": [
+            "Do not skip identifying the constraint or assume hiring is always the first step."
+          ],
+          "examples": [
+            "Illustrative example: Protect review time and require complete submissions before expanding review capacity, then reassess the constraint."
+          ],
+          "tags": [
+            "flow-improvement"
+          ],
+          "source_text": "TOC Institute — Five Focusing Steps, steps 1–5\nhttps://www.tocinstitute.org/five-focusing-steps.html\nReviewed 2026-09-28. Definition summarized from source; prompts and examples written for this library."
+        }
+      }
+    },
+    {
+      "id": "bottleneck",
+      "interaction_type": "lens",
+      "epistemic_type": "concept",
+      "domains": [
+        "reasoning"
+      ],
+      "intents": [],
+      "locales": {
+        "cn": {
+          "name": "瓶颈",
+          "aliases": [],
+          "description": "在给定需求和流程中，限制整体通过能力的环节或资源。",
+          "trigger": [
+            "工作总在同一个环节排队，前面越快后面积压越多。"
+          ],
+          "questions": [
+            "哪里持续积压？它的有效处理能力和到达量各是多少？"
+          ],
+          "avoid_when": [
+            "短暂排队不必然代表系统瓶颈；需求、返工和停机都可能改变判断。"
+          ],
+          "examples": [
+            "说明性示例：设计每天交付 8 项，验证只能完成 3 项；继续增加设计产出会先扩大待验证队列。"
+          ],
+          "tags": [
+            "流程改进"
+          ],
+          "source_text": "Brent Wahba, Lean Enterprise Institute — What’s Your Company’s Bottleneck? (2014-01-14)\nhttps://www.lean.org/the-lean-post/articles/whats-your-companys-bottleneck/\n2026-09-28 查阅。定义据来源概括；情境、问题和案例为本库编写。"
+        },
+        "en": {
+          "name": "Bottleneck",
+          "aliases": [],
+          "description": "A step or resource that limits overall throughput under the current demand and process.",
+          "trigger": [
+            "Work repeatedly queues at the same step while upstream output increases."
+          ],
+          "questions": [
+            "Where does work accumulate, and how do effective capacity and arrivals compare?"
+          ],
+          "avoid_when": [
+            "A temporary queue does not prove a system bottleneck; demand, rework and downtime matter."
+          ],
+          "examples": [
+            "Illustrative example: Design delivers eight items daily while validation completes three. More design output initially expands the validation queue."
+          ],
+          "tags": [
+            "flow-improvement"
+          ],
+          "source_text": "Brent Wahba, Lean Enterprise Institute — What’s Your Company’s Bottleneck? (2014-01-14)\nhttps://www.lean.org/the-lean-post/articles/whats-your-companys-bottleneck/\nReviewed 2026-09-28. Definition summarized from source; prompts and examples written for this library."
+        }
+      }
+    },
+    {
+      "id": "queueing-theory",
+      "interaction_type": "lens",
+      "epistemic_type": "theory",
+      "domains": [
+        "reasoning"
+      ],
+      "intents": [],
+      "locales": {
+        "cn": {
+          "name": "排队论",
+          "aliases": [
+            "排队理论"
+          ],
+          "description": "研究到达、服务能力及其随机变化如何影响等待时间和队列长度。",
+          "trigger": [
+            "大家都很忙但越来越慢；平均产能似乎够，等待却越来越长。"
+          ],
+          "questions": [
+            "到达和处理时间的波动有多大？工作是在处理还是等待？"
+          ],
+          "avoid_when": [
+            "套用 M/M/1 等公式前须验证对应假设，不能把所有流程视为单服务台。"
+          ],
+          "examples": [
+            "说明性示例：支持团队日均容量充足，但请求集中在下午；先记录到达和处理时间，判断波动造成的等待。"
+          ],
+          "tags": [
+            "流程改进"
+          ],
+          "source_text": "Eytan Modiano, MIT — Introduction to Queueing Theory, 6.263/16.37 Lectures 5 & 6, slides 3, 10, 16–20\nhttps://web.mit.edu/modiano/www/6.263/lec5-6.pdf\n2026-09-28 查阅。定义据来源概括；情境、问题和案例为本库编写。"
+        },
+        "en": {
+          "name": "Queueing Theory",
+          "aliases": [
+            "Queuing Theory"
+          ],
+          "description": "Studies how arrivals, service capacity and variability affect waiting times and queue lengths.",
+          "trigger": [
+            "Average capacity looks sufficient, yet waiting keeps increasing."
+          ],
+          "questions": [
+            "How variable are arrivals and service times, and where is work waiting?"
+          ],
+          "avoid_when": [
+            "Check assumptions before applying formulas such as M/M/1; many workflows have multiple servers or dependencies."
+          ],
+          "examples": [
+            "Illustrative example: A support desk has enough daily capacity but receives an afternoon burst. Record arrival and service times to investigate delays."
+          ],
+          "tags": [
+            "flow-improvement"
+          ],
+          "source_text": "Eytan Modiano, MIT — Introduction to Queueing Theory, 6.263/16.37 Lectures 5 & 6, slides 3, 10, 16–20\nhttps://web.mit.edu/modiano/www/6.263/lec5-6.pdf\nReviewed 2026-09-28. Definition summarized from source; prompts and examples written for this library."
+        }
+      }
+    },
+    {
+      "id": "littles-law",
+      "interaction_type": "lens",
+      "epistemic_type": "law",
+      "domains": [
+        "reasoning"
+      ],
+      "intents": [],
+      "locales": {
+        "cn": {
+          "name": "Little 定律",
+          "aliases": [
+            "利特尔定律"
+          ],
+          "description": "在相应长期平均存在且有限时，系统平均存量 L 等于到达率 λ 乘平均逗留时间 W；计量边界必须一致。",
+          "trigger": [
+            "想估算做完一项工作需要多久，手上只有在制品和吞吐量。"
+          ],
+          "questions": [
+            "L、λ、W 是否采用同一系统边界和时间单位？"
+          ],
+          "avoid_when": [
+            "短期剧烈变化或持续积压时，不能直接把某天的存量代入长期平均关系来预测交付。"
+          ],
+          "examples": [
+            "说明性示例：稳定流程平均有 12 项在制品，每天完成 3 项，对应平均周期约 4 天；这不承诺每项都在 4 天内完成。"
+          ],
+          "tags": [
+            "流程改进"
+          ],
+          "source_text": "Karl Sigman — Notes on Little’s Law (2009), §1.1, theorem 1.1\nhttps://www.columbia.edu/~ks20/stochastic-I/stochastic-I-LL.pdf\n2026-09-28 查阅。定义据来源概括；情境、问题和案例为本库编写。"
+        },
+        "en": {
+          "name": "Little’s Law",
+          "aliases": [
+            "Little's Law"
+          ],
+          "description": "When the relevant finite long-run averages exist, average system population L equals arrival rate λ times mean time in system W, using consistent boundaries.",
+          "trigger": [
+            "We know work in progress and throughput but want to estimate average lead time."
+          ],
+          "questions": [
+            "Do L, λ and W refer to the same boundary and time units?"
+          ],
+          "avoid_when": [
+            "A snapshot during rapid change or growing backlog cannot simply replace long-run averages for forecasting."
+          ],
+          "examples": [
+            "Illustrative example: A stable process averages 12 items in progress and three completions daily: mean time is about four days, not a deadline for every item."
+          ],
+          "tags": [
+            "flow-improvement"
+          ],
+          "source_text": "Karl Sigman — Notes on Little’s Law (2009), §1.1, theorem 1.1\nhttps://www.columbia.edu/~ks20/stochastic-I/stochastic-I-LL.pdf\nReviewed 2026-09-28. Definition summarized from source; prompts and examples written for this library."
+        }
+      }
+    },
+    {
+      "id": "wip-limits",
+      "interaction_type": "lens",
+      "epistemic_type": "method",
+      "domains": [
+        "reasoning"
+      ],
+      "intents": [],
+      "locales": {
+        "cn": {
+          "name": "在制品限制",
+          "aliases": [
+            "WIP 限制"
+          ],
+          "description": "为同时进行的工作数量设上限，满额时优先完成或解除已有工作的阻塞。",
+          "trigger": [
+            "同时开了很多任务，每个都完成了一点，却很久没有交付。"
+          ],
+          "questions": [
+            "哪些已经开始的工作可以先完成？上限覆盖等待和阻塞项吗？"
+          ],
+          "avoid_when": [
+            "上限过低可能让下游缺料；应结合流程、阻塞及吞吐观察调整。"
+          ],
+          "examples": [
+            "说明性示例：评审列上限为 3，满额后团队先协助完成评审，再开始下一项开发；3 只是试验值。"
+          ],
+          "tags": [
+            "流程改进"
+          ],
+          "source_text": "Kanban University — The Official Guide to The Kanban Method, Limit Work in Progress / Manage Flow\nhttps://kanban.university/kanban-guide/\n2026-09-28 查阅。定义据来源概括；情境、问题和案例为本库编写。"
+        },
+        "en": {
+          "name": "Work in Progress Limits",
+          "aliases": [
+            "WIP Limits"
+          ],
+          "description": "Cap simultaneous work; when capacity is full, finish or unblock existing items before starting more.",
+          "trigger": [
+            "Many tasks have started, but few have finished."
+          ],
+          "questions": [
+            "What can we finish first, and do limits count blocked and waiting items?"
+          ],
+          "avoid_when": [
+            "An excessively low limit may starve downstream work; adjust using flow and throughput observations."
+          ],
+          "examples": [
+            "Illustrative example: Set a trial review limit of three. When full, help complete reviews before starting another feature; three is not a universal rule."
+          ],
+          "tags": [
+            "flow-improvement"
+          ],
+          "source_text": "Kanban University — The Official Guide to The Kanban Method, Limit Work in Progress / Manage Flow\nhttps://kanban.university/kanban-guide/\nReviewed 2026-09-28. Definition summarized from source; prompts and examples written for this library."
+        }
+      }
+    },
+    {
+      "id": "pull-system",
+      "interaction_type": "lens",
+      "epistemic_type": "method",
+      "domains": [
+        "reasoning"
+      ],
+      "intents": [],
+      "locales": {
+        "cn": {
+          "name": "拉动系统",
+          "aliases": [
+            "拉式系统"
+          ],
+          "description": "根据下游需求和可用容量接入工作，通过明确的拉取信号协调流动。",
+          "trigger": [
+            "上游不停塞任务，下游只能被动接收。"
+          ],
+          "questions": [
+            "谁发出接入信号？下游有容量且需要这项工作吗？"
+          ],
+          "avoid_when": [
+            "需要明确接入规则和反馈；仅把推送改名为拉取不会解决超载。"
+          ],
+          "examples": [
+            "说明性示例：评审列空出一个名额后，从已准备队列选取下一项；没有名额就先处理现有工作。"
+          ],
+          "tags": [
+            "流程改进"
+          ],
+          "source_text": "Kanban University — The Kanban Method Glossary, Pull Signals / Pull System / WIP Limits\nhttps://kanban.university/glossary/\n2026-09-28 查阅。定义据来源概括；情境、问题和案例为本库编写。"
+        },
+        "en": {
+          "name": "Pull System",
+          "aliases": [],
+          "description": "Admit work in response to downstream demand and available capacity, using explicit pull signals.",
+          "trigger": [
+            "Upstream keeps pushing work that downstream cannot absorb."
+          ],
+          "questions": [
+            "Who signals readiness, and does downstream both need the work and have capacity?"
+          ],
+          "avoid_when": [
+            "Clear admission rules and feedback are necessary; relabeling push as pull changes nothing."
+          ],
+          "examples": [
+            "Illustrative example: When a review slot becomes free, select the next ready item; otherwise work on existing commitments."
+          ],
+          "tags": [
+            "flow-improvement"
+          ],
+          "source_text": "Kanban University — The Kanban Method Glossary, Pull Signals / Pull System / WIP Limits\nhttps://kanban.university/glossary/\nReviewed 2026-09-28. Definition summarized from source; prompts and examples written for this library."
+        }
+      }
+    },
+    {
+      "id": "flow-efficiency",
+      "interaction_type": "lens",
+      "epistemic_type": "concept",
+      "domains": [
+        "reasoning"
+      ],
+      "intents": [],
+      "locales": {
+        "cn": {
+          "name": "流动效率",
+          "aliases": [],
+          "description": "工作项被实际处理的时间占其总经过时间的比例；统计前需约定起止点和时间口径。",
+          "trigger": [
+            "真正动手只用了几个小时，客户却等了一周。"
+          ],
+          "questions": [
+            "等待发生在哪个交接点？活跃时间与总时间如何记录？"
+          ],
+          "avoid_when": [
+            "比例不衡量结果价值或质量；不同时间口径的团队不宜直接比较。"
+          ],
+          "examples": [
+            "说明性示例：同一营业时间口径下，一项任务处理 2 小时、共经过 20 小时，流动效率为 10%。"
+          ],
+          "tags": [
+            "流程改进"
+          ],
+          "source_text": "Julia Wester, Kanban University — Flow Efficiency: A great metric you probably aren’t using (2016-10-18), calculation\nhttps://kanban.university/flow-efficiency-a-great-metric-you-probably-arent-using/\n2026-09-28 查阅。定义据来源概括；情境、问题和案例为本库编写。"
+        },
+        "en": {
+          "name": "Flow Efficiency",
+          "aliases": [],
+          "description": "The share of total elapsed time during which a work item is actively processed, with agreed boundaries and time conventions.",
+          "trigger": [
+            "Hands-on work took hours, but the customer waited a week."
+          ],
+          "questions": [
+            "Where do handoffs wait, and how are active and elapsed time recorded?"
+          ],
+          "avoid_when": [
+            "The ratio does not measure value or quality; compare only consistent time conventions."
+          ],
+          "examples": [
+            "Illustrative example: Using business hours throughout, two active hours within 20 elapsed hours gives 10% flow efficiency."
+          ],
+          "tags": [
+            "flow-improvement"
+          ],
+          "source_text": "Julia Wester, Kanban University — Flow Efficiency: A great metric you probably aren’t using (2016-10-18), calculation\nhttps://kanban.university/flow-efficiency-a-great-metric-you-probably-arent-using/\nReviewed 2026-09-28. Definition summarized from source; prompts and examples written for this library."
+        }
+      }
+    },
+    {
+      "id": "resource-utilization",
+      "interaction_type": "lens",
+      "epistemic_type": "concept",
+      "domains": [
+        "reasoning"
+      ],
+      "intents": [],
+      "locales": {
+        "cn": {
+          "name": "资源利用率",
+          "aliases": [],
+          "description": "衡量资源容量被需求占用的程度；简单稳定排队模型中可用到达率与服务能力之比表示。",
+          "trigger": [
+            "排班几乎没有空隙，一遇到额外请求就全部延期。"
+          ],
+          "questions": [
+            "可用容量如何定义？为波动留下了多少余量？"
+          ],
+          "avoid_when": [
+            "利用率不等于交付效率；复杂流程不能用一个平均值替代分环节分析。"
+          ],
+          "examples": [
+            "说明性示例：某服务台每小时可处理 10 项，平均到达 9 项，对应负载 90%；仍需检查到达波动与等待。"
+          ],
+          "tags": [
+            "流程改进"
+          ],
+          "source_text": "Jérémie Gallien, MIT OCW 15.760B — Class 3: Capacity, slides 5, 18–20\nhttps://www.ocw.mit.edu/courses/15-760b-introduction-to-operations-management-spring-2004/16dde953a29f89a4d2018361900ce886_lec3_capacity.pdf\n2026-09-28 查阅。定义据来源概括；情境、问题和案例为本库编写。"
+        },
+        "en": {
+          "name": "Resource Utilization",
+          "aliases": [],
+          "description": "Measures demand relative to resource capacity; simple stable queueing models express it as arrival rate divided by service capacity.",
+          "trigger": [
+            "Schedules have no slack, so every extra request delays other work."
+          ],
+          "questions": [
+            "How is capacity defined, and what room remains for variation?"
+          ],
+          "avoid_when": [
+            "Utilization is not delivery efficiency; one average cannot describe every stage of a complex workflow."
+          ],
+          "examples": [
+            "Illustrative example: A desk can process ten items hourly and receives nine on average: load is 90%, but variability and waiting still need examination."
+          ],
+          "tags": [
+            "flow-improvement"
+          ],
+          "source_text": "Jérémie Gallien, MIT OCW 15.760B — Class 3: Capacity, slides 5, 18–20\nhttps://www.ocw.mit.edu/courses/15-760b-introduction-to-operations-management-spring-2004/16dde953a29f89a4d2018361900ce886_lec3_capacity.pdf\nReviewed 2026-09-28. Definition summarized from source; prompts and examples written for this library."
+        }
+      }
+    },
+    {
+      "id": "context-switching",
+      "interaction_type": "lens",
+      "epistemic_type": "effect",
+      "domains": [
+        "reasoning"
+      ],
+      "intents": [],
+      "locales": {
+        "cn": {
+          "name": "上下文切换",
+          "aliases": [
+            "任务切换"
+          ],
+          "description": "从一项任务转向另一项时，需要切换目标及规则，可能付出额外认知时间。",
+          "trigger": [
+            "一天不停切换项目，到下班却没有完成重要工作。"
+          ],
+          "questions": [
+            "哪些切换可以合并或延后？返回原任务需要重建哪些信息？"
+          ],
+          "avoid_when": [
+            "实验任务的切换成本不能直接当作所有岗位的固定损失比例。"
+          ],
+          "examples": [
+            "说明性示例：写报告时每隔几分钟处理一条消息，回来都要重新确认论证进度；试着集中处理非紧急消息。"
+          ],
+          "tags": [
+            "流程改进"
+          ],
+          "source_text": "Rubinstein, Meyer & Evans (2001) — Executive control of cognitive processes in task switching, abstract; DOI 10.1037//0096-1523.27.4.763\nhttps://pubmed.ncbi.nlm.nih.gov/11518143/\n2026-09-28 查阅。定义据来源概括；情境、问题和案例为本库编写。"
+        },
+        "en": {
+          "name": "Context Switching",
+          "aliases": [
+            "Task Switching"
+          ],
+          "description": "Changing tasks can require shifting goals and activating different rules, adding cognitive time costs.",
+          "trigger": [
+            "The day is full of project switches but important work remains unfinished."
+          ],
+          "questions": [
+            "Which switches can be deferred, and what must be reconstructed on return?"
+          ],
+          "avoid_when": [
+            "Laboratory switching costs do not establish a fixed productivity-loss percentage for every job."
+          ],
+          "examples": [
+            "Illustrative example: A writer checks messages every few minutes and repeatedly reconstructs the argument; try batching nonurgent messages."
+          ],
+          "tags": [
+            "flow-improvement"
+          ],
+          "source_text": "Rubinstein, Meyer & Evans (2001) — Executive control of cognitive processes in task switching, abstract; DOI 10.1037//0096-1523.27.4.763\nhttps://pubmed.ncbi.nlm.nih.gov/11518143/\nReviewed 2026-09-28. Definition summarized from source; prompts and examples written for this library."
+        }
+      }
+    },
+    {
+      "id": "batch-size",
+      "interaction_type": "lens",
+      "epistemic_type": "concept",
+      "domains": [
+        "reasoning"
+      ],
+      "intents": [],
+      "locales": {
+        "cn": {
+          "name": "批量大小",
+          "aliases": [],
+          "description": "一次处理或移交的工作数量；批量选择需要权衡准备成本、等待和反馈速度。",
+          "trigger": [
+            "为了省一次交接，把很多工作攒在一起才交付。"
+          ],
+          "questions": [
+            "这是处理批量还是移交批量？缩小它会增加多少准备成本？"
+          ],
+          "avoid_when": [
+            "准备成本高或任务不可拆分时，最小批量未必带来最好整体结果。"
+          ],
+          "examples": [
+            "说明性示例：一次提交 20 篇文案才能审核会推迟首篇反馈；试行每 2 篇移交，并观察额外协调成本。"
+          ],
+          "tags": [
+            "流程改进"
+          ],
+          "source_text": "Art Byrne, Lean Enterprise Institute — Ask Art: Why Switch from Batch to Lean? (2021), setup time and batch discussion\nhttps://www.lean.org/the-lean-post/articles/ask-art-why-switch-from-batch-to-lean/\n2026-09-28 查阅。定义据来源概括；情境、问题和案例为本库编写。"
+        },
+        "en": {
+          "name": "Batch Size",
+          "aliases": [],
+          "description": "The number of items processed or transferred together; selection trades off setup cost, waiting and feedback speed.",
+          "trigger": [
+            "Work is accumulated into a large handoff to save coordination effort."
+          ],
+          "questions": [
+            "Is this a processing or transfer batch, and what setup cost would smaller batches add?"
+          ],
+          "avoid_when": [
+            "High setup costs or indivisible work can make the smallest batch unsuitable."
+          ],
+          "examples": [
+            "Illustrative example: Submitting 20 articles together delays feedback on the first; try transferring two at a time and observe coordination cost."
+          ],
+          "tags": [
+            "flow-improvement"
+          ],
+          "source_text": "Art Byrne, Lean Enterprise Institute — Ask Art: Why Switch from Batch to Lean? (2021), setup time and batch discussion\nhttps://www.lean.org/the-lean-post/articles/ask-art-why-switch-from-batch-to-lean/\nReviewed 2026-09-28. Definition summarized from source; prompts and examples written for this library."
+        }
+      }
+    },
+    {
+      "id": "local-optimization",
+      "interaction_type": "lens",
+      "epistemic_type": "concept",
+      "domains": [
+        "reasoning"
+      ],
+      "intents": [],
+      "locales": {
+        "cn": {
+          "name": "局部优化",
+          "aliases": [],
+          "description": "以某个部门或环节的指标为改进目标；它对系统整体的收益需要另行验证。",
+          "trigger": [
+            "每个部门都达标，客户收到结果的时间却没有改善。"
+          ],
+          "questions": [
+            "局部指标改善后，整体完成量和等待发生了什么变化？"
+          ],
+          "avoid_when": [
+            "局部改进本身有价值，不能仅因它是局部的就否定；需看整体影响。"
+          ],
+          "examples": [
+            "说明性示例：开发用提交数衡量成绩，评审队列却持续变长；把提交增长与最终验收量一起检查。"
+          ],
+          "tags": [
+            "流程改进"
+          ],
+          "source_text": "TOC Institute — Theory of Constraints, The Core Idea / Constraints / What is TOC\nhttps://www.tocinstitute.org/theory-of-constraints.html\n2026-09-28 查阅。定义据来源概括；情境、问题和案例为本库编写。"
+        },
+        "en": {
+          "name": "Local Optimization",
+          "aliases": [],
+          "description": "Improving a component or department metric; its benefit to the whole system needs separate verification.",
+          "trigger": [
+            "Every department meets its targets, but customers still wait."
+          ],
+          "questions": [
+            "After the local metric improves, what happens to total completions and waiting?"
+          ],
+          "avoid_when": [
+            "Local improvements can be useful; judge their system effect rather than rejecting them categorically."
+          ],
+          "examples": [
+            "Illustrative example: Developers optimize commit counts while the review queue grows; examine accepted deliveries alongside local output."
+          ],
+          "tags": [
+            "flow-improvement"
+          ],
+          "source_text": "TOC Institute — Theory of Constraints, The Core Idea / Constraints / What is TOC\nhttps://www.tocinstitute.org/theory-of-constraints.html\nReviewed 2026-09-28. Definition summarized from source; prompts and examples written for this library."
+        }
+      }
+    }
+  ],
+  "relations": [
+    {
+      "source_concept_id": "five-focusing-steps",
+      "target_concept_id": "theory-of-constraints",
+      "relation_type": "part_of",
+      "note": {
+        "cn": "TOC Institute 将五步聚焦法列为约束理论的核心改进流程。",
+        "en": "TOC Institute presents the five focusing steps as a core TOC improvement process."
+      }
+    },
+    {
+      "source_concept_id": "bottleneck",
+      "target_concept_id": "theory-of-constraints",
+      "relation_type": "related_to",
+      "note": {
+        "cn": "约束理论关注限制整体产出的因素；流程中的瓶颈是常见切入点，但不涵盖所有政策或市场约束。",
+        "en": "TOC addresses limits on system output; a process bottleneck is a common starting point, not every policy or market constraint."
+      }
+    },
+    {
+      "source_concept_id": "local-optimization",
+      "target_concept_id": "theory-of-constraints",
+      "relation_type": "contrasts_with",
+      "note": {
+        "cn": "对比关注范围：局部指标与系统产出。TOC Institute 的链条类比解释了非约束环节提效可能无助于整体。",
+        "en": "Contrast the scope of optimization: local metrics versus system output, as illustrated by TOC Institute’s chain analogy."
+      }
+    },
+    {
+      "source_concept_id": "littles-law",
+      "target_concept_id": "queueing-theory",
+      "relation_type": "part_of",
+      "note": {
+        "cn": "Sigman 的讲义将 Little 定律作为排队论中的一般关系，并给出长期平均成立条件。",
+        "en": "Sigman presents Little’s law as a general queueing relationship with conditions on long-run averages."
+      }
+    },
+    {
+      "source_concept_id": "resource-utilization",
+      "target_concept_id": "queueing-theory",
+      "relation_type": "related_to",
+      "note": {
+        "cn": "MIT 容量讲义将利用率、变异和等待联系起来；具体等待量仍取决于所选排队模型。",
+        "en": "MIT’s capacity lecture relates utilization, variation and waiting; quantitative predictions depend on the queueing model."
+      }
+    },
+    {
+      "source_concept_id": "wip-limits",
+      "target_concept_id": "pull-system",
+      "relation_type": "related_to",
+      "note": {
+        "cn": "Kanban University 将限制在制品作为建立拉动系统的机制；上限释放出可拉取工作的容量信号。",
+        "en": "Kanban University describes WIP limits as a mechanism for establishing pull by exposing available capacity."
+      }
+    },
+    {
+      "source_concept_id": "wip-limits",
+      "target_concept_id": "context-switching",
+      "relation_type": "related_to",
+      "note": {
+        "cn": "Kanban 指南同时讨论在制品与切换成本；本库据此建议观察减少并行工作后切换是否减少。",
+        "en": "The Kanban guide discusses WIP and switching costs; this library proposes checking whether fewer concurrent items reduce switching."
+      }
+    },
+    {
+      "source_concept_id": "wip-limits",
+      "target_concept_id": "flow-efficiency",
+      "relation_type": "related_to",
+      "note": {
+        "cn": "编者关联：限制并行工作与度量等待可配合检查流程改善；不保证降低上限就必然提高流动效率。",
+        "en": "Editorial connection: WIP limits and waiting-time measurement can inform improvement; lower limits do not guarantee higher flow efficiency."
+      }
+    },
+    {
+      "source_concept_id": "flow-efficiency",
+      "target_concept_id": "resource-utilization",
+      "relation_type": "contrasts_with",
+      "note": {
+        "cn": "编者对照两份来源：流动效率以工作项为中心，资源利用率以容量为中心，两者分母和含义不同。",
+        "en": "Editorial comparison of the two sources: flow efficiency concerns an item’s time, utilization concerns capacity; their denominators differ."
+      }
+    },
+    {
+      "source_concept_id": "batch-size",
+      "target_concept_id": "flow-efficiency",
+      "relation_type": "related_to",
+      "note": {
+        "cn": "编者关联：LEI 讨论批量引起的等待，可用流动效率观察这些等待；还需计入准备成本。",
+        "en": "Editorial connection: LEI discusses waiting induced by batches; flow efficiency can reveal it, alongside setup costs."
+      }
+    },
+    {
+      "source_concept_id": "bottleneck",
+      "target_concept_id": "five-focusing-steps",
+      "relation_type": "related_to",
+      "note": {
+        "cn": "五步法从识别约束开始；确认当前瓶颈后可据此安排利用、配合与提升。",
+        "en": "The steps begin with identifying a constraint; a verified current bottleneck can guide exploitation, subordination and elevation."
+      }
+    },
+    {
+      "source_concept_id": "littles-law",
+      "target_concept_id": "wip-limits",
+      "relation_type": "related_to",
+      "note": {
+        "cn": "编者关联：Little 定律连接长期平均在制品、流率与时间，可用于理解 WIP 试验；它本身不指定最优上限。",
+        "en": "Editorial connection: Little’s law connects long-run WIP, flow rate and time; it can inform WIP experiments but does not prescribe an optimal limit."
+      }
+    }
+  ]
+}

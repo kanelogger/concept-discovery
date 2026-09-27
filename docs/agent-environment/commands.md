@@ -27,3 +27,9 @@
 校验器检查仓库 Markdown 文件链接，包括 `.github` 等配置目录；跳过 Git 元数据、node_modules、`.local`、coverage、工具缓存、Git 忽略的 `private-*` 参考目录/Markdown 文件和符号链接文件，具体排除项见 [校验器](../../scripts/validate.mjs)。检查目标引用时拒绝越出仓库的路径。它不发起 HTTP 请求，不验证标题锚点，不做语义或事实判断，也不证明产品正确。外链可用性、准入标准和任务结果由针对性审查负责。
 
 验证结果记录到任务文件；本次执行证据见 [初始化任务](../../tasks/0001-bootstrap.md)。普通检查不修改任务状态、不自动提交或安装全局工具。
+
+### 隔离知识库样本
+
+`npm run demo:prepare -- --db /absolute/path/new-demo.sqlite` 从 `data/examples/knowledge-base-v1.json` 准备 12 条双语 Concept 与关系。必须显式传入新路径；已有数据库、SQLite 伴随文件和符号链接均拒绝覆盖。可用 `--input /absolute/path/sample.json` 指定同版本样本。失败清理本次新建库，不改变现有 80 条候选或个人库。
+
+准备后用 `CONCEPT_DB_PATH=/absolute/path/new-demo.sqlite PORT=4186 npm start` 启动隔离实例；端口按需选择。样本内容及出处核实记录见 [0050](../../tasks/0050-knowledge-samples.md)。
