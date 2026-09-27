@@ -1,6 +1,6 @@
 # Recommendation API 契约
 
-状态：0032–0034 已实现契约、DeepSeek 适配器、正式 HTTP 接口和离线评测；0036 接入 Relation 的同分排序。模型决定见 [ADR 0003](../docs/adr/0003-deepseek-model-adapter.md)。来源为 [PRD §20–§25](../docs/method-system-prd-v0.1.md#20-搜索与推荐)与 [产品契约](product-contract.md)。
+状态：0032–0034 已实现契约、DeepSeek 适配器、正式 HTTP 接口和离线评测；0036 接入 Relation 的同分排序。模型决定见 [ADR 0003](../docs/adr/0003-deepseek-model-adapter.md)。来源为 PRD §20–§25（历史文件 `docs/method-system-prd-v0.1.md`，见下方来源说明）与 [产品契约](product-contract.md)。
 
 ## 请求与资格
 
@@ -46,3 +46,5 @@
 成功响应的 `X-Model-Provider` 与 `X-Model-Name` 只给出非敏感模型标识，供离线评测追溯；不包含 API key。
 
 无效请求返回 `400 invalid_recommendation_request`，模型配置/同意缺失返回相应 `503`，模型超时返回 `504 model_timeout`，上游或模型输出错误返回 `502`。正常空推荐返回 HTTP 200 与 `recommendations: []`。Web 不调用此接口，也不展示推荐或 Prompt。双语隔离由 Registry 资格、候选卡裁剪和结果 ID 校验共同保证；诊断与 Why Now 的实际语言和相关性仍由模型及 0034 离线案例检验。
+
+> 历史来源说明：旧产品材料已在 0045 合并删除；原文恢复方式见[文档收敛决策](../docs/adr/0004-product-doc-consolidation.md)。本文保留当时的任务或接口记录，不作为当前产品路线图。

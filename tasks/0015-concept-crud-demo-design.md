@@ -4,7 +4,7 @@
 
 按用户已确认的设计方向，为临时 Concept CRUD / Dashboard demo 编写 [DESIGN.md](../DESIGN.md)，再优化视觉 token、文字层级、控件状态和响应式布局。沿用 React + Vite + TypeScript + shadcn/ui 风格组件 + Tailwind；不接服务端、不扩大产品功能。
 
-依据：[产品 PRD §8、§27、§28](../docs/method-system-prd-v0.1.md)、[App UI 场景默认](../README.md)、用户确认的方向：保留浅色鼠尾草绿后台，交互使用 L1。
+依据：产品 PRD §8、§27、§28（历史文件 `docs/method-system-prd-v0.1.md`，见下方来源说明）、[App UI 场景默认](../README.md)、用户确认的方向：保留浅色鼠尾草绿后台，交互使用 L1。
 
 ## 验收条件
 
@@ -37,3 +37,5 @@
 ## 交接
 
 更新后的 DESIGN.md 是本 demo 后续 UI 调整的规范来源。完成后提交在 `codex/concept-crud-demo` 分支；本 demo 仍是一次性工作区。
+
+> 历史来源说明：旧产品材料已在 0045 合并删除；原文恢复方式见[文档收敛决策](../docs/adr/0004-product-doc-consolidation.md)。本文保留当时的任务或接口记录，不作为当前产品路线图。

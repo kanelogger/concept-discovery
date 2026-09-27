@@ -1,26 +1,30 @@
 # 后续产品任务
 
-状态：P1 的 0023–0029、P2 的 0032–0034、P3 的 0035–0036、P4 的 0037–0038，以及 P5 的 0039 已在独立 `codex/concept-mvp-demo` 工作区完成；0040 Gate 待实施。Skillbox 本地源码仅作为参考。
+更新：2026-09-27。当前产品范围以[需求文档](../docs/需求文档.md)和[产品设计文档](../docs/产品设计文档.md)为准；此处只维护执行顺序与历史任务索引。
 
-本轮 MVP Goal 的固定完成范围为 **0023–0029 + 0031–0040**；`0030` 是已完成的 P1 票据发布任务。后续新增 backlog 项不会自动扩大本轮完成条件。0031 发布余下票据，0032–0040 按下列依赖顺序实施；需要模型选择或外部真实数据时按对应 ticket 暂停并记录。
+## 当前优先项
 
-任务启动前按 [协作流程](../workflow/README.md) 创建独立任务文件，写明范围、验收和证据；产品命名、字段冲突与未决问题见 [产品方向与待定契约](../specs/product-contract.md)。
+1. 按设计文档另建 Web 知识库实施任务，同步受影响的技术契约。
+2. 实施诊断问题与案例字段、触发场景优先的阅读体验、扩展关键词搜索、关系预览和详情连续导航。
+3. 整理约 12 条双语样本，核实出处并在隔离库完成服务、浏览器与内容验收。
+4. 第一阶段使用验证后，再决定认知自动补全与 CLI / Skill / 对外 API / MCP 的具体接入顺序。
 
-P1 的 [Concept Schema、CRUD 与 Dashboard 规格](../specs/concept-schema-crud-dashboard.md) 由 [上层实施任务](0022-implement-concept-schema-crud-dashboard.md)及 [0023](0023-persist-concept-draft.md)、[0024](0024-bilingual-browse-search.md)、[0025](0025-localized-image-wiki.md)、[0026](0026-recommendable-locale-readiness.md)、[0027](0027-revision-history-conflicts.md)、[0028](0028-archive-restore-delete-concept.md)、[0029](0029-real-registry-dashboard.md) 七张纵向 tickets 完成。目录生命周期和各语言可浏览/可推荐资格已可运行，出处只检查非空、不执行外部核验。推荐结果 Schema 与模型配置属于 P2 前置工作。旧 `type` 映射留到明确的导入任务，不阻塞手工 Concept CRUD。
+文档收敛记录见 [0045](0045-consolidate-product-docs.md)。AI 提取、Inbox、批量导入导出产品界面和个性化未排入当前实施范围。
 
-| 顺序 | MVP 主线 | 前置条件 | 完成验收 |
-| --- | --- | --- | --- |
-| 1 | [Concept CRUD](0022-implement-concept-schema-crud-dashboard.md) · 0023–0029 已完成 | [P1 规格](../specs/concept-schema-crud-dashboard.md)与 [ADR 0002](../docs/adr/0002-local-product-stack.md) | 同一 Registry 支撑本地 Card First Web；卡片按 `cn` / `en` 展示对应内容和 WebP，普通术语可先入目录，未填类型时卡片不显示类型；可分别编辑出处文本与 Wiki 链接、按语言搜索、归档/删除、查看修订。Dashboard 展示目录和各语言推荐资格；无效输入不破坏有效数据。验收证据见 0023–0029。 |
-| 2 | Recommendation API / Eval Harness · [0032](0032-recommendation-contract-model-adapter.md) → [0033](0033-recommendation-api.md) → [0034](0034-offline-eval-harness.md) | 至少一个语言有可推荐 Concept；模型提供方与数据流在 0032 定稿 | 开发用评测入口向正式推荐接口传 `locale`，得到同语言诊断、Why Now 和 0–3 个推荐或空结果；用例覆盖 `cn` / `en`、无推荐和禁用条件，不写真实使用日志。Web 无 Playground 或 Prompt 展示。 |
-| 3 | Concept Relation · [0035](0035-concept-relation-crud.md) → [0036](0036-relation-ranking-signal.md) | P2 完成 | 手动维护五种关系和 `cn` / `en` 备注，校验引用和方向；详情按语言展示关系，轻量推荐信号有可复现案例；不引入 Recipe。 |
-| 4 | Concept Discovery Skill · [0037](0037-contextual-prompt-composer.md) → [0038](0038-concept-discovery-skill.md) | 推荐接口和 Relation 可用 | 只在用户以命令或明确自然语言请求调用时运行；Agent 与 Web 读取同一 Registry，按用户 `locale` 推荐，用户选择后生成并执行同语言 Prompt；无模型时提示配置或选择，未经选择不上传上下文。 |
-| 5 | Feedback / Eval · [0039](0039-skill-feedback-usage.md) → [0040](0040-mvp-eval-acceptance.md) | Skill 接入 | 只记录 Skill 的真实推荐、查看、应用、忽略、无帮助及 `locale`；Dashboard 展示 Usage 统计，离线评测与真实使用分开。0040 汇总固定范围的技术验收，按 MVP Gate 决定是否扩大。 |
+## 已有实现与历史任务
 
-首批目录候选仍须记录 `daily-knowledge(1).md` 的缺失或取得情况；六项优先补来源的是第一性原理、逆向思维、第二层思维、事件—局势—结构、安全边际、古德哈特定律，依据 [清洗稿 §6](../docs/method-registry-curated-v0.1.md#6-后续补充优先级)。候选可先存草稿；某语言有名称、描述和非空出处文本后可浏览，补齐触发场景和 Agent Instruction 后可参与推荐；无图时显示默认配图。30 个双语齐备的目标用于扩张 Gate。
+以下 P1–P5 是旧路线的编号。既有实现作为新阶段的基础保留，不要求按旧顺序重做，也不以旧 Goal 自动扩展当前任务。
 
-Markdown 批量导入、JSON/Markdown 导出、Web Recommendation Playground、Embedding、复杂 Rerank、用户偏好与 Recipe 推荐暂不排入主线；需要时依据真实使用证据另开任务。MVP 排除项见 [PRD §36](../docs/method-system-prd-v0.1.md#36-mvp-明确不做)。
+| 既有工作 | 记录 |
+| --- | --- |
+| Registry、双语 CRUD、图片、资格、修订与 Dashboard | [0022 上层任务](0022-implement-concept-schema-crud-dashboard.md)，0023–0029 |
+| 推荐契约、模型适配与正式接口 | [0032](0032-recommendation-contract-model-adapter.md)、[0033](0033-recommendation-api.md) |
+| 离线评测机制 | [0034](0034-offline-eval-harness.md) |
+| 关系维护与推荐排序信号 | [0035](0035-concept-relation-crud.md)、[0036](0036-relation-ranking-signal.md) |
+| Composer、Skill 与 Usage/Feedback | [0037](0037-contextual-prompt-composer.md)、[0038](0038-concept-discovery-skill.md)、[0039](0039-skill-feedback-usage.md) |
+| 后续 Web 验收修正 | [0041](0041-management-library-domain-picker.md)、[0042](0042-concept-multi-image-upload.md)、[0043](0043-soft-delete-terminology.md) |
+| Web 阶段计划保存记录 | [0044](0044-save-concept-knowledge-base-plan.md)，计划已并入当前设计 |
 
-## 验收反馈修复
+[0040 旧 MVP Eval Gate](0040-mvp-eval-acceptance.md) 尚未完成，留待恢复推荐阶段时重新确认验收范围、真实案例和通过门槛；它不阻塞新 Web 阶段，也不能宣称已通过。
 
-- [0041：合并 Concept 浏览与管理并修复领域选择](0041-management-library-domain-picker.md)（当前独立 demo 后续验收反馈；不扩大 0023–0029 + 0031–0040 的已固定范围）。
-- [0042：支持 Concept 双语多图上传、管理与预览](0042-concept-multi-image-upload.md)（后续验收反馈；不扩大 0023–0029 + 0031–0040 的已固定范围）。
+新任务按[协作流程](../workflow/README.md)建档，保留个人数据并记录实际验证证据。

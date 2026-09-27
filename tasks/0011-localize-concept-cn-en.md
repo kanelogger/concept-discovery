@@ -2,7 +2,7 @@
 
 ## 目标与范围
 
-根据用户 2026-09-24 的要求，在 [PRD](../docs/method-system-prd-v0.1.md) 中明确 `cn` / `en` 两套 Concept 可见字段和独立 WebP 配图，并同步 Web、推荐、Prompt Composer、Relation 备注及 Eval 的语言约定。同步 [产品契约](../specs/product-contract.md)、[后续任务](backlog.md)、文档索引和任务状态。本次不实现产品代码。
+根据用户 2026-09-24 的要求，在 PRD（历史文件 `docs/method-system-prd-v0.1.md`，见下方来源说明） 中明确 `cn` / `en` 两套 Concept 可见字段和独立 WebP 配图，并同步 Web、推荐、Prompt Composer、Relation 备注及 Eval 的语言约定。同步 [产品契约](../specs/product-contract.md)、[后续任务](backlog.md)、文档索引和任务状态。本次不实现产品代码。
 
 ## 验收条件
 
@@ -33,3 +33,5 @@
 ## 交接
 
 修订已完成；后续先按 [待办](backlog.md)定稿双语 Schema 和准入规则，再制作并审核首批 Concept 的英文内容与两种配图。本次未实现产品代码。
+
+> 历史来源说明：旧产品材料已在 0045 合并删除；原文恢复方式见[文档收敛决策](../docs/adr/0004-product-doc-consolidation.md)。本文保留当时的任务或接口记录，不作为当前产品路线图。

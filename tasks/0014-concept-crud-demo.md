@@ -2,7 +2,7 @@
 
 ## 目标与范围
 
-在独立 prototype 分支提供可本地运行的临时前端，用来比较三种 Concept 管理布局并体验内存态 CRUD。栈为 React + Vite + TypeScript + shadcn/ui 风格组件 + Tailwind。产品依据：[PRD §8、§27、§28](../docs/method-system-prd-v0.1.md)、[产品契约](../specs/product-contract.md)。
+在独立 prototype 分支提供可本地运行的临时前端，用来比较三种 Concept 管理布局并体验内存态 CRUD。栈为 React + Vite + TypeScript + shadcn/ui 风格组件 + Tailwind。产品依据：PRD §8、§27、§28（历史文件 `docs/method-system-prd-v0.1.md`，见下方来源说明）、[产品契约](../specs/product-contract.md)。
 
 本 demo 仅模拟 Concept CRUD 与待定 Dashboard 指标；不连接数据库、真实模型或后端。排除 Recommendation Playground、Prompt 生成、Relation 编辑和 Skill 执行。
 
@@ -37,3 +37,5 @@
 ## 交接
 
 交付后保持该 prototype 位于 `codex/concept-crud-demo` throwaway 分支；由产品实现任务决定是否吸收布局或交互。来源问题是三种结构何者更适合 Concept CRUD 与 Dashboard。依赖安装命令为 `npm install`，本地启动为 `npm run demo`。当前工作树只在 demo 分支中。
+
+> 历史来源说明：旧产品材料已在 0045 合并删除；原文恢复方式见[文档收敛决策](../docs/adr/0004-product-doc-consolidation.md)。本文保留当时的任务或接口记录，不作为当前产品路线图。

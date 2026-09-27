@@ -1,6 +1,6 @@
 # 离线推荐评测入口（0034）
 
-状态：已实现开发用评测机制；[50 条维护者人工标注案例](../tasks/0040-mvp-eval-acceptance.md)尚未提供，合成示例不可充当质量验收数据。来源为 [PRD §32](../docs/method-system-prd-v0.1.md#32-eval)与 [推荐契约](recommendation-contract.md)。
+状态：已实现开发用评测机制；[50 条维护者人工标注案例](../tasks/0040-mvp-eval-acceptance.md)尚未提供，合成示例不可充当质量验收数据。来源为 PRD §32（历史文件 `docs/method-system-prd-v0.1.md`，见下方来源说明）与 [推荐契约](recommendation-contract.md)。
 
 ## 运行方式与数据边界
 
@@ -30,3 +30,5 @@
 `--review` 文件是维护者完成案例标签复核后的声明，格式为 `{"schema_version":1,"reviewer_ref":"opaque-maintainer-id","reviewed_at":"2026-09-25T12:00:00Z","dataset_digest":"sha256","reviewed_case_ids":["case-id",...]}`。`dataset_digest` 可用 `datasetDigest(JSON.parse(readFileSync(PATH, "utf8")))`（导出自 [assess-offline.mjs](../eval/assess-offline.mjs)）计算，绑定包括任务文本和 Expected 在内的整份数据。工具只能检查声明完整和数据未在复核后变化；维护者必须实际审阅，不能从 synthetic 草案自动生成声明。
 
 判定器要求 `maintainer` 数据集至少 50 条，中文和英文各至少 25 条、Expected NONE 各至少 5 条，匿名真实任务及维护者撰写典型场景各至少 25 个不同的来源编号。它拒绝不完整报告、错误、混用模型、结构检查失败、报告与案例不一致或同一 Concept 在报告中出现不同版本；重新计算四项原指标和总体/分语言 NONE Recall，再与冻结通过线比较。结果为 `not_evaluable`、`numeric_failed` 或 `numeric_passed`。`numeric_passed` 仍需人工审查诊断和 Why Now 的语言、任务相关性、出处主张与多 Concept 覆盖；真实 Usage 和 Apply Rate 单独验收。
+
+> 历史来源说明：旧产品材料已在 0045 合并删除；原文恢复方式见[文档收敛决策](../docs/adr/0004-product-doc-consolidation.md)。本文保留当时的任务或接口记录，不作为当前产品路线图。

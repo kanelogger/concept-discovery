@@ -30,7 +30,7 @@ Node.js / TypeScript（用户前轮已确认）。本轮最接近项目 Skillbox
 
 ## 复用决策：reference
 
-2026-09-24 更新：用户决定以本地 `docs/private-project/skillbox` 源码为参考，不 Fork Skillbox；优先参考 Web、CRUD、Revision、Search、Recommend、Usage，并按 Concept 业务适配。以下记录保留 2026-09-23 的侦察判断与当时的未决项；当前路线以 [PRD §5、§34](../docs/method-system-prd-v0.1.md#5-mvp-技术路线)为准。
+2026-09-24 更新：用户决定以本地 `docs/private-project/skillbox` 源码为参考，不 Fork Skillbox；优先参考 Web、CRUD、Revision、Search、Recommend、Usage，并按 Concept 业务适配。以下记录保留 2026-09-23 的侦察判断与当时的未决项；当前路线以 PRD §5、§34（历史文件 `docs/method-system-prd-v0.1.md`，见下方来源说明）为准。
 
 产品形态有多个直接先例。现阶段推荐以 **Skillbox** 为首要架构参考：研究其 Skill 资产模型、Web 管理界面、MCP / Agent bootstrap 边界和本地部署流程。暂不直接 fork，待确认本地运行约束并对照产品专用的 Method Schema、准入审核、诊断和 Compose 流程后再判断是否启动基座迁移。
 
@@ -58,3 +58,5 @@ Node.js / TypeScript（用户前轮已确认）。本轮最接近项目 Skillbox
 ## 迁移日志
 
 - 2026-09-23：第二轮按“本地管理系统 + Agent Skills”产品形态检索。GitHub API / `gh` / `curl` 搜索失败；使用网页搜索和 GitHub 页面手动检查 5 个候选，对前三名检查 README、目录、manifest / 入口及许可信息。建议先 reference Skillbox。`npm run validate` 通过；未克隆或运行上游项目。
+
+> 历史来源说明：旧产品材料已在 0045 合并删除；原文恢复方式见[文档收敛决策](../docs/adr/0004-product-doc-consolidation.md)。本文保留当时的任务或接口记录，不作为当前产品路线图。

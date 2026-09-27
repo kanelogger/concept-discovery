@@ -2,7 +2,7 @@
 
 ## 目标与范围
 
-根据用户 2026-09-24 的决定，修订 [Concept Discovery PRD](../docs/method-system-prd-v0.1.md)、[产品契约](../specs/product-contract.md)和后续任务入口：本地 Skillbox 源码作为参考，不以 Fork 为实施步骤；优先研究并适配 Web、CRUD、Revision、Search、Recommend、Usage；Web 采用 Card First；Concept Card 包含标题、描述、WebP 配图、标签和类型；Relation 支持五种关系并与 Recipe 分离；MVP 主线为 Concept CRUD → Recommendation Playground → Relation → Skill → Feedback / Eval。
+根据用户 2026-09-24 的决定，修订 Concept Discovery PRD（历史文件 `docs/method-system-prd-v0.1.md`，见下方来源说明）、[产品契约](../specs/product-contract.md)和后续任务入口：本地 Skillbox 源码作为参考，不以 Fork 为实施步骤；优先研究并适配 Web、CRUD、Revision、Search、Recommend、Usage；Web 采用 Card First；Concept Card 包含标题、描述、WebP 配图、标签和类型；Relation 支持五种关系并与 Recipe 分离；MVP 主线为 Concept CRUD → Recommendation Playground → Relation → Skill → Feedback / Eval。
 
 ## 验收条件
 
@@ -36,3 +36,5 @@
 ## 交接
 
 PRD 主线已收敛为五阶段；Skillbox 仅作为本地参考源码。下一步按 [产品待办](backlog.md)定稿 Schema、Core 准入和本地技术选型，再进入 Concept CRUD。尚无产品代码或正式 Registry；本任务完成后仅需本地提交。
+
+> 历史来源说明：旧产品材料已在 0045 合并删除；原文恢复方式见[文档收敛决策](../docs/adr/0004-product-doc-consolidation.md)。本文保留当时的任务或接口记录，不作为当前产品路线图。

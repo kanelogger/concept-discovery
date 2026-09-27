@@ -6,7 +6,7 @@
 
 ## 目标与范围
 
-依据 [产品契约](../specs/product-contract.md)、[PRD](../docs/method-system-prd-v0.1.md) 和 [待办](backlog.md)，检索能覆盖思维方法资产、上下文诊断 / 推荐、Agent Skills、Prompt 生成或方法管理的 GitHub 项目。产出候选证据与 fork / reference / none 决策；本任务不启动产品实现。用户确认目标框架为 Node.js / TypeScript。
+依据 [产品契约](../specs/product-contract.md)、PRD（历史文件 `docs/method-system-prd-v0.1.md`，见下方来源说明） 和 [待办](backlog.md)，检索能覆盖思维方法资产、上下文诊断 / 推荐、Agent Skills、Prompt 生成或方法管理的 GitHub 项目。产出候选证据与 fork / reference / none 决策；本任务不启动产品实现。用户确认目标框架为 Node.js / TypeScript。
 
 ## 验收条件
 
@@ -37,3 +37,5 @@
 ## 交接
 
 检索产物已记录在 `.reuse/reuse-plan.md`。下一步产品待办仍是 Schema、推荐结果和准入规则定稿；重新获得 GitHub API 网络访问后，可补跑自动化候选、评分及检出证据，但这不影响当前 reference 结论。
+
+> 历史来源说明：旧产品材料已在 0045 合并删除；原文恢复方式见[文档收敛决策](../docs/adr/0004-product-doc-consolidation.md)。本文保留当时的任务或接口记录，不作为当前产品路线图。

@@ -2,7 +2,7 @@
 
 ## 目标与范围
 
-按用户指定的 `grill-with-docs` 工作流，以多轮访谈检验 [PRD](../docs/method-system-prd-v0.1.md) 的关键产品决定；对已确认术语维护 [领域词汇表](../CONTEXT.md)，对真正难以逆转的取舍按需写 ADR。未取得用户对设计树的共同理解前，不据假设改写 PRD。
+按用户指定的 `grill-with-docs` 工作流，以多轮访谈检验 PRD（历史文件 `docs/method-system-prd-v0.1.md`，见下方来源说明） 的关键产品决定；对已确认术语维护 [领域词汇表](../CONTEXT.md)，对真正难以逆转的取舍按需写 ADR。未取得用户对设计树的共同理解前，不据假设改写 PRD。
 
 ## 验收条件
 
@@ -36,3 +36,5 @@
 ## 交接
 
 已确认约定写回 PRD v0.6。本次只完成产品文档；后续依据 [待办](backlog.md) 定稿 Schema、旧 `type` 导入映射、模型配置和应用栈，实施 Concept CRUD → 推荐接口 / 评测入口 → Relation → Skill → Feedback / Eval。
+
+> 历史来源说明：旧产品材料已在 0045 合并删除；原文恢复方式见[文档收敛决策](../docs/adr/0004-product-doc-consolidation.md)。本文保留当时的任务或接口记录，不作为当前产品路线图。

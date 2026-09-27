@@ -2,7 +2,7 @@
 
 ## 目标与范围
 
-根据用户 2026-09-24 的要求，在 [PRD](../docs/method-system-prd-v0.1.md) 中增加 Concept 的 Wiki 外部链接字段，并延续 `cn` / `en` 双语约定。同步 [产品契约](../specs/product-contract.md)、[后续任务](backlog.md)、文档索引与任务状态。本次只修订文档，不实现产品代码。
+根据用户 2026-09-24 的要求，在 PRD（历史文件 `docs/method-system-prd-v0.1.md`，见下方来源说明） 中增加 Concept 的 Wiki 外部链接字段，并延续 `cn` / `en` 双语约定。同步 [产品契约](../specs/product-contract.md)、[后续任务](backlog.md)、文档索引与任务状态。本次只修订文档，不实现产品代码。
 
 ## 验收条件
 
@@ -30,3 +30,5 @@
 ## 交接
 
 完成后在 Schema 任务中落地字段和校验，并在 Concept CRUD 中实现编辑及详情页展示。
+
+> 历史来源说明：旧产品材料已在 0045 合并删除；原文恢复方式见[文档收敛决策](../docs/adr/0004-product-doc-consolidation.md)。本文保留当时的任务或接口记录，不作为当前产品路线图。

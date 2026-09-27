@@ -1,6 +1,10 @@
-# Concept Discovery · MVP implementation workspace
+# Concept Discovery
 
-This branch implements the MVP in ticket order. The fixed Goal scope is tickets 0023–0029 plus 0031–0040; new backlog entries do not expand it. P1–P4 and 0039 Skill Usage/Feedback are implemented, including the [Concept Discovery Skill](skills/concept-discovery/SKILL.md). The final Eval Gate remains in [backlog](tasks/backlog.md). The earlier memory-only UI remains on `codex/concept-crud-demo` for reference.
+认知自动补全工具：帮助人和 Agent 在当前情境下发现已有的概念、经验和方法。当前产品优先建设本地 Web 知识库，支持人工维护、搜索和关系探索；自动补全与 CLI / Skill / 对外 API / MCP 接入后续推进。
+
+产品只维护两份文档：[需求文档](docs/需求文档.md)和[产品设计文档](docs/产品设计文档.md)。技术规格见[实现入口](specs/product-contract.md)，执行进度见[当前任务](workflow-state.json)和[待办](tasks/backlog.md)。
+
+仓库已有 CRUD、Dashboard、关系、推荐与 Skill 等基础。新的 Web 阶段仍有内容字段、浏览和检索改造待实施；既有推荐质量 Gate 尚未完成。下文介绍当前运行方式，不代表新设计已经验收。
 
 ## Run locally
 

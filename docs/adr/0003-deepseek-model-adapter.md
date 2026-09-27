@@ -15,4 +15,6 @@ DeepSeek [首次调用](https://api-docs.deepseek.com/zh-cn/)文档确认 `deeps
 
 隔离假适配器及假 HTTP 响应测试不访问外网。2026-09-25 使用用户提供的临时密钥，经隐藏终端输入运行 `npm run model:smoke`；仅发送合成中文任务与一张合成卡片，`deepseek-flash` 成功返回 1 条诊断和 1 条推荐。密钥未写入仓库文件或测试输出，烟测进程退出后不保留。此烟测证明接口可调用，不证明推荐质量；推荐质量由 0033 和 0034 验收。
 
-来源：[产品契约](../../specs/product-contract.md)、[推荐契约](../../specs/recommendation-contract.md)、[PRD §24](../../docs/method-system-prd-v0.1.md#24-推荐流程)。
+来源：[产品契约](../../specs/product-contract.md)、[推荐契约](../../specs/recommendation-contract.md)、PRD §24（历史文件 `docs/method-system-prd-v0.1.md`，见下方来源说明）。
+
+> 历史来源说明：旧产品材料已在 0045 合并删除；原文恢复方式见[文档收敛决策](0004-product-doc-consolidation.md)。本文保留当时的任务或接口记录，不作为当前产品路线图。

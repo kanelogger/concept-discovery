@@ -1,6 +1,6 @@
 # Concept Schema、CRUD 与 Dashboard 实施规格
 
-状态：P1 已在独立 `codex/concept-mvp-demo` 工作区按 0023–0029 实施；本地技术选型见 [ADR 0002](../docs/adr/0002-local-product-stack.md)。本文仍是 P1 产品与数据行为契约，最终用户验收尚未进行。
+状态：记录旧 P1 按 0023–0029 实施及后续修订的数据与界面契约；本地技术选型见 [ADR 0002](../docs/adr/0002-local-product-stack.md)。当前 Web 阶段的新增目标见[产品设计文档](../docs/产品设计文档.md)，尚未同步实施的差距不能视为已完成。
 
 ## Problem Statement
 
@@ -117,5 +117,7 @@
 ## Further Notes
 
 - 术语按 [CONTEXT.md](../CONTEXT.md)：Concept 目录可含草稿；可浏览与可推荐按语言判断；Source 与 Wiki Link 各有用途。
-- [PRD v0.6](../docs/method-system-prd-v0.1.md) 的 Web、字段、图片、搜索、CRUD、Dashboard 和 P1 章节是产品来源；[产品契约](product-contract.md) 记录用户已确认的范围。本文将 PRD 示例 `status: core` 和原型 Ready/Draft 收敛为可实施的生命周期与派生资格；若有冲突，以本文 P1 规格为实施依据，后续应同步更新上位材料。
+- PRD v0.6（历史文件 `docs/method-system-prd-v0.1.md`，见下方来源说明） 的 Web、字段、图片、搜索、CRUD、Dashboard 和 P1 章节是产品来源；[产品契约](product-contract.md) 记录用户已确认的范围。本文将 PRD 示例 `status: core` 和原型 Ready/Draft 收敛为可实施的生命周期与派生资格；当前字段与接口以本文为既有基线；后续改造按新的产品设计同步技术契约和实现。
 - 独立 demo 已验证卡片库/表格切换与固定筛选区，A/B 两种首页顺序保留供比较，C 工作区已移除。本文选择 Card First 首页；demo 数据、指标与图片大小限制均非生产事实。
+
+> 历史来源说明：旧产品材料已在 0045 合并删除；原文恢复方式见[文档收敛决策](../docs/adr/0004-product-doc-consolidation.md)。本文保留当时的任务或接口记录，不作为当前产品路线图。

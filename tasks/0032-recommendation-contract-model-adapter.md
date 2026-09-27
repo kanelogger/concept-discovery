@@ -4,7 +4,7 @@ Status: done
 
 实施记录：2026-09-25 在独立 `codex/concept-mvp-demo` 工作区实施；0031 已完成并提交 `6dc9284`。已实现请求/结果契约、紧凑候选卡、隔离适配器和 DeepSeek 真实适配器，见 [推荐契约](../specs/recommendation-contract.md) 与 [ADR 0003](../docs/adr/0003-deepseek-model-adapter.md)。
 
-**What to build:** 按 [PRD §20–§25](../docs/method-system-prd-v0.1.md#20-搜索与推荐)定稿显式语言的输入、诊断/Why Now/空推荐输出、模型配置与本地优先边界，并建立可测试的模型适配层。
+**What to build:** 按 PRD §20–§25（历史文件 `docs/method-system-prd-v0.1.md`，见下方来源说明）定稿显式语言的输入、诊断/Why Now/空推荐输出、模型配置与本地优先边界，并建立可测试的模型适配层。
 
 **Blocked by:** [0031：有限票据](0031-publish-finite-mvp-tickets.md)（已完成）。
 
@@ -21,3 +21,5 @@ Status: done
 - `npm run model:smoke`：用户提供的临时 key 只在隐藏终端输入一次，合成中文任务与合成卡片经官方 API 返回 1 条诊断、1 条推荐；无私有内容或 key 落盘。此结果不证明推荐质量。
 - `npm run check`：42/42 通过，含 Markdown/状态校验；`npm run demo:build` 和 `git diff --check` 通过。交互式配置另以隔离临时目录和假 key 验证：确需输入 `deepseek`，密钥输入不回显，生成 `.env` 权限为 `0600`；临时目录已删除。
 - 未决：本机无本地模型，MVP 按用户选择用 DeepSeek 远端。0033 接线后继续用隔离测试验收 API；真实使用的 key 需用户自行首次配置。临时 key 测试后应注销。
+
+> 历史来源说明：旧产品材料已在 0045 合并删除；原文恢复方式见[文档收敛决策](../docs/adr/0004-product-doc-consolidation.md)。本文保留当时的任务或接口记录，不作为当前产品路线图。
