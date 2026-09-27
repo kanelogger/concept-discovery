@@ -25,8 +25,8 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   return payload as T;
 }
 
-export default function RelationPanel({ conceptId, lifecycleStatus, locale, manage, refreshKey, onOpenConcept }: {
-  conceptId: string; lifecycleStatus: "active" | "archived"; locale: Locale; manage: boolean; refreshKey: number; onOpenConcept: (id: string) => void;
+export default function RelationPanel({ conceptId, lifecycleStatus, locale, manage, refreshKey, onOpenConcept, onChanged }: {
+  conceptId: string; lifecycleStatus: "active" | "archived"; locale: Locale; manage: boolean; refreshKey: number; onOpenConcept: (id: string) => void; onChanged: () => void;
 }) {
   const [relations, setRelations] = useState<RelationView[]>([]);
   const [options, setOptions] = useState<Option[]>([]);
@@ -73,7 +73,7 @@ export default function RelationPanel({ conceptId, lifecycleStatus, locale, mana
     try {
       if (editing) await api(`/api/relations/${editing.id}`, { method: "PATCH", body: JSON.stringify({ expected_version: editing.version, changes: { relation_type: relationType, note: { cn: noteCn, en: noteEn } } }) });
       else await api("/api/relations", { method: "POST", body: JSON.stringify({ source_concept_id: conceptId, target_concept_id: targetId, relation_type: relationType, note: { cn: noteCn, en: noteEn } }) });
-      setFormOpen(false); setEditing(null); setRevision((value) => value + 1);
+      setFormOpen(false); setEditing(null); setRevision((value) => value + 1); onChanged();
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Relation save failed"); }
     finally { setBusy(false); }
   };
@@ -82,7 +82,7 @@ export default function RelationPanel({ conceptId, lifecycleStatus, locale, mana
     setBusy(true); setError("");
     try {
       await api(`/api/relations/${relation.id}`, { method: "DELETE", body: JSON.stringify({ expected_version: relation.version }) });
-      setRevision((value) => value + 1);
+      setRevision((value) => value + 1); onChanged();
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Relation removal failed"); }
     finally { setBusy(false); }
   };

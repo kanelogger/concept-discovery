@@ -1,6 +1,6 @@
 # 0048：知识字段与阅读编辑
 
-Status: planned
+Status: complete
 
 ## 目标与范围
 
@@ -12,7 +12,7 @@ Status: planned
 
 ## 工作分工与进度
 
-当前 Agent 独立负责，工作区为 `codex/web-knowledge-base`。尚未完成本任务。
+当前 Agent 独立负责，工作区为 `codex/web-knowledge-base`。字段、编辑器、阅读详情及组件拆分已完成。
 
 ## 决策与未决事项
 
@@ -20,7 +20,7 @@ Status: planned
 
 ## 验证证据
 
-待执行。
+2026-09-28：新增回归最初发现表单数组与原始记录共享引用，已修复为独立副本。`node --test tests/knowledge-fields.test.mjs tests/product.test.mjs` 9/9 通过，覆盖旧 JSON、修订、无修改保存、句子与双语、非法输入、版本冲突。`npm run demo:build` 通过。浏览器整体体验将在 0051 验收。
 
 ## 交接
 

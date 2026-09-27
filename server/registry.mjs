@@ -8,8 +8,8 @@ const interactionTypes = new Set(taxonomy.interaction_types.map(({ code }) => co
 const epistemicTypes = new Set(taxonomy.epistemic_types.map(({ code }) => code));
 const domainCodes = new Set(taxonomy.domains.map(({ code }) => code));
 const intentCodes = new Set(taxonomy.intents.map(({ code }) => code));
-const localeFields = new Set(["name", "aliases", "description", "cover_image", "cover_images", "wiki_url", "tags", "trigger", "avoid_when", "transform", "agent_instruction", "source_text"]);
-const listFields = new Set(["aliases", "tags", "trigger", "avoid_when", "transform"]);
+const localeFields = new Set(["name", "aliases", "description", "cover_image", "cover_images", "wiki_url", "tags", "trigger", "questions", "examples", "avoid_when", "transform", "agent_instruction", "source_text"]);
+const listFields = new Set(["aliases", "tags", "trigger", "questions", "examples", "avoid_when", "transform"]);
 const sharedFields = new Set(["interaction_type", "epistemic_type", "domains", "intents"]);
 const relationTypes = new Set(["related_to", "often_used_with", "contrasts_with", "extends", "part_of"]);
 const symmetricRelations = new Set(["related_to", "often_used_with", "contrasts_with"]);
@@ -23,7 +23,7 @@ export class RegistryError extends Error {
 }
 
 const bad = (message) => { throw new RegistryError(400, "invalid_input", message); };
-const emptyLocale = () => ({ name: "", aliases: [], description: "", cover_image: "", cover_images: [], wiki_url: "", tags: [], trigger: [], avoid_when: [], transform: [], agent_instruction: "", source_text: "" });
+const emptyLocale = () => ({ name: "", aliases: [], description: "", cover_image: "", cover_images: [], wiki_url: "", tags: [], trigger: [], questions: [], examples: [], avoid_when: [], transform: [], agent_instruction: "", source_text: "" });
 const own = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
 
 function text(value, path) {
@@ -102,6 +102,8 @@ function readiness(concept, locale) {
 function publicConcept(concept) {
   for (const locale of ["cn", "en"]) {
     const data = concept.locales[locale];
+    data.questions ??= [];
+    data.examples ??= [];
     data.cover_images = [...new Set(Array.isArray(data.cover_images) ? data.cover_images : (data.cover_image ? [data.cover_image] : []))];
     data.cover_image = data.cover_images[0] ?? "";
   }

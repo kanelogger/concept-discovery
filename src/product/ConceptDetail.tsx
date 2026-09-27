@@ -1,0 +1,49 @@
+import { useState } from "react";
+import type { Concept, Locale } from "./model";
+import { storedImages } from "./model";
+import { labelsFor } from "./copy";
+import RelationPanel from "./RelationPanel";
+import Modal from "./Modal";
+
+function KnowledgeList({ title, items }: { title: string; items: string[] }) {
+  return items.length ? <section className="mt-6"><h3 className="text-sm font-semibold text-emerald-950">{title}</h3><ul className="mt-2 list-disc space-y-2 pl-5 text-sm leading-7 text-slate-700">{items.map((item, index) => <li key={index} className="whitespace-pre-wrap break-words">{item}</li>)}</ul></section> : null;
+}
+
+function ImageGallery({ concept, locale }: { concept: Concept; locale: Locale }) {
+  const [index, setIndex] = useState<number | null>(null);
+  const images = storedImages(concept.locales[locale]);
+  return <>{images.length > 0 && <div className="mt-4 flex flex-wrap gap-3">{images.map((hash, i) => <button type="button" key={hash} onClick={() => setIndex(i)} aria-label={`${locale === "cn" ? "查看图片" : "View image"} ${i + 1}`}><img src={`/api/assets/${hash}`} alt="" className="h-24 w-36 rounded-xl border object-cover" /></button>)}</div>}
+    {index !== null && <Modal title={`${locale === "cn" ? "图片" : "Image"} ${index + 1} / ${images.length}`} onClose={() => setIndex(null)}>
+      <div className="overflow-auto p-4"><img src={`/api/assets/${images[index]}`} alt={concept.locales[locale].name} className="mx-auto max-h-[70dvh] max-w-full object-contain" /></div>
+      {images.length > 1 && <div className="flex justify-between p-4"><button type="button" onClick={() => setIndex((index + images.length - 1) % images.length)}>{locale === "cn" ? "上一张" : "Previous image"}</button><button type="button" onClick={() => setIndex((index + 1) % images.length)}>{locale === "cn" ? "下一张" : "Next image"}</button></div>}
+    </Modal>}
+  </>;
+}
+
+export default function ConceptDetail({ concept, locale, manage, refreshKey, onClose, onRefresh, onEdit, onArchive, onRestore, onDelete, onOpenRelatedConcept }: {
+  concept: Concept; locale: Locale; manage: boolean; refreshKey: number;
+  onClose: () => void; onRefresh: () => void; onEdit: () => void; onArchive: () => void; onRestore: () => void; onDelete: () => void; onOpenRelatedConcept: (id: string) => void;
+}) {
+  const cn = locale === "cn";
+  const local = concept.locales[locale];
+  const ready = concept.readiness[locale];
+  return <Modal title={local.name || concept.id} onClose={onClose}>
+    <div className="overflow-y-auto p-5 sm:p-7">
+      <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500"><span>{local.tags.join(" · ")}</span>{!ready.browsable && <span className="rounded bg-amber-50 p-2 text-amber-900">{concept.lifecycle_status === "archived" ? (cn ? "已归档" : "Archived") : `${cn ? "当前语言待补" : "This language needs"}: ${ready.browse_missing.join(" · ")}`}</span>}</div>
+      <ImageGallery key={`${concept.id}/${locale}/${local.cover_images.join()}`} concept={concept} locale={locale} />
+      {local.description && <section className="mt-6"><h3 className="text-sm font-semibold text-emerald-950">{cn ? "是什么" : "What it is"}</h3><p className="mt-2 whitespace-pre-wrap break-words text-base leading-8">{local.description}</p></section>}
+      <KnowledgeList title={cn ? "什么时候想到它" : "When to think of it"} items={local.trigger} />
+      <KnowledgeList title={cn ? "问自己" : "Questions to ask"} items={local.questions} />
+      <KnowledgeList title={cn ? "什么时候不适用" : "When not to use it"} items={local.avoid_when} />
+      <KnowledgeList title={cn ? "案例" : "Examples"} items={local.examples} />
+      <RelationPanel conceptId={concept.id} lifecycleStatus={concept.lifecycle_status} locale={locale} manage={manage} refreshKey={refreshKey} onOpenConcept={onOpenRelatedConcept} onChanged={onRefresh} />
+      {local.source_text && <section className="mt-6 border-t pt-5"><h3 className="text-sm font-semibold">{cn ? "出处" : "Source"}</h3><p className="mt-2 whitespace-pre-wrap break-words text-sm leading-7 text-slate-600">{local.source_text}</p></section>}
+      {local.wiki_url && <a href={local.wiki_url} target="_blank" rel="noreferrer" className="mt-3 inline-block text-sm text-emerald-800 underline">{cn ? "延伸阅读" : "Further reading"}</a>}
+      <details className="mt-6 rounded-xl border p-4"><summary className="cursor-pointer text-sm font-medium">{cn ? "管理信息与 Agent 字段" : "Management and Agent fields"}</summary><div className="mt-3 space-y-2 break-words text-xs leading-6 text-slate-500">
+        <p>{concept.id} · v{concept.version} · {concept.lifecycle_status}</p><p>{labelsFor(concept, locale).join(" · ")}</p><p>{cn ? "别名" : "Aliases"}: {local.aliases.join(" · ")}</p><p>{cn ? "领域 / 意图" : "Domains / Intents"}: {[...concept.domains, ...concept.intents].join(" · ")}</p><p>{concept.created_at} → {concept.updated_at}</p>
+        <p>{cn ? "推荐条件待补" : "Recommendation missing"}: {ready.recommend_missing.join(" · ") || "—"}</p><p className="whitespace-pre-wrap">{local.agent_instruction}</p><KnowledgeList title={cn ? "转化目标" : "Transform goals"} items={local.transform} />
+      </div></details>
+    </div>
+    {manage && <footer className="flex flex-wrap gap-3 border-t bg-slate-50 px-5 py-4 text-sm"><button onClick={onEdit} className="rounded-lg bg-emerald-900 px-4 py-2 text-white">{cn ? "编辑" : "Edit"}</button><button onClick={onRefresh} className="rounded-lg border px-4 py-2">{cn ? "刷新" : "Reload"}</button>{concept.lifecycle_status === "active" ? <button onClick={onArchive} className="px-3 py-2 text-rose-800">{cn ? "删除" : "Delete"}</button> : <><button onClick={onRestore} className="px-3 py-2 text-emerald-900">{cn ? "恢复" : "Restore"}</button><button onClick={onDelete} className="px-3 py-2 text-rose-800">{cn ? "永久删除" : "Permanently delete"}</button></>}</footer>}
+  </Modal>;
+}
