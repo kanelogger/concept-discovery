@@ -4,7 +4,7 @@
 
 ## 决定
 
-- 用户首次启用远端推荐时，在交互终端运行 `npm run model:configure`，阅读数据外发说明并输入 `deepseek` 才选择远端 DeepSeek。随后隐藏输入 API key；程序将选择、同意状态与 key 写入被 Git 忽略的 `.env`，权限为 `0600`。未完成这一步不会发送 task、context 或 response。Skill 在首次调用时提示该配置命令；Web 不承担模型配置或推荐入口。
+- 用户首次启用远端推荐时，在交互终端运行 `npm run model:configure`，阅读数据外发说明并输入 `deepseek` 才选择远端 DeepSeek，再确认模型 ID（默认 `deepseek-flash`）。随后隐藏输入 API key；程序将选择、模型 ID、同意状态与 key 写入被 Git 忽略的 `.env`，权限为 `0600`。未完成这一步不会发送 task、context 或 response。Skill 在首次调用时提示该配置命令；Web 不承担模型配置或推荐入口。
 - 本次选定模型 `deepseek-flash`，使用官方 Chat Completions `POST https://api.deepseek.com/chat/completions`，通过 `Authorization: Bearer` 鉴权。服务端使用 Node 内置 `fetch`，不增加 SDK 依赖。请求用非流式 JSON Output，并在系统指令中明确要求 JSON 结构；完整任务文本与同语言紧凑 Concept 卡片作为 user 消息。结果仍由服务端验证资格、语言、ID、条数、理由与置信度。
 - 默认模型调用超时为 30 秒；调用者可在服务端覆盖，超时取消请求并返回 `504 model_timeout`。未配置返回 `503 model_unavailable`，未明确选择远端返回 `503 model_consent_required`，本地模型被选但无适配器返回 `503 local_model_unavailable`，密钥被拒返回 `503 model_credentials_invalid`，提供方错误或格式错误返回 `502`。不将上游错误正文、密钥或原始用户上下文写入日志或公开错误。
 - 本机当前无已配置的本地模型。用户选择 DeepSeek 作为 MVP 远端模型；未来如接入本地提供方，须单独实现适配器，不能把未实现的 `local` 配置静默路由到 DeepSeek。

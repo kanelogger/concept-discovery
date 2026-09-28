@@ -35,9 +35,9 @@
 
 ## 模型与数据边界
 
-本地模型优先；当前未配置本地模型，用户已选 DeepSeek 远端。没有可用模型时返回 `503 model_unavailable`，本地模型被选但没有适配器返回 `503 local_model_unavailable`。首次远端调用前须运行 `npm run model:configure`，阅读数据外发说明并输入 `deepseek`、密钥；选择记录于被忽略的 `.env`。未选择远端返回 `503 model_consent_required`。适配器异常返回 `502 model_failed`，超时返回 `504 model_timeout`，错误响应不泄露提供方内部详情；超时会中止调用信号。开发用评测入口和 Web 均不以模型缺失伪造空推荐；0033 阶段的 Web 不提供推荐输入、Playground 或 Prompt 展示；0055 增加知识库搜索推荐抽屉。
+本地模型优先；当前未配置本地模型，用户已选 DeepSeek 远端。没有可用模型时返回 `503 model_unavailable`，本地模型被选但没有适配器返回 `503 local_model_unavailable`。首次远端调用前须运行 `npm run model:configure`，阅读数据外发说明并输入 `deepseek`、DeepSeek 模型 ID（默认 `deepseek-flash`）及密钥；provider、模型 ID、同意状态和密钥记录于被忽略的 `.env`。当前适配器只支持 DeepSeek endpoint，其他提供方的模型 ID（例如 GPT）不能在此使用。未选择远端返回 `503 model_consent_required`。适配器异常返回 `502 model_failed`，超时返回 `504 model_timeout`，错误响应不泄露提供方内部详情；超时会中止调用信号。开发用评测入口和 Web 均不以模型缺失伪造空推荐；0033 阶段的 Web 不提供推荐输入、Playground 或 Prompt 展示；0055 增加知识库搜索推荐抽屉。
 
-提供方无关的 `runRecommendation` 接受注入的 `adapter.decide({ request, candidates }, { signal })`，默认超时 30 秒，调用者可在服务端覆盖。适配器只收到请求和同语言紧凑卡片，返回值仍受结果契约校验。DeepSeek 适配器使用 `deepseek-flash` 的 JSON Output；模型只返回诊断与候选 ID、理由、置信度，公开名称由 Registry 填入。真实模型调用由 0033 的推荐接口接线。
+提供方无关的 `runRecommendation` 接受注入的 `adapter.decide({ request, candidates }, { signal })`，默认超时 30 秒，调用者可在服务端覆盖。适配器只收到请求和同语言紧凑卡片，返回值仍受结果契约校验。DeepSeek 适配器使用 `.env` 的 `DEEPSEEK_MODEL`（缺省为 `deepseek-flash`）请求 JSON Output；模型只返回诊断与候选 ID、理由、置信度，公开名称由 Registry 填入。真实模型调用由 0033 的推荐接口接线。
 
 ## 正式 HTTP 接口（0033）
 

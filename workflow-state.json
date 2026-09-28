@@ -1,33 +1,26 @@
 {
   "schema_version": 1,
-  "task_id": "0055-explicit-search-recommendation-drawer",
+  "task_id": "0056-configure-explicit-model-id",
   "phase": "complete",
-  "task_file": "tasks/0055-explicit-search-recommendation-drawer.md",
+  "task_file": "tasks/0056-configure-explicit-model-id.md",
   "updated_at": "2026-09-28",
-  "summary": "0055 显式搜索和 DeepSeek 浏览推荐抽屉已合入本地 main；84 项全量测试、构建、隔离浏览器及一次真实模型通路通过，个人库内容未变化。",
+  "summary": "model:configure 现确认并保存 DEEPSEEK_MODEL，适配器用该模型 ID 发起请求；npm run check 84 项全过。",
   "blockers": [],
   "next_actions": [
-    "在真实任务中使用搜索与推荐抽屉，记录推荐是否有用和未命中案例。",
-    "样本人工内容签收、30 天使用证据和既有推荐质量 Gate 仍待后续验证。"
+    "如需使用 GPT 模型，另行实现并选择 OpenAI provider 与适配器。"
   ],
   "required_checks": [
-    "npm run test:product",
-    "npm run demo:build",
+    "node --test tests/deepseek-model.test.mjs",
     "npm run check"
   ],
   "verification": [
     {
-      "command": "npm run test:product",
+      "command": "node --test tests/deepseek-model.test.mjs",
       "result": "passed",
       "recorded_at": "2026-09-28"
     },
     {
       "command": "npm run check",
-      "result": "passed",
-      "recorded_at": "2026-09-28"
-    },
-    {
-      "command": "npm run demo:build",
       "result": "passed",
       "recorded_at": "2026-09-28"
     }

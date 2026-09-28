@@ -1,10 +1,10 @@
 import { existsSync, lstatSync, readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { randomUUID } from "node:crypto";
-import { createDeepseekAdapter } from "./deepseek-model.mjs";
+import { createDeepseekAdapter, DEEPSEEK_MODEL } from "./deepseek-model.mjs";
 import { RecommendationError } from "./recommendation-contract.mjs";
 
-const fields = new Set(["CONCEPT_MODEL_PROVIDER", "CONCEPT_MODEL_REMOTE_CONSENT", "DEEPSEEK_API_KEY"]);
+const fields = new Set(["CONCEPT_MODEL_PROVIDER", "CONCEPT_MODEL_REMOTE_CONSENT", "DEEPSEEK_MODEL", "DEEPSEEK_API_KEY"]);
 const setupMessage = "Run npm run model:configure in a terminal before the first remote recommendation";
 
 export function readModelSettings({ path = ".env", env = process.env } = {}) {
@@ -17,7 +17,7 @@ export function readModelSettings({ path = ".env", env = process.env } = {}) {
     }
   }
   const value = (key) => Object.hasOwn(env, key) ? env[key] : file[key];
-  return { provider: value("CONCEPT_MODEL_PROVIDER") || "", consent: value("CONCEPT_MODEL_REMOTE_CONSENT") || "", apiKey: value("DEEPSEEK_API_KEY") || "" };
+  return { provider: value("CONCEPT_MODEL_PROVIDER") || "", consent: value("CONCEPT_MODEL_REMOTE_CONSENT") || "", model: value("DEEPSEEK_MODEL") || DEEPSEEK_MODEL, apiKey: value("DEEPSEEK_API_KEY") || "" };
 }
 
 export function configuredModelAdapter(options = {}) {
@@ -27,14 +27,15 @@ export function configuredModelAdapter(options = {}) {
   if (settings.provider !== "deepseek") throw new RecommendationError(503, "model_unavailable", "Configured model provider is unsupported");
   if (settings.consent !== "deepseek") throw new RecommendationError(503, "model_consent_required", setupMessage);
   if (!settings.apiKey) throw new RecommendationError(503, "model_unavailable", setupMessage);
-  return createDeepseekAdapter(settings.apiKey, options);
+  return createDeepseekAdapter(settings.apiKey, { ...options, model: settings.model });
 }
 
-export function saveDeepseekConfig(apiKey, { path = ".env" } = {}) {
+export function saveDeepseekConfig(apiKey, { path = ".env", model = DEEPSEEK_MODEL } = {}) {
   if (typeof apiKey !== "string" || !/^sk-[A-Za-z0-9_-]{16,}$/.test(apiKey)) throw new TypeError("A valid DeepSeek API key is required");
+  if (typeof model !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(model)) throw new TypeError("A valid DeepSeek model ID is required");
   if (existsSync(path) && (lstatSync(path).isSymbolicLink() || !lstatSync(path).isFile())) throw new Error("Model config must be a local regular file");
-  const existing = existsSync(path) ? readFileSync(path, "utf8").split(/\r?\n/).filter((line) => !/^\s*(CONCEPT_MODEL_PROVIDER|CONCEPT_MODEL_REMOTE_CONSENT|DEEPSEEK_API_KEY)=/.test(line)) : [];
-  const content = [...existing.filter(Boolean), "CONCEPT_MODEL_PROVIDER=deepseek", "CONCEPT_MODEL_REMOTE_CONSENT=deepseek", `DEEPSEEK_API_KEY=${apiKey}`, ""].join("\n");
+  const existing = existsSync(path) ? readFileSync(path, "utf8").split(/\r?\n/).filter((line) => !/^\s*(CONCEPT_MODEL_PROVIDER|CONCEPT_MODEL_REMOTE_CONSENT|DEEPSEEK_MODEL|DEEPSEEK_API_KEY)=/.test(line)) : [];
+  const content = [...existing.filter(Boolean), "CONCEPT_MODEL_PROVIDER=deepseek", "CONCEPT_MODEL_REMOTE_CONSENT=deepseek", `DEEPSEEK_MODEL=${model}`, `DEEPSEEK_API_KEY=${apiKey}`, ""].join("\n");
   const temporary = join(dirname(path), `.concept-model-${randomUUID()}.tmp`);
   try {
     writeFileSync(temporary, content, { mode: 0o600, flag: "wx" });

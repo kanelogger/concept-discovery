@@ -12,7 +12,7 @@
 | `npm run test:product` | 单独执行 Registry/API 持久化测试 | 离线、临时目录、本地回环端口 |
 | `npm run demo:build` | TypeScript 检查并打包正式 Web 入口 | 离线，写 `dist` |
 | `npm start` | 在 127.0.0.1:4173 启动本地 API 与 Web；`CONCEPT_DB_PATH` 可指定隔离数据库 | 本地回环端口，写 `.local` 或指定路径 |
-| `npm run model:configure` | 首次选择远端 DeepSeek 并隐藏输入密钥，保存到被忽略的 `.env` | 本地配置写入；本命令不调用外网 |
+| `npm run model:configure` | 首次选择远端 DeepSeek、确认模型 ID（默认 `deepseek-flash`）并隐藏输入密钥，保存到被忽略的 `.env` | 本地配置写入；本命令不调用外网 |
 | `npm run model:smoke` | 用合成任务直连 `deepseek-flash` 验证适配器；密钥隐藏输入且不保存 | 向 DeepSeek API 发送合成文本 |
 | `npm run model:api-smoke` | 用临时 SQLite 与本地 HTTP API 发起六条中英合成推荐任务；密钥隐藏输入且不保存 | 本地回环端口、向 DeepSeek API 发送合成文本 |
 | `npm run eval -- --cases PATH --baseUrl http://127.0.0.1:4173 --output PATH` | 经正式 API 顺序运行离线案例，输出不含原始任务文本的逐案例与指标报告；默认数据是合成示例 | 调用本地服务；若已选择远端模型，本地服务会向其发送案例文本；报告写入被忽略的 `.local` |

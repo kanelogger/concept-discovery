@@ -25,23 +25,28 @@ test("first-use configuration requires explicit remote selection and keeps the k
     writeFileSync(path, `CONCEPT_MODEL_PROVIDER=deepseek\nDEEPSEEK_API_KEY=${fakeKey}\n`);
     assert.throws(() => configuredModelAdapter({ path, env: {}, fetchImpl }), { code: "model_consent_required", status: 503 });
     saveDeepseekConfig(fakeKey, { path });
-    assert.deepEqual(readModelSettings({ path, env: {} }), { provider: "deepseek", consent: "deepseek", apiKey: fakeKey });
+    assert.deepEqual(readModelSettings({ path, env: {} }), { provider: "deepseek", consent: "deepseek", model: DEEPSEEK_MODEL, apiKey: fakeKey });
     assert.equal(statSync(path).mode & 0o777, 0o600);
     assert.equal(readFileSync(path, "utf8").split("DEEPSEEK_API_KEY=").length - 1, 1);
     assert.equal(typeof configuredModelAdapter({ path, env: {}, fetchImpl }).decide, "function");
     assert.equal(calls, 0);
+    const selectedModel = "deepseek-chat";
+    saveDeepseekConfig(fakeKey, { path, model: selectedModel });
+    assert.deepEqual(readModelSettings({ path, env: {} }), { provider: "deepseek", consent: "deepseek", model: selectedModel, apiKey: fakeKey });
+    assert.equal(configuredModelAdapter({ path, env: {}, fetchImpl }).metadata.model, selectedModel);
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 
 test("DeepSeek adapter sends only the permitted payload and checks a complete JSON decision", async () => {
   let calls = 0;
-  const adapter = createDeepseekAdapter(fakeKey, { fetchImpl: async (url, options) => {
+  const selectedModel = "deepseek-chat";
+  const adapter = createDeepseekAdapter(fakeKey, { model: selectedModel, fetchImpl: async (url, options) => {
     calls++;
     assert.equal(url, DEEPSEEK_ENDPOINT);
     assert.equal(options.method, "POST");
     assert.equal(options.headers.Authorization, `Bearer ${fakeKey}`);
     const body = JSON.parse(options.body);
-    assert.equal(body.model, DEEPSEEK_MODEL);
+    assert.equal(body.model, selectedModel);
     assert.deepEqual(body.response_format, { type: "json_object" });
     assert.ok(body.messages[0].content.includes("JSON"));
     const input = JSON.parse(body.messages[1].content);
@@ -51,6 +56,7 @@ test("DeepSeek adapter sends only the permitted payload and checks a complete JS
     assert.equal(options.body.includes("private-image"), false);
     return new Response(JSON.stringify({ choices: [{ finish_reason: "stop", message: { content: JSON.stringify({ diagnosis: ["检查风险"], recommendations: [{ id: "inversion", reason: "可倒推失败", confidence: 0.8 }] }) } }] }), { status: 200 });
   } });
+  assert.equal(adapter.metadata.model, selectedModel);
   const result = await runRecommendation({ task: "如何选择", locale: "cn" }, [concept], adapter);
   assert.equal(calls, 1);
   assert.equal(result.recommendations[0].name, "逆向思维");
