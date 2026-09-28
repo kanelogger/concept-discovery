@@ -32,3 +32,5 @@ Status: complete
 ## 交接
 
 个人库和演示库当前都包含 `falsifiability`、`first-principles`、`hard-choice-model`、`minto-pyramid`、`ooda-loop`、`redundancy-backup`。运行 `CONCEPT_DB_PATH="$PWD/.local/demo.sqlite" npm start` 前确认该端口没有另一服务占用；服务启动后刷新页面。需要恢复原数据时，分别使用 `.local/backups/personal-concepts-before-six-2026-09-28.sqlite` 或 `.local/backups/demo-before-six-2026-09-28.sqlite`。
+
+后续更新：以上两个库、恢复快照和个人启动脚本已由 [0059](0059-unify-local-database.md) 按用户要求删除。当前统一库为 `.local/concept-discovery.sqlite`；上述恢复文件已不存在。

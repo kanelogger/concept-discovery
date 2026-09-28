@@ -30,6 +30,6 @@
 
 ### 隔离知识库样本
 
-`npm run demo:prepare -- --db /absolute/path/new-demo.sqlite` 从 `data/examples/knowledge-base-v1.json` 准备 12 条双语 Concept 与关系。必须显式传入新路径；已有数据库、SQLite 伴随文件和符号链接均拒绝覆盖。可用 `--input /absolute/path/sample.json` 指定同版本样本。失败清理本次新建库，不改变现有 80 条候选或个人库。
+`npm run demo:prepare -- --db /absolute/path/new-demo.sqlite` 从 `data/examples/knowledge-base-v1.json` 准备 12 条双语 Concept 与关系。必须显式传入新路径；已有数据库、SQLite 伴随文件和符号链接均拒绝覆盖。可用 `--input /absolute/path/sample.json` 指定同版本样本。失败清理本次新建库，不改变默认知识库或 80 条候选来源。
 
 准备后用 `CONCEPT_DB_PATH=/absolute/path/new-demo.sqlite PORT=4186 npm start` 启动隔离实例；端口按需选择。样本内容及出处核实记录见 [0050](../../tasks/0050-knowledge-samples.md)。

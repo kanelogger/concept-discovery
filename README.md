@@ -13,7 +13,7 @@ npm ci
 npm start
 ```
 
-Open `http://127.0.0.1:4173`. The service stores data in `.local/concept-discovery.sqlite` by default. Set `CONCEPT_DB_PATH` to another file for isolated demos or tests. The Web reads and writes the same Registry API used by the product tests.
+Open `http://127.0.0.1:4173`. The service stores data in `.local/concept-discovery.sqlite` by default; normal use runs `npm start` without setting `CONCEPT_DB_PATH`. Set that variable only to use a separate database for an isolated demo or test. The Web reads and writes the same Registry API used by the product tests.
 
 ```sh
 npm run check
@@ -29,7 +29,7 @@ npm run demo:prepare -- --db /tmp/concept-demo-new.sqlite
 CONCEPT_DB_PATH=/tmp/concept-demo-new.sqlite npm start
 ```
 
-The path must be new: existing databases and SQLite companion files are rejected. The versioned sample contains 12 bilingual Concepts and 12 explained relations; failure removes only the database created by this invocation. Sources and editorial notes are included in each Concept. This command never imports into the default personal database.
+The path must be new: existing databases and SQLite companion files are rejected. The versioned sample contains 12 bilingual Concepts and 12 explained relations; failure removes only the database created by this invocation. Sources and editorial notes are included in each Concept. This command never imports into the default library.
 
 ## Concept Discovery Skill
 

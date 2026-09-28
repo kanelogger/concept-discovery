@@ -28,6 +28,7 @@ Status: complete
 | --- | --- | --- | --- |
 | 2026-09-28 | 本地 SQLite 文件盘点及只读核验 | passed | `.local/` 及其非嵌入仓库路径只剩 `.local/concept-discovery.sqlite`；6 个 Concept、6 个 Revision；所有旧库和备份已删除。服务端口未启动，本轮未做浏览器验证。 |
 | 2026-09-28 | `npm run validate` | passed | 仓库入口、状态文件和 96 篇 Markdown 本地链接校验通过。 |
+| 2026-09-28 | README 与操作文档审查 | passed | README 明确普通启动使用默认库；隔离演示说明改为不写默认知识库；0058 的旧恢复路径标注为已删除。 |
 
 ## 交接
 
