@@ -1,37 +1,21 @@
 {
   "schema_version": 1,
-  "task_id": "0053-merge-main-stop-services",
+  "task_id": "0054-untools-models-data",
   "phase": "complete",
-  "task_file": "tasks/0053-merge-main-stop-services.md",
+  "task_file": "tasks/0054-untools-models-data.md",
   "updated_at": "2026-09-28",
-  "summary": "按用户要求阶段收口：全部本地任务分支合入 main，83 项测试与构建通过；确认项目服务均已退出。未推送，数据库保留。",
+  "summary": "baoyu-url-to-markdown 抓取 untools.co 全部 25 个思维工具页面到 docs/private-project/models-data/<slug>/（index.md + assets/），结构、链接与图片审计通过；数据目录被 gitignore，仅本地留存。",
   "blockers": [],
   "next_actions": [
-    "项目暂告一段落；恢复时先查看 tasks/backlog.md。",
-    "人工内容签收、30 天实际使用和 0040 质量 Gate 保留为未完成后续事项。"
+    "如需更新数据，重跑 /tmp/untools-fetch/fetch-all.sh（含 imgs→assets 改写）。",
+    "非工具页（about/templates/thinking-tools-guide）未抓取，按需另行处理。"
   ],
   "required_checks": [
-    "npm run check",
-    "npm run demo:build"
+    "npm run validate"
   ],
   "verification": [
     {
-      "command": "npm run check",
-      "result": "passed",
-      "recorded_at": "2026-09-28"
-    },
-    {
-      "command": "npm run demo:build",
-      "result": "failed",
-      "recorded_at": "2026-09-28"
-    },
-    {
-      "command": "npm run doctor",
-      "result": "passed",
-      "recorded_at": "2026-09-28"
-    },
-    {
-      "command": "npm run demo:build",
+      "command": "npm run validate",
       "result": "passed",
       "recorded_at": "2026-09-28"
     }
