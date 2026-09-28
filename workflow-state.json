@@ -1,33 +1,27 @@
 {
   "schema_version": 1,
-  "task_id": "0046-web-knowledge-base",
-  "phase": "verification",
-  "task_file": "tasks/0046-web-knowledge-base.md",
+  "task_id": "0052-sample-review-preparation",
+  "phase": "complete",
+  "task_file": "tasks/0052-sample-review-preparation.md",
   "updated_at": "2026-09-28",
-  "summary": "0047–0051 的 Web 改造、12 条双语样本及自动化/浏览器验收已完成；总体验收待维护者人工内容签收。",
+  "summary": "0052 样本复核与隔离审阅准备完成，3 项样本测试和文档校验通过；0046 总体验收仍待维护者内容签收，30 天真实使用尚未开始。",
   "blockers": [],
   "next_actions": [
-    "维护者人工审阅 12 条双语样本及来源并完成内容签收。",
-    "开展 30 天实际使用，记录新增、重新发现与关系探索的具体例子。"
+    "维护者通过 0052 的隔离库审阅样本，记录内容签收或修改意见。",
+    "从首次真实任务使用开始记录 30 天新增、重新发现与关系探索的具体例子。"
   ],
   "required_checks": [
-    "npm run test:product",
-    "npm run demo:build",
-    "npm run check"
+    "node --test tests/knowledge-samples.test.mjs",
+    "npm run validate"
   ],
   "verification": [
     {
-      "command": "npm run test:product",
+      "command": "node --test tests/knowledge-samples.test.mjs",
       "result": "passed",
       "recorded_at": "2026-09-28"
     },
     {
-      "command": "npm run demo:build",
-      "result": "passed",
-      "recorded_at": "2026-09-28"
-    },
-    {
-      "command": "npm run check",
+      "command": "npm run validate",
       "result": "passed",
       "recorded_at": "2026-09-28"
     }

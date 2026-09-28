@@ -4,7 +4,7 @@
 
 ## 当前优先项
 
-1. 维护者人工审阅 `data/examples/knowledge-base-v1.json` 中 12 条双语内容及来源，完成内容签收；Agent 来源核验见 0050。
+1. 维护者人工审阅 `data/examples/knowledge-base-v1.json` 中 12 条双语内容及来源，完成内容签收；Agent 来源核验见 0050；[0052](0052-sample-review-preparation.md) 提供修订后的隔离审阅库和逐条审阅要点。
 2. 使用隔离样本库体验后进入 30 天实际使用，记录持续新增、旧知识重新发现和关系探索的具体例子。
 3. 根据上述证据决定认知自动补全与 CLI / Skill / 对外 API / MCP 的具体接入顺序。
 

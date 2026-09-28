@@ -294,7 +294,7 @@
           "aliases": [
             "WIP 限制"
           ],
-          "description": "为同时进行的工作数量设上限，满额时优先完成或解除已有工作的阻塞。",
+          "description": "在约定的流程范围内，为已开始但尚未完成的工作设数量上限，包括等待和阻塞中的工作；满额时优先完成或解除阻塞。",
           "trigger": [
             "同时开了很多任务，每个都完成了一点，却很久没有交付。"
           ],
@@ -310,14 +310,14 @@
           "tags": [
             "流程改进"
           ],
-          "source_text": "Kanban University — The Official Guide to The Kanban Method, Limit Work in Progress / Manage Flow\nhttps://kanban.university/kanban-guide/\n2026-09-28 查阅。定义据来源概括；情境、问题和案例为本库编写。"
+          "source_text": "Kanban University — The Official Guide to The Kanban Method, Limit Work in Progress / Manage Flow\nhttps://kanban.university/kanban-guide/\nKanban University — The Kanban Method Glossary, Work in Progress / WIP Limit\nhttps://kanban.university/glossary/\n2026-09-28 查阅。定义据来源概括；情境、问题和案例为本库编写。"
         },
         "en": {
           "name": "Work in Progress Limits",
           "aliases": [
             "WIP Limits"
           ],
-          "description": "Cap simultaneous work; when capacity is full, finish or unblock existing items before starting more.",
+          "description": "Within an agreed workflow boundary, cap work that has started but not finished, including waiting and blocked items; when full, focus on finishing or unblocking work.",
           "trigger": [
             "Many tasks have started, but few have finished."
           ],
@@ -333,7 +333,7 @@
           "tags": [
             "flow-improvement"
           ],
-          "source_text": "Kanban University — The Official Guide to The Kanban Method, Limit Work in Progress / Manage Flow\nhttps://kanban.university/kanban-guide/\nReviewed 2026-09-28. Definition summarized from source; prompts and examples written for this library."
+          "source_text": "Kanban University — The Official Guide to The Kanban Method, Limit Work in Progress / Manage Flow\nhttps://kanban.university/kanban-guide/\nKanban University — The Kanban Method Glossary, Work in Progress / WIP Limit\nhttps://kanban.university/glossary/\nReviewed 2026-09-28. Definition summarized from source; prompts and examples written for this library."
         }
       }
     },
@@ -457,7 +457,7 @@
         "cn": {
           "name": "资源利用率",
           "aliases": [],
-          "description": "衡量资源容量被需求占用的程度；简单稳定排队模型中可用到达率与服务能力之比表示。",
+          "description": "在此处的排队分析中，以平均到达率除以总服务能力衡量容量负载；N 个同等服务台的口径为 ρ = λ / (Nμ)。",
           "trigger": [
             "排班几乎没有空隙，一遇到额外请求就全部延期。"
           ],
@@ -465,7 +465,7 @@
             "可用容量如何定义？为波动留下了多少余量？"
           ],
           "avoid_when": [
-            "利用率不等于交付效率；复杂流程不能用一个平均值替代分环节分析。"
+            "先说明衡量的是实际忙碌时间占比，还是到达需求与容量之比；负载达到或超过 1 时，不能直接套用要求稳定队列的等待公式。利用率也不能代替交付效率或分环节分析。"
           ],
           "examples": [
             "说明性示例：某服务台每小时可处理 10 项，平均到达 9 项，对应负载 90%；仍需检查到达波动与等待。"
@@ -478,7 +478,7 @@
         "en": {
           "name": "Resource Utilization",
           "aliases": [],
-          "description": "Measures demand relative to resource capacity; simple stable queueing models express it as arrival rate divided by service capacity.",
+          "description": "In the queueing analysis used here, capacity load is mean arrival rate divided by total service capacity: ρ = λ / (Nμ) for N identical servers.",
           "trigger": [
             "Schedules have no slack, so every extra request delays other work."
           ],
@@ -486,7 +486,7 @@
             "How is capacity defined, and what room remains for variation?"
           ],
           "avoid_when": [
-            "Utilization is not delivery efficiency; one average cannot describe every stage of a complex workflow."
+            "Specify whether the measure is observed busy-time share or arrival demand divided by capacity. At load 1 or above, do not apply waiting formulas that require a stable queue. Utilization does not replace delivery efficiency or stage-by-stage analysis."
           ],
           "examples": [
             "Illustrative example: A desk can process ten items hourly and receives nine on average: load is 90%, but variability and waiting still need examination."
@@ -512,7 +512,7 @@
           "aliases": [
             "任务切换"
           ],
-          "description": "从一项任务转向另一项时，需要切换目标及规则，可能付出额外认知时间。",
+          "description": "此处指人的认知任务切换：转向另一项任务时，需要切换目标及规则，可能付出额外认知时间。",
           "trigger": [
             "一天不停切换项目，到下班却没有完成重要工作。"
           ],
@@ -520,7 +520,7 @@
             "哪些切换可以合并或延后？返回原任务需要重建哪些信息？"
           ],
           "avoid_when": [
-            "实验任务的切换成本不能直接当作所有岗位的固定损失比例。"
+            "此处不讨论操作系统的进程切换；实验任务的切换成本不能直接当作所有岗位的固定损失比例。"
           ],
           "examples": [
             "说明性示例：写报告时每隔几分钟处理一条消息，回来都要重新确认论证进度；试着集中处理非紧急消息。"
@@ -535,7 +535,7 @@
           "aliases": [
             "Task Switching"
           ],
-          "description": "Changing tasks can require shifting goals and activating different rules, adding cognitive time costs.",
+          "description": "Here, context switching means human cognitive task switching: shifting goals and activating different rules can add time costs.",
           "trigger": [
             "The day is full of project switches but important work remains unfinished."
           ],
@@ -543,7 +543,7 @@
             "Which switches can be deferred, and what must be reconstructed on return?"
           ],
           "avoid_when": [
-            "Laboratory switching costs do not establish a fixed productivity-loss percentage for every job."
+            "This entry does not cover operating-system process switches. Laboratory switching costs do not establish a fixed productivity-loss percentage for every job."
           ],
           "examples": [
             "Illustrative example: A writer checks messages every few minutes and repeatedly reconstructs the argument; try batching nonurgent messages."
