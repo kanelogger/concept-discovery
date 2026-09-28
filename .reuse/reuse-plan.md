@@ -1,5 +1,7 @@
 # 复用计划
 
+状态：历史调研记录，不作为当前产品路线图。五个参考项目的本地 Git 克隆已于 2026-09-28 清理；下方保留上游链接、当时的参考要点与决策。当前产品范围见[需求文档](../docs/需求文档.md)和[产品设计文档](../docs/产品设计文档.md)。
+
 ## 需求摘要
 
 本轮问题聚焦产品形态：一个本地 / 自托管的管理系统维护一组 Agent Skills，并通过 Skills、MCP 或 CLI 把能力交给 Agent。原产品目标仍包含方法 Registry、根据对话识别适用方法、推荐解释及上下文化 Prompt。旧一轮关于思维模型内容的检索保留在 [任务 0002](../tasks/0002-github-reuse-scout.md)。
@@ -30,9 +32,9 @@ Node.js / TypeScript（用户前轮已确认）。本轮最接近项目 Skillbox
 
 ## 复用决策：reference
 
-2026-09-24 更新：用户决定以本地 `docs/private-project/skillbox` 源码为参考，不 Fork Skillbox；优先参考 Web、CRUD、Revision、Search、Recommend、Usage，并按 Concept 业务适配。以下记录保留 2026-09-23 的侦察判断与当时的未决项；当前路线以 PRD §5、§34（历史文件 `docs/method-system-prd-v0.1.md`，见下方来源说明）为准。
+2026-09-24 更新：用户当时决定以本地 `docs/private-project/skillbox` 源码为参考，不 Fork Skillbox；优先参考 Web、CRUD、Revision、Search、Recommend、Usage，并按 Concept 业务适配。该本地克隆现已清理。以下记录保留 2026-09-23 的侦察判断与当时的未决项；当时路线所据的 PRD §5、§34 属历史文件 `docs/method-system-prd-v0.1.md`，恢复方式见下方来源说明。
 
-产品形态有多个直接先例。现阶段推荐以 **Skillbox** 为首要架构参考：研究其 Skill 资产模型、Web 管理界面、MCP / Agent bootstrap 边界和本地部署流程。暂不直接 fork，待确认本地运行约束并对照产品专用的 Method Schema、准入审核、诊断和 Compose 流程后再判断是否启动基座迁移。
+产品形态有多个直接先例。当时推荐以 **Skillbox** 为首要架构参考：研究其 Skill 资产模型、Web 管理界面、MCP / Agent bootstrap 边界和本地部署流程。暂不直接 fork，待确认本地运行约束并对照产品专用的 Method Schema、准入审核、诊断和 Compose 流程后再判断是否启动基座迁移。
 
 ## 决策依据
 
@@ -42,7 +44,7 @@ Node.js / TypeScript（用户前轮已确认）。本轮最接近项目 Skillbox
 - **技术栈偏差：** Skillbox 的应用层是 TypeScript / React，运行时为 Bun + Hono，数据库为 PostgreSQL；与已确认的 Node.js / TypeScript 接近，但 runtime、后端框架、数据层不完全相同。Skills Manager 是 Tauri 桌面应用；MySkills 使用 TypeScript / Fastify 多包架构。
 - **决策：** 基座的业务模型和关键推荐流程仍有差异；部署形态也待确认。因此本轮定为 reference，避免在未厘清边界时把通用技能库直接认作方法论产品。
 
-## 待确认项
+## 当时待确认项
 
 - Skillbox 的本地 Docker Compose + PostgreSQL 形态是否符合预期；是否要求不依赖 Docker、完全离线或使用本地文件型数据库。
 - 目标是单用户本地 Web 系统，还是需支持多用户 / 团队权限。

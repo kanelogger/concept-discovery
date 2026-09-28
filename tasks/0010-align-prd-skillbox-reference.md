@@ -38,3 +38,5 @@
 PRD 主线已收敛为五阶段；Skillbox 仅作为本地参考源码。下一步按 [产品待办](backlog.md)定稿 Schema、Core 准入和本地技术选型，再进入 Concept CRUD。尚无产品代码或正式 Registry；本任务完成后仅需本地提交。
 
 > 历史来源说明：旧产品材料已在 0045 合并删除；原文恢复方式见[文档收敛决策](../docs/adr/0004-product-doc-consolidation.md)。本文保留当时的任务或接口记录，不作为当前产品路线图。
+
+后续状态（2026-09-28）：上述 `docs/private-project/skillbox` 是当时的本地参考副本，现已清理；上游链接和参考要点保留在[复用计划](../.reuse/reuse-plan.md)。

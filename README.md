@@ -2,9 +2,12 @@
 
 认知自动补全工具：帮助人和 Agent 在当前情境下发现已有的概念、经验和方法。当前产品优先建设本地 Web 知识库，支持人工维护、显式关键词搜索、DeepSeek 情境推荐和关系探索；更完整的自动补全与 CLI / Skill / 对外 API / MCP 接入后续推进。
 
-产品只维护两份文档：[需求文档](docs/需求文档.md)和[产品设计文档](docs/产品设计文档.md)。技术规格见[实现入口](specs/product-contract.md)，执行进度见[当前任务](workflow-state.json)和[待办](tasks/backlog.md)。
+## 文档导航
 
-仓库已有 CRUD、Dashboard、关系、推荐与 Skill 等基础。第一阶段 Web 字段、阅读编辑、情境关键词搜索与关系导航已实施，证据见 [0051](tasks/0051-web-acceptance.md)。维护者人工样本签收、30 天使用验证及既有推荐质量 Gate 尚未完成。
+- **当前产品**：[需求文档](docs/需求文档.md)、[产品设计文档](docs/产品设计文档.md)。产品需求和设计只维护这两份。
+- **继续工作**：[当前任务状态](workflow-state.json)、[未完成事项与历史任务索引](tasks/backlog.md)。维护者人工样本签收、30 天使用验证及既有推荐质量 Gate 尚未完成。
+- **实现依据**：[技术规格入口](specs/product-contract.md)、[本地运行命令](docs/agent-environment/commands.md)。仓库已有 CRUD、Dashboard、关系、推荐与 Skill 等基础；Web 验收记录见 [0051](tasks/0051-web-acceptance.md)。
+- **历史材料，按需查阅**：[旧个人试用交接](docs/acceptance/mvp-handoff-2026-09-25.md)、[复用项目及参考要点](.reuse/reuse-plan.md)、[产品文档收敛决定](docs/adr/0004-product-doc-consolidation.md)。这些记录用于追溯，不作为当前待实施需求。
 
 ## Run locally
 

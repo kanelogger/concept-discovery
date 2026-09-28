@@ -1,22 +1,14 @@
 {
   "schema_version": 1,
-  "task_id": "0060-remove-confusing-isolated-demo-example",
+  "task_id": "0061-light-document-archive",
   "phase": "complete",
-  "task_file": "tasks/0060-remove-confusing-isolated-demo-example.md",
+  "task_file": "tasks/0061-light-document-archive.md",
   "updated_at": "2026-09-28",
-  "summary": "README 隔离样本命令会切换到 12 条独立样本库；误生成库已清除，文档现标为仅用于隔离验收。",
+  "summary": "当前文档入口与历史任务索引已整理；参考项目记录保留要点并标明本地克隆已清理。",
   "blockers": [],
   "next_actions": [],
-  "required_checks": [
-    "npm run validate",
-    "SQLite read-only audit of canonical database and demo temporary file removal"
-  ],
+  "required_checks": ["npm run validate"],
   "verification": [
-    {
-      "command": "SQLite read-only audit of canonical database and demo temporary file removal",
-      "result": "passed",
-      "recorded_at": "2026-09-28"
-    },
     {
       "command": "npm run validate",
       "result": "passed",
