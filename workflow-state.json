@@ -1,21 +1,33 @@
 {
   "schema_version": 1,
-  "task_id": "0054-untools-models-data",
+  "task_id": "0055-explicit-search-recommendation-drawer",
   "phase": "complete",
-  "task_file": "tasks/0054-untools-models-data.md",
+  "task_file": "tasks/0055-explicit-search-recommendation-drawer.md",
   "updated_at": "2026-09-28",
-  "summary": "baoyu-url-to-markdown 抓取 untools.co 全部 25 个思维工具页面到 docs/private-project/models-data/<slug>/（index.md + assets/），结构、链接与图片审计通过；数据目录被 gitignore，仅本地留存。",
+  "summary": "0055 显式搜索和 DeepSeek 浏览推荐抽屉已合入本地 main；84 项全量测试、构建、隔离浏览器及一次真实模型通路通过，个人库内容未变化。",
   "blockers": [],
   "next_actions": [
-    "如需更新数据，重跑 /tmp/untools-fetch/fetch-all.sh（含 imgs→assets 改写）。",
-    "非工具页（about/templates/thinking-tools-guide）未抓取，按需另行处理。"
+    "在真实任务中使用搜索与推荐抽屉，记录推荐是否有用和未命中案例。",
+    "样本人工内容签收、30 天使用证据和既有推荐质量 Gate 仍待后续验证。"
   ],
   "required_checks": [
-    "npm run validate"
+    "npm run test:product",
+    "npm run demo:build",
+    "npm run check"
   ],
   "verification": [
     {
-      "command": "npm run validate",
+      "command": "npm run test:product",
+      "result": "passed",
+      "recorded_at": "2026-09-28"
+    },
+    {
+      "command": "npm run check",
+      "result": "passed",
+      "recorded_at": "2026-09-28"
+    },
+    {
+      "command": "npm run demo:build",
       "result": "passed",
       "recorded_at": "2026-09-28"
     }

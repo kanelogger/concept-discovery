@@ -35,7 +35,7 @@
 
 ## 模型与数据边界
 
-本地模型优先；当前未配置本地模型，用户已选 DeepSeek 远端。没有可用模型时返回 `503 model_unavailable`，本地模型被选但没有适配器返回 `503 local_model_unavailable`。首次远端调用前须运行 `npm run model:configure`，阅读数据外发说明并输入 `deepseek`、密钥；选择记录于被忽略的 `.env`。未选择远端返回 `503 model_consent_required`。适配器异常返回 `502 model_failed`，超时返回 `504 model_timeout`，错误响应不泄露提供方内部详情；超时会中止调用信号。开发用评测入口和 Web 均不以模型缺失伪造空推荐；Web 不提供推荐输入、Playground 或 Prompt 展示。
+本地模型优先；当前未配置本地模型，用户已选 DeepSeek 远端。没有可用模型时返回 `503 model_unavailable`，本地模型被选但没有适配器返回 `503 local_model_unavailable`。首次远端调用前须运行 `npm run model:configure`，阅读数据外发说明并输入 `deepseek`、密钥；选择记录于被忽略的 `.env`。未选择远端返回 `503 model_consent_required`。适配器异常返回 `502 model_failed`，超时返回 `504 model_timeout`，错误响应不泄露提供方内部详情；超时会中止调用信号。开发用评测入口和 Web 均不以模型缺失伪造空推荐；0033 阶段的 Web 不提供推荐输入、Playground 或 Prompt 展示；0055 增加知识库搜索推荐抽屉。
 
 提供方无关的 `runRecommendation` 接受注入的 `adapter.decide({ request, candidates }, { signal })`，默认超时 30 秒，调用者可在服务端覆盖。适配器只收到请求和同语言紧凑卡片，返回值仍受结果契约校验。DeepSeek 适配器使用 `deepseek-flash` 的 JSON Output；模型只返回诊断与候选 ID、理由、置信度，公开名称由 Registry 填入。真实模型调用由 0033 的推荐接口接线。
 
@@ -45,6 +45,10 @@
 
 成功响应的 `X-Model-Provider` 与 `X-Model-Name` 只给出非敏感模型标识，供离线评测追溯；不包含 API key。
 
-无效请求返回 `400 invalid_recommendation_request`，模型配置/同意缺失返回相应 `503`，模型超时返回 `504 model_timeout`，上游或模型输出错误返回 `502`。正常空推荐返回 HTTP 200 与 `recommendations: []`。Web 不调用此接口，也不展示推荐或 Prompt。双语隔离由 Registry 资格、候选卡裁剪和结果 ID 校验共同保证；诊断与 Why Now 的实际语言和相关性仍由模型及 0034 离线案例检验。
+无效请求返回 `400 invalid_recommendation_request`，模型配置/同意缺失返回相应 `503`，模型超时返回 `504 model_timeout`，上游或模型输出错误返回 `502`。正常空推荐返回 HTTP 200 与 `recommendations: []`。Web 知识库不调用此 Agent 推荐接口；0055 的浏览推荐使用单独的 `/api/discover`。Web 仍不展示 Prompt。双语隔离由 Registry 资格、候选卡裁剪和结果 ID 校验共同保证；诊断与 Why Now 的实际语言和相关性仍由模型及 0034 离线案例检验。
 
 > 历史来源说明：旧产品材料已在 0045 合并删除；原文恢复方式见[文档收敛决策](../docs/adr/0004-product-doc-consolidation.md)。本文保留当时的任务或接口记录，不作为当前产品路线图。
+
+## 知识库浏览推荐（0055）
+
+`POST /api/discover` 接受同一请求结构，Web 在用户显式提交非空搜索时传入搜索词作为 `task`，固定请求最多三条。候选来自当前语言 active 且 `browsable` 的 Concept，因而普通知识卡片不需要 Agent 指令。模型只接收同语言紧凑卡片，不读取草稿、归档或另一语言内容；ID、理由与结果结构沿用上面的服务端校验。没有候选直接返回空推荐，不调用模型；模型失败返回原有错误，不影响独立的关键词结果。原 `POST /api/recommendations` 仍只接收 `recommendable` 候选，Skill 与正式 Usage 规则不变。

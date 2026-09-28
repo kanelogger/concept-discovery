@@ -44,3 +44,7 @@
 ## 阶段收口
 
 用户要求项目告一段落、全部任务合入本地 main 并关闭服务；执行证据见 [0053](0053-merge-main-stop-services.md)。未完成的人工签收、使用验证与质量 Gate 保留为后续事项。
+
+## 0055 Web 搜索推荐
+
+[显式搜索与推荐抽屉](0055-explicit-search-recommendation-drawer.md)已合入本地 main 并在原个人库重启验证；以可浏览 Concept 为候选，原 Agent 推荐资格与 0040 质量 Gate 不变。

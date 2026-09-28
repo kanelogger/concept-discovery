@@ -28,9 +28,12 @@ export function parseRecommendationRequest(input) {
   return { task, context: optionalText(input, "context"), response: optionalText(input, "response"), user_intent: optionalText(input, "user_intent"), locale: input.locale, limit };
 }
 
-export function compactCandidateCards(concepts, locale) {
+const eligibleFor = (concept, locale, eligibility) => concept.lifecycle_status === "active" && Boolean(concept.readiness?.[locale]?.[eligibility]);
+
+export function compactCandidateCards(concepts, locale, eligibility = "recommendable") {
   if (!["cn", "en"].includes(locale) || !Array.isArray(concepts)) invalidRequest("locale and candidates are required");
-  return concepts.filter((concept) => concept.lifecycle_status === "active" && concept.readiness?.[locale]?.recommendable).map((concept) => {
+  if (!["browsable", "recommendable"].includes(eligibility)) throw new TypeError("Unknown recommendation eligibility");
+  return concepts.filter((concept) => eligibleFor(concept, locale, eligibility)).map((concept) => {
     const local = concept.locales[locale];
     return {
       id: concept.id,
@@ -46,7 +49,7 @@ export function compactCandidateCards(concepts, locale) {
   });
 }
 
-export function assembleRecommendationResult(request, decision, candidates, relations = []) {
+export function assembleRecommendationResult(request, decision, candidates, relations = [], eligibility = "recommendable") {
   if (!record(request) || !["cn", "en"].includes(request.locale) || !Number.isInteger(request.limit) || request.limit < 1 || request.limit > 3) invalidRequest("Normalized request is required");
   if (!record(decision) || !Array.isArray(decision.diagnosis) || !Array.isArray(decision.recommendations)) invalidDecision("Model decision needs diagnosis and recommendations");
   if (Object.keys(decision).some((field) => !["diagnosis", "recommendations"].includes(field))) invalidDecision("Unknown model decision field");
@@ -55,7 +58,8 @@ export function assembleRecommendationResult(request, decision, candidates, rela
     return item.trim();
   });
   if (decision.recommendations.length > request.limit || decision.recommendations.length > 3) invalidDecision("Too many recommendations");
-  const eligible = new Map(candidates.filter((concept) => concept.lifecycle_status === "active" && concept.readiness?.[request.locale]?.recommendable).map((concept) => [concept.id, concept]));
+  if (!["browsable", "recommendable"].includes(eligibility)) throw new TypeError("Unknown recommendation eligibility");
+  const eligible = new Map(candidates.filter((concept) => eligibleFor(concept, request.locale, eligibility)).map((concept) => [concept.id, concept]));
   const seen = new Set();
   const complementary = new Map();
   const recommendations = decision.recommendations.map((item) => {
@@ -94,11 +98,11 @@ export function unavailableModel() {
   throw new RecommendationError(503, "model_unavailable", "Configure a local model or explicitly choose a remote model before recommending");
 }
 
-export async function runRecommendation(input, concepts, adapter, { timeoutMs = 30_000, relations = [] } = {}) {
+export async function runRecommendation(input, concepts, adapter, { timeoutMs = 30_000, relations = [], eligibility = "recommendable" } = {}) {
   const request = parseRecommendationRequest(input);
   if (!adapter || typeof adapter.decide !== "function") unavailableModel();
   if (!Number.isInteger(timeoutMs) || timeoutMs < 1) throw new TypeError("timeoutMs must be a positive integer");
-  const candidates = compactCandidateCards(concepts, request.locale);
+  const candidates = compactCandidateCards(concepts, request.locale, eligibility);
   const controller = new AbortController();
   let timer;
   try {
@@ -111,7 +115,7 @@ export async function runRecommendation(input, concepts, adapter, { timeoutMs = 
         }, timeoutMs);
       }),
     ]);
-    return assembleRecommendationResult(request, decision, concepts, relations);
+    return assembleRecommendationResult(request, decision, concepts, relations, eligibility);
   } catch (error) {
     if (error instanceof RecommendationError) throw error;
     throw new RecommendationError(502, "model_failed", "Model decision failed");
