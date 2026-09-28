@@ -22,14 +22,9 @@ npm run demo:build
 
 The editor preserves bilingual content, sentence lists (triggers, questions, boundaries and examples), sources and multiple WebP images. The library defaults to Chinese browsable cards. Enter or Search submits keyword matching and opens a DeepSeek suggestion drawer for existing browsable Concepts; Clear and Reset return to unfiltered browsing. Draft/archived filters, conflict protection, related Concept navigation, addressable details and browser history are supported. Existing Recommendation, Skill and Usage behavior is preserved.
 
-## Isolated sample library
+## Database use
 
-```sh
-npm run demo:prepare -- --db /tmp/concept-demo-new.sqlite
-CONCEPT_DB_PATH=/tmp/concept-demo-new.sqlite npm start
-```
-
-The path must be new: existing databases and SQLite companion files are rejected. The versioned sample contains 12 bilingual Concepts and 12 explained relations; failure removes only the database created by this invocation. Sources and editorial notes are included in each Concept. This command never imports into the default library.
+For the current library, run `npm start` from the repository root without setting `CONCEPT_DB_PATH`; it opens `.local/concept-discovery.sqlite` with the six selected bilingual Concepts. The optional demo preparation tool creates a separate database containing 12 sample Concepts. Use it only for isolated validation; that database is separate from the current library.
 
 ## Concept Discovery Skill
 

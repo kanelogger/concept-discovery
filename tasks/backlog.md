@@ -52,3 +52,7 @@
 ## 0058 个人库六条精选数据
 
 [个人库重置](0058-reset-personal-concept-library.md)完成后，按用户后续要求由 [0059](0059-unify-local-database.md) 清理重复库与所有历史快照；当前只保留默认库。
+
+## 0060 README 隔离样本说明
+
+[排障与文档修正](0060-remove-confusing-isolated-demo-example.md)确认旧 README 命令会切换到 12 条样本的独立库；已删除误生成的临时文件，并把该命令标为隔离验收用途。

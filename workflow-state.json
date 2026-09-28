@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
-  "task_id": "0059-unify-local-database",
+  "task_id": "0060-remove-confusing-isolated-demo-example",
   "phase": "complete",
-  "task_file": "tasks/0059-unify-local-database.md",
+  "task_file": "tasks/0060-remove-confusing-isolated-demo-example.md",
   "updated_at": "2026-09-28",
-  "summary": "本地知识库已统一到 .local/concept-discovery.sqlite；重复库、旧快照和个人启动脚本已删除。",
+  "summary": "README 隔离样本命令会切换到 12 条独立样本库；误生成库已清除，文档现标为仅用于隔离验收。",
   "blockers": [],
   "next_actions": [],
   "required_checks": [
     "npm run validate",
-    "SQLite read-only audit of canonical database and local database inventory"
+    "SQLite read-only audit of canonical database and demo temporary file removal"
   ],
   "verification": [
     {
-      "command": "SQLite read-only audit of canonical database and local database inventory",
+      "command": "SQLite read-only audit of canonical database and demo temporary file removal",
       "result": "passed",
       "recorded_at": "2026-09-28"
     },
