@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BookOpen, Compass, Grid2X2, List, Plus, Search } from "lucide-react";
+import { BookOpen, Compass, Grid2X2, List, Plus, Search, X } from "lucide-react";
 import type { Locale, Concept, Draft, DashboardData, Readiness, MediaDraft, MediaDraftItem } from "./model";
 import { blank, fromConcept, storedImages, updatePayload, createPayload } from "./model";
 import { api, ApiError } from "./api";
@@ -11,13 +11,14 @@ import ConceptCard from "./ConceptCard";
 import ConceptEditor from "./ConceptEditor";
 import ConceptDetailModal from "./ConceptDetail";
 import Modal from "./Modal";
+import RecommendationDrawer from "./RecommendationDrawer";
+import type { DiscoveryResult } from "./RecommendationDrawer";
 import { useNavigation } from "./useNavigation";
 function App() {
   const { navigation, navigate, set: setNavigation } = useNavigation();
   const { locale, section, density, search, status, tag, domain, page, pageSize, concept: selectedId } = navigation;
   const setLocale = (value: Locale) => setNavigation("locale", value);
   const setDensity = (value: "cards" | "table") => setNavigation("density", value);
-  const setSearch = (value: string) => setNavigation("search", value);
   const setStatus = (value: string) => setNavigation("status", value);
   const setTag = (value: string) => setNavigation("tag", value);
   const setDomain = (value: string[]) => setNavigation("domain", value);
@@ -25,6 +26,42 @@ function App() {
   const setPageSize = (value: number) => setNavigation("pageSize", value);
   const openConcept = (id: string) => navigate({ concept: id, section: "manage" });
   const closeConcept = () => navigate({ concept: null });
+  const [searchInput, setSearchInput] = useState(search);
+  const [discoveryRequest, setDiscoveryRequest] = useState<{ id: string; query: string; locale: Locale } | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
+  const [discoveryLoading, setDiscoveryLoading] = useState(false);
+  const [discoveryError, setDiscoveryError] = useState("");
+  useEffect(() => { setSearchInput(search); }, [search]);
+  useEffect(() => {
+    if (discoveryRequest && (search !== discoveryRequest.query || locale !== discoveryRequest.locale)) setDrawerOpen(false);
+  }, [search, locale, discoveryRequest]);
+  useEffect(() => {
+    if (!drawerOpen || !discoveryRequest) return;
+    const controller = new AbortController();
+    setDiscoveryResult(null); setDiscoveryError(""); setDiscoveryLoading(true);
+    api<DiscoveryResult>("/api/discover", { method: "POST", body: JSON.stringify({ task: discoveryRequest.query, locale: discoveryRequest.locale, limit: 3 }), signal: controller.signal })
+      .then((result) => { if (!controller.signal.aborted) setDiscoveryResult(result); })
+      .catch((cause) => { if (!controller.signal.aborted) setDiscoveryError(cause instanceof Error ? cause.message : "Discovery failed"); })
+      .finally(() => { if (!controller.signal.aborted) setDiscoveryLoading(false); });
+    return () => controller.abort();
+  }, [drawerOpen, discoveryRequest]);
+  const submitSearch = (event: React.FormEvent) => {
+    event.preventDefault();
+    const query = searchInput.trim();
+    setSearchInput(query);
+    navigate({ search: query, page: 1 }, "push");
+    if (query) { setDiscoveryRequest({ id: crypto.randomUUID(), query, locale }); setDrawerOpen(true); }
+    else { setDiscoveryRequest(null); setDrawerOpen(false); }
+  };
+  const clearSearch = () => {
+    setSearchInput(""); setDrawerOpen(false); setDiscoveryRequest(null);
+    navigate({ search: "", page: 1 }, "replace");
+  };
+  const resetSearch = () => {
+    setSearchInput(""); setDrawerOpen(false); setDiscoveryRequest(null);
+    navigate({ search: "", status: "browsable", tag: "", domain: [], page: 1 }, "replace");
+  };
   const [detailError, setDetailError] = useState("");
   const [concepts, setConcepts] = useState<Concept[]>([]);
   const [count, setCount] = useState(0);
@@ -215,8 +252,18 @@ function App() {
     <main className="mx-auto max-w-6xl px-5 pb-16 md:px-10">
       {section === "dashboard" ? <DashboardView data={dashboard} error={dashboardError} locale={locale} onRefresh={() => setRefreshKey((key) => key + 1)} /> : <>
       <div className="flex flex-wrap items-end justify-between gap-4 py-8"><div><p className="mb-2 text-[11px] font-semibold uppercase tracking-[.18em] text-emerald-800">Concept Registry</p><h1 className="text-3xl font-semibold tracking-tight">{t.manageTitle}</h1><p className="mt-2 text-sm text-slate-500">{t.manageSubtitle}</p></div><button onClick={() => begin()} className="inline-flex items-center gap-2 rounded-xl bg-emerald-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-800"><Plus size={16} />{t.create}</button></div>
-      <div className="sticky top-16 z-20 mb-5 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white/95 p-3 shadow-sm backdrop-blur"><label className="relative min-w-48 flex-1"><Search size={15} className="absolute left-3 top-3 text-slate-400" /><input value={search} onChange={(event) => setSearch(event.target.value)} aria-label={t.search} placeholder={t.search} className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-emerald-700" /></label><select value={status} onChange={(event) => setStatus(event.target.value)} aria-label="Status" className="rounded-lg border border-slate-200 px-3 py-2 text-sm"><option value="all">{t.all}</option>{section === "manage" && <option value="draft">{t.draft}</option>}<option value="browsable">{t.browsable}</option><option value="recommendable">{t.recommended}</option>{section === "manage" && <option value="archived">{t.archived}</option>}</select><input value={tag} onChange={(event) => setTag(event.target.value)} aria-label={t.tag} placeholder={t.tag} className="w-28 rounded-lg border border-slate-200 px-3 py-2 text-sm" /><div className="w-52 shrink-0"><TaxonomyPicker value={domain} options={taxonomy.domains} locale={locale} chooseLabel={t.chooseDomains} selectedLabel={t.selectedDomains} hint={t.selectDomainHint} confirmLabel={t.confirm} cancelLabel={t.cancel} onChange={setDomain} /></div><div className="ml-auto flex rounded-lg border border-slate-200 p-0.5"><button onClick={() => setDensity("cards")} aria-label="Card view" aria-pressed={density === "cards"} className={`rounded-md p-2 ${density === "cards" ? "bg-emerald-50 text-emerald-900" : "text-slate-400"}`}><Grid2X2 size={16} /></button><button onClick={() => setDensity("table")} aria-label="Table view" aria-pressed={density === "table"} className={`rounded-md p-2 ${density === "table" ? "bg-emerald-50 text-emerald-900" : "text-slate-400"}`}><List size={16} /></button></div></div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500"><span>{count} {t.result}</span><label className="flex items-center gap-2">{t.pageSize}<select aria-label={t.pageSize} value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1); }} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-700"><option value={10}>10</option><option value={20}>20</option><option value={50}>50</option></select></label></div>
+      <div className="sticky top-16 z-20 mb-5 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white/95 p-3 shadow-sm backdrop-blur">
+        <form onSubmit={submitSearch} role="search" className="flex min-w-48 flex-[2] flex-wrap items-center gap-2">
+          <label className="relative min-w-48 flex-1"><Search size={15} className="absolute left-3 top-3 text-slate-400" /><input value={searchInput} onChange={(event) => setSearchInput(event.target.value)} aria-label={t.search} placeholder={t.search} className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-9 text-sm outline-none focus:border-emerald-700" />{searchInput && <button type="button" onClick={clearSearch} aria-label={locale === "cn" ? "清空搜索" : "Clear search"} className="absolute right-1 top-1 rounded-md p-1.5 text-slate-500 hover:bg-slate-100"><X size={16} /></button>}</label>
+          <button type="submit" className="rounded-lg bg-emerald-900 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800">{locale === "cn" ? "搜索" : "Search"}</button>
+          <button type="button" onClick={resetSearch} className="rounded-lg border border-slate-200 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">{locale === "cn" ? "重置" : "Reset"}</button>
+        </form>
+        <select value={status} onChange={(event) => setStatus(event.target.value)} aria-label="Status" className="rounded-lg border border-slate-200 px-3 py-2 text-sm"><option value="all">{t.all}</option>{section === "manage" && <option value="draft">{t.draft}</option>}<option value="browsable">{t.browsable}</option><option value="recommendable">{t.recommended}</option>{section === "manage" && <option value="archived">{t.archived}</option>}</select>
+        <input value={tag} onChange={(event) => setTag(event.target.value)} aria-label={t.tag} placeholder={t.tag} className="w-28 rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+        <div className="w-52 shrink-0"><TaxonomyPicker value={domain} options={taxonomy.domains} locale={locale} chooseLabel={t.chooseDomains} selectedLabel={t.selectedDomains} hint={t.selectDomainHint} confirmLabel={t.confirm} cancelLabel={t.cancel} onChange={setDomain} /></div>
+        <div className="ml-auto flex rounded-lg border border-slate-200 p-0.5"><button onClick={() => setDensity("cards")} aria-label="Card view" aria-pressed={density === "cards"} className={`rounded-md p-2 ${density === "cards" ? "bg-emerald-50 text-emerald-900" : "text-slate-400"}`}><Grid2X2 size={16} /></button><button onClick={() => setDensity("table")} aria-label="Table view" aria-pressed={density === "table"} className={`rounded-md p-2 ${density === "table" ? "bg-emerald-50 font-semibold text-emerald-900" : "text-slate-400"}`}><List size={16} /></button></div>
+      </div>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500"><div className="flex items-center gap-3"><span>{count} {t.result}</span>{search && <button type="button" onClick={() => { setDiscoveryRequest({ id: crypto.randomUUID(), query: search, locale }); setDrawerOpen(true); }} className="font-medium text-emerald-800 underline">{locale === "cn" ? "查看推荐" : "View suggestions"}</button>}</div><label className="flex items-center gap-2">{t.pageSize}<select aria-label={t.pageSize} value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1); }} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-700"><option value={10}>10</option><option value={20}>20</option><option value={50}>50</option></select></label></div>
       {error && !editor && <p role="alert" className="mb-5 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{error}</p>}
       {loading ? <p className="text-sm text-slate-500">Loading…</p> : concepts.length === 0 ? <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-20 text-center"><BookOpen className="mx-auto mb-4 text-emerald-800" size={28} /><h2 className="font-medium">{t.empty}</h2><p className="mt-3 text-sm text-slate-500">{locale === "cn" ? "试试其他关键词或调整筛选，也可以从草稿继续整理。" : "Try different keywords or filters, or continue editing drafts."}</p><button onClick={() => navigate({ status: "draft", search: "", tag: "", domain: [], page: 1 })} className="mt-4 text-sm text-emerald-800 underline">{locale === "cn" ? "查看草稿" : "View drafts"}</button></div> : density === "cards" ? <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{pageConcepts.map((concept) => <ConceptCard key={concept.id} concept={concept} locale={locale} manage={section === "manage"} selected={selected?.id === concept.id} onSelect={() => openConcept(concept.id)} onOpenRelated={openConcept} onArchive={() => changeLifecycle(concept, "archive")} onRestore={() => changeLifecycle(concept, "restore")} onDelete={() => requestDelete(concept)} />)}</div> : <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white"><table className="w-full min-w-[650px] text-left text-sm"><thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="px-4 py-3">Concept</th><th className="px-4 py-3">{t.tag}</th><th className="px-4 py-3">Status</th>{section === "manage" && <th className="px-4 py-3">{t.actions}</th>}</tr></thead><tbody>{pageConcepts.map((concept) => <tr key={concept.id} className="border-t border-slate-100"><td className="px-4 py-3"><button type="button" onClick={() => openConcept(concept.id)} className="block max-w-sm text-left hover:underline"><span className="font-medium text-emerald-900">{concept.locales[locale].name || concept.id}</span><span className="mt-1 block truncate text-xs text-slate-500">{concept.locales[locale].description}</span></button></td><td className="px-4 py-3 text-slate-500">{concept.locales[locale].tags.join(", ")}</td><td className="px-4 py-3 text-slate-500">{concept.lifecycle_status === "archived" ? t.archived : concept.readiness[locale].browsable ? t.browsable : t.draft}</td>{section === "manage" && <td className="px-4 py-3"><div className="flex flex-wrap items-center gap-x-3 gap-y-1 whitespace-nowrap text-xs"><button type="button" onClick={() => openConcept(concept.id)} className="text-slate-600 hover:text-slate-900">{t.preview}</button><button type="button" onClick={() => begin(concept)} className="text-emerald-800 hover:text-emerald-950">{t.edit}</button>{concept.lifecycle_status === "active" ? <button type="button" onClick={() => changeLifecycle(concept, "archive")} className="text-rose-700 hover:text-rose-900">{t.delete}</button> : <><button type="button" onClick={() => changeLifecycle(concept, "restore")} className="text-emerald-800 hover:text-emerald-950">{locale === "cn" ? "恢复" : "Restore"}</button><button type="button" onClick={() => requestDelete(concept)} className="text-rose-700 hover:text-rose-900">{t.permanentlyDelete}</button></>}</div></td>}</tr>)}</tbody></table></div>}
       {!loading && count > 0 && <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"><span className="text-xs text-slate-500">{(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, count)} / {count}</span><div className="flex items-center gap-3"><button type="button" onClick={() => setPage((value) => Math.max(1, value - 1))} disabled={currentPage === 1} className="rounded-lg border border-slate-200 px-3 py-1.5 disabled:cursor-not-allowed disabled:opacity-40">{t.previousPage}</button><span aria-live="polite" className="text-xs text-slate-600">{t.pageOf} {currentPage} {t.ofPages} {pageCount}{locale === "cn" ? " 页" : ""}</span><button type="button" onClick={() => setPage((value) => Math.min(pageCount, value + 1))} disabled={currentPage >= pageCount} className="rounded-lg border border-slate-200 px-3 py-1.5 disabled:cursor-not-allowed disabled:opacity-40">{t.nextPage}</button></div></div>}
@@ -224,6 +271,7 @@ function App() {
       {selectedId && !editor && !deleteCandidate && selected?.id !== selectedId && <Modal title={selectedId} onClose={closeConcept}><div className="p-6"><p role={detailError ? "alert" : "status"}>{detailError || (locale === "cn" ? "读取中…" : "Loading…")}</p><button onClick={closeConcept} className="mt-4 text-emerald-800 underline">{locale === "cn" ? "返回列表" : "Back to library"}</button>{detailError && <button onClick={() => setRefreshKey((key) => key + 1)} className="ml-4 underline">{locale === "cn" ? "重试" : "Retry"}</button>}</div></Modal>}
       </>}
     </main>
+    {drawerOpen && discoveryRequest && <RecommendationDrawer locale={discoveryRequest.locale} query={discoveryRequest.query} result={discoveryResult} loading={discoveryLoading} error={discoveryError} onClose={() => setDrawerOpen(false)} onOpenConcept={(id) => { setDrawerOpen(false); openConcept(id); }} />}
     {editor && <ConceptEditor editor={editor} draft={draft} locale={locale} media={media} preview={preview} busy={busy} error={error} conflict={conflict} setField={setField} onSave={save} onClose={closeEditor} onReload={reloadEditor} onChooseImages={chooseImages} onRemoveImage={removeImage} />}
     {deleteCandidate && <Modal title={locale === "cn" ? "永久删除 Concept" : "Permanently delete Concept"} onClose={() => setDeleteCandidate(null)} className="max-w-md"><div className="overflow-y-auto p-6"><p className="mt-3 text-sm text-slate-600">{locale === "cn" ? "仅已归档且无外部引用的 Concept 可删除。记录、修订及专属图片将永久移除。请输入完整 ID 继续。" : "Only archived Concepts without external references can be deleted. The record, revisions, and unshared images will be removed. Enter the full ID to continue."}</p><p className="mt-3 font-mono text-sm font-medium">{deleteCandidate.id}</p><label className="mt-4 block text-sm">{locale === "cn" ? "确认 ID" : "Confirm ID"}<input value={deleteText} onChange={(event) => setDeleteText(event.target.value)} autoFocus className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2" /></label>{deleteError && <p role="alert" className="mt-3 text-sm text-rose-800">{deleteError}</p>}<div className="mt-6 flex justify-end gap-2"><button onClick={() => setDeleteCandidate(null)} className="rounded-lg px-4 py-2 text-sm">{locale === "cn" ? "取消" : "Cancel"}</button><button onClick={confirmDelete} disabled={deleteText !== deleteCandidate.id} className="rounded-lg bg-rose-800 px-4 py-2 text-sm text-white disabled:opacity-50">{locale === "cn" ? "继续删除" : "Continue deletion"}</button></div></div></Modal>}
   </div>;

@@ -35,6 +35,15 @@ export function createApiServer({ dbPath, fallback, modelAdapterFactory = config
         return response.end(asset.data);
       }
       if (path.length === 2 && path[1] === "dashboard" && request.method === "GET") return json(response, 200, registry.dashboard());
+      if (path.length === 2 && path[1] === "discover" && request.method === "POST") {
+        const input = parseRecommendationRequest(await body(request, 64 * 1024));
+        const concepts = registry.query({ locale: input.locale, view: "browse", status: "browsable" });
+        if (!concepts.length) return json(response, 200, { locale: input.locale, diagnosis: [], recommendations: [] });
+        const adapter = modelAdapterFactory();
+        const relations = registry.relationsForCandidates(concepts.map((concept) => concept.id));
+        const result = await runRecommendation(input, concepts, adapter, { relations, eligibility: "browsable" });
+        return json(response, 200, result, { "X-Model-Provider": adapter.metadata?.provider || "unspecified", "X-Model-Name": adapter.metadata?.model || "unspecified" });
+      }
       if (path.length === 2 && path[1] === "recommendations" && request.method === "POST") {
         const input = parseRecommendationRequest(await body(request, 64 * 1024));
         const concepts = registry.query({ locale: input.locale, view: "browse", status: "recommendable" });

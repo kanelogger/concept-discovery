@@ -1,6 +1,6 @@
 # Concept Discovery
 
-认知自动补全工具：帮助人和 Agent 在当前情境下发现已有的概念、经验和方法。当前产品优先建设本地 Web 知识库，支持人工维护、搜索和关系探索；自动补全与 CLI / Skill / 对外 API / MCP 接入后续推进。
+认知自动补全工具：帮助人和 Agent 在当前情境下发现已有的概念、经验和方法。当前产品优先建设本地 Web 知识库，支持人工维护、显式关键词搜索、DeepSeek 情境推荐和关系探索；更完整的自动补全与 CLI / Skill / 对外 API / MCP 接入后续推进。
 
 产品只维护两份文档：[需求文档](docs/需求文档.md)和[产品设计文档](docs/产品设计文档.md)。技术规格见[实现入口](specs/product-contract.md)，执行进度见[当前任务](workflow-state.json)和[待办](tasks/backlog.md)。
 
@@ -20,7 +20,7 @@ npm run check
 npm run demo:build
 ```
 
-The editor preserves bilingual content, sentence lists (triggers, questions, boundaries and examples), sources and multiple WebP images. The library defaults to Chinese browsable cards and searches recorded context wording. Draft/archived filters, conflict protection, related Concept navigation, addressable details and browser history are supported. Existing Recommendation, Skill and Usage behavior is preserved.
+The editor preserves bilingual content, sentence lists (triggers, questions, boundaries and examples), sources and multiple WebP images. The library defaults to Chinese browsable cards. Enter or Search submits keyword matching and opens a DeepSeek suggestion drawer for existing browsable Concepts; Clear and Reset return to unfiltered browsing. Draft/archived filters, conflict protection, related Concept navigation, addressable details and browser history are supported. Existing Recommendation, Skill and Usage behavior is preserved.
 
 ## Isolated sample library
 

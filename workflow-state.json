@@ -1,32 +1,28 @@
 {
   "schema_version": 1,
-  "task_id": "0053-merge-main-stop-services",
-  "phase": "complete",
-  "task_file": "tasks/0053-merge-main-stop-services.md",
+  "task_id": "0054-explicit-search-recommendation-drawer",
+  "phase": "verification",
+  "task_file": "tasks/0054-explicit-search-recommendation-drawer.md",
   "updated_at": "2026-09-28",
-  "summary": "按用户要求阶段收口：全部本地任务分支合入 main，83 项测试与构建通过；确认项目服务均已退出。未推送，数据库保留。",
+  "summary": "显式搜索与 DeepSeek 浏览推荐抽屉已实现，API/浏览器/构建及全量回归通过；待合回 main 并重启个人服务。",
   "blockers": [],
   "next_actions": [
-    "项目暂告一段落；恢复时先查看 tasks/backlog.md。",
-    "人工内容签收、30 天实际使用和 0040 质量 Gate 保留为未完成后续事项。"
+    "合回 main 并重启 4173 个人库服务，确认数据保持 12 条 Concept/12 条关系。",
+    "开始真实任务使用并记录模型推荐质量。"
   ],
   "required_checks": [
-    "npm run check",
-    "npm run demo:build"
+    "npm run test:product",
+    "npm run demo:build",
+    "npm run check"
   ],
   "verification": [
     {
-      "command": "npm run check",
+      "command": "npm run test:product",
       "result": "passed",
       "recorded_at": "2026-09-28"
     },
     {
-      "command": "npm run demo:build",
-      "result": "failed",
-      "recorded_at": "2026-09-28"
-    },
-    {
-      "command": "npm run doctor",
+      "command": "npm run check",
       "result": "passed",
       "recorded_at": "2026-09-28"
     },

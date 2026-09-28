@@ -18,8 +18,8 @@ async function withApi(factory, work) {
   try {
     await new Promise((resolve) => app.server.listen(0, "127.0.0.1", resolve));
     const origin = `http://127.0.0.1:${app.server.address().port}`;
-    const post = async (body) => {
-      const response = await fetch(`${origin}/api/recommendations`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const post = async (body, path = "/api/recommendations") => {
+      const response = await fetch(`${origin}${path}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       return { status: response.status, value: await response.json() };
     };
     await work({ registry: app.registry, post });
@@ -33,6 +33,36 @@ function publish(registry, id, bilingual = false) {
   registry.create({ id, domains: ["reasoning"], intents: ["simplify"], locales: locales(id, bilingual) });
   registry.update(id, { expected_version: 1, changes: {}, media: { cn: { action: "set", data: image }, ...(bilingual ? { en: { action: "set", data: image } } : {}) } });
 }
+
+test("Web discovery recommends browsable same-locale Concepts without changing Agent eligibility", async () => {
+  const seen = [];
+  await withApi(() => ({ decide: async (payload) => {
+    seen.push(payload);
+    return { diagnosis: ["值得检查流程"], recommendations: [{ id: "browse-only", reason: "当前情境可能受工作堆积影响", confidence: 0.8 }] };
+  } }), async ({ registry, post }) => {
+    registry.create({ id: "browse-only", locales: {
+      cn: { name: "在制品限制", description: "限制已开始工作", source_text: "来源", trigger: ["大家很忙"], avoid_when: ["不适用于零需求"] },
+      en: { name: "WIP Limits", description: "Limit started work", source_text: "Source", trigger: ["Everyone is busy"] },
+    } });
+    registry.create({ id: "cn-only", locales: { cn: { name: "中文概念", description: "说明", source_text: "来源" } } });
+    registry.create({ id: "draft", locales: { cn: { name: "草稿" } } });
+    registry.create({ id: "archived", locales: { cn: { name: "旧概念", description: "说明", source_text: "来源" } } });
+    registry.archive("archived", { expected_version: 1 });
+    assert.equal(registry.get("browse-only").readiness.cn.recommendable, false);
+    const result = await post({ task: "大家很忙但交付变慢", locale: "cn", limit: 3 }, "/api/discover");
+    assert.equal(result.status, 200);
+    assert.deepEqual(result.value.recommendations.map((item) => [item.id, item.reason]), [["browse-only", "当前情境可能受工作堆积影响"]]);
+    assert.deepEqual(seen[0].candidates.map((item) => item.id).sort(), ["browse-only", "cn-only"]);
+    assert.equal(JSON.stringify(seen[0]).includes("WIP Limits"), false);
+    assert.equal((await post({ task: "大家很忙", locale: "cn" })).status, 502);
+    assert.equal((await post({ task: " ", locale: "cn" }, "/api/discover")).status, 400);
+  });
+  let called = false;
+  await withApi(() => { called = true; throw new Error("Model must not be called without candidates"); }, async ({ post }) => {
+    assert.deepEqual(await post({ task: "Unknown", locale: "en" }, "/api/discover"), { status: 200, value: { locale: "en", diagnosis: [], recommendations: [] } });
+    assert.equal(called, false);
+  });
+});
 
 test("Recommendation API uses the live Registry and sends only eligible same-locale compact cards", async () => {
   let decision = { diagnosis: ["中文诊断"], recommendations: [{ id: "one", reason: "现在适用", confidence: 0.8 }] };
