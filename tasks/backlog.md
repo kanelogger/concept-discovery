@@ -51,4 +51,4 @@
 
 ## 0058 个人库六条精选数据
 
-[个人库重置](0058-reset-personal-concept-library.md)已完成：原个人库快照保留在被 Git 忽略的 `.local/backups/`，当前库含 6 条双语 Concept。
+[个人库重置](0058-reset-personal-concept-library.md)完成后，按用户后续要求由 [0059](0059-unify-local-database.md) 清理重复库与所有历史快照；当前只保留默认库。

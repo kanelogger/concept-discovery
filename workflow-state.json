@@ -1,18 +1,24 @@
 {
   "schema_version": 1,
-  "task_id": "0058-reset-personal-concept-library",
+  "task_id": "0059-unify-local-database",
   "phase": "complete",
-  "task_file": "tasks/0058-reset-personal-concept-library.md",
+  "task_file": "tasks/0059-unify-local-database.md",
   "updated_at": "2026-09-28",
-  "summary": "个人库和演示库均已重置为 6 条双语概念；旧库快照保存在 .local/backups/。",
+  "summary": "本地知识库已统一到 .local/concept-discovery.sqlite；重复库、旧快照和个人启动脚本已删除。",
   "blockers": [],
   "next_actions": [],
   "required_checks": [
-    "SQLite read-only audit of personal database and recovery snapshot"
+    "npm run validate",
+    "SQLite read-only audit of canonical database and local database inventory"
   ],
   "verification": [
     {
-      "command": "SQLite read-only audit of personal database and recovery snapshot",
+      "command": "SQLite read-only audit of canonical database and local database inventory",
+      "result": "passed",
+      "recorded_at": "2026-09-28"
+    },
+    {
+      "command": "npm run validate",
       "result": "passed",
       "recorded_at": "2026-09-28"
     }
