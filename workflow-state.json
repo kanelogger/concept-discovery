@@ -1,31 +1,19 @@
 {
   "schema_version": 1,
-  "task_id": "0055-explicit-search-recommendation-drawer",
-  "phase": "complete",
-  "task_file": "tasks/0055-explicit-search-recommendation-drawer.md",
+  "task_id": "0056-keep-recommendation-drawer-open",
+  "phase": "verification",
+  "task_file": "tasks/0056-keep-recommendation-drawer-open.md",
   "updated_at": "2026-09-28",
-  "summary": "0055 显式搜索和 DeepSeek 浏览推荐抽屉已合入本地 main；84 项全量测试、构建、隔离浏览器及一次真实模型通路通过，个人库内容未变化。",
+  "summary": "推荐卡片点击后保留抽屉并打开详情；隔离浏览器已验证详情关闭、Esc、外部点击及显式关闭行为。",
   "blockers": [],
   "next_actions": [
-    "在真实任务中使用搜索与推荐抽屉，记录推荐是否有用和未命中案例。",
-    "样本人工内容签收、30 天使用证据和既有推荐质量 Gate 仍待后续验证。"
+    "运行 npm run check，合回 main 后核实个人服务。"
   ],
   "required_checks": [
-    "npm run test:product",
     "npm run demo:build",
     "npm run check"
   ],
   "verification": [
-    {
-      "command": "npm run test:product",
-      "result": "passed",
-      "recorded_at": "2026-09-28"
-    },
-    {
-      "command": "npm run check",
-      "result": "passed",
-      "recorded_at": "2026-09-28"
-    },
     {
       "command": "npm run demo:build",
       "result": "passed",
