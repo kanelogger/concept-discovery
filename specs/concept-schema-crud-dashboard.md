@@ -1,6 +1,6 @@
 # Concept Schema、CRUD 与 Dashboard 实施规格
 
-状态：记录旧 P1 按 0023–0029 实施及后续修订的数据与界面契约；本地技术选型见 [ADR 0002](../docs/adr/0002-local-product-stack.md)。当前 Web 阶段的新增目标见[产品设计文档](../docs/产品设计文档.md)，尚未同步实施的差距不能视为已完成。
+状态：记录旧 P1 按 0023–0029 实施及后续修订的数据与界面契约；本地技术选型见 [ADR 0002](../docs/adr/0002-local-product-stack.md)。当前 Web 阶段见[产品设计文档](../docs/产品设计文档.md)，本轮实现与验证记录见 [0051](../tasks/0051-web-acceptance.md)。
 
 ## 2026-09-28 Web 知识库改造（0048）
 
@@ -66,8 +66,8 @@
 - Concept Registry 是 Web 与后续推荐能力共用的唯一事实源。本阶段实现持久化 Concept、媒体引用、修订与目录查询；不复用独立原型的内存状态或复制其代码。Skillbox 仅作参考，技术选型另行记录。
 - 跨语言共用字段：`id`、`lifecycle_status`、`interaction_type`、`epistemic_type`、`domains`、`intents`、`version`、`created_at`、`updated_at`。`id` 是创建时确定且不可变的唯一 slug，只接受小写字母、数字和中间连字符；重复 ID 拒绝。`interaction_type` 可空，填写时限于 `operator` / `lens` / `procedure`；`epistemic_type` 可空，允许值见[共享受控词表](../shared/taxonomy.json)，在原有七种上增加 `concept` / `effect` / `fallacy` / `method` / `model` / `theory`。空类型不显示，也不影响语言资格；已填写类型的界面标签按当前语言显示。新增类型保留来源原值，不强行折算为 `formal_model` 或 `empirical_finding`。
 - `domains` / `intents` 是跨语言共用的受控代码集合，空集合允许。[共享受控词表](../shared/taxonomy.json)收录原有代码和知识清单的 48 种领域、24 种意图，服务端校验、编辑器选项与双语标签共用同一份数据。未知代码拒绝，不把自由输入误存为受控值；扩充代码表不改变 Concept Schema。
-- `locales.cn` 与 `locales.en` 各自保存 `name`、`aliases`、`description`、`cover_images`、`wiki_url`、`tags`、`trigger`、`avoid_when`、`transform`、`agent_instruction`、`source_text`。`cover_images` 是有序 WebP 资产哈希列表；旧 `cover_image` 字段作为首图兼容值返回。两种语言共用 Concept 身份与全局版本，不共享文案、标签、图片或 Wiki 链接；当前语言缺字段时不借用另一语言。创建时至少一个语言有非空名称，其余语言内容可留空。
-- `aliases`、`tags`、`trigger`、`avoid_when`、`transform` 是该语言的文本列表；去除空白项并去重。名称、描述、Agent 应用指引和出处在资格判断前去除首尾空白；仅有空白字符不算齐备。
+- `locales.cn` 与 `locales.en` 各自保存 `name`、`aliases`、`description`、`cover_images`、`wiki_url`、`tags`、`trigger`、`questions`、`examples`、`avoid_when`、`transform`、`agent_instruction`、`source_text`。`cover_images` 是有序 WebP 资产哈希列表；旧 `cover_image` 字段作为首图兼容值返回。两种语言共用 Concept 身份与全局版本，不共享文案、标签、图片或 Wiki 链接；当前语言缺字段时不借用另一语言。创建时至少一个语言有非空名称，其余语言内容可留空。
+- `aliases`、`tags`、`trigger`、`questions`、`examples`、`avoid_when`、`transform` 是该语言的文本列表；去除空白项并去重。名称、描述、Agent 应用指引和出处在资格判断前去除首尾空白；仅有空白字符不算齐备。
 - `source_text` 是每种语言的单个纯文本字段。保存时仅按去除首尾空白后的非空性判断可浏览资格；不解析成结构化引用，不请求外部网站，也不核验真实性。草稿允许为空。`wiki_url` 是可选的单个绝对 HTTPS URL；填入时校验 URL 结构，缺失时隐藏延伸阅读入口，绝不代替出处文本。
 - 每种语言有独立的可选 WebP 图片资产列表及引用。新增和编辑都支持多选上传，不限制每语言图片数量；编辑时可逐张移除，保存以有序的完整列表同步，并校验实际图片格式。无图时各语言共用默认配图，不借用另一语言上传的图片；配图不影响可推荐资格。图片引用与资产变更作为一次可恢复的保存操作处理，失败不得留下半更新记录。修订保存前后哈希列表，历史仍引用的旧资产保持可访问。
 
@@ -137,3 +137,7 @@
 - 独立 demo 已验证卡片库/表格切换与固定筛选区，A/B 两种首页顺序保留供比较，C 工作区已移除。本文选择 Card First 首页；demo 数据、指标与图片大小限制均非生产事实。
 
 > 历史来源说明：旧产品材料已在 0045 合并删除；原文恢复方式见[文档收敛决策](../docs/adr/0004-product-doc-consolidation.md)。本文保留当时的任务或接口记录，不作为当前产品路线图。
+
+### 0051 交互验收修正
+
+详情内部可切换阅读语言。编辑与永久删除确认窗口独立显示，避免后台详情刷新后盖住操作窗口；图片和分类选择仍使用具备焦点约束的子对话框。可选知识内容未填写时显示维护提示，不改变可浏览和可推荐资格。操作失败在详情或当前编辑器中可见。

@@ -1,18 +1,35 @@
 {
   "schema_version": 1,
   "task_id": "0046-web-knowledge-base",
-  "phase": "implementation",
+  "phase": "verification",
   "task_file": "tasks/0046-web-knowledge-base.md",
   "updated_at": "2026-09-28",
-  "summary": "执行 Web 知识库第一阶段：0047 基线、0048 字段与阅读编辑、0049 搜索导航、0050 样本、0051 验收。",
+  "summary": "0047–0051 的 Web 改造、12 条双语样本及自动化/浏览器验收已完成；总体验收待维护者人工内容签收。",
   "blockers": [],
   "next_actions": [
-    "完成各实施任务并记录证据。"
+    "维护者人工审阅 12 条双语样本及来源并完成内容签收。",
+    "开展 30 天实际使用，记录新增、重新发现与关系探索的具体例子。"
   ],
   "required_checks": [
     "npm run test:product",
     "npm run demo:build",
     "npm run check"
   ],
-  "verification": []
+  "verification": [
+    {
+      "command": "npm run test:product",
+      "result": "passed",
+      "recorded_at": "2026-09-28"
+    },
+    {
+      "command": "npm run demo:build",
+      "result": "passed",
+      "recorded_at": "2026-09-28"
+    },
+    {
+      "command": "npm run check",
+      "result": "passed",
+      "recorded_at": "2026-09-28"
+    }
+  ]
 }

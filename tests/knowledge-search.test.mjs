@@ -3,6 +3,7 @@ import { test } from "node:test";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import { createApiServer } from "../server/http.mjs";
 import { navigationUrl, readNavigation } from "../src/product/navigation-state.ts";
 
@@ -39,6 +40,13 @@ test("keyword ranking and relation previews share language and lifecycle rules w
     const enOnly = app.registry.create({ id: "english-only", locales: { en: local("English only") } });
     const edge = (target, type = "related_to") => app.registry.createRelation({ source_concept_id: "by-name", target_concept_id: target, relation_type: type, note: { cn: "中文备注", en: "English note" } });
     edge(archived.id); edge(draft.id); edge(enOnly.id);
+    app.registry.create({ id: "missing-target", locales: { cn: local("Missing target") } });
+    edge("missing-target");
+    // Simulate a damaged legacy database; ordinary API deletion is reference-protected.
+    const damaged = new DatabaseSync(join(dir, "db.sqlite"));
+    try { damaged.exec("PRAGMA foreign_keys=OFF; DELETE FROM concepts WHERE id='missing-target'"); } finally { damaged.close(); }
+    const missing = app.registry.listRelations("by-name", "cn").find((r) => r.other.id === "missing-target");
+    assert.deepEqual(missing.other, { id: "missing-target", name: null, status: "missing", browsable: false });
     const first = edge("by-trigger", "extends"); edge("by-trigger", "often_used_with"); edge("by-question"); edge("by-example");
     app.registry.archive(archived.id, { expected_version: 1 });
     const before = app.registry.revisions("by-name");
@@ -73,4 +81,24 @@ test("addressable details preserve library query and normalize invalid paginatio
   assert.equal(readNavigation("?page=-2&pageSize=11&status=invalid").page, 1);
   assert.equal(readNavigation("?page=Infinity&pageSize=11").pageSize, 20);
   assert.equal(readNavigation("?concept=x&section=dashboard").section, "manage");
+});
+
+test("empty search and equal-ranked matches have deterministic ordering and never join list items", async (t) => {
+  const { openRegistry } = await import("../server/registry.mjs");
+  const { DatabaseSync } = await import("node:sqlite");
+  const dir = mkdtempSync(join(tmpdir(), "knowledge-order-"));
+  const path = join(dir, "db.sqlite");
+  const registry = openRegistry(path);
+  t.after(() => { registry.close(); rmSync(dir, { recursive: true, force: true }); });
+  for (const id of ["z-last", "a-first", "m-newest"]) registry.create({ id, locales: { cn: { name: `name ${id}`, description: "same", source_text: "source", trigger: ["busy", "slow"] } } });
+  const db = new DatabaseSync(path);
+  try {
+    for (const id of ["z-last", "a-first", "m-newest"]) {
+      const time = id === "m-newest" ? "2026-09-28T00:00:00.000Z" : "2026-09-27T00:00:00.000Z";
+      db.prepare("UPDATE concepts SET data=json_set(data, '$.updated_at', ?), updated_at=? WHERE id=?").run(time, time, id);
+    }
+  } finally { db.close(); }
+  for (const q of ["", "   ", "same"]) assert.deepEqual(registry.query({ q }).map((c) => c.id), ["m-newest", "a-first", "z-last"]);
+  assert.equal(registry.query({ q: "busy slow" }).length, 0);
+  assert.equal(registry.query({ q: "name a" }).length, 1);
 });

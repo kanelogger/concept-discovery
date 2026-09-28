@@ -1,6 +1,6 @@
 # 产品与实现入口
 
-更新：2026-09-27。产品方向统一为认知自动补全，第一阶段建设 Web 知识库；本文件只导航，不另写一套需求。
+更新：2026-09-28。产品方向统一为认知自动补全，第一阶段建设 Web 知识库；本文件只导航，不另写一套需求。
 
 ## 当前产品文档
 
@@ -9,7 +9,7 @@
 
 ## 技术规格
 
-以下文件保留既有实现的字段、接口和验证边界。旧 P1–P5 阶段编号属于历史路线；第一阶段新设计尚未实施，改造时同步受影响规格，不把目标当作已实现行为。
+以下文件保留既有实现的字段、接口和验证边界。旧 P1–P5 阶段编号属于历史路线；第一阶段 Web 改造已实施，代码与验收证据见 0046–0051 任务。
 
 | 主题 | 技术依据 |
 | --- | --- |
@@ -19,4 +19,4 @@
 | 既有 Agent 应用 | [Composer](prompt-composer.md)、[Skill](../skills/concept-discovery/SKILL.md)、[Usage](skill-usage.md) |
 | 实现栈与命令 | [存储决策](../docs/adr/0002-local-product-stack.md)、[命令说明](../docs/agent-environment/commands.md) |
 
-当前进度见[任务状态](../workflow-state.json)与[待办](../tasks/backlog.md)。旧材料的替代与恢复方式见[文档收敛决策](../docs/adr/0004-product-doc-consolidation.md)。本次未运行产品功能验收；既有推荐质量 Gate 未完成。
+当前进度见[任务状态](../workflow-state.json)与[待办](../tasks/backlog.md)。旧材料的替代与恢复方式见[文档收敛决策](../docs/adr/0004-product-doc-consolidation.md)。Web 验证见 [0051](../tasks/0051-web-acceptance.md)；维护者人工内容签收、30 天使用验证和既有推荐质量 Gate 尚未完成。

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "project": {
     "id": "concept-discovery",
-    "stage": "p5-implementation",
-    "product_status": "mvp-in-progress"
+    "stage": "web-knowledge-base-phase-1",
+    "product_status": "web-implemented-content-acceptance-pending"
   },
   "runtime": {
     "node_major": 24

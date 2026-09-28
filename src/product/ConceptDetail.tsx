@@ -20,16 +20,20 @@ function ImageGallery({ concept, locale }: { concept: Concept; locale: Locale })
   </>;
 }
 
-export default function ConceptDetail({ concept, locale, manage, refreshKey, onClose, onRefresh, onEdit, onArchive, onRestore, onDelete, onOpenRelatedConcept }: {
-  concept: Concept; locale: Locale; manage: boolean; refreshKey: number;
+export default function ConceptDetail({ concept, locale, manage, refreshKey, onClose, onRefresh, onEdit, onArchive, onRestore, onDelete, onOpenRelatedConcept, onLocale, error }: {
+  concept: Concept; locale: Locale; manage: boolean; refreshKey: number; onLocale: (locale: Locale) => void; error: string;
   onClose: () => void; onRefresh: () => void; onEdit: () => void; onArchive: () => void; onRestore: () => void; onDelete: () => void; onOpenRelatedConcept: (id: string) => void;
 }) {
   const cn = locale === "cn";
   const local = concept.locales[locale];
   const ready = concept.readiness[locale];
+  const missing = ([["trigger", cn ? "触发场景" : "Triggers"], ["questions", cn ? "问题" : "Questions"], ["avoid_when", cn ? "边界" : "Boundaries"], ["examples", cn ? "案例" : "Examples"]] as const).filter(([field]) => !local[field].length).map(([, label]) => label);
   return <Modal title={local.name || concept.id} onClose={onClose}>
     <div className="overflow-y-auto p-5 sm:p-7">
+      <div role="group" aria-label={cn ? "阅读语言" : "Reading language"} className="mb-4 flex gap-2">{(["cn", "en"] as const).map((language) => <button key={language} type="button" aria-pressed={locale === language} onClick={() => onLocale(language)} className={`rounded-lg px-3 py-2 text-xs ${locale === language ? "bg-emerald-900 text-white" : "bg-slate-100"}`}>{language === "cn" ? "中文" : "English"}</button>)}</div>
       <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500"><span>{local.tags.join(" · ")}</span>{!ready.browsable && <span className="rounded bg-amber-50 p-2 text-amber-900">{concept.lifecycle_status === "archived" ? (cn ? "已归档" : "Archived") : `${cn ? "当前语言待补" : "This language needs"}: ${ready.browse_missing.join(" · ")}`}</span>}</div>
+      {manage && missing.length > 0 && <p className="mt-3 text-xs text-slate-500">{cn ? "知识内容待补（可继续浏览）" : "Knowledge content to add (browsing remains available)"}: {missing.join(" · ")}</p>}
+      {error && <p role="alert" className="mt-3 rounded-lg bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}
       <ImageGallery key={`${concept.id}/${locale}/${local.cover_images.join()}`} concept={concept} locale={locale} />
       {local.description && <section className="mt-6"><h3 className="text-sm font-semibold text-emerald-950">{cn ? "是什么" : "What it is"}</h3><p className="mt-2 whitespace-pre-wrap break-words text-base leading-8">{local.description}</p></section>}
       <KnowledgeList title={cn ? "什么时候想到它" : "When to think of it"} items={local.trigger} />
@@ -44,6 +48,6 @@ export default function ConceptDetail({ concept, locale, manage, refreshKey, onC
         <p>{cn ? "推荐条件待补" : "Recommendation missing"}: {ready.recommend_missing.join(" · ") || "—"}</p><p className="whitespace-pre-wrap">{local.agent_instruction}</p><KnowledgeList title={cn ? "转化目标" : "Transform goals"} items={local.transform} />
       </div></details>
     </div>
-    {manage && <footer className="flex flex-wrap gap-3 border-t bg-slate-50 px-5 py-4 text-sm"><button onClick={onEdit} className="rounded-lg bg-emerald-900 px-4 py-2 text-white">{cn ? "编辑" : "Edit"}</button><button onClick={onRefresh} className="rounded-lg border px-4 py-2">{cn ? "刷新" : "Reload"}</button>{concept.lifecycle_status === "active" ? <button onClick={onArchive} className="px-3 py-2 text-rose-800">{cn ? "删除" : "Delete"}</button> : <><button onClick={onRestore} className="px-3 py-2 text-emerald-900">{cn ? "恢复" : "Restore"}</button><button onClick={onDelete} className="px-3 py-2 text-rose-800">{cn ? "永久删除" : "Permanently delete"}</button></>}</footer>}
+    {manage && <footer className="flex shrink-0 flex-wrap gap-3 border-t bg-slate-50 px-5 py-4 text-sm"><button onClick={onEdit} className="rounded-lg bg-emerald-900 px-4 py-2 text-white">{cn ? "编辑" : "Edit"}</button><button onClick={onRefresh} className="rounded-lg border px-4 py-2">{cn ? "刷新" : "Reload"}</button>{concept.lifecycle_status === "active" ? <button onClick={onArchive} className="px-3 py-2 text-rose-800">{cn ? "删除" : "Delete"}</button> : <><button onClick={onRestore} className="px-3 py-2 text-emerald-900">{cn ? "恢复" : "Restore"}</button><button onClick={onDelete} className="px-3 py-2 text-rose-800">{cn ? "永久删除" : "Permanently delete"}</button></>}</footer>}
   </Modal>;
 }

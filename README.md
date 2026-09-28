@@ -4,7 +4,7 @@
 
 产品只维护两份文档：[需求文档](docs/需求文档.md)和[产品设计文档](docs/产品设计文档.md)。技术规格见[实现入口](specs/product-contract.md)，执行进度见[当前任务](workflow-state.json)和[待办](tasks/backlog.md)。
 
-仓库已有 CRUD、Dashboard、关系、推荐与 Skill 等基础。新的 Web 阶段仍有内容字段、浏览和检索改造待实施；既有推荐质量 Gate 尚未完成。下文介绍当前运行方式，不代表新设计已经验收。
+仓库已有 CRUD、Dashboard、关系、推荐与 Skill 等基础。第一阶段 Web 字段、阅读编辑、情境关键词搜索与关系导航已实施，证据见 [0051](tasks/0051-web-acceptance.md)。维护者人工样本签收、30 天使用验证及既有推荐质量 Gate 尚未完成。
 
 ## Run locally
 
@@ -20,7 +20,16 @@ npm run check
 npm run demo:build
 ```
 
-The editor accepts immutable lowercase slugs and at least one language name, then saves independent names, aliases, descriptions, tags, source text, WebP covers and optional HTTPS Wiki links per language. Save a draft before adding a cover. The Card First library searches only browsable content in the selected language; management shows drafts and missing fields. Archive, Dashboard, Recommendation API and Relation management are available locally.
+The editor preserves bilingual content, sentence lists (triggers, questions, boundaries and examples), sources and multiple WebP images. The library defaults to Chinese browsable cards and searches recorded context wording. Draft/archived filters, conflict protection, related Concept navigation, addressable details and browser history are supported. Existing Recommendation, Skill and Usage behavior is preserved.
+
+## Isolated sample library
+
+```sh
+npm run demo:prepare -- --db /tmp/concept-demo-new.sqlite
+CONCEPT_DB_PATH=/tmp/concept-demo-new.sqlite npm start
+```
+
+The path must be new: existing databases and SQLite companion files are rejected. The versioned sample contains 12 bilingual Concepts and 12 explained relations; failure removes only the database created by this invocation. Sources and editorial notes are included in each Concept. This command never imports into the default personal database.
 
 ## Concept Discovery Skill
 
