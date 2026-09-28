@@ -16,7 +16,7 @@ export default function RecommendationDrawer({ locale, query, result, loading, e
   onClose: () => void; onOpenConcept: (id: string) => void;
 }) {
   const cn = locale === "cn";
-  return <Dialog.Root open onOpenChange={(open) => { if (!open) onClose(); }}>
+  return <Dialog.Root open>
     <Dialog.Portal>
       <Dialog.Overlay className="fixed inset-0 z-50 bg-slate-950/40" />
       <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex h-dvh w-full max-w-lg flex-col bg-white shadow-2xl outline-none">
