@@ -4,7 +4,7 @@
   "phase": "complete",
   "task_file": "tasks/0058-reset-personal-concept-library.md",
   "updated_at": "2026-09-28",
-  "summary": "个人库已清空并填入 6 条双语概念，旧库快照保存在 .local/backups/。",
+  "summary": "个人库和演示库均已重置为 6 条双语概念；旧库快照保存在 .local/backups/。",
   "blockers": [],
   "next_actions": [],
   "required_checks": [
