@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "task_id": "0054-explicit-search-recommendation-drawer",
+  "task_id": "0055-explicit-search-recommendation-drawer",
   "phase": "verification",
-  "task_file": "tasks/0054-explicit-search-recommendation-drawer.md",
+  "task_file": "tasks/0055-explicit-search-recommendation-drawer.md",
   "updated_at": "2026-09-28",
   "summary": "显式搜索与 DeepSeek 浏览推荐抽屉已实现，API/浏览器/构建及全量回归通过；待合回 main 并重启个人服务。",
   "blockers": [],
