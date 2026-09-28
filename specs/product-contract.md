@@ -20,3 +20,5 @@
 | 实现栈与命令 | [存储决策](../docs/adr/0002-local-product-stack.md)、[命令说明](../docs/agent-environment/commands.md) |
 
 当前进度见[任务状态](../workflow-state.json)与[待办](../tasks/backlog.md)。旧材料的替代与恢复方式见[文档收敛决策](../docs/adr/0004-product-doc-consolidation.md)。Web 验证见 [0051](../tasks/0051-web-acceptance.md)；维护者人工内容签收、30 天使用验证和既有推荐质量 Gate 尚未完成。
+
+2026-09-26 的个人试用版用户验收记录见 [MVP 交接](../docs/acceptance/mvp-handoff-2026-09-25.md)，覆盖 0041–0043；该历史验收不替代当前 Web 样本签收或 0040 正式质量 Gate。

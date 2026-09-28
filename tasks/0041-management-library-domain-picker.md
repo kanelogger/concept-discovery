@@ -1,6 +1,6 @@
 # 0041：合并 Concept 浏览与管理并完善卡片 CRUD
 
-Status: ready-for-human
+Status: complete
 
 ## 目标与范围
 
@@ -61,4 +61,4 @@ Status: ready-for-human
 
 ## 交接
 
-0040 的人工 Eval 与真实 Usage Gate 保持原状。本任务继续留在独立 demo，不合并或部署。
+2026-09-26，用户确认以运行在 `http://127.0.0.1:4181/` 的新版为准，并已验收该版本。本票的管理视图改动随个人试用阶段验收完成。0040 的人工 Eval 与真实 Usage Gate 保持未达，列为后续 TODO。

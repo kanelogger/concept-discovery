@@ -18,3 +18,5 @@ Status: complete
 - `npm run validate`：passed。
 - `git diff --check`：passed。
 - `npm run check`：2026-09-26 在允许临时本机监听后重跑，76/76 通过；首次受限沙箱执行因 `listen EPERM` 未完成。
+
+2026-09-26，用户确认以 `http://127.0.0.1:4181/` 的新版为准，并已验收该版本；本票随个人试用阶段完成。

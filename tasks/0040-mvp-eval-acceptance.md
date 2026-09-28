@@ -12,12 +12,13 @@ Status: needs-info
 
 - [ ] Eval 案例有维护者标注的 Expected、`locale` 与来源；报告命中、精准、NONE 与过推结果，不把合成数据算作真实使用。
 - [ ] 从本地服务到 Skill 推荐、用户选择、Prompt 执行、反馈 Dashboard 的双语路径和无模型分支可复现；`npm run check`、构建和产品验收通过。
-- [x] 汇总有限范围 `0023–0029 + 0031–0040` 的逐票提交、通过/未运行检查、未决问题、风险和最终用户验收步骤；工作树可审查，不合并或部署。
+- [x] 汇总有限范围 `0023–0029 + 0031–0040` 的逐票提交、通过/未运行检查、未决问题、风险和最终用户验收步骤；工作树可审查。
+- [ ] 正式质量验收前不合并或部署。`main` 已在正式验收前合入截至 `66fd3ca` 的 demo 历史；见下方偏差记录。
 - [x] PRD 的 30 个双语齐备 Concept、50 条人工案例、100 次真实主动调用及数值通过线属于扩大范围前的 Gate；缺少时明确标未达，不伪造为本轮代码通过。
 
 ## 已完成的独立准备与证据
 
-- [验收交接包](../docs/acceptance/mvp-handoff-2026-09-25.md)汇总固定票号范围、0023–0039 的独立提交、检查结果、真实/合成数据边界、Gate 缺口与用户验收步骤；未合并或部署。
+- [验收交接包](../docs/acceptance/mvp-handoff-2026-09-25.md)汇总固定票号范围、0023–0039 的独立提交、检查结果、真实/合成数据边界、Gate 缺口与用户验收步骤；合并偏差另见下方记录。
 - `maintainer` 数据集现在强制每条案例具备 `source.kind` 和不含原文的 `source.ref`；评测报告保留来源标识。`node --test tests/eval-harness.test.mjs tests/skill-flow.test.mjs`：8/8 通过，覆盖来源格式与中文/英文 API → 选择 → Compose → 模拟 Agent 成果 → 反馈 Dashboard。自动化不能代替真实用户评判回答是否确实用了 Prompt。
 - 以独立 `/private/tmp/concept-mvp-gate-smoke.sqlite` 和端口 4180 运行实际 `npm start`：Web `/` 与 `/api/dashboard` HTTP 200；未配置模型的 Skill 返回 `model_unavailable` 和配置提示；前后 Usage run/event 为 0。服务已关闭，隔离数据库已清理。
 - `npm run doctor`、`npm run check`（64/64、75 个 Markdown 文件）、`npm run demo:build`、`git diff --check` 通过（2026-09-25）。本轮未运行 50 条维护者案例的 Eval，未验证真实应用率或数值通过线。
@@ -42,3 +43,15 @@ Status: needs-info
 ## 私有内测准备
 
 2026-09-26 用户说明产品尚未发布、没有可提供的真实使用库，要求先准备不公开部署的私有内测与匿名数据收集，不以 synthetic 或测试调用补数，也不再要求现在提供不存在的库。新增[私有内测手册](../docs/acceptance/invited-pilot-runbook-2026-09-26.md)：固定已审查提交、独立本机数据库与零 Usage 基线、受邀参与者告知、明确主动调用、去标识化真实任务、独立 Eval 许可、撤回和复核、冻结后正式 Gate。新增只读 `npm run pilot:usage` 核对每次 Skill run 与私有会话清单、按 24 小时/全部终态反馈计算 Apply Rate，并把来源真实性保留为人工审查项。临时测试库上的 `node --test tests/pilot-usage.test.mjs` 3/3 通过；当前共享工作树 `npm run check` 76/76（80 个 Markdown）、`npm run demo:build`、`npm run doctor`、`git diff --check` 通过，其中包含未提交的 0041–0043 并发修改。内测尚未启动，当前真实 Usage 仍为 0；0040 `needs-info` 和正式质量 Gate 不变。
+
+## 个人试用版状态
+
+2026-09-26，用户确认“个人试用版可用；0040 正式质量验收待真实任务自然积累”。据此更新项目状态为 `personal-trial-available`。本票继续保持 `needs-info`：真实任务与真实主动 Skill 调用按自然使用积累，维护者随后复核匿名案例、Expected、来源和模型输出，再运行正式 Eval 与 Usage Gate。测试调用和 synthetic 案例均不补入真实使用数；本次状态确认不代表受邀私有内测已启动，也不授权合并或部署。
+
+本次状态更新后，`npm run check` 通过（76/76、80 个 Markdown）、`npm run demo:build`、`npm run doctor` 与 `git diff --check` 通过。初次沙箱内全量测试有 23 项因本机 `127.0.0.1` 监听被拒（`EPERM`）失败；允许本机监听后同一命令 76/76 通过。正式 Eval 与真实 Usage Gate 仍未运行。
+
+合并偏差：本地 `main` 于 2026-09-26 11:20 +0800 产生合并提交 `0d8716d`，其第二父提交是 demo 的 `66fd3ca`；0040 正式质量 Gate 当时仍未验收。本次状态提交 `4ac7b45` 发生于合并之后，已固定在独立分支 `codex/concept-mvp-demo-status`。该合并没有提供真实任务、人工标注或正式 Eval 的质量证据；本票维持 `needs-info`。
+
+## 本阶段收口与后续 TODO
+
+2026-09-26，用户确认 `http://127.0.0.1:4181/` 对应的新版已通过个人试用验收，并要求结束本阶段，将未完成事项列为 TODO。该版本使用包含 `66fd3ca` 界面修改的代码；0041–0043 的用户验收随之完成。0040 仍为 `needs-info`，正式质量 Gate 的真实任务、人工标注、真实主动调用与离线判定见 [后续 TODO](backlog.md#0040-正式质量验收-todo)。这些材料不作为个人试用的前置条件。

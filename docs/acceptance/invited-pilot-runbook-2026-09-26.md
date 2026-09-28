@@ -1,10 +1,10 @@
 # 0040 私有内测与匿名数据收集手册
 
-状态：**准备就绪，尚未启动内测**。固定实现范围仍为 `0023–0029 + 0031–0040`；本手册不改变 [0040 正式质量 Gate](../../tasks/0040-mvp-eval-acceptance.md)或[冻结通过线](../../eval/thresholds.initial.json)。第一稿用户验收已通过；内测是收集真实使用证据的下一步，不是发布批准。不得公开部署、开放公网端口或把测试调用计入真实 Usage。
+状态：**个人试用版可用；受邀私有内测准备就绪，尚未启动**。固定实现范围仍为 `0023–0029 + 0031–0040`；本手册不改变 [0040 正式质量 Gate](../../tasks/0040-mvp-eval-acceptance.md)或[冻结通过线](../../eval/thresholds.initial.json)。真实任务随自然使用积累；内测流程用于取得经同意的匿名证据。不得公开部署、开放公网端口或把测试调用计入真实 Usage。
 
 ## 1. 启动前冻结与隔离
 
-1. 从[第一稿验收交接包](mvp-handoff-2026-09-25.md)选定一个包含本手册与 `pilot:usage` 的已审查提交 SHA，记录在私有内测日志中；在**新的干净工作区**运行该提交，不使用有 0041–0043 并发修改的当前工作树。运行 `npm run doctor`、`npm run check`、`npm run demo:build`。这些检查使用测试数据库，须在创建内测库之前完成。
+1. 从[第一稿验收交接包](mvp-handoff-2026-09-25.md)选定一个包含本手册与 `pilot:usage` 的已审查提交 SHA，记录在私有内测日志中；在**新的干净工作区**运行该提交，隔离其他后续票据的修改。运行 `npm run doctor`、`npm run check`、`npm run demo:build`。这些检查使用测试数据库，须在创建内测库之前完成。
 2. 复制已核对的 `.local/knowledge-import-inputs/` 三份 JSON 到内测工作区的被忽略目录，用 `node scripts/import-knowledge-list.mjs --source .local/knowledge-import-inputs/source.json --prepared .local/knowledge-import-inputs/prepared.json --report .local/knowledge-import-inputs/cleanup-report.json --db .local/private-pilot.sqlite` 创建**全新**库。核对原始 SHA-256、80 条 active、中文可推荐 59、英文 58、双语均可推荐 58，且 Usage 为 0。导入脚本拒绝覆盖已有库。
 3. 只在操作者控制的电脑运行 `CONCEPT_DB_PATH=.local/private-pilot.sqlite PORT=4173 npm start`；服务监听 `127.0.0.1`。受邀参与者在受控的本机会话中使用，不通过公网 URL、反向代理或公开托管访问。每次结束关闭服务。内测库只用于真实参与者会话；调试、自动化测试、合成 Eval 使用另一份数据库。
 4. 若参与者同意远端推荐，操作者在内测工作区运行 `npm run model:configure`，由密钥持有人在终端输入可用凭据。推荐会把完成当前任务所需的 `task`、`context`、`response` 发送给 DeepSeek；参与者须先看到下方说明，并在输入前删去机密或可识别细节。未同意远端处理的人不运行推荐；无模型分支可单独演示，但不计入真实推荐调用。

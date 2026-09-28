@@ -83,3 +83,5 @@ CONCEPT_DB_PATH=.local/phase1-review-0052.sqlite PORT=4187 npm run demo
 不要对这个已存在的库重复执行准备脚本；脚本会拒绝覆盖。重新生成时显式指定另一个新数据库路径。隔离 worktree 的路径为 `/Users/kanehua/.codex/worktrees/web-knowledge-base/concept-discovery`。
 
 本任务准备工作完成后，总任务 0046 仍等待维护者人工内容签收。30 天使用没有可自动完成的现成证据；下一步从真实任务记录开始。分支保持本地，未合并或推送。
+
+后续状态：用户要求阶段收口；0053 已确认上述审阅服务退出，4187 链接当前不可用。数据库继续保留；需要时按上面的命令手动恢复。全部提交已按用户授权合入本地 main，见 [0053](0053-merge-main-stop-services.md)。
