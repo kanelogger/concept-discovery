@@ -1,26 +1,18 @@
 {
   "schema_version": 1,
-  "task_id": "0056-configure-explicit-model-id",
+  "task_id": "0058-reset-personal-concept-library",
   "phase": "complete",
-  "task_file": "tasks/0056-configure-explicit-model-id.md",
+  "task_file": "tasks/0058-reset-personal-concept-library.md",
   "updated_at": "2026-09-28",
-  "summary": "model:configure 现确认并保存 DEEPSEEK_MODEL，适配器用该模型 ID 发起请求；npm run check 84 项全过。",
+  "summary": "个人库已清空并填入 6 条双语概念，旧库快照保存在 .local/backups/。",
   "blockers": [],
-  "next_actions": [
-    "如需使用 GPT 模型，另行实现并选择 OpenAI provider 与适配器。"
-  ],
+  "next_actions": [],
   "required_checks": [
-    "node --test tests/deepseek-model.test.mjs",
-    "npm run check"
+    "SQLite read-only audit of personal database and recovery snapshot"
   ],
   "verification": [
     {
-      "command": "node --test tests/deepseek-model.test.mjs",
-      "result": "passed",
-      "recorded_at": "2026-09-28"
-    },
-    {
-      "command": "npm run check",
+      "command": "SQLite read-only audit of personal database and recovery snapshot",
       "result": "passed",
       "recorded_at": "2026-09-28"
     }

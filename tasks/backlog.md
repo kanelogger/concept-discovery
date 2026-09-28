@@ -48,3 +48,7 @@
 ## 0055 Web 搜索推荐
 
 [显式搜索与推荐抽屉](0055-explicit-search-recommendation-drawer.md)已合入本地 main 并在原个人库重启验证；以可浏览 Concept 为候选，原 Agent 推荐资格与 0040 质量 Gate 不变。
+
+## 0058 个人库六条精选数据
+
+[个人库重置](0058-reset-personal-concept-library.md)已完成：原个人库快照保留在被 Git 忽略的 `.local/backups/`，当前库含 6 条双语 Concept。
