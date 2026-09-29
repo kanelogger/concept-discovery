@@ -1,15 +1,14 @@
 {
   "schema_version": 1,
-  "task_id": "0064-show-imported-article-language",
+  "task_id": "0065-import-remaining-model-articles",
   "phase": "complete",
-  "task_file": "tasks/0064-show-imported-article-language.md",
+  "task_file": "tasks/0065-import-remaining-model-articles.md",
   "updated_at": "2026-09-29",
-  "summary": "默认中文卡片和详情现明确提示可阅读英文原文；当前库 4 篇英文文章可直接查看，原 2 张无文章卡片不误标。",
+  "summary": "将 models-data 中剩余 21 篇英文思维模型文章补入默认个人库。",
   "blockers": [],
-  "next_actions": ["用户若选择扩充目录，再决定是否将剩余 21 篇英文文章各建为新卡片。", "中文文章由维护者独立编写，不从英文原文自动翻译。"],
-  "required_checks": ["npm run check", "npm run demo:build"],
+  "next_actions": ["中文正文由维护者独立编写，不从英文原文自动翻译。"],
+  "required_checks": ["npm run validate"],
   "verification": [
-    { "command": "npm run check", "result": "passed", "recorded_at": "2026-09-29" },
-    { "command": "npm run demo:build", "result": "passed", "recorded_at": "2026-09-29" }
+    { "command": "npm run validate", "result": "passed", "recorded_at": "2026-09-29" }
   ]
 }
