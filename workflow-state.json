@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "task_id": "0063-article-detail-page",
+  "task_id": "0064-show-imported-article-language",
   "phase": "complete",
-  "task_file": "tasks/0063-article-detail-page.md",
+  "task_file": "tasks/0064-show-imported-article-language.md",
   "updated_at": "2026-09-29",
-  "summary": "文章阅读页与 Markdown 编辑已实现；当前库 4 篇 ID 匹配的英文来源文章和图片已导入，原 6 张卡片保持不变。",
+  "summary": "默认中文卡片和详情现明确提示可阅读英文原文；当前库 4 篇英文文章可直接查看，原 2 张无文章卡片不误标。",
   "blockers": [],
   "next_actions": ["用户若选择扩充目录，再决定是否将剩余 21 篇英文文章各建为新卡片。", "中文文章由维护者独立编写，不从英文原文自动翻译。"],
   "required_checks": ["npm run check", "npm run demo:build"],
