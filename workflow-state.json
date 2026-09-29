@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "task_id": "0065-import-remaining-model-articles",
+  "task_id": "0066-localize-model-articles-cn",
   "phase": "complete",
-  "task_file": "tasks/0065-import-remaining-model-articles.md",
+  "task_file": "tasks/0066-localize-model-articles-cn.md",
   "updated_at": "2026-09-29",
-  "summary": "将 models-data 中剩余 21 篇英文思维模型文章补入默认个人库。",
+  "summary": "为已导入个人库的 21 篇英文思维模型文章补齐完整中文版本。",
   "blockers": [],
-  "next_actions": ["中文正文由维护者独立编写，不从英文原文自动翻译。"],
+  "next_actions": [],
   "required_checks": ["npm run validate"],
   "verification": [
     { "command": "npm run validate", "result": "passed", "recorded_at": "2026-09-29" }
