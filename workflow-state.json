@@ -1,14 +1,30 @@
 {
   "schema_version": 1,
-  "task_id": "0066-localize-model-articles-cn",
+  "task_id": "0067-select-project-knowledge",
   "phase": "complete",
-  "task_file": "tasks/0066-localize-model-articles-cn.md",
-  "updated_at": "2026-09-29",
-  "summary": "为已导入个人库的 21 篇英文思维模型文章补齐完整中文版本。",
+  "task_file": "tasks/0067-select-project-knowledge.md",
+  "updated_at": "2026-09-30",
+  "summary": "从 80 条候选清单中筛选适合知识库优先整理的知识点，输出保留原文和筛选理由的独立 JSON。",
   "blockers": [],
   "next_actions": [],
-  "required_checks": ["npm run validate"],
+  "required_checks": [
+    "npm run validate"
+  ],
   "verification": [
-    { "command": "npm run validate", "result": "passed", "recorded_at": "2026-09-29" }
+    {
+      "command": "Python 数据完整性核对",
+      "result": "passed",
+      "recorded_at": "2026-09-30"
+    },
+    {
+      "command": "npm run validate",
+      "result": "passed",
+      "recorded_at": "2026-09-30"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed",
+      "recorded_at": "2026-09-30"
+    }
   ]
 }

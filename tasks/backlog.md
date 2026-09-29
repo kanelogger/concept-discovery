@@ -46,3 +46,4 @@ AI 提取、Inbox、批量导入导出产品界面和个性化未排入当前实
 | [0058 个人库重置](0058-reset-personal-concept-library.md)、[0059 统一数据库](0059-unify-local-database.md) | 个人库改为六条精选数据，后续统一到默认库；旧重复库与快照已按用户要求清理。 |
 | [0060 隔离样本说明](0060-remove-confusing-isolated-demo-example.md) | 日常启动与独立 12 条样本库的用途已区分，误生成的临时库已删除。 |
 | [0062 文章详情方案](0062-article-detail-options.md)、[0063 文章详情实现](0063-article-detail-page.md)、[0064 英文文章入口](0064-show-imported-article-language.md) | 方案 B 采用每种语言独立文章正文；完整阅读页、旧条目兼容与默认中文入口提示见实施记录。 |
+| [0067 候选知识筛选](0067-select-project-knowledge.md) | 从 80 条原始清单中选出 40 条优先整理的知识点，保留双语原文并记录选择理由、说明性情境和待补内容；仅输出文件。 |
