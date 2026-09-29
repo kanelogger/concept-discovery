@@ -1,18 +1,15 @@
 {
   "schema_version": 1,
-  "task_id": "0062-article-detail-options",
+  "task_id": "0063-article-detail-page",
   "phase": "complete",
-  "task_file": "tasks/0062-article-detail-options.md",
+  "task_file": "tasks/0063-article-detail-page.md",
   "updated_at": "2026-09-29",
-  "summary": "已比较三种文章式 Concept 详情方案并建议独立文章正文；等待用户选择后定稿产品需求。",
+  "summary": "文章阅读页与 Markdown 编辑已实现；当前库 4 篇 ID 匹配的英文来源文章和图片已导入，原 6 张卡片保持不变。",
   "blockers": [],
-  "next_actions": ["用户选择详情页方案后，更新权威产品文档并另立实施任务。"],
-  "required_checks": ["npm run validate"],
+  "next_actions": ["用户若选择扩充目录，再决定是否将剩余 21 篇英文文章各建为新卡片。", "中文文章由维护者独立编写，不从英文原文自动翻译。"],
+  "required_checks": ["npm run check", "npm run demo:build"],
   "verification": [
-    {
-      "command": "npm run validate",
-      "result": "passed",
-      "recorded_at": "2026-09-29"
-    }
+    { "command": "npm run check", "result": "passed", "recorded_at": "2026-09-29" },
+    { "command": "npm run demo:build", "result": "passed", "recorded_at": "2026-09-29" }
   ]
 }

@@ -8,7 +8,7 @@ const interactionTypes = new Set(taxonomy.interaction_types.map(({ code }) => co
 const epistemicTypes = new Set(taxonomy.epistemic_types.map(({ code }) => code));
 const domainCodes = new Set(taxonomy.domains.map(({ code }) => code));
 const intentCodes = new Set(taxonomy.intents.map(({ code }) => code));
-const localeFields = new Set(["name", "aliases", "description", "cover_image", "cover_images", "wiki_url", "tags", "trigger", "questions", "examples", "avoid_when", "transform", "agent_instruction", "source_text"]);
+const localeFields = new Set(["name", "aliases", "description", "article_body", "cover_image", "cover_images", "wiki_url", "tags", "trigger", "questions", "examples", "avoid_when", "transform", "agent_instruction", "source_text"]);
 const listFields = new Set(["aliases", "tags", "trigger", "questions", "examples", "avoid_when", "transform"]);
 const sharedFields = new Set(["interaction_type", "epistemic_type", "domains", "intents"]);
 const relationTypes = new Set(["related_to", "often_used_with", "contrasts_with", "extends", "part_of"]);
@@ -23,7 +23,7 @@ export class RegistryError extends Error {
 }
 
 const bad = (message) => { throw new RegistryError(400, "invalid_input", message); };
-const emptyLocale = () => ({ name: "", aliases: [], description: "", cover_image: "", cover_images: [], wiki_url: "", tags: [], trigger: [], questions: [], examples: [], avoid_when: [], transform: [], agent_instruction: "", source_text: "" });
+const emptyLocale = () => ({ name: "", aliases: [], description: "", article_body: "", cover_image: "", cover_images: [], wiki_url: "", tags: [], trigger: [], questions: [], examples: [], avoid_when: [], transform: [], agent_instruction: "", source_text: "" });
 const own = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
 
 function text(value, path) {
@@ -104,6 +104,7 @@ function publicConcept(concept) {
     const data = concept.locales[locale];
     data.questions ??= [];
     data.examples ??= [];
+    data.article_body ??= "";
     data.cover_images = [...new Set(Array.isArray(data.cover_images) ? data.cover_images : (data.cover_image ? [data.cover_image] : []))];
     data.cover_image = data.cover_images[0] ?? "";
   }
@@ -188,6 +189,26 @@ function mediaActions(media, db) {
   return result;
 }
 
+const articleAssetHashes = (body = "") => [...new Set([...body.matchAll(/\/api\/assets\/([a-f0-9]{64})/g)].map((match) => match[1]))];
+
+function articleAssets(input) {
+  if (input === undefined) return [];
+  if (!Array.isArray(input)) bad("article_assets must be a list");
+  return input.map((asset) => {
+    if (!asset || typeof asset !== "object" || Array.isArray(asset) || Object.keys(asset).length !== 1 || typeof asset.data !== "string") bad("Article asset must contain PNG base64 data");
+    const bytes = Buffer.from(asset.data, "base64");
+    if (bytes.length < 24 || bytes.length > 10 * 1024 * 1024 || bytes.toString("hex", 0, 8) !== "89504e470d0a1a0a" || bytes.toString("ascii", 12, 16) !== "IHDR") bad("Article asset must be a PNG under 10 MB");
+    return { hash: createHash("sha256").update(bytes).digest("hex"), bytes };
+  });
+}
+
+function validateArticleAssets(concept, assets, db) {
+  const supplied = new Set(assets.map((asset) => asset.hash));
+  const referenced = new Set(["cn", "en"].flatMap((locale) => articleAssetHashes(concept.locales[locale].article_body)));
+  for (const hash of supplied) if (!referenced.has(hash)) bad("Article asset is not referenced by the article");
+  for (const hash of referenced) if (!supplied.has(hash) && !db.prepare("SELECT 1 FROM media_assets WHERE hash = ?").get(hash)) bad("Article references a missing asset");
+}
+
 export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/concept-discovery.sqlite") {
   const dbPath = resolve(path);
   mkdirSync(dirname(dbPath), { recursive: true });
@@ -217,12 +238,13 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
   };
   const prepareUpdate = (id, input) => {
     if (!input || !Number.isInteger(input.expected_version) || !input.changes || typeof input.changes !== "object" || Array.isArray(input.changes)) bad("expected_version and changes are required");
-    if (Object.keys(input).some((key) => !["expected_version", "changes", "media"].includes(key))) bad("Unknown update field");
+    if (Object.keys(input).some((key) => !["expected_version", "changes", "media", "article_assets"].includes(key))) bad("Unknown update field");
     const previous = get(id);
     if (previous.version !== input.expected_version) throw new RegistryError(409, "version_conflict", "Concept changed; reload before saving");
     const next = structuredClone(previous);
     delete next.readiness;
     const actions = mediaActions(input.media, db);
+    const assets = articleAssets(input.article_assets);
     for (const [path, value] of Object.entries(input.changes)) {
       if (path === "id" || path === "lifecycle_status" || path === "version") bad(`${path} is not editable`);
       const normalized = normalizedField(path, value);
@@ -235,7 +257,8 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
       next.locales[action.locale].cover_image = action.hashes[0] ?? "";
     }
     validateNames(next);
-    return { previous, next, actions, changes: changesBetween(previous, next).filter((change) => change.path !== "readiness") };
+    validateArticleAssets(next, assets, db);
+    return { previous, next, actions, assets, changes: changesBetween(previous, next).filter((change) => change.path !== "readiness") };
   };
   const setLifecycle = (id, input, status, actor = "local-user") => {
     if (!input || !Number.isInteger(input.expected_version) || Object.keys(input).some((key) => key !== "expected_version")) bad("expected_version is required");
@@ -260,12 +283,14 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
     const hashes = new Set(["cn", "en"].flatMap((locale) => [
       concept.locales[locale].cover_image,
       ...(concept.locales[locale].cover_images ?? []),
+      ...articleAssetHashes(concept.locales[locale].article_body),
     ]));
     for (const revision of revisions) for (const change of JSON.parse(revision.changes)) {
       if (change.path.endsWith(".cover_image")) { hashes.add(change.before); hashes.add(change.after); }
       if (change.path.endsWith(".cover_images")) {
         for (const value of [change.before, change.after]) if (Array.isArray(value)) for (const hash of value) hashes.add(hash);
       }
+      if (change.path.endsWith(".article_body")) for (const value of [change.before, change.after]) for (const hash of articleAssetHashes(value ?? "")) hashes.add(hash);
     }
     hashes.delete(""); hashes.delete(null);
     return hashes;
@@ -491,9 +516,11 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
     revisions: (id) => { get(id); return db.prepare("SELECT revision_id, concept_id, version_before, version_after, actor, operation, changed_at, changes FROM revisions WHERE concept_id = ? ORDER BY revision_id DESC").all(id).map((row) => ({ ...row, changes: JSON.parse(row.changes) })); },
     create: (input, actor = "local-user") => {
       if (!input || typeof input !== "object" || Array.isArray(input)) bad("Concept must be an object");
-      const { media, ...conceptInput } = input;
+      const { media, article_assets, ...conceptInput } = input;
       const concept = fromInput(conceptInput);
       const actions = mediaActions(media, db);
+      const assets = articleAssets(article_assets);
+      validateArticleAssets(concept, assets, db);
       for (const action of actions) {
         concept.locales[action.locale].cover_images = action.hashes;
         concept.locales[action.locale].cover_image = action.hashes[0] ?? "";
@@ -505,6 +532,7 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
       db.exec("BEGIN IMMEDIATE");
       try {
         for (const action of actions) for (const asset of action.assets) db.prepare("INSERT OR IGNORE INTO media_assets (hash, mime_type, byte_size, data, created_at) VALUES (?, 'image/webp', ?, ?, ?)").run(asset.hash, asset.bytes.length, asset.bytes, now);
+        for (const asset of assets) db.prepare("INSERT OR IGNORE INTO media_assets (hash, mime_type, byte_size, data, created_at) VALUES (?, 'image/png', ?, ?, ?)").run(asset.hash, asset.bytes.length, asset.bytes, now);
         db.prepare("INSERT INTO concepts (id, data, version, created_at, updated_at) VALUES (?, ?, ?, ?, ?)").run(concept.id, JSON.stringify(concept), 1, now, now);
         db.prepare("INSERT INTO revisions (concept_id, version_before, version_after, actor, operation, changed_at, changes) VALUES (?, 0, 1, ?, 'create', ?, ?)").run(concept.id, actor, now, JSON.stringify(changes));
         db.exec("COMMIT");
@@ -521,13 +549,14 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
       return { version: previous.version, before: previous.readiness, after: publicConcept(next).readiness, changes };
     },
     update: (id, input, actor = "local-user") => {
-      const { previous, next, actions, changes } = prepareUpdate(id, input);
+      const { previous, next, actions, assets, changes } = prepareUpdate(id, input);
       if (changes.length === 0) return publicConcept(next);
       next.version += 1;
       next.updated_at = new Date().toISOString();
       db.exec("BEGIN IMMEDIATE");
       try {
         for (const action of actions) for (const asset of action.assets) db.prepare("INSERT OR IGNORE INTO media_assets (hash, mime_type, byte_size, data, created_at) VALUES (?, 'image/webp', ?, ?, ?)").run(asset.hash, asset.bytes.length, asset.bytes, next.updated_at);
+        for (const asset of assets) db.prepare("INSERT OR IGNORE INTO media_assets (hash, mime_type, byte_size, data, created_at) VALUES (?, 'image/png', ?, ?, ?)").run(asset.hash, asset.bytes.length, asset.bytes, next.updated_at);
         const result = db.prepare("UPDATE concepts SET data = ?, version = ?, updated_at = ? WHERE id = ? AND version = ?").run(JSON.stringify(next), next.version, next.updated_at, id, previous.version);
         if (!result.changes) throw new RegistryError(409, "version_conflict", "Concept changed; reload before saving");
         db.prepare("INSERT INTO revisions (concept_id, version_before, version_after, actor, operation, changed_at, changes) VALUES (?, ?, ?, ?, 'update', ?, ?)").run(id, previous.version, next.version, actor, next.updated_at, JSON.stringify(changes));
@@ -555,11 +584,13 @@ export function openRegistry(path = process.env.CONCEPT_DB_PATH || ".local/conce
           for (const locale of ["cn", "en"]) {
             stillUsed.add(remaining.locales[locale].cover_image);
             for (const hash of remaining.locales[locale].cover_images ?? []) stillUsed.add(hash);
+            for (const hash of articleAssetHashes(remaining.locales[locale].article_body)) stillUsed.add(hash);
           }
         }
         for (const row of db.prepare("SELECT changes FROM revisions").all()) for (const change of JSON.parse(row.changes)) {
           if (change.path.endsWith(".cover_image")) { stillUsed.add(change.before); stillUsed.add(change.after); }
           if (change.path.endsWith(".cover_images")) for (const value of [change.before, change.after]) if (Array.isArray(value)) for (const hash of value) stillUsed.add(hash);
+          if (change.path.endsWith(".article_body")) for (const value of [change.before, change.after]) for (const hash of articleAssetHashes(value ?? "")) stillUsed.add(hash);
         }
         for (const hash of candidates) if (!stillUsed.has(hash)) db.prepare("DELETE FROM media_assets WHERE hash = ?").run(hash);
         db.exec("COMMIT");

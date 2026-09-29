@@ -25,7 +25,7 @@ function LanguageForm({ language, draft, setField, media, existingImages, readin
 }) {
   const cn = language === "cn";
   const copy = words[language];
-  type TextSuffix = "Name" | "Aliases" | "Description" | "Source" | "Tags" | "Wiki" | "Instruction";
+  type TextSuffix = "Name" | "Aliases" | "Description" | "Article" | "Source" | "Tags" | "Wiki" | "Instruction";
   type ListSuffix = "Trigger" | "Questions" | "Avoid" | "Examples" | "Transform";
   const textField = (suffix: TextSuffix, label: string, rows = 1) => <label className="block text-xs font-medium text-slate-600">{label}{rows === 1 ?
     <input type={suffix === "Wiki" ? "url" : "text"} value={draft[`${language}${suffix}`]} onChange={(event) => setField(`${language}${suffix}`, event.target.value)} className={inputClass} /> :
@@ -34,7 +34,8 @@ function LanguageForm({ language, draft, setField, media, existingImages, readin
   const images: MediaDraftItem[] = media ?? existingImages.map((hash) => ({ kind: "existing", hash }));
   return <section aria-label={cn ? "中文编辑" : "English editor"} className="space-y-5">
     {readiness && !readiness.browsable && <p className="rounded-lg bg-amber-50 p-3 text-xs text-amber-900">{copy.browseMissing}: {readiness.browse_missing.map((field) => ({ name: copy.name, description: copy.description, source_text: copy.sourceText }[field] ?? field)).join(" · ") || copy.none}</p>}
-    {textField("Name", copy.name)}{textField("Description", cn ? "一句话解释" : "Summary", 3)}{textField("Aliases", copy.aliases)}
+    {textField("Name", copy.name)}{textField("Description", cn ? "一句话解释（用于卡片与搜索）" : "Summary (card and search)", 3)}{textField("Aliases", copy.aliases)}
+    <div><p className="mb-2 text-xs text-slate-500">{cn ? "文章正文使用 Markdown，可编辑标题、列表、链接和图片引用。下方结构化字段继续用于检索与推荐，请保持表述一致。" : "Article body uses Markdown for headings, lists, links, and image references. Keep the structured fields below consistent for search and recommendations."}</p>{textField("Article", cn ? "文章正文（Markdown）" : "Article body (Markdown)", 12)}</div>
     {textField("Source", copy.sourceText, 3)}{textField("Wiki", copy.wiki)}
     {listField("Trigger", cn ? "什么时候想到它" : "When to think of it")}
     {listField("Questions", cn ? "问自己" : "Questions to ask")}

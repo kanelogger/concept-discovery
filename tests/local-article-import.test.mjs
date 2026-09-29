@@ -1,0 +1,53 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { test } from "node:test";
+import { openRegistry } from "../server/registry.mjs";
+import { importLocalArticles } from "../scripts/import-local-articles.mjs";
+
+test("local Markdown import maps exact Concept IDs, stores PNG assets and preserves later edits", () => {
+  const directory = mkdtempSync(join(tmpdir(), "article-import-"));
+  const db = join(directory, "registry.sqlite");
+  const source = join(directory, "models-data");
+  const articleDirectory = join(source, "first-principles");
+  const imageDirectory = join(articleDirectory, "assets");
+  const image = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Z+XsAAAAASUVORK5CYII=", "base64");
+  const hash = createHash("sha256").update(image).digest("hex");
+  mkdirSync(imageDirectory, { recursive: true });
+  writeFileSync(join(imageDirectory, "diagram.png"), image);
+  const markdown = `---\ntitle: "First principles"\nsummary: "Start from basic facts."\nurl: "https://example.org/first-principles"\nlanguage: "en"\n---\n\n# First principles\n\nUse basic facts.\n\n![Diagram](assets/diagram.png)\n`;
+  writeFileSync(join(articleDirectory, "index.md"), markdown);
+  let registry = openRegistry(db);
+  try {
+    registry.create({ id: "first-principles", locales: { cn: { name: "第一性原理", description: "简述", source_text: "来源" }, en: { name: "First Principles", description: "Summary", source_text: "Source" } } });
+    registry.close(); registry = null;
+    const options = { db, source, ids: ["first-principles"] };
+    assert.deepEqual(importLocalArticles(options).summary, [{ id: "first-principles", action: "update", images: 1 }]);
+    writeFileSync(join(articleDirectory, "index.md"), markdown.replace("assets/diagram.png", "../escape.png"));
+    assert.throws(() => importLocalArticles({ ...options, apply: true }), /unsupported image path/);
+    writeFileSync(join(articleDirectory, "index.md"), markdown);
+    registry = openRegistry(db);
+    assert.equal(registry.get("first-principles").version, 1);
+    registry.close(); registry = null;
+    const result = importLocalArticles({ ...options, apply: true });
+    assert.ok(existsSync(result.backup));
+    registry = openRegistry(db);
+    const imported = registry.get("first-principles");
+    assert.equal(imported.version, 2);
+    assert.equal(imported.locales.cn.article_body, "");
+    assert.match(imported.locales.en.article_body, new RegExp(`/api/assets/${hash}`));
+    assert.ok(!imported.locales.en.article_body.includes("# First principles"));
+    assert.equal(registry.asset(hash).mime_type, "image/png");
+    assert.deepEqual(registry.asset(hash).data, image);
+    assert.equal(registry.revisions("first-principles")[0].changes[0].path, "locales.en.article_body");
+    registry.update("first-principles", { expected_version: 2, changes: { "locales.en.article_body": "Locally edited article." } });
+    registry.close(); registry = null;
+    assert.throws(() => importLocalArticles(options), /refusing to overwrite/);
+    registry = openRegistry(db);
+    const archived = registry.archive("first-principles", { expected_version: 3 });
+    registry.delete("first-principles", { expected_version: archived.version, confirm_id: "first-principles" });
+    assert.throws(() => registry.asset(hash), /not found/i);
+  } finally { registry?.close(); rmSync(directory, { recursive: true, force: true }); }
+});

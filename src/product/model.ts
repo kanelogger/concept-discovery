@@ -1,6 +1,6 @@
 export type Locale = "cn" | "en";
 export type LocaleData = {
-  name: string; aliases: string[]; description: string; cover_image: string; cover_images: string[]; wiki_url: string;
+  name: string; aliases: string[]; description: string; article_body: string; cover_image: string; cover_images: string[]; wiki_url: string;
   tags: string[]; trigger: string[]; questions: string[]; examples: string[]; avoid_when: string[]; transform: string[];
   agent_instruction: string; source_text: string;
 };
@@ -20,7 +20,7 @@ export type Concept = {
 };
 export type Draft = {
   id: string; cnName: string; enName: string; cnAliases: string; enAliases: string;
-  cnDescription: string; enDescription: string; cnSource: string; enSource: string;
+  cnDescription: string; enDescription: string; cnArticle: string; enArticle: string; cnSource: string; enSource: string;
   cnTags: string; enTags: string; cnWiki: string; enWiki: string;
   cnTrigger: string[]; enTrigger: string[]; cnAvoid: string[]; enAvoid: string[];
   cnQuestions: string[]; enQuestions: string[]; cnExamples: string[]; enExamples: string[];
@@ -38,7 +38,7 @@ export type MediaDraftItem = { kind: "existing"; hash: string } | { kind: "new";
 export type MediaDraft = MediaDraftItem[] | null;
 
 export const blank: Draft = {
-  id: "", cnName: "", enName: "", cnAliases: "", enAliases: "", cnDescription: "", enDescription: "",
+  id: "", cnName: "", enName: "", cnAliases: "", enAliases: "", cnDescription: "", enDescription: "", cnArticle: "", enArticle: "",
   cnSource: "", enSource: "", cnTags: "", enTags: "", cnWiki: "", enWiki: "",
   cnTrigger: [], enTrigger: [], cnAvoid: [], enAvoid: [], cnTransform: [], enTransform: [],
   cnQuestions: [], enQuestions: [], cnExamples: [], enExamples: [],
@@ -50,6 +50,7 @@ const formValues = (draft: Draft): Record<string, unknown> => ({
   "locales.cn.name": draft.cnName, "locales.en.name": draft.enName,
   "locales.cn.aliases": splitList(draft.cnAliases), "locales.en.aliases": splitList(draft.enAliases),
   "locales.cn.description": draft.cnDescription, "locales.en.description": draft.enDescription,
+  "locales.cn.article_body": draft.cnArticle, "locales.en.article_body": draft.enArticle,
   "locales.cn.source_text": draft.cnSource, "locales.en.source_text": draft.enSource,
   "locales.cn.tags": splitList(draft.cnTags), "locales.en.tags": splitList(draft.enTags),
   "locales.cn.wiki_url": draft.cnWiki, "locales.en.wiki_url": draft.enWiki,
@@ -67,6 +68,7 @@ export const fromConcept = (concept: Concept): Draft => ({
   cnName: concept.locales.cn.name, enName: concept.locales.en.name,
   cnAliases: concept.locales.cn.aliases.join(", "), enAliases: concept.locales.en.aliases.join(", "),
   cnDescription: concept.locales.cn.description, enDescription: concept.locales.en.description,
+  cnArticle: concept.locales.cn.article_body ?? "", enArticle: concept.locales.en.article_body ?? "",
   cnSource: concept.locales.cn.source_text, enSource: concept.locales.en.source_text,
   cnTags: concept.locales.cn.tags.join(", "), enTags: concept.locales.en.tags.join(", "),
   cnWiki: concept.locales.cn.wiki_url, enWiki: concept.locales.en.wiki_url,
