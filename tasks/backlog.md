@@ -47,3 +47,4 @@ AI 提取、Inbox、批量导入导出产品界面和个性化未排入当前实
 | [0060 隔离样本说明](0060-remove-confusing-isolated-demo-example.md) | 日常启动与独立 12 条样本库的用途已区分，误生成的临时库已删除。 |
 | [0062 文章详情方案](0062-article-detail-options.md)、[0063 文章详情实现](0063-article-detail-page.md)、[0064 英文文章入口](0064-show-imported-article-language.md) | 方案 B 采用每种语言独立文章正文；完整阅读页、旧条目兼容与默认中文入口提示见实施记录。 |
 | [0067 候选知识筛选](0067-select-project-knowledge.md) | 从 80 条原始清单中选出 40 条优先整理的知识点，保留双语原文并记录选择理由、说明性情境和待补内容；仅输出文件。 |
+| [0068 补全并导入精选知识](0068-complete-import-selected-knowledge.md) | 40 条双语内容已补全并写入默认个人库：新增 34、更新 6，总数 61；保留旧文章和媒体，新增 37 条解释关系。来源阅读范围及实际库审计见任务证据。 |

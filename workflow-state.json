@@ -1,28 +1,44 @@
 {
   "schema_version": 1,
-  "task_id": "0067-select-project-knowledge",
+  "task_id": "0068-complete-import-selected-knowledge",
   "phase": "complete",
-  "task_file": "tasks/0067-select-project-knowledge.md",
+  "task_file": "tasks/0068-complete-import-selected-knowledge.md",
   "updated_at": "2026-09-30",
-  "summary": "从 80 条候选清单中筛选适合知识库优先整理的知识点，输出保留原文和筛选理由的独立 JSON。",
+  "summary": "40条精选知识已补全双语内容并导入默认个人库：新增34条、更新6条，总数61条，增加37条关联。",
   "blockers": [],
   "next_actions": [],
   "required_checks": [
-    "npm run validate"
+    "npm run check",
+    "node --test tests/curated-import.test.mjs"
   ],
   "verification": [
     {
-      "command": "Python 数据完整性核对",
+      "command": "npm run doctor",
       "result": "passed",
       "recorded_at": "2026-09-30"
     },
     {
-      "command": "npm run validate",
+      "command": "npm run check",
+      "result": "failed",
+      "recorded_at": "2026-09-30"
+    },
+    {
+      "command": "npm run check",
       "result": "passed",
       "recorded_at": "2026-09-30"
     },
     {
-      "command": "git diff --check",
+      "command": "node --test tests/curated-import.test.mjs",
+      "result": "passed",
+      "recorded_at": "2026-09-30"
+    },
+    {
+      "command": "Default database backup, import and full selected-content audit",
+      "result": "passed",
+      "recorded_at": "2026-09-30"
+    },
+    {
+      "command": "ego-browser bilingual detail and relation navigation",
       "result": "passed",
       "recorded_at": "2026-09-30"
     }

@@ -1,0 +1,27 @@
+{
+  "date": "2026-09-30",
+  "database": ".local/concept-discovery.sqlite",
+  "backup": ".local/backups/knowledge-before-import-2026-09-30T11-41-05-794Z.sqlite",
+  "selected": 40,
+  "created": 34,
+  "updated": 6,
+  "total_before": 27,
+  "total_after": 61,
+  "untouched_existing_concepts": 21,
+  "existing_locale_articles_preserved": 7,
+  "existing_assets_and_usage_unchanged": true,
+  "original_revisions_preserved": true,
+  "new_revisions": 40,
+  "new_relations": 37,
+  "bilingual_readable_and_recommendable": 40,
+  "locale_articles": 80,
+  "exact_name_searches": 80,
+  "all_selected_have_relations": true,
+  "integrity_check": "ok",
+  "foreign_key_check": [],
+  "repeat_preview": {
+    "skipped": 40,
+    "relations_added": 0
+  },
+  "source_review_limit": "Some references were accessible as abstracts, publication records, or indexed passages only; see 0068-sources.md. This is not formal recommendation-quality acceptance."
+}

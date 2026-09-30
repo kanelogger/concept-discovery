@@ -1,0 +1,19 @@
+{
+  "date": "2026-09-30",
+  "newConcept": "confirmation-bias",
+  "newConceptChineseAndEnglishRead": true,
+  "relationNavigation": {
+    "url": "http://127.0.0.1:4173/?locale=en&section=manage&view=cards&status=browsable&page=1&pageSize=20&concept=falsifiability",
+    "englishArticle": true
+  },
+  "existingConceptChinese": {
+    "url": "http://127.0.0.1:4173/?concept=first-principles&locale=cn",
+    "chineseArticle": true,
+    "hasReplacementCharacter": false
+  },
+  "existingConceptEnglish": {
+    "url": "http://127.0.0.1:4173/?concept=first-principles&locale=en",
+    "retainedOriginalAndSupplement": true,
+    "renderedImages": 2
+  }
+}
