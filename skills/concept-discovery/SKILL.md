@@ -12,7 +12,7 @@ description: 用户明确调用 concept-discovery，或直接要求为当前任�
 将 JSON 输入经标准输入传给 `node scripts/skill-discovery.mjs recommend`，格式为 `{ "invocation": "command" | "direct_request", "request": { "task": "...", "context": "...", "response": "...", "locale": "cn", "limit": 1 } }`。本命令调用正式 `POST /api/recommendations`，默认只连接 `http://127.0.0.1:4173`。不要把原始任务文本放进命令行参数或持久化文件。
 
 - 返回 `recommendations: []` 是正常 NONE：说明当前没有值得增加的 Concept，继续原任务。
-- 返回模型未配置、同意缺失或本地模型不可用的错误时，解释当前无法推荐。首次使用远端 DeepSeek 前让用户在终端运行 `npm run model:configure`，阅读外发说明并自行选择；未经选择不发送任务到远端。不要在聊天或仓库中保存密钥。
+- 返回模型未配置或授权失效时，解释当前无法推荐，并引导用户在本地 Web 的“模型设置”中连接订阅或配置 DeepSeek。用户须先阅读页面的数据外发说明，并显式选择当前模型；未经连接和选择不发送任务到远端。不要在聊天或仓库中保存密钥。
 - 有结果时展示最多三项的当前语言名称与 Why Now 理由，并让用户选择 Apply、查看详情或忽略。查看详情可用本地 `GET /api/concepts/:id`；不要把查看当作应用。用户拒绝后正常继续任务。
 
 `recommend` 返回 `run_id` 和匿名 `task_id`；保存 `run_id` 供本次交互使用。打开某项详情后，用 `{ "run_id": "...", "concept_id": "...", "event": "viewed" }` 经标准输入调用 `node scripts/skill-discovery.mjs feedback`。用户未查看而忽略时记录 `ignored`；查看后主动反馈无帮助时记录 `not_useful`。这些操作都不生成 Prompt。

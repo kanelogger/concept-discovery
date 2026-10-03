@@ -11,6 +11,7 @@ import ConceptCard from "./ConceptCard";
 import ConceptEditor from "./ConceptEditor";
 import Modal from "./Modal";
 import RecommendationDrawer from "./RecommendationDrawer";
+import ModelSettingsView from "./ModelSettingsView";
 import type { DiscoveryResult } from "./RecommendationDrawer";
 import { useNavigation } from "./useNavigation";
 const ConceptDetailPage = lazy(() => import("./ConceptDetail"));
@@ -104,7 +105,7 @@ function App() {
   }, [selectedId, editor, deleteCandidate]);
 
   useEffect(() => {
-    if (section === "dashboard") return;
+    if (section !== "manage") return;
     let cancelled = false;
     const timer = window.setTimeout(async () => {
       const params = new URLSearchParams({ locale, view: section, q: search, status, tag, domain: domain.join(","), include: "relation_preview" });
@@ -216,7 +217,7 @@ function App() {
     }
     finally { setBusy(false); }
   };
-  const changeSection = (next: "manage" | "dashboard") => navigate({ section: next, concept: null });
+  const changeSection = (next: "manage" | "dashboard" | "settings") => navigate({ section: next, concept: null });
   const changeLifecycle = async (concept: Concept, next: "archive" | "restore") => {
     if (next === "archive") {
       const impact = (["cn", "en"] as const).map((language) => {
@@ -249,11 +250,11 @@ function App() {
   return <div className="min-h-screen bg-[#f7f8f5] text-slate-900">
     <header className="sticky top-0 z-30 grid h-16 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center border-b border-slate-200 bg-white/95 px-3 backdrop-blur md:px-10">
       <div className="flex min-w-0 items-center gap-2 sm:gap-3"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-900 text-white"><Compass size={19} /></div><div className="hidden min-w-0 sm:block"><div className="truncate text-sm font-semibold">Concept Discovery</div><div className="text-[11px] text-slate-500">Local Registry</div></div></div>
-      <nav aria-label={locale === "cn" ? "主导航" : "Main navigation"} className="flex h-full items-center gap-0.5">{(["manage", "dashboard"] as const).map((item) => <button key={item} type="button" aria-current={section === item ? "page" : undefined} onClick={() => changeSection(item)} className={`inline-flex h-full items-center border-b-2 px-2 text-[11px] sm:px-3 sm:text-xs ${section === item ? "border-emerald-800 font-semibold text-emerald-900" : "border-transparent text-slate-500 hover:text-slate-800"}`}>{item === "manage" ? t.manage : "Dashboard"}</button>)}</nav>
+      <nav aria-label={locale === "cn" ? "主导航" : "Main navigation"} className="flex h-full items-center gap-0.5">{(["manage", "dashboard", "settings"] as const).map((item) => <button key={item} type="button" aria-current={section === item ? "page" : undefined} onClick={() => changeSection(item)} className={`inline-flex h-full items-center border-b-2 px-2 text-[11px] sm:px-3 sm:text-xs ${section === item ? "border-emerald-800 font-semibold text-emerald-900" : "border-transparent text-slate-500 hover:text-slate-800"}`}>{item === "manage" ? t.manage : item === "dashboard" ? "Dashboard" : locale === "cn" ? "模型设置" : "Models"}</button>)}</nav>
       <div className="flex justify-self-end items-center gap-1"><button type="button" onClick={() => { setLocale("cn"); }} aria-pressed={locale === "cn"} className={`rounded-lg px-2 py-2 text-[11px] sm:px-3 sm:text-xs ${locale === "cn" ? "bg-emerald-900 text-white" : "text-slate-500 hover:bg-slate-100"}`}>中文</button><button type="button" onClick={() => { setLocale("en"); }} aria-pressed={locale === "en"} className={`rounded-lg px-2 py-2 text-[11px] sm:px-3 sm:text-xs ${locale === "en" ? "bg-emerald-900 text-white" : "text-slate-500 hover:bg-slate-100"}`}>English</button></div>
     </header>
     <main className="mx-auto max-w-6xl px-5 pb-16 md:px-10">
-      {selectedId && !editor && !deleteCandidate ? (selected?.id === selectedId ? <Suspense fallback={<p role="status" className="py-10 text-sm text-slate-500">{locale === "cn" ? "读取文章中…" : "Loading article…"}</p>}><ConceptDetailPage key={selectedId} concept={selected} locale={locale} onLocale={setLocale} error={error} manage={section === "manage"} refreshKey={refreshKey} onClose={closeConcept} onRefresh={() => setRefreshKey((key) => key + 1)} onEdit={() => begin(selected)} onArchive={() => changeLifecycle(selected, "archive")} onRestore={() => changeLifecycle(selected, "restore")} onDelete={() => requestDelete(selected)} onOpenRelatedConcept={openConcept} /></Suspense> : <div className="mx-auto max-w-3xl py-10"><button onClick={closeConcept} className="mb-6 text-sm text-emerald-800 underline">← {locale === "cn" ? "返回知识库" : "Back to library"}</button><p role={detailError ? "alert" : "status"}>{detailError || (locale === "cn" ? "读取中…" : "Loading…")}</p>{detailError && <button onClick={() => setRefreshKey((key) => key + 1)} className="mt-4 underline">{locale === "cn" ? "重试" : "Retry"}</button>}</div>) : section === "dashboard" ? <DashboardView data={dashboard} error={dashboardError} locale={locale} onRefresh={() => setRefreshKey((key) => key + 1)} /> : <>
+      {selectedId && !editor && !deleteCandidate ? (selected?.id === selectedId ? <Suspense fallback={<p role="status" className="py-10 text-sm text-slate-500">{locale === "cn" ? "读取文章中…" : "Loading article…"}</p>}><ConceptDetailPage key={selectedId} concept={selected} locale={locale} onLocale={setLocale} error={error} manage={section === "manage"} refreshKey={refreshKey} onClose={closeConcept} onRefresh={() => setRefreshKey((key) => key + 1)} onEdit={() => begin(selected)} onArchive={() => changeLifecycle(selected, "archive")} onRestore={() => changeLifecycle(selected, "restore")} onDelete={() => requestDelete(selected)} onOpenRelatedConcept={openConcept} /></Suspense> : <div className="mx-auto max-w-3xl py-10"><button onClick={closeConcept} className="mb-6 text-sm text-emerald-800 underline">← {locale === "cn" ? "返回知识库" : "Back to library"}</button><p role={detailError ? "alert" : "status"}>{detailError || (locale === "cn" ? "读取中…" : "Loading…")}</p>{detailError && <button onClick={() => setRefreshKey((key) => key + 1)} className="mt-4 underline">{locale === "cn" ? "重试" : "Retry"}</button>}</div>) : section === "settings" ? <ModelSettingsView locale={locale} onBack={() => changeSection("manage")} /> : section === "dashboard" ? <DashboardView data={dashboard} error={dashboardError} locale={locale} onRefresh={() => setRefreshKey((key) => key + 1)} /> : <>
       <div className="flex flex-wrap items-end justify-between gap-4 py-8"><div><p className="mb-2 text-[11px] font-semibold uppercase tracking-[.18em] text-emerald-800">Concept Registry</p><h1 className="text-3xl font-semibold tracking-tight">{t.manageTitle}</h1><p className="mt-2 text-sm text-slate-500">{t.manageSubtitle}</p></div><button onClick={() => begin()} className="inline-flex items-center gap-2 rounded-xl bg-emerald-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-800"><Plus size={16} />{t.create}</button></div>
       <div className="sticky top-16 z-20 mb-5 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white/95 p-3 shadow-sm backdrop-blur">
         <form onSubmit={submitSearch} role="search" className="flex min-w-48 flex-[2] flex-wrap items-center gap-2">

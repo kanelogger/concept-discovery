@@ -15,15 +15,13 @@
     "demo:build": "tsc --noEmit && vite build",
     "start": "node server/start.mjs",
     "test:product": "node --test tests/product.test.mjs tests/knowledge-*.test.mjs",
-    "model:configure": "node scripts/configure-model.mjs",
-    "model:smoke": "node scripts/smoke-deepseek.mjs",
-    "model:api-smoke": "node scripts/smoke-recommendation-api.mjs",
     "eval": "node scripts/evaluate.mjs",
     "eval:assess": "node scripts/assess-offline-eval.mjs",
     "pilot:usage": "node scripts/pilot-usage-summary.mjs",
     "demo:prepare": "node scripts/prepare-knowledge-demo.mjs"
   },
   "dependencies": {
+    "@earendil-works/pi-ai": "1.0.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",

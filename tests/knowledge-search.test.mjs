@@ -81,6 +81,8 @@ test("addressable details preserve library query and normalize invalid paginatio
   assert.equal(readNavigation("?page=-2&pageSize=11&status=invalid").page, 1);
   assert.equal(readNavigation("?page=Infinity&pageSize=11").pageSize, 20);
   assert.equal(readNavigation("?concept=x&section=dashboard").section, "manage");
+  const settings = { ...initial, section: "settings" };
+  assert.deepEqual(readNavigation(navigationUrl(settings).slice(1)), settings);
 });
 
 test("empty search and equal-ranked matches have deterministic ordering and never join list items", async (t) => {

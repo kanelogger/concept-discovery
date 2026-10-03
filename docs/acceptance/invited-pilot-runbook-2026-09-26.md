@@ -2,6 +2,8 @@
 
 状态：**个人试用版可用；受邀私有内测准备就绪，尚未启动**。固定实现范围仍为 `0023–0029 + 0031–0040`；本手册不改变 [0040 正式质量 Gate](../../tasks/0040-mvp-eval-acceptance.md)或[冻结通过线](../../eval/thresholds.initial.json)。真实任务随自然使用积累；内测流程用于取得经同意的匿名证据。不得公开部署、开放公网端口或把测试调用计入真实 Usage。
 
+> 本手册记录 2026-09-26 的旧 MVP 配置流程。当前版本已删除 `npm run model:configure`；新工作区通过 Web 主导航的“模型设置”连接提供方，见[当前命令说明](../agent-environment/commands.md)与 [ADR 0005](../adr/0005-web-model-configuration.md)。
+
 ## 1. 启动前冻结与隔离
 
 1. 从[第一稿验收交接包](mvp-handoff-2026-09-25.md)选定一个包含本手册与 `pilot:usage` 的已审查提交 SHA，记录在私有内测日志中；在**新的干净工作区**运行该提交，隔离其他后续票据的修改。运行 `npm run doctor`、`npm run check`、`npm run demo:build`。这些检查使用测试数据库，须在创建内测库之前完成。

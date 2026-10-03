@@ -1,6 +1,6 @@
 import type { Locale } from "./model";
 
-export type Navigation = { locale: Locale; section: "manage" | "dashboard"; density: "cards" | "table"; search: string; status: string; tag: string; domain: string[]; page: number; pageSize: number; concept: string | null };
+export type Navigation = { locale: Locale; section: "manage" | "dashboard" | "settings"; density: "cards" | "table"; search: string; status: string; tag: string; domain: string[]; page: number; pageSize: number; concept: string | null };
 export function readNavigation(search: string): Navigation {
   const params = new URLSearchParams(search);
   const page = Number(params.get("page") || 1);
@@ -8,7 +8,7 @@ export function readNavigation(search: string): Navigation {
   const status = params.get("status") || "browsable";
   return {
     locale: params.get("locale") === "en" ? "en" : "cn",
-    section: params.get("section") === "dashboard" && !params.has("concept") ? "dashboard" : "manage",
+    section: !params.has("concept") && ["dashboard", "settings"].includes(params.get("section") || "") ? params.get("section") as "dashboard" | "settings" : "manage",
     density: params.get("view") === "table" ? "table" : "cards",
     search: params.get("q") || "", status: ["all", "draft", "browsable", "recommendable", "archived"].includes(status) ? status : "browsable",
     tag: params.get("tag") || "", domain: [...new Set((params.get("domain") || "").split(",").filter(Boolean))],

@@ -99,7 +99,7 @@ test("explicit Skill call recommends through formal API and composes only an ele
 });
 
 test("Skill preserves model-unavailable and rejects nonlocal API origins before sending context", async () => {
-  await withApi(() => { throw new RecommendationError(503, "model_consent_required", "Run npm run model:configure"); }, async ({ origin }) => {
+  await withApi(() => { throw new RecommendationError(503, "model_consent_required", "Open Model settings and explicitly select a connected model"); }, async ({ origin }) => {
     const input = { invocation: "command", request: { task: "Need a method", locale: "en" } };
     await assert.rejects(recommendForSkill(input, { origin }), { code: "model_consent_required" });
     let sent = false;

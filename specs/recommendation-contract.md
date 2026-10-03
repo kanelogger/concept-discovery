@@ -1,6 +1,6 @@
 # Recommendation API 契约
 
-状态：0032–0034 已实现契约、DeepSeek 适配器、正式 HTTP 接口和离线评测；0036 接入 Relation 的同分排序。模型决定见 [ADR 0003](../docs/adr/0003-deepseek-model-adapter.md)。来源为 PRD §20–§25（历史文件 `docs/method-system-prd-v0.1.md`，见下方来源说明）与 [产品契约](product-contract.md)。
+状态：0032–0034 已实现推荐契约、正式 HTTP 接口和离线评测；0036 接入 Relation 的同分排序；0069 将模型设置迁入 Web 并接入 pi provider。当前模型接入见 [ADR 0005](../docs/adr/0005-web-model-configuration.md)，DeepSeek 单一提供方决定见历史 [ADR 0003](../docs/adr/0003-deepseek-model-adapter.md)。来源为 PRD §20–§25（历史文件 `docs/method-system-prd-v0.1.md`，见下方来源说明）与 [产品契约](product-contract.md)。
 
 ## 请求与资格
 
@@ -35,9 +35,9 @@
 
 ## 模型与数据边界
 
-本地模型优先；当前未配置本地模型，用户已选 DeepSeek 远端。没有可用模型时返回 `503 model_unavailable`，本地模型被选但没有适配器返回 `503 local_model_unavailable`。首次远端调用前须运行 `npm run model:configure`，阅读数据外发说明并输入 `deepseek`、DeepSeek 模型 ID（默认 `deepseek-flash`）及密钥；provider、模型 ID、同意状态和密钥记录于被忽略的 `.env`。当前适配器只支持 DeepSeek endpoint，其他提供方的模型 ID（例如 GPT）不能在此使用。未选择远端返回 `503 model_consent_required`。适配器异常返回 `502 model_failed`，超时返回 `504 model_timeout`，错误响应不泄露提供方内部详情；超时会中止调用信号。开发用评测入口和 Web 均不以模型缺失伪造空推荐；0033 阶段的 Web 不提供推荐输入、Playground 或 Prompt 展示；0055 增加知识库搜索推荐抽屉。
+用户在 Web 的模型设置中连接 DeepSeek API Key 或 pi 支持的 OpenAI/ChatGPT、Anthropic/Claude、GitHub Copilot OAuth，并显式选择当前模型。没有已连接且选中的模型时返回 `503 model_unavailable`；连接或模型调用失败返回脱敏的 `502 model_failed`，超时返回 `504 model_timeout` 并中止调用信号。服务端把凭据写入被忽略的 `.local/model-auth/`；首次启动迁移旧 `.env` 的 DeepSeek 凭据并在安全备份后移除旧模型字段。Web 不以模型缺失伪造空推荐；推荐抽屉沿用 0055 搜索入口。
 
-提供方无关的 `runRecommendation` 接受注入的 `adapter.decide({ request, candidates }, { signal })`，默认超时 30 秒，调用者可在服务端覆盖。适配器只收到请求和同语言紧凑卡片，返回值仍受结果契约校验。DeepSeek 适配器使用 `.env` 的 `DEEPSEEK_MODEL`（缺省为 `deepseek-flash`）请求 JSON Output；模型只返回诊断与候选 ID、理由、置信度，公开名称由 Registry 填入。真实模型调用由 0033 的推荐接口接线。
+提供方无关的 `runRecommendation` 接受注入的 `adapter.decide({ request, candidates }, { signal })`，默认超时 30 秒，调用者可在服务端覆盖。pi adapter 使用当前显式选定的 provider/model，通过 `completeSimple` 发送系统指令及同语言紧凑候选卡；模型只返回诊断与候选 ID、理由、置信度。服务端解析 JSON 后执行既有资格与结果契约校验，公开名称由 Registry 填入；无效 JSON 返回 `502 invalid_model_decision`。DeepSeek 使用 pi 的 DeepSeek provider；OAuth 订阅由 pi provider 刷新凭据。API Key 与 OAuth token 均不进入请求正文、日志或响应。
 
 ## 正式 HTTP 接口（0033）
 
@@ -45,7 +45,13 @@
 
 成功响应的 `X-Model-Provider` 与 `X-Model-Name` 只给出非敏感模型标识，供离线评测追溯；不包含 API key。
 
-无效请求返回 `400 invalid_recommendation_request`，模型配置/同意缺失返回相应 `503`，模型超时返回 `504 model_timeout`，上游或模型输出错误返回 `502`。正常空推荐返回 HTTP 200 与 `recommendations: []`。Web 知识库不调用此 Agent 推荐接口；0055 的浏览推荐使用单独的 `/api/discover`。Web 仍不展示 Prompt。双语隔离由 Registry 资格、候选卡裁剪和结果 ID 校验共同保证；诊断与 Why Now 的实际语言和相关性仍由模型及 0034 离线案例检验。
+无效请求返回 `400 invalid_recommendation_request`，未连接或未选择模型返回 `503 model_unavailable`，模型超时返回 `504 model_timeout`，上游或模型输出错误返回 `502`。正常空推荐返回 HTTP 200 与 `recommendations: []`。Web 知识库不调用此 Agent 推荐接口；0055 的浏览推荐使用单独的 `/api/discover`。Web 仍不展示 Prompt。双语隔离由 Registry 资格、候选卡裁剪和结果 ID 校验共同保证；诊断与 Why Now 的实际语言和相关性仍由模型及 0034 离线案例检验。
+
+## 网页模型设置接口（0069）
+
+`GET /api/model-settings` 返回非秘密 provider 状态、pi 聊天模型目录及当前 `{ provider, model }`。写接口为 `POST /api/model-settings/deepseek`（`{ apiKey }`）、`POST /api/model-settings/oauth`（`{ provider }`）、`GET /api/model-settings/oauth/:sessionId?after=cursor`（事件增量和等待中的授权提示）、`POST /api/model-settings/oauth/:sessionId/reply`（`{ promptId, value }`）、`DELETE /api/model-settings/oauth/:sessionId`、`PUT /api/model-settings/selection`（`{ provider, model }`）、`POST /api/model-settings/test`、`DELETE /api/model-settings/credentials/:provider`。所有写接口要求 loopback Host 和同源 Origin，返回 `Cache-Control: no-store`；响应与事件不包含存储的 API Key 或 OAuth token。
+
+DeepSeek Key 与订阅凭据使用独立的本地 SQLite CredentialStore，环境变量不作为回退凭据。测试连接仅发送固定合成任务和合成候选；正常推荐沿用本契约的用户请求与同语言候选卡规则。设置 API 要求 loopback Host，写入操作必须同源；`/api/discover` 与 `/api/recommendations` 拒绝跨源浏览器请求，并保留无 Origin 的本地 Agent CLI 请求。
 
 > 历史来源说明：旧产品材料已在 0045 合并删除；原文恢复方式见[文档收敛决策](../docs/adr/0004-product-doc-consolidation.md)。本文保留当时的任务或接口记录，不作为当前产品路线图。
 

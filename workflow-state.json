@@ -1,46 +1,26 @@
 {
   "schema_version": 1,
-  "task_id": "0068-complete-import-selected-knowledge",
+  "task_id": "0069-web-model-configuration",
   "phase": "complete",
-  "task_file": "tasks/0068-complete-import-selected-knowledge.md",
-  "updated_at": "2026-09-30",
-  "summary": "40条精选知识已补全双语内容并导入默认个人库：新增34条、更新6条，总数61条，增加37条关联。",
+  "task_file": "tasks/0069-web-model-configuration.md",
+  "updated_at": "2026-10-03",
+  "summary": "将 DeepSeek 终端配置迁到网页，并接入 pi OAuth 订阅模型。",
   "blockers": [],
   "next_actions": [],
   "required_checks": [
     "npm run check",
-    "node --test tests/curated-import.test.mjs"
+    "npm run demo:build"
   ],
   "verification": [
     {
-      "command": "npm run doctor",
-      "result": "passed",
-      "recorded_at": "2026-09-30"
-    },
-    {
-      "command": "npm run check",
-      "result": "failed",
-      "recorded_at": "2026-09-30"
-    },
-    {
       "command": "npm run check",
       "result": "passed",
-      "recorded_at": "2026-09-30"
+      "recorded_at": "2026-10-03"
     },
     {
-      "command": "node --test tests/curated-import.test.mjs",
+      "command": "npm run demo:build",
       "result": "passed",
-      "recorded_at": "2026-09-30"
-    },
-    {
-      "command": "Default database backup, import and full selected-content audit",
-      "result": "passed",
-      "recorded_at": "2026-09-30"
-    },
-    {
-      "command": "ego-browser bilingual detail and relation navigation",
-      "result": "passed",
-      "recorded_at": "2026-09-30"
+      "recorded_at": "2026-10-03"
     }
   ]
 }

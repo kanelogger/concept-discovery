@@ -1,6 +1,6 @@
 # ADR 0003：推荐模型首选配置与 DeepSeek 接入
 
-日期：2026-09-25。状态：accepted for MVP implementation。
+日期：2026-09-25。状态：superseded in part by [ADR 0005](0005-web-model-configuration.md)。推荐契约与错误语义保留；单提供方接入和终端配置方式已替代。
 
 ## 决定
 
