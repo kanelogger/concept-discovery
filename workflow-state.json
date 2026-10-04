@@ -1,26 +1,24 @@
 {
   "schema_version": 1,
-  "task_id": "0069-web-model-configuration",
-  "phase": "complete",
-  "task_file": "tasks/0069-web-model-configuration.md",
-  "updated_at": "2026-10-03",
-  "summary": "将 DeepSeek 终端配置迁到网页，并接入 pi OAuth 订阅模型。",
+  "task_id": "0070-frontend-experience-quality",
+  "phase": "verification",
+  "task_file": "tasks/0070-frontend-experience-quality.md",
+  "updated_at": "2026-10-05",
+  "summary": "案卷 Atlas 前端已实施并通过自动化与实验室性能检查；等待实体移动浏览器与用户最终体验验收。",
   "blockers": [],
-  "next_actions": [],
+  "next_actions": [
+    "用户在真实 iOS Safari 与 Android Chrome 试用发现、详情和编辑路径。",
+    "用户体验验收并反馈视觉/交互问题；修正后再决定是否标记 complete。"
+  ],
   "required_checks": [
+    "npm run validate",
     "npm run check",
     "npm run demo:build"
   ],
   "verification": [
-    {
-      "command": "npm run check",
-      "result": "passed",
-      "recorded_at": "2026-10-03"
-    },
-    {
-      "command": "npm run demo:build",
-      "result": "passed",
-      "recorded_at": "2026-10-03"
-    }
+    { "command": "npm run doctor", "result": "passed", "recorded_at": "2026-10-05" },
+    { "command": "npm run validate", "result": "passed", "recorded_at": "2026-10-05" },
+    { "command": "npm run check", "result": "passed", "recorded_at": "2026-10-05" },
+    { "command": "npm run demo:build", "result": "passed", "recorded_at": "2026-10-05" }
   ]
 }

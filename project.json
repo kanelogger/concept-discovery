@@ -15,6 +15,7 @@
     "check": "check",
     "start": "start",
     "test_product": "test:product",
+    "test_e2e": "test:e2e",
     "web_build": "demo:build"
   },
   "context": {

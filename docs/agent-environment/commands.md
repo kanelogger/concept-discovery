@@ -8,7 +8,8 @@
 | `npm run doctor` | 核实当前 Node、Git 和仓库根目录 | 离线、只读 |
 | `npm run validate` | 校验清单、状态、必需路径及仓库 Markdown 本地链接 | 离线、只读 |
 | `npm test` | 执行环境与产品 API 测试；产品测试在隔离临时目录启动本地服务并自动清理 | 离线、临时目录、本地回环端口 |
-| `npm run check` | 依次执行 validate 和 test，任一失败返回非零 | 与上述两项相同 |
+| `npm run test:e2e` | 用 Playwright 在 Chromium、Firefox、WebKit 及 iPhone/Pixel 设备模拟配置运行前端关键路径和 axe 扫描；本地需先运行 `npx playwright install chromium firefox webkit` | 本地回环端口；测试专用临时 SQLite，结束时清理；首次安装浏览器需联网；设备模拟不等于实体手机验收 |
+| `npm run check` | 依次执行 validate、Node 测试和浏览器端到端测试，任一失败返回非零 | 同上；需已安装 Playwright 浏览器 |
 | `npm run test:product` | 单独执行 Registry/API 持久化测试 | 离线、临时目录、本地回环端口 |
 | `npm run demo:build` | TypeScript 检查并打包正式 Web 入口 | 离线，写 `dist` |
 | `npm start` | 在 127.0.0.1:4173 启动本地 API 与 Web；`CONCEPT_DB_PATH` 可指定隔离数据库 | 本地回环端口，写 `.local` 或指定路径 |
@@ -18,7 +19,7 @@
 | `node scripts/skill-discovery.mjs compose < input.json` | 用户选定该次已展示的 Concept 后，带 `run_id` 从同一 Registry 读取最新版生成 Prompt，供 Agent 实际应用 | 本地数据库记录准备状态；Prompt 输出到 stdout，不保存 |
 | `node scripts/skill-discovery.mjs feedback < input.json` | 按真实操作记录 `viewed`、`ignored`、`not_useful`；Agent 完成应用成果后才记录 `applied` | 本地数据库写入事件，不传外网 |
 
-新机器先按 [.node-version](../../.node-version) 准备 Node 24，再运行安装、doctor 和 check。运行时检查失败应修正环境，不绕过 engines 限制。新增依赖时提交对应锁文件、明确安装网络需求并更新环境决策。
+新机器先按 [.node-version](../../.node-version) 准备 Node 24，再运行安装、doctor、Playwright 浏览器安装和 check。CI 在 `npm ci --ignore-scripts` 后安装 Chromium、Firefox、WebKit 与所需系统依赖。运行时检查失败应修正环境，不绕过 engines 限制。新增依赖时提交对应锁文件、明确安装网络需求并更新环境决策。
 
 当前产品启动命令为 `npm start`，`npm run demo` 是同一入口的别名。默认端口可用 `PORT` 覆盖；停止服务用 Ctrl-C。
 

@@ -73,8 +73,9 @@ test("keyword ranking and relation previews share language and lifecycle rules w
 
 test("addressable details preserve library query and normalize invalid pagination", () => {
   const initial = readNavigation("");
-  assert.equal(initial.status, "browsable"); assert.equal(initial.pageSize, 20); assert.equal(initial.locale, "cn");
-  const selected = { ...initial, concept: "theory-of-constraints", locale: "en", density: "table", search: "busy, slow", tag: "flow", domain: ["reasoning"], page: 2, pageSize: 10 };
+  assert.equal(initial.status, "browsable"); assert.equal(initial.pageSize, 20); assert.equal(initial.locale, "cn"); assert.equal(initial.section, "discover");
+  const library = { ...initial, section: "manage" };
+  const selected = { ...library, concept: "theory-of-constraints", locale: "en", density: "table", search: "busy, slow", tag: "flow", domain: ["reasoning"], page: 2, pageSize: 10 };
   assert.deepEqual(readNavigation(navigationUrl(selected).slice(1)), selected);
   const related = { ...selected, concept: "wip-limits" };
   assert.deepEqual(readNavigation(navigationUrl(related).slice(1)), related);
