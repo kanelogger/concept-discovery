@@ -1,12 +1,17 @@
 {
   "schema_version": 1,
-  "task_id": null,
-  "phase": "idle",
-  "task_file": null,
+  "task_id": "0001-product-fit-assessment",
+  "phase": "complete",
+  "task_file": "tasks/0001-product-fit-assessment.md",
   "updated_at": "2026-11-06",
-  "summary": "暂无进行中的任务。",
+  "summary": "评估完成：方向符合，整理与应用链路已实现；记忆、表达效果及长期远端运行待验证。",
   "blockers": [],
-  "next_actions": [],
-  "required_checks": [],
-  "verification": []
+  "next_actions": ["用真实任务验收找卡、应用与表达质量", "验证长期HTTPS托管、异地备份及整库恢复"],
+  "required_checks": ["npm run check", "git diff --check"],
+  "verification": [
+    {"command":"npm run check","result":"failed","recorded_at":"2026-11-06","note":"沙箱禁止测试监听本机端口：EPERM。"},
+    {"command":"npm run check","result":"passed","recorded_at":"2026-11-06","note":"允许本机测试端口后重跑，93/93通过。"},
+    {"command":"npm run validate","result":"passed","recorded_at":"2026-11-06"},
+    {"command":"git diff --check","result":"passed","recorded_at":"2026-11-06"}
+  ]
 }
