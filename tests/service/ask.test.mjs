@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { DatabaseSync } from "node:sqlite";
 import { ask } from "../../lib/ask.mjs";
-import { askEvidence } from "../../lib/ask-evidence.mjs";
+import { askCatalog, askEvidence } from "../../lib/ask-evidence.mjs";
 import { Documents } from "../../lib/documents.mjs";
 import { createApp } from "../../server/app.mjs";
 import { chatCompletions, loadModelConfig } from "../../server/model.mjs";
@@ -92,7 +92,7 @@ test("candidate reads and evidence stay bounded and retain hits late in long pas
   assert.equal(cards[0].id, "card-00");
   assert.equal(f.sql.length, 10);
   assert.ok(f.sql.slice(0, 2).every(statement => statement.endsWith("LIMIT 20")));
-  assert.ok(f.sql.slice(2).every(statement => statement.endsWith("LIMIT 3")));
+  assert.ok(f.sql.slice(2).every(statement => statement.endsWith("LIMIT 12")));
   let characters = 0;
   for (const card of cards) {
     assert.ok(card.evidence.length <= 3);
@@ -129,9 +129,10 @@ test("ask performs bounded two-stage analysis, hydrates quotations and distingui
   };
   const result = await ask(f.api, { question: "  怎么做上线检查？  " }, { publicUrl: origin, complete });
   assert.equal(calls.length, 2);
-  assert.equal(calls[0].maxTokens, 512);
+  assert.equal(calls[0].maxTokens, 1024);
   assert.equal(calls[1].maxTokens, 4096);
-  assert.deepEqual(calls[0].data, { question: "怎么做上线检查？" });
+  assert.equal(calls[0].data.question, "怎么做上线检查？");
+  assert.deepEqual(calls[0].data.catalog, ["上线检查", "边界条件"]);
   assert.equal(result.cards[0].title, "上线检查");
   assert.equal(result.cards[0].url, origin + "/cards/parent");
   assert.equal(result.cards[0].evidence[0].text, excerpt);
@@ -242,7 +243,7 @@ test("browser session and CLI command transport return the same grounded result,
   const cli = await (await command("ask", input, { headers: bearer })).json();
   assert.equal(web.ok, true);
   assert.deepEqual(web, cli);
-  assert.deepEqual(posted.map(body => body.max_tokens), [512, 4096, 512, 4096]);
+  assert.deepEqual(posted.map(body => body.max_tokens), [1024, 4096, 1024, 4096]);
   assert.ok(posted.every(body => body.response_format.type === "json_object" && body.stream === false && !("tools" in body)));
   assert.doesNotMatch(JSON.stringify(posted), /fake-(kernel|agent)-key|非库资料|内部标记/);
   assert.deepEqual(logs.map(log => [log.modelCalls, log.cards, log.promptTokens]), [[2, 1, 26], [2, 1, 26]]);
@@ -331,7 +332,7 @@ test("cancellation during scoped retrieval reaches SQL and skips model synthesis
   assert.equal(await entered.promise, controller.signal);
   controller.abort();
   await task;
-  assert.equal(modelCalls, 1);
+  assert.equal(modelCalls, 0);
 });
 
 test("reading the second response body spends the remaining shared deadline", async t => {
@@ -380,4 +381,136 @@ test("reading the second response body spends the remaining shared deadline", as
   await task;
   assert.equal(signal.aborted, true);
   assert.equal(calls, 2);
+});
+
+test("task vocabulary can select an existing concept through a bounded library catalogue", async t => {
+  const f = library(); t.after(() => f.db.close());
+  f.add('composition', 'composition', '/root/composition.sy', 'd', '合成谬误');
+  f.add('composition-body', 'composition', '/root/composition.sy', 'p', '部分成立不代表整体成立，应检查相互作用。');
+  const result = await ask(f.api, {question:'各组件都通过了，用户操作为什么仍失败？'}, {
+    complete: async ({data}) => data.candidates ? mockAnswer(data)
+      : {queries: data.catalog?.includes('合成谬误') ? ['合成谬误'] : ['组件 验收']},
+  });
+  assert.equal(result.status, 'answered');
+  assert.equal(result.cards[0].id, 'composition');
+});
+
+test("blank JSON provider output is retried once instead of abandoning an answer", async () => {
+  let calls = 0;
+  const complete = chatCompletions({url:'https://model.invalid/chat/completions',apiKey:'fake',model:'test',maxTokenField:'max_tokens'}, async () => {
+    calls++;
+    return calls === 1 ? new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:'   '}}]})) : completion({queries:['范围']});
+  });
+  assert.deepEqual((await complete({prompt:'Return JSON',data:{question:'test'},maxTokens:512,signal:new AbortController().signal})).value, {queries:['范围']});
+  assert.equal(calls, 2);
+});
+
+test("catalogue stays scoped and bounded and exact titles outrank incidental mentions", async t => {
+  const f = library(); t.after(() => f.db.close());
+  assert.deepEqual(await askCatalog(f.api), ['上线检查', '边界条件']);
+  for(let i=0;i<220;i++){
+    const id='item-'+String(i).padStart(3,'0'), path='/root/'+id+'.sy';
+    f.add(id,id,path,'d',('长标题'+i).repeat(30));
+    f.add(id+'-body',id,path,'p','关键方法是相关链接，仅用于交叉参考。');
+  }
+  f.add('zz-target','zz-target','/root/zz-target.sy','d','关键方法');
+  f.add('zz-target-a','zz-target','/root/zz-target.sy','p','这一方法的可执行定义及边界。');
+  f.add('zz-target-b','zz-target','/root/zz-target.sy','p','这一方法的可执行定义及边界。');
+  f.add('zz-target-c','zz-target','/root/zz-target.sy','p','先列出条件，再收集验证证据。');
+  const catalog=await askCatalog(f.api);
+  assert.ok(catalog.length<=200);
+  assert.ok(catalog.reduce((n,x)=>n+Array.from(x).length,0)<=12000);
+  assert.ok(catalog.every(x=>Array.from(x).length<=120));
+  const candidates=await askEvidence(f.api,['关键方法']);
+  assert.equal(candidates[0].id,'zz-target');
+  assert.equal(candidates[0].evidence.length,2);
+  assert.equal(new Set(candidates[0].evidence.map(e=>e.text)).size,2);
+});
+
+test("DeepSeek JSON tasks disable default thinking without leaking vendor fields to other hosts", async () => {
+  for(const url of ['https://api.deepseek.com/chat/completions','https://compatible.invalid/chat/completions']){
+    let body;
+    const complete=chatCompletions({url,apiKey:'fake',model:'deepseek-flash',maxTokenField:'max_tokens'},async(_url,o)=>{body=JSON.parse(o.body);return completion({queries:['范围']});});
+    await complete({prompt:'JSON',data:{question:'test'},maxTokens:1024});
+    if(url.includes('api.deepseek.com'))assert.deepEqual(body.thinking,{type:'disabled'});
+    else assert.equal(Object.hasOwn(body,'thinking'),false);
+  }
+});
+
+test("truncation retry increases a bounded budget and records only safe failure metadata", async () => {
+  const budgets=[],events=[];
+  const complete=chatCompletions({url:'https://model.invalid/chat/completions',apiKey:'secret-test',model:'test',maxTokenField:'max_tokens'},async(_url,o)=>{
+    budgets.push(JSON.parse(o.body).max_tokens);
+    return budgets.length===1 ? new Response(JSON.stringify({choices:[{finish_reason:'length',message:{content:'private partial'}}]})) : completion({queries:['范围']});
+  });
+  await complete({prompt:'private prompt',data:{question:'private question'},maxTokens:4096,onDiagnostic:e=>events.push(e)});
+  assert.deepEqual(budgets,[4096,8192]);
+  assert.deepEqual(events.map(e=>e.outcome),['truncated','valid_json']);
+  assert.doesNotMatch(JSON.stringify(events),/private|secret/);
+});
+
+test("malformed JSON recovery stops after one retry and refusals are never retried", async () => {
+  for(const refusal of [false,true]){
+    let calls=0;
+    const complete=chatCompletions({url:'https://model.invalid/chat/completions',apiKey:'fake',model:'test',maxTokenField:'max_tokens'},async()=>{
+      calls++;return new Response(JSON.stringify({choices:[{finish_reason:refusal?'content_filter':'stop',message:{content:'not json'}}]}));
+    });
+    await assert.rejects(complete({prompt:'JSON',data:{},maxTokens:512}),{code:'ask_invalid_output',diagnostic:refusal?'refusal':'content_json'});
+    assert.equal(calls,refusal?1:2);
+  }
+});
+
+test("cancellation between recovery attempts prevents another provider request", async () => {
+  const controller=new AbortController();let calls=0;
+  const complete=chatCompletions({url:'https://model.invalid/chat/completions',apiKey:'fake',model:'test',maxTokenField:'max_tokens'},async()=>{
+    calls++;return new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:' '}}]}));
+  });
+  await assert.rejects(complete({prompt:'JSON',data:{},maxTokens:512,signal:controller.signal,onDiagnostic:()=>controller.abort()}),{name:'AbortError'});
+  assert.equal(calls,1);
+});
+
+test("exact concept retrieval uses explanatory content ahead of short labels", async t => {
+  const f=library();t.after(()=>f.db.close());
+  f.add('concept','concept','/root/concept.sy','d','方法卡');
+  for(let i=0;i<15;i++){
+    f.add('a'+i,'concept','/root/concept.sy','p','标签'+i);
+    f.add('image'+i,'concept','/root/concept.sy','p','示意图 assets/'+String(i).padStart(100,'0')+'.png');
+  }
+  const explanation='面对任务时先区分观察与推断，再检查哪些证据支持当前结论，并明确仍然缺少的信息。';
+  f.add('z-description','concept','/root/concept.sy','p',explanation);
+  const [card]=await askEvidence(f.api,['方法卡']);
+  assert.equal(card.evidence[0].text,explanation);
+});
+
+test("provider query schema mistakes recover once while reference mistakes still fail closed", async t => {
+  const f=library();t.after(()=>f.db.close());let calls=0;
+  const provider=chatCompletions({url:'https://model.invalid/chat/completions',apiKey:'fake',model:'test',maxTokenField:'max_tokens'},async(_url,{body})=>{
+    calls++;const data=JSON.parse(JSON.parse(body).messages[1].content);
+    return completion(calls===1?{queries:[]} : data.candidates ? mockAnswer(data) : {queries:['上线']});
+  });
+  const result=await ask(f.api,{question:'上线检查？'},{complete:async request=>(await provider(request)).value});
+  assert.equal(result.status,'answered');assert.equal(calls,3);
+});
+
+test("a valid JSON answer with an invented reference is still rejected after bounded regeneration", async t => {
+  const f=library();t.after(()=>f.db.close());let calls=0;
+  const provider=chatCompletions({url:'https://model.invalid/chat/completions',apiKey:'fake',model:'test',maxTokenField:'max_tokens'},async(_url,{body})=>{
+    calls++;const data=JSON.parse(JSON.parse(body).messages[1].content);
+    if(!data.candidates)return completion({queries:['上线']});
+    const answer=mockAnswer(data);answer.cards[0].evidenceIds=['invented'];return completion(answer);
+  });
+  await assert.rejects(ask(f.api,{question:'上线？'},{complete:async request=>(await provider(request)).value}),{code:'ask_invalid_output',diagnostic:'references'});
+  assert.equal(calls,3);
+});
+
+test("an invalid reference candidate is discarded and regenerated once from original evidence", async t => {
+  const f=library();t.after(()=>f.db.close());let calls=0;const sent=[];
+  const provider=chatCompletions({url:'https://model.invalid/chat/completions',apiKey:'fake',model:'test',maxTokenField:'max_tokens'},async(_url,{body})=>{
+    calls++;const request=JSON.parse(body);const data=JSON.parse(request.messages[1].content);sent.push(data);
+    if(!data.candidates)return completion({queries:['上线']});
+    const answer=mockAnswer(data);if(calls===2)answer.cards[0].evidenceIds=['invented'];return completion(answer);
+  });
+  const result=await ask(f.api,{question:'上线？'},{complete:async request=>(await provider(request)).value});
+  assert.equal(result.status,'answered');assert.equal(calls,3);assert.deepEqual(sent[1],sent[2]);
+  assert.doesNotMatch(JSON.stringify(result),/invented/);
 });

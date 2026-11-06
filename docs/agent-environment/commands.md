@@ -51,10 +51,10 @@ baseUrl 为兼容服务的 API 前缀，应用会追加 `/chat/completions`。�
 
 DeepSeek 的已验收配置为 baseUrl 使用 `https://api.deepseek.com`，model 使用 `deepseek-flash`，maxTokenField 使用 `max_tokens`。密钥仍通过 apiKeyFile 读取。[DeepSeek JSON Output 文档](https://api-docs.deepseek.com/zh-cn/guides/json_mode/)
 
-调用时，模型服务会收到问题和受限知识片段。应用只在当前标签页内存保留回答。CLI 通过现有 client.json 与 Agent 令牌调用，返回含引用的 JSON。
+调用时，模型服务会收到问题、最多200个标题且合计不超过12000字符的卡片目录，以及受限知识片段。应用只在当前标签页内存保留回答。CLI 通过现有 client.json 与 Agent 令牌调用，返回含引用的 JSON。
 
 ```sh
 printf '%s\n' '{"question":"项目上线前怎样排查失败风险？"}' | concept-discovery ask
 ```
 
-status 为 answered、insufficient 或 no_match。应用最长处理 90 秒，CLI 等待上限为 100 秒。
+status 为 answered、insufficient 或 no_match。应用最长处理 90 秒，CLI 等待上限为 100 秒。直接连接官方DeepSeek端点的受支持模型会显式关闭默认思考模式，使结构化输出使用有限预算。每个阶段对空白、截断、无效JSON及结构错误最多恢复一次；截断时预算最多翻倍至8192，仍共用原90秒期限。模型拒绝不重试。无效引用或回答字段校验失败的候选先被丢弃，只允许用原始合法证据重新生成一次；再次失败仍返回错误，不能放松校验或补造引用。诊断日志只保留阶段、尝试次数、预算、结束类型和校验类别，不含用户问题、卡片内容或凭据。

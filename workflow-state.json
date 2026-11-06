@@ -1,17 +1,54 @@
 {
   "schema_version": 1,
-  "task_id": "0002-real-task-acceptance",
+  "task_id": "0003-ask-retrieval-output-repair",
   "phase": "complete",
-  "task_file": "tasks/0002-real-task-acceptance.md",
+  "task_file": "tasks/0003-ask-retrieval-output-repair.md",
   "updated_at": "2026-11-06",
-  "summary": "15例质量验收完成：14个正向案例3通过、3部分通过、8未交付；1个负向控制通过。已记录问题，未修改产品。",
+  "summary": "任务到概念检索与模型输出恢复已修复；原15例最终技术错误3→0，中位15.8→5.2秒；正向质量3→7完整通过，剩余问题已记录。",
   "blockers": [],
-  "next_actions": ["优先修复任务描述到概念检索及模型输出异常", "核对引用边界与表达交付，并回归本轮失败案例"],
-  "required_checks": ["npm run validate", "git diff --check"],
+  "next_actions": [
+    "优先处理03方法型问题选择和04事实/推断混淆",
+    "修复输出长度、直接交付和验收条件，并增加未见任务验证"
+  ],
+  "required_checks": [
+    "npm run check",
+    "npm run test:integration",
+    "git diff --check"
+  ],
   "verification": [
-    {"command":"15-case live ask acceptance","result":"failed","recorded_at":"2026-11-06","note":"质量验收发现缺口，14正向案例仅3完整通过；完整执行记录保留于任务文档及私有目录。"},
-    {"command":"private evidence integrity audit","result":"passed","recorded_at":"2026-11-06","note":"15例齐全，输入摘要未变，47处引文对应真实卡片；61卡清单及更新时间未变。"},
-    {"command":"npm run validate","result":"passed","recorded_at":"2026-11-06"},
-    {"command":"git diff --check","result":"passed","recorded_at":"2026-11-06"}
+    {
+      "command": "targeted red regressions",
+      "result": "failed",
+      "recorded_at": "2026-11-06",
+      "note": "先复现概念漏检、空白JSON、短标签/图片路径挤占、查询结构及引用错误；对应永久回归已转绿。"
+    },
+    {
+      "command": "npm run check",
+      "result": "passed",
+      "recorded_at": "2026-11-06",
+      "note": "最终104/104通过。"
+    },
+    {
+      "command": "npm run test:integration",
+      "result": "passed",
+      "recorded_at": "2026-11-06",
+      "note": "最终run cd-service-b9a7e388cd，清理passed且资源为空。"
+    },
+    {
+      "command": "15-case frozen live comparison",
+      "result": "passed",
+      "recorded_at": "2026-11-06",
+      "note": "对比完整性通过：输入/知识不变，97处引文可追溯，技术错误0；质量非全过，14正向7通过5部分2未通过。"
+    },
+    {
+      "command": "npm run validate",
+      "result": "passed",
+      "recorded_at": "2026-11-06"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed",
+      "recorded_at": "2026-11-06"
+    }
   ]
 }

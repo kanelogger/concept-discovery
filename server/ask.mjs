@@ -32,11 +32,14 @@ export function createAskRunner(completeModel, { timeoutMs = 90000, log = entry 
       );
       const timeout = setTimeout(() => controller.abort(stop("ask_timeout")), timeoutMs);
       const start = Date.now();
-      const metrics = { event: "ask", requestId: randomUUID(), modelCalls: 0, cards: 0, promptTokens: 0, completionTokens: 0 };
+      const metrics = { event: "ask", requestId: randomUUID(), modelCalls: 0, cards: 0, promptTokens: 0, completionTokens: 0, modelEvents: [] };
       const complete = async request => {
         signal.throwIfAborted();
         metrics.modelCalls++;
-        const result = await model({ ...request, signal });
+        metrics.stage = request.stage === 'queries' ? 'queries' : 'answer';
+        const result = await model({ ...request, signal, onDiagnostic: entry => {
+          metrics.modelEvents.push({ stage: metrics.stage, ...entry });
+        } });
         metrics.promptTokens += result.promptTokens;
         metrics.completionTokens += result.completionTokens;
         return result.value;
@@ -51,6 +54,7 @@ export function createAskRunner(completeModel, { timeoutMs = 90000, log = entry 
         const cause = signal.aborted ? signal.reason : error;
         const code = clientSignal.aborted ? "ask_cancelled" : Object.hasOwn(askErrors, cause?.code) ? cause.code : "ask_read_failed";
         metrics.error = code;
+        if (['queries_shape', 'queries_count', 'queries_text', 'answer_schema', 'references'].includes(cause?.diagnostic)) metrics.validation = cause.diagnostic;
         throw stop(code);
       } finally {
         clearTimeout(expiry);
