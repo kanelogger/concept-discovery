@@ -1,0 +1,5 @@
+interface:
+  display_name: Concept Discovery
+  short_description: 显式查询、应用和维护思源知识卡
+policy:
+  allow_implicit_invocation: false

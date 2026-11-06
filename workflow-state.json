@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "task_id": null,
+  "phase": "idle",
+  "task_file": null,
+  "updated_at": "2026-11-06",
+  "summary": "暂无进行中的任务。",
+  "blockers": [],
+  "next_actions": [],
+  "required_checks": [],
+  "verification": []
+}

@@ -1,0 +1,30 @@
+services:
+  kernel:
+    image: b3log/siyuan:v3.8.9@sha256:4f9c119048b9dc685603b04aebf9e9d513695014c9fbd834e0dadd1c22801235
+    command: [serve, --workspace=/siyuan/workspace, --port=6806]
+    expose:
+      - "6806"
+    environment:
+      PUID: ${CONCEPT_UID:-1000}
+      PGID: ${CONCEPT_GID:-1000}
+      SIYUAN_ACCESS_AUTH_CODE: ${KERNEL_ACCESS_CODE:?Set internal access code}
+      SIYUAN_LANG: zh-CN
+      TZ: Asia/Shanghai
+    volumes:
+      - ${CONCEPT_PRIVATE_ROOT:?Set dedicated private directory}/workspace:/siyuan/workspace
+    restart: unless-stopped
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    user: "${CONCEPT_UID:-1000}:${CONCEPT_GID:-1000}"
+    environment:
+      CONCEPT_SERVICE_CONFIG: /state/service.json
+      TZ: Asia/Shanghai
+    volumes:
+      - ${CONCEPT_PRIVATE_ROOT:?Set dedicated private directory}:/state
+    ports:
+      - "127.0.0.1:${CONCEPT_PORT:-6806}:3000"
+    depends_on:
+      - kernel
+    restart: unless-stopped

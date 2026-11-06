@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "project": {
+    "id": "concept-discovery",
+    "stage": "personal-knowledge-service",
+    "product_status": "implemented-local-acceptance-passed"
+  },
+  "runtime": {
+    "node_major": 24
+  },
+  "commands": {
+    "doctor": "doctor",
+    "validate": "validate",
+    "test": "test",
+    "check": "check",
+    "start": "start"
+  },
+  "context": {
+    "agent_entry": "AGENTS.md",
+    "environment": "AI_ENVIRONMENT.md",
+    "product_contract": "specs/product-contract.md",
+    "workflow": "workflow/README.md",
+    "active_state": "workflow-state.json"
+  },
+  "services": [
+    {
+      "name": "knowledge-app",
+      "command": "npm start",
+      "bind": "127.0.0.1:6806",
+      "database": ".local/knowledge/workspace"
+    }
+  ],
+  "capabilities": {
+    "project_skills": [
+      "skills/concept-discovery/SKILL.md"
+    ],
+    "connectors": []
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "name": "concept-discovery",
+  "private": true,
+  "version": "0.3.0",
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "doctor": "node scripts/doctor.mjs",
+    "validate": "node scripts/validate.mjs",
+    "test": "node --test tests/service/*.test.mjs tests/tooling/*.test.mjs",
+    "test:integration": "node tests/service/integration.mjs",
+    "check": "npm run validate && npm test",
+    "check:full": "node scripts/service-check.mjs",
+    "deploy:init": "node scripts/deploy-init.mjs",
+    "start": "docker compose --env-file .local/knowledge/compose.env -f deploy/compose.yaml up --build -d",
+    "stop": "docker compose --env-file .local/knowledge/compose.env -f deploy/compose.yaml down",
+    "build:web": "node scripts/build-web.mjs",
+    "prepack": "npm run build:web",
+    "test:browser": "playwright test --config tests/browser/playwright.config.mjs",
+    "test:ego": "node scripts/ego-testing.mjs",
+    "dev:init": "node scripts/deploy-init.mjs --development"
+  },
+  "dependencies": {
+    "@ant-design/icons": "6.3.4",
+    "@codemirror/view": "6.43.15",
+    "@mdxeditor/editor": "4.5.0",
+    "antd": "6.7.0",
+    "dayjs": "1.11.23",
+    "markdown-it": "14.3.2",
+    "mdast-util-from-markdown": "2.0.3",
+    "mdast-util-gfm": "3.1.0",
+    "micromark-extension-gfm": "3.0.0",
+    "parse5": "8.0.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "esbuild": "0.28.2"
+  },
+  "bin": {
+    "concept-discovery": "bin/concept-discovery.mjs"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "server",
+    "web",
+    "skills/concept-discovery",
+    "deploy",
+    "scripts/deploy-init.mjs",
+    "scripts/service-start.mjs",
+    "README.md",
+    ".dockerignore",
+    "web/generated",
+    "scripts/build-web.mjs"
+  ]
+}
