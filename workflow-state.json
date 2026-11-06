@@ -1,73 +1,35 @@
 {
   "schema_version": 1,
-  "task_id": "0006-applicable-tasks",
+  "task_id": "0007-bulk-task-descriptions",
   "phase": "complete",
-  "task_file": "tasks/0006-applicable-tasks.md",
+  "task_file": "tasks/0007-bulk-task-descriptions.md",
   "updated_at": "2026-11-07",
-  "summary": "适用任务复用原章节与AI润色已接通；三张网页试点保存、正文比对及真实找卡通过。",
+  "summary": "余下58张适用任务已补写；58张其他正文逐字不变，3张试点完整不变，全库61张。",
   "blockers": [],
-  "next_actions": [
-    "先使用三张试点卡确认描述风格与找卡效果",
-    "批量补写待用户决定；后续有需要再做完整质量验收"
-  ],
+  "next_actions": [],
   "required_checks": [
-    "npm run check",
-    "npm run build:web",
+    "bulk-description-readback",
+    "npm run validate",
     "git diff --check"
   ],
   "verification": [
     {
-      "command": "npm run check",
+      "command": "bulk-description-readback",
       "result": "passed",
       "recorded_at": "2026-11-07",
-      "note": "115/115"
+      "note": "58/58保存回执verified，58/58其他正文逐字相同及其他块相同；三张试点全量对象不变"
     },
     {
-      "command": "npm run build:web",
+      "command": "npm run validate",
       "result": "passed",
       "recorded_at": "2026-11-07",
-      "note": "Docker及本地构建通过"
-    },
-    {
-      "command": "npm run test:integration",
-      "result": "failed",
-      "recorded_at": "2026-11-07",
-      "note": "首次本机socket断开；隔离资源已清理"
-    },
-    {
-      "command": "npm run test:integration",
-      "result": "passed",
-      "recorded_at": "2026-11-07",
-      "note": "重跑通过；隔离资源已清理"
-    },
-    {
-      "command": "three-card browser + CLI readback + model smoke",
-      "result": "passed",
-      "recorded_at": "2026-11-07",
-      "note": "仅3张描述修改，其他正文和58张清单不变；三个问题首卡命中"
-    },
-    {
-      "command": "git diff --check",
-      "result": "passed",
-      "recorded_at": "2026-11-07"
-    },
-    {
-      "command": "npm run check",
-      "result": "passed",
-      "recorded_at": "2026-11-07",
-      "note": "最终116/116"
-    },
-    {
-      "command": "npm run build:web",
-      "result": "passed",
-      "recorded_at": "2026-11-07",
-      "note": "最终构建通过，应用已加载"
+      "note": "任务与链接检查通过"
     },
     {
       "command": "git diff --check",
       "result": "passed",
       "recorded_at": "2026-11-07",
-      "note": "最终差异无空白错误"
+      "note": "差异检查通过"
     }
   ]
 }
