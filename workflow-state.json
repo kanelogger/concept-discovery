@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
-  "task_id": "0001-product-fit-assessment",
+  "task_id": "0002-real-task-acceptance",
   "phase": "complete",
-  "task_file": "tasks/0001-product-fit-assessment.md",
+  "task_file": "tasks/0002-real-task-acceptance.md",
   "updated_at": "2026-11-06",
-  "summary": "评估完成：方向符合，整理与应用链路已实现；记忆、表达效果及长期远端运行待验证。",
+  "summary": "15例质量验收完成：14个正向案例3通过、3部分通过、8未交付；1个负向控制通过。已记录问题，未修改产品。",
   "blockers": [],
-  "next_actions": ["用真实任务验收找卡、应用与表达质量", "验证长期HTTPS托管、异地备份及整库恢复"],
-  "required_checks": ["npm run check", "git diff --check"],
+  "next_actions": ["优先修复任务描述到概念检索及模型输出异常", "核对引用边界与表达交付，并回归本轮失败案例"],
+  "required_checks": ["npm run validate", "git diff --check"],
   "verification": [
-    {"command":"npm run check","result":"failed","recorded_at":"2026-11-06","note":"沙箱禁止测试监听本机端口：EPERM。"},
-    {"command":"npm run check","result":"passed","recorded_at":"2026-11-06","note":"允许本机测试端口后重跑，93/93通过。"},
+    {"command":"15-case live ask acceptance","result":"failed","recorded_at":"2026-11-06","note":"质量验收发现缺口，14正向案例仅3完整通过；完整执行记录保留于任务文档及私有目录。"},
+    {"command":"private evidence integrity audit","result":"passed","recorded_at":"2026-11-06","note":"15例齐全，输入摘要未变，47处引文对应真实卡片；61卡清单及更新时间未变。"},
     {"command":"npm run validate","result":"passed","recorded_at":"2026-11-06"},
     {"command":"git diff --check","result":"passed","recorded_at":"2026-11-06"}
   ]
