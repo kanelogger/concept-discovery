@@ -45,13 +45,10 @@ a.brand {
   letter-spacing: -.025em;
 }
 .brand-mark {
-  display: grid;
-  place-items: center;
-  width: 29px;
-  height: 29px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--paper);
+  display: block;
+  flex: none;
+  width: 32px;
+  height: 32px;
 }
 .login-screen { min-height: 100dvh; display: grid; place-items: center; padding: 72px; }
 .login-content { width: 520px; padding-bottom: 7vh; }

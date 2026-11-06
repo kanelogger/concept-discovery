@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useSyncExternalStore } from "react"
 import { createRoot } from "react-dom/client";
 import { App as AntApp, Alert, Button, ConfigProvider, DatePicker, Divider, Empty, Flex, Form, Input, Layout, Modal, Pagination, Radio, Result, Select, Spin, Table, Tag, Typography } from "antd";
 import zhCN from "antd/locale/zh_CN";
-import { ArrowLeftOutlined, ArrowUpOutlined, CheckOutlined, DeleteOutlined, EditOutlined, LogoutOutlined, PlusOutlined, ReadOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, ArrowUpOutlined, CheckOutlined, DeleteOutlined, EditOutlined, LogoutOutlined, PlusOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
 import { createWorkspace, formatDate } from "./workspace.mjs";
@@ -18,7 +18,7 @@ const { Title, Text, Paragraph, Link } = Typography;
 
 function Brand({ onClick }) {
   return <Link className="brand" href="/" id={onClick ? "home-link" : undefined} onClick={onClick}>
-    <span className="brand-mark"><ReadOutlined /></span>
+    <img className="brand-mark" src="/favicon.svg" width="32" height="32" alt="" />
     <span>Concept Discovery</span>
   </Link>;
 }
