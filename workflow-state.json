@@ -1,28 +1,39 @@
 {
   "schema_version": 1,
-  "task_id": "0005-logo-01",
+  "task_id": "0004-method-grounding-holdout",
   "phase": "complete",
-  "task_file": "tasks/0005-logo-01.md",
+  "task_file": "tasks/0004-method-grounding-holdout.md",
   "updated_at": "2026-11-07",
-  "summary": "01双卡片Logo已正式化为SVG并接入登录页、页头和favicon；构建、113项检查与视觉审查通过，未部署正式服务。",
+  "summary": "按用户时间约束优先可用：撤下误拦截审阅门槛，保留方法/事实提示；104项检查和03/04真实调用通过。",
   "blockers": [],
   "next_actions": [
-    "正常更新正式服务时应用新构建",
-    "原0004任务继续25题回测，见其任务记录"
+    "后续补最终轻量版完整质量回归；本轮不宣称泛化已证实"
   ],
   "required_checks": [
-    "npm run build:web",
     "npm run check",
     "git diff --check"
   ],
   "verification": [
     {
-      "command": "npm run build:web",
-      "result": "passed",
-      "recorded_at": "2026-11-07"
+      "command": "25-case semantic-review experiment",
+      "result": "failed",
+      "recorded_at": "2026-11-07",
+      "note": "新增3次语义拒绝和1次审阅结构错误，方案已撤回。"
     },
     {
       "command": "npm run check",
+      "result": "passed",
+      "recorded_at": "2026-11-07",
+      "note": "最终轻量版104/104。"
+    },
+    {
+      "command": "03/04 usability smoke",
+      "result": "passed",
+      "recorded_at": "2026-11-07",
+      "note": "两题真实CLI均answered；不是完整质量验收。"
+    },
+    {
+      "command": "npm run validate",
       "result": "passed",
       "recorded_at": "2026-11-07"
     },
