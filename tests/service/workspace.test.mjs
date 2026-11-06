@@ -416,3 +416,52 @@ test("following a deleted link clears the previous card and its action target", 
     assert.equal(h.workspace.getSnapshot().message.error, true);
   } finally { h.workspace.destroy(); }
 });
+
+test("description suggestions stay local until adopted and saved, failures preserve drafts", async () => {
+  let fail = false;
+  const stored = { ...card("task-card"), markdown: "正文。\n\n## 适用情境\n\n原描述。\n\n## 边界\n\n原边界。" };
+  const h = harness((url, body) => {
+    if (url === "/api/session") return ok({ authenticated: true, askAvailable: true });
+    if (url.endsWith("/list")) return ok({ items: [], total: 0 });
+    if (url.endsWith("/get-document")) return ok(stored);
+    if (url.endsWith("/polish-description")) return fail ? {ok:false,status:503,error:{code:"ask_unavailable"}} : ok({description:"润色建议。"});
+    if (url.endsWith("/save-document")) { stored.markdown = body.markdown; return ok({id:stored.id}); }
+    throw new Error(url);
+  });
+  const m = h.workspace;
+  try {
+    await m.start(); await m.navigate(stored.id); await m.editCard();
+    assert.equal(m.getSnapshot().draft.description, "原描述。");
+    assert.ok(!m.getSnapshot().draft.markdown.includes("原描述"));
+    await m.polishDescription();
+    assert.equal(m.dirty(), false);
+    assert.equal(m.getSnapshot().draft.description, "原描述。");
+    m.discardPolish(); assert.equal(m.getSnapshot().polishSuggestion, null);
+    await m.polishDescription(); m.setPolishSuggestion("修改建议。"); m.adoptPolish();
+    assert.equal(m.dirty(), true); assert.equal(stored.markdown.includes("修改建议"), false);
+    fail = true; await m.polishDescription();
+    assert.equal(m.getSnapshot().draft.description, "修改建议。");
+    assert.match(m.getSnapshot().polishMessage, /原描述已保留/);
+    await m.save();
+    assert.equal(stored.markdown, "正文。\n\n## 适用情境\n\n修改建议。\n\n## 边界\n\n原边界。");
+    const request = h.requests.find(r => r.url.endsWith("/polish-description"));
+    assert.deepEqual(request.body, {title:stored.title,description:"原描述。"});
+  } finally { m.destroy(); }
+});
+
+test("late polish cannot replace a changed title or another card", async () => {
+  let release;
+  const h = harness(async (url, body) => {
+    if (url === "/api/session") return ok({authenticated:true, askAvailable:true});
+    if (url.endsWith("/list")) return ok({items:[],total:0});
+    if (url.endsWith("/get-document")) return ok(card(body.id));
+    if (url.endsWith("/polish-description")) { await new Promise(resolve => { release=resolve; }); return ok({description:"过期结果"}); }
+    throw new Error(url);
+  });
+  try {
+    const m=h.workspace; await m.start(); await m.navigate("one"); await m.editCard();
+    const pending=m.polishDescription(); await tick(); m.setTitle("新标题"); release(); await pending;
+    assert.equal(m.getSnapshot().polishSuggestion,null);
+    assert.equal(m.getSnapshot().draft.title,"新标题");
+  } finally { h.workspace.destroy(); }
+});

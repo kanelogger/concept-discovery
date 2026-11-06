@@ -4,6 +4,7 @@ COPY package.json package-lock.json ./
 COPY jsconfig.json ./
 RUN npm ci --ignore-scripts --no-audit --no-fund
 COPY web ./web
+COPY lib/task-description.mjs ./lib/task-description.mjs
 COPY scripts/build-web.mjs ./scripts/build-web.mjs
 RUN npm run build:web
 

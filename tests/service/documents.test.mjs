@@ -212,3 +212,16 @@ test("undoing an interrupted recovery refuses any later document modification", 
     assert.deepEqual(current(), before); assert.equal(writes(), writesBefore);
   });
 });
+
+test("list-to-paragraph saves flush the index before restoring surviving block metadata", async () => {
+  let flushed=false; const restored=[];
+  const a={c:{notebookId:'book'},operate:async(_c,_i,fn)=>fn({input:{op_id:'change-kind'}},()=>{}),
+    api:async()=>{flushed=false;}, flush:async()=>{flushed=true;},
+    sql:async sql=>{assert.equal(flushed,true);return sql.includes("'list'")?[{id:'list'}]:[];},
+    setAttrs:async id=>{restored.push(id);}};
+  const docs=new Documents(a,{});
+  docs.snapshot=async()=>({id:'doc',title:'标题',editable:true,revision:'before',units:[{id:'list',markdown:'- 原场景',attrs:{},descendants:[{id:'old-child',attrs:{}}]}]});
+  docs.confirmSave=async()=>({verified:true});
+  assert.deepEqual(await docs.save({id:'doc',title:'标题',markdown:'新描述。',expected_revision:'before'}),{verified:true});
+  assert.deepEqual(restored,['list']);
+});

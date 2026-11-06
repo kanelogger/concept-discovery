@@ -132,7 +132,7 @@ test("ask performs bounded two-stage analysis, hydrates quotations and distingui
   assert.equal(calls[0].maxTokens, 1024);
   assert.equal(calls[1].maxTokens, 4096);
   assert.equal(calls[0].data.question, "怎么做上线检查？");
-  assert.deepEqual(calls[0].data.catalog, ["上线检查", "边界条件"]);
+  assert.deepEqual(calls[0].data.catalog, [{title:"上线检查",description:""}, {title:"边界条件",description:""}]);
   assert.equal(result.cards[0].title, "上线检查");
   assert.equal(result.cards[0].url, origin + "/cards/parent");
   assert.equal(result.cards[0].evidence[0].text, excerpt);
@@ -389,7 +389,7 @@ test("task vocabulary can select an existing concept through a bounded library c
   f.add('composition-body', 'composition', '/root/composition.sy', 'p', '部分成立不代表整体成立，应检查相互作用。');
   const result = await ask(f.api, {question:'各组件都通过了，用户操作为什么仍失败？'}, {
     complete: async ({data}) => data.candidates ? mockAnswer(data)
-      : {queries: data.catalog?.includes('合成谬误') ? ['合成谬误'] : ['组件 验收']},
+      : {queries: data.catalog?.some(card => card.title === '合成谬误') ? ['合成谬误'] : ['组件 验收']},
   });
   assert.equal(result.status, 'answered');
   assert.equal(result.cards[0].id, 'composition');
@@ -407,7 +407,7 @@ test("blank JSON provider output is retried once instead of abandoning an answer
 
 test("catalogue stays scoped and bounded and exact titles outrank incidental mentions", async t => {
   const f = library(); t.after(() => f.db.close());
-  assert.deepEqual(await askCatalog(f.api), ['上线检查', '边界条件']);
+  assert.deepEqual((await askCatalog(f.api)).map(card => card.title), ['上线检查', '边界条件']);
   for(let i=0;i<220;i++){
     const id='item-'+String(i).padStart(3,'0'), path='/root/'+id+'.sy';
     f.add(id,id,path,'d',('长标题'+i).repeat(30));
@@ -419,8 +419,8 @@ test("catalogue stays scoped and bounded and exact titles outrank incidental men
   f.add('zz-target-c','zz-target','/root/zz-target.sy','p','先列出条件，再收集验证证据。');
   const catalog=await askCatalog(f.api);
   assert.ok(catalog.length<=200);
-  assert.ok(catalog.reduce((n,x)=>n+Array.from(x).length,0)<=12000);
-  assert.ok(catalog.every(x=>Array.from(x).length<=120));
+  assert.ok(catalog.reduce((n,x)=>n+Array.from(x.title+x.description).length,0)<=12000);
+  assert.ok(catalog.every(x=>Array.from(x.title).length<=120));
   const candidates=await askEvidence(f.api,['关键方法']);
   assert.equal(candidates[0].id,'zz-target');
   assert.equal(candidates[0].evidence.length,2);
@@ -513,4 +513,41 @@ test("an invalid reference candidate is discarded and regenerated once from orig
   const result=await ask(f.api,{question:'上线？'},{complete:async request=>(await provider(request)).value});
   assert.equal(result.status,'answered');assert.equal(calls,3);assert.deepEqual(sent[1],sent[2]);
   assert.doesNotMatch(JSON.stringify(result),/invented/);
+});
+
+
+test("task descriptions select candidates but only body passages become evidence", async t => {
+  const f = library(); t.after(() => f.db.close());
+  f.api.markdown = async id => id === "plain" ? "## 适用情境\n\n编写验收清单时帮助明确范围。" : "原文";
+  const catalog = await askCatalog(f.api);
+  assert.equal(catalog.find(card => card.id === "plain").description, "编写验收清单时帮助明确范围。");
+  const candidates = await askEvidence(f.api, ["验收清单"], undefined, catalog);
+  assert.equal(candidates[0].id, "plain");
+  assert.equal(candidates[0].evidence[0].text, "资料缺口需要核实。");
+  assert.deepEqual(await askEvidence(f.api, ["完全无关"], undefined, catalog), []);
+});
+
+test("catalogue truncation never turns a long description into answer evidence", async t => {
+  const f = library(); t.after(() => f.db.close());
+  const long = "任务说明".repeat(155);
+  f.api.markdown = async id => id === "plain" ? "## 适用情境\n\n"+long : "原文";
+  f.db.prepare("UPDATE blocks SET content=? WHERE id='plain-body'").run(long);
+  const catalog = await askCatalog(f.api);
+  assert.equal(catalog.find(card=>card.id==='plain').description.length, 600);
+  assert.deepEqual(await askEvidence(f.api, ['边界条件'], undefined, catalog), []);
+  assert.deepEqual(await askEvidence(f.api, ['边界条件'], undefined, []), []);
+});
+
+test("polish HTTP shares authentication and model config without reading or writing cards", async t => {
+  let payload;
+  const app = await appFixture(t, { modelFetch: async (_url, options) => {
+    payload=JSON.parse(options.body); return completion({description:'用于试用的任务描述。'});
+  }});
+  const data={title:'合成卡',description:'原描述'};
+  assert.equal((await app.command('polish-description',data)).status,401);
+  const response=await app.command('polish-description',data,{headers:await app.authenticate()});
+  assert.equal(response.status,200);
+  assert.deepEqual((await response.json()).data,{description:'用于试用的任务描述。'});
+  assert.deepEqual(JSON.parse(payload.messages[1].content),data);
+  assert.equal((await app.command('polish-description',{title:'',description:''},{headers:bearer})).status,400);
 });

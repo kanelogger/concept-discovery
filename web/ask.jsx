@@ -70,7 +70,7 @@ export function AskPanel({ state, workspace }) {
           onChange={event => workspace.setAskQuestion(event.target.value)} />
       </Form.Item>
       <Flex align="center" justify="space-between" wrap gap={16}>
-        <Text id="ask-data-note" type="secondary">提交后，模型服务会收到本次问题、有限的卡片标题目录和少量知识片段。</Text>
+        <Text id="ask-data-note" type="secondary">提交后，模型服务会收到本次问题、有限的卡名与适用任务描述，以及少量正文片段。</Text>
         <Flex gap={8}>
           {state.askBusy && <Button id="cancel-ask" onClick={workspace.cancelAsk}>取消</Button>}
           <Button id="submit-ask" htmlType="submit" type="primary" disabled={!validQuestion || locked}>查找并分析</Button>

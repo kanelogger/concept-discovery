@@ -44,7 +44,7 @@ async function readCompletion(response) {
   }
 }
 
-const retryable = new Set(["blank_content", "truncated", "content_json", "queries_shape", "queries_count", "queries_text", "answer_schema", "references"]);
+const retryable = new Set(["blank_content", "truncated", "content_json", "queries_shape", "queries_count", "queries_text", "answer_schema", "references", "description_schema"]);
 const count = value => Number.isSafeInteger(value) && value >= 0 ? value : 0;
 
 export function chatCompletions(config, fetcher = globalThis.fetch) {

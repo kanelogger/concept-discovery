@@ -1,4 +1,5 @@
 import { readRoute, routeHref, pageSize } from "./routes.mjs";
+import { taskDescription, descriptionBody, composeDescription, taskDescriptionLimit } from "../lib/task-description.mjs";
 export class RequestError extends Error {
   constructor(code, message, status = 0) { super(message); this.code = code; this.status = status; }
 }
@@ -33,6 +34,7 @@ export function createWorkspace({ fetch: fetcher = globalThis.fetch, loadEditor 
   let documentRequest = 0;
   let queryTimer;
   let activeAsk;
+  let activePolish;
   let askViewId;
   const askViews = new Map();
   let confirmResolve;
@@ -45,8 +47,8 @@ export function createWorkspace({ fetch: fetcher = globalThis.fetch, loadEditor 
   browser.history.replaceState({ ...browser.history.state, cd_index: historyIndex }, "", currentUrl);
   const update = (patch) => { if (destroyed) return; state = { ...state, ...patch }; listeners.forEach((listener) => listener()); };
   const message = (text = "", options = {}) => update({ message: text ? { text, checkLabel: state.pending?.command === "delete-document" ? "核对删除结果" : undefined, ...options } : null });
-  const draft = () => ({ title: state.draft.title, markdown: editor?.getValue() ?? state.draft.markdown });
-  const dirty = () => state.editing && (draft().title !== state.base?.title || draft().markdown !== state.base?.markdown);
+  const draft = () => ({ title: state.draft.title, description: state.draft.description ?? "", markdown: editor?.getValue() ?? state.draft.markdown });
+  const dirty = () => state.editing && (draft().title !== state.base?.title || draft().markdown !== state.base?.markdown || draft().description !== (state.base?.description ?? ""));
   const protectedDraft = () => Boolean(state.pending || state.uploading || dirty());
   const uncertain = (error) => error.status === 401 || error.status >= 500 || ["transport_unknown", "readback_conflict", "operation_pending"].includes(error.code);
   function abortAsk() {
@@ -63,6 +65,7 @@ export function createWorkspace({ fetch: fetcher = globalThis.fetch, loadEditor 
     update({ askQuestion: "", askResult: null, askMessage: null });
   }
   function showLogin(text = "") {
+    clearPolish();
     clearAsk();
     update({ authenticated: false, sessionLoading: false, loginMessage: text, loginError: false, askAvailable: false });
   }
@@ -152,6 +155,7 @@ export function createWorkspace({ fetch: fetcher = globalThis.fetch, loadEditor 
     const listPosition = restore ? browser.history.state?.cd_list_position : undefined;
     const restorePosition = listPosition?.path === href("list");
     const previousFocus = browser.document.activeElement;
+    clearPolish();
     const requestId = ++documentRequest;
     update({route:'list',editing:false,isNew:false,base:null,navigating:false,editorLoading:false,message:null,documentStatus:'知识卡'});
     if(!fromHistory)commitLocation('list',null,{replace,listPosition});
@@ -223,6 +227,7 @@ export function createWorkspace({ fetch: fetcher = globalThis.fetch, loadEditor 
     if (protect && !await guard()) return false;
     clearTimeout(queryTimer);
     abortAsk();
+    clearPolish();
     const requestId = ++documentRequest;
     update({ navigating: true, documentStatus: "正在读取…" });
     try {
@@ -299,13 +304,14 @@ export function createWorkspace({ fetch: fetcher = globalThis.fetch, loadEditor 
     if (!isNew && (!state.current || !state.current.editable)) return;
     clearTimeout(queryTimer);
     abortAsk();
+    clearPolish();
     const requestId = ++documentRequest;
     update({ editorLoading: true, documentStatus: "正在加载编辑器…" });
     try {
       if (!editorPromise) editorPromise = loadEditor().catch((error) => { editorPromise = undefined; throw error; });
       const { default: Editor } = await editorPromise;
       if (requestId !== documentRequest) return;
-      const base = isNew ? { title: "", markdown: "" } : { title: state.current.title, markdown: state.current.markdown };
+      const base = isNew ? { title: "", markdown: "", description: "" } : { title: state.current.title, markdown: descriptionBody(state.current.markdown), description: taskDescription(state.current.markdown) };
       editor = null;
       update({ route: isNew ? "new" : "edit", Editor, editing: true, isNew, base, draft: { ...base }, editorSession: state.editorSession + 1, preview: false, navigating: false, message: null, documentStatus: isNew ? "新建知识卡" : "编辑知识卡" });
       if(!fromHistory)commitLocation(isNew?"new":"edit",state.current?.id,{replace});
@@ -313,6 +319,26 @@ export function createWorkspace({ fetch: fetcher = globalThis.fetch, loadEditor 
       browser.requestAnimationFrame(() => { browser.document.getElementById("workspace")?.scrollTo(0, 0); if (isNew) browser.document.getElementById("edit-title")?.focus(); else editor?.focus(); });
     } catch { if (requestId === documentRequest) message("编辑器未能加载，卡片原文仍保留。请稍后重新点击编辑。", { error: true }); }
     finally { update({ editorLoading: false }); }
+  }
+  function clearPolish() {
+    activePolish?.abort();
+    activePolish = undefined;
+    update({ polishBusy: false, polishSuggestion: null, polishMessage: null });
+  }
+  async function polishDescription() {
+    if (!state.authenticated || !state.editing || state.busy || state.pending || state.navigating || activePolish || !state.askAvailable || !state.draft.title.trim() || (state.draft.description ?? "").length > taskDescriptionLimit) return;
+    const controller = new AbortController();
+    activePolish = controller;
+    const input = { title: state.draft.title, description: state.draft.description ?? "" };
+    update({ polishBusy: true, polishSuggestion: null, polishMessage: null });
+    try {
+      const result = await request("/api/v1/commands/polish-description", { body: input, signal: controller.signal });
+      if (activePolish === controller) update({ polishSuggestion: result.description });
+    } catch (error) {
+      if (activePolish === controller) update({ polishMessage: error.code === "ask_busy" ? "模型正在处理另一项请求，请稍后重试。原描述已保留。" : "润色未完成，原描述已保留。请稍后重试。" });
+    } finally {
+      if (activePolish === controller) { activePolish = undefined; update({ polishBusy: false }); }
+    }
   }
   async function finishSave(result) {
     const id = result.id || result.documentId;
@@ -352,8 +378,10 @@ export function createWorkspace({ fetch: fetcher = globalThis.fetch, loadEditor 
   }
   async function save() {
     if (state.busy || state.pending || state.uploading || state.navigating || !state.draft.title.trim() || (!state.isNew && !dirty())) return;
+    clearPolish();
     const content = draft();
-    const input = Object.freeze(state.isNew ? { op_id: crypto.randomUUID(), document: Object.freeze(content) } : { op_id: crypto.randomUUID(), id: state.current.id, expected_revision: state.current.revision, ...content });
+    const document = { title: content.title, markdown: composeDescription(content.markdown, content.description, state.isNew ? "" : state.current.markdown) };
+    const input = Object.freeze(state.isNew ? { op_id: crypto.randomUUID(), document: Object.freeze(document) } : { op_id: crypto.randomUUID(), id: state.current.id, expected_revision: state.current.revision, ...document });
     update({ draft: content, pending: { command: state.isNew ? "create" : "save-document", input } });
     await submitPending();
   }
@@ -450,7 +478,15 @@ export function createWorkspace({ fetch: fetcher = globalThis.fetch, loadEditor 
     async start() { try { const session = await request("/api/session", { method: "GET" }); if (session.authenticated) await showApp(session); else showLogin(); } catch { showLogin("暂时无法连接知识库，请检查服务后重试。"); } },
     login, logout, navigate, editCard, loadList, listPage, applyFilters, filters, href, setQuery, save, deleteCard, checkOperation, uploadImages, cancelEdit, home, decideLeave,
     dismissDeletionReceipt() { update({ deletionReceipt: null }); },
-    switchListMode, submitAsk, cancelAsk,
+    switchListMode, submitAsk, cancelAsk, polishDescription,
+    setDescription(value) { clearPolish(); update({ draft: { ...state.draft, description: value } }); },
+    setPolishSuggestion(value) { update({ polishSuggestion: value }); },
+    discardPolish: clearPolish,
+    adoptPolish() {
+      if (!state.editing || !state.authenticated || state.busy || state.pending || !state.polishSuggestion?.trim() || state.polishSuggestion.length > taskDescriptionLimit) return;
+      const description = state.polishSuggestion;
+      clearPolish(); update({ draft: { ...state.draft, description } });
+    },
     readModelSettings: signal => request("/api/model-settings", { method: "GET", signal }),
     async saveModelSettings(body) {
       const settings = await request("/api/model-settings", { method: "PUT", body });
@@ -459,13 +495,13 @@ export function createWorkspace({ fetch: fetcher = globalThis.fetch, loadEditor 
     },
     setAskQuestion(value) { update({ askQuestion: value }); },
     setEditor(value) { editor = value; },
-    setTitle(value) { update({ draft: { ...state.draft, title: value } }); },
+    setTitle(value) { clearPolish(); update({ draft: { ...state.draft, title: value } }); },
     setMarkdown(value) { update({ draft: { ...state.draft, markdown: value } }); },
     setPreview(preview) { if (preview !== state.preview) update({ preview }); },
     preview: async (markdown, signal) => (await request("/api/preview", { body: { markdown }, signal })).html,
     retry() { if (state.pending?.retryAllowed) return submitPending(); },
     reload() { const id = state.current?.id || readRoute(browser.location.href).id; if (id) return navigate(id, { replace: true }); },
     reportError(text) { message(text, { error: true }); }, dirty,
-    destroy() { destroyed = true; clearAsk(); historyMoveCompletion?.(); historyMoveCompletion = undefined; clearTimeout(queryTimer); decideLeave(false); browser.removeEventListener("beforeunload", beforeUnload); browser.removeEventListener("popstate", popState); listeners.clear(); },
+    destroy() { clearPolish(); destroyed = true; clearAsk(); historyMoveCompletion?.(); historyMoveCompletion = undefined; clearTimeout(queryTimer); decideLeave(false); browser.removeEventListener("beforeunload", beforeUnload); browser.removeEventListener("popstate", popState); listeners.clear(); },
   };
 }

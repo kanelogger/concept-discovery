@@ -96,7 +96,7 @@ export function createApp({kernelConfig,agentToken,accessCode,publicUrl,api:prov
       const command=/^\/api\/v1\/commands\/([a-z-]+)$/.exec(path)?.[1];
       if(command&&req.method==='POST'){
         if(!commandNames.has(command))fail('invalid_command','此操作未开放');
-        if(command==='ask'){
+        if(command==='ask'||command==='polish-description'){
           const input=await json(req,16384);
           const session=auth==='session'?sessionId(req):undefined;
           const expiresAt=sessions.get(session);
@@ -107,7 +107,7 @@ export function createApp({kernelConfig,agentToken,accessCode,publicUrl,api:prov
           res.once('close',close);
           try {
             const data=await analysis.run({session,expiresAt,clientSignal:disconnect.signal,model:chatCompletions(currentModel(),modelFetch)},
-              options=>executeCommand(api,'ask',input,{...options,publicUrl:origin}));
+              options=>executeCommand(api,command,input,{...options,publicUrl:origin}));
             if(!res.destroyed)send(res,200,{ok:true,data});
           } finally {
             res.off('close',close);

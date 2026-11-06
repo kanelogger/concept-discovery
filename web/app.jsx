@@ -192,6 +192,28 @@ function CardEditor({ state }) {
         maxLength={1000} required autoComplete="off" value={state.draft.title} readOnly={locked}
         onChange={event => workspace.setTitle(event.target.value)} />
     </Form.Item>
+    <Form.Item label="适用任务" htmlFor="edit-description" extra="用一两句话写清什么时候用这张卡、它能帮你做什么。可留空。">
+      <Input.TextArea id="edit-description" value={state.draft.description ?? ""} readOnly={locked}
+        autoSize={{ minRows: 2, maxRows: 6 }} maxLength={600}
+        onChange={event => workspace.setDescription(event.target.value)} />
+    </Form.Item>
+    <Flex gap={12} align="center" wrap>
+      <Button id="polish-description" disabled={locked || !state.askAvailable || !state.draft.title.trim() || (state.draft.description?.length ?? 0) > 600}
+        loading={state.polishBusy} onClick={() => void workspace.polishDescription()}>AI 润色</Button>
+      <Text type="secondary">{state.askAvailable ? "仅发送卡名和当前描述；采用后仍需保存。" : "先在模型设置中配置服务，即可润色。"}</Text>
+    </Flex>
+    {state.polishMessage && <Paragraph role="alert" type="danger">{state.polishMessage}</Paragraph>}
+    {state.polishSuggestion !== null && state.polishSuggestion !== undefined && <div className="description-suggestion">
+      <Form.Item label="润色建议（可修改）" htmlFor="description-suggestion">
+        <Input.TextArea id="description-suggestion" value={state.polishSuggestion} maxLength={600} readOnly={locked}
+          autoSize={{ minRows: 2, maxRows: 6 }} onChange={event => workspace.setPolishSuggestion(event.target.value)} />
+      </Form.Item>
+      <Flex gap={8}>
+        <Button id="adopt-description" disabled={locked || !state.polishSuggestion.trim()} onClick={() => workspace.adoptPolish()}>采用建议</Button>
+        <Button id="discard-description" type="text" disabled={locked} onClick={() => workspace.discardPolish()}>丢弃建议</Button>
+      </Flex>
+    </div>}
+    <Divider />
     <Text id="markdown-label" className="editor-body-label">正文</Text>
     <div id="markdown-editor" role="group" aria-labelledby="markdown-label" aria-describedby="editor-help">
       {Editor && <Editor key={state.editorSession} ref={workspace.setEditor} value={state.draft.markdown}

@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { fail } from "../lib/siyuan.mjs";
 
 export const askErrors = Object.freeze({
+  invalid_description: [400, "请填写标题，适用任务最多 600 字。"],
   invalid_ask_question: [400, "请输入 1 至 1000 个字符的问题。"],
   ask_unavailable: [503, "模型服务尚未配置或暂时不可用。可以继续用关键词搜索。"],
   ask_invalid_output: [502, "模型返回的结果无法核对。请重试，或使用关键词搜索。"],
@@ -36,7 +37,7 @@ export function createAskRunner(completeModel, { timeoutMs = 90000, log = entry 
       const complete = async request => {
         signal.throwIfAborted();
         metrics.modelCalls++;
-        metrics.stage = request.stage === 'queries' ? 'queries' : 'answer';
+        metrics.stage = ['queries', 'description'].includes(request.stage) ? request.stage : 'answer';
         const result = await model({ ...request, signal, onDiagnostic: entry => {
           metrics.modelEvents.push({ stage: metrics.stage, ...entry });
         } });
@@ -48,7 +49,7 @@ export function createAskRunner(completeModel, { timeoutMs = 90000, log = entry 
         signal.throwIfAborted();
         const result = await execute({ complete, signal });
         signal.throwIfAborted();
-        metrics.cards = result.cards.length;
+        metrics.cards = result.cards?.length ?? 0;
         return result;
       } catch (error) {
         const cause = signal.aborted ? signal.reason : error;

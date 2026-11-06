@@ -1,46 +1,73 @@
 {
   "schema_version": 1,
-  "task_id": "0004-method-grounding-holdout",
+  "task_id": "0006-applicable-tasks",
   "phase": "complete",
-  "task_file": "tasks/0004-method-grounding-holdout.md",
+  "task_file": "tasks/0006-applicable-tasks.md",
   "updated_at": "2026-11-07",
-  "summary": "按用户时间约束优先可用：撤下误拦截审阅门槛，保留方法/事实提示；104项检查和03/04真实调用通过。",
+  "summary": "适用任务复用原章节与AI润色已接通；三张网页试点保存、正文比对及真实找卡通过。",
   "blockers": [],
   "next_actions": [
-    "后续补最终轻量版完整质量回归；本轮不宣称泛化已证实"
+    "先使用三张试点卡确认描述风格与找卡效果",
+    "批量补写待用户决定；后续有需要再做完整质量验收"
   ],
   "required_checks": [
     "npm run check",
+    "npm run build:web",
     "git diff --check"
   ],
   "verification": [
     {
-      "command": "25-case semantic-review experiment",
-      "result": "failed",
-      "recorded_at": "2026-11-07",
-      "note": "新增3次语义拒绝和1次审阅结构错误，方案已撤回。"
-    },
-    {
       "command": "npm run check",
       "result": "passed",
       "recorded_at": "2026-11-07",
-      "note": "最终轻量版104/104。"
+      "note": "115/115"
     },
     {
-      "command": "03/04 usability smoke",
+      "command": "npm run build:web",
       "result": "passed",
       "recorded_at": "2026-11-07",
-      "note": "两题真实CLI均answered；不是完整质量验收。"
+      "note": "Docker及本地构建通过"
     },
     {
-      "command": "npm run validate",
+      "command": "npm run test:integration",
+      "result": "failed",
+      "recorded_at": "2026-11-07",
+      "note": "首次本机socket断开；隔离资源已清理"
+    },
+    {
+      "command": "npm run test:integration",
       "result": "passed",
-      "recorded_at": "2026-11-07"
+      "recorded_at": "2026-11-07",
+      "note": "重跑通过；隔离资源已清理"
+    },
+    {
+      "command": "three-card browser + CLI readback + model smoke",
+      "result": "passed",
+      "recorded_at": "2026-11-07",
+      "note": "仅3张描述修改，其他正文和58张清单不变；三个问题首卡命中"
     },
     {
       "command": "git diff --check",
       "result": "passed",
       "recorded_at": "2026-11-07"
+    },
+    {
+      "command": "npm run check",
+      "result": "passed",
+      "recorded_at": "2026-11-07",
+      "note": "最终116/116"
+    },
+    {
+      "command": "npm run build:web",
+      "result": "passed",
+      "recorded_at": "2026-11-07",
+      "note": "最终构建通过，应用已加载"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed",
+      "recorded_at": "2026-11-07",
+      "note": "最终差异无空白错误"
     }
   ]
 }
