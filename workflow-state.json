@@ -1,35 +1,26 @@
 {
   "schema_version": 1,
-  "task_id": "0007-bulk-task-descriptions",
+  "task_id": "0008-readme-logo",
   "phase": "complete",
-  "task_file": "tasks/0007-bulk-task-descriptions.md",
+  "task_file": "tasks/0008-readme-logo.md",
   "updated_at": "2026-11-07",
-  "summary": "余下58张适用任务已补写；58张其他正文逐字不变，3张试点完整不变，全库61张。",
+  "summary": "在根README展示Logo并链接品牌资产。",
   "blockers": [],
   "next_actions": [],
   "required_checks": [
-    "bulk-description-readback",
     "npm run validate",
     "git diff --check"
   ],
   "verification": [
     {
-      "command": "bulk-description-readback",
-      "result": "passed",
-      "recorded_at": "2026-11-07",
-      "note": "58/58保存回执verified，58/58其他正文逐字相同及其他块相同；三张试点全量对象不变"
-    },
-    {
       "command": "npm run validate",
       "result": "passed",
-      "recorded_at": "2026-11-07",
-      "note": "任务与链接检查通过"
+      "recorded_at": "2026-11-07"
     },
     {
       "command": "git diff --check",
       "result": "passed",
-      "recorded_at": "2026-11-07",
-      "note": "差异检查通过"
+      "recorded_at": "2026-11-07"
     }
   ]
 }

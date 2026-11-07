@@ -1,6 +1,10 @@
 # Concept Discovery
 
+<img src="web/favicon.svg" alt="Concept Discovery Logo" width="64" height="64">
+
 个人知识卡网站：阅读、搜索与Markdown整理；明确要求时让Agent查询、应用或维护。只有明亮桌面界面，自测问题作为普通正文。没有复习、命令面板、厂商账号或同步订阅。
+
+Logo「卡片与发现」的[双色主标](web/favicon.svg)用于登录页、页头和浏览器标签页。[单色 SVG](docs/brand/logo-mono.svg) · [反白 SVG](docs/brand/logo-white.svg) · [资产与使用说明](docs/brand/README.md)
 
 ## 启动
 
