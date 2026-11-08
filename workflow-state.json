@@ -4,9 +4,9 @@
   "phase": "complete",
   "task_file": "tasks/0009-card-tree-assessment.md",
   "updated_at": "2026-11-08",
-  "summary": "评估按场景浏览、抽象层次与人工关联，给出小样验证条件。",
+  "summary": "参考 Munger Models 的两层索引，评估三层均为概念的知识图谱。",
   "blockers": [],
-  "next_actions": ["如采纳建议，选两个常用场景，用已有卡片链接验证树形浏览。"],
+  "next_actions": ["如采纳建议，选一个场景和两个相关学科，用已有卡片验证第三层的价值。"],
   "required_checks": [
     "npm run validate",
     "git diff --check"
