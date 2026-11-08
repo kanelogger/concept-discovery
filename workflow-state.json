@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "task_id": "0008-readme-logo",
+  "task_id": "0009-card-tree-assessment",
   "phase": "complete",
-  "task_file": "tasks/0008-readme-logo.md",
-  "updated_at": "2026-11-07",
-  "summary": "在根README展示Logo并链接品牌资产。",
+  "task_file": "tasks/0009-card-tree-assessment.md",
+  "updated_at": "2026-11-08",
+  "summary": "评估按场景浏览、抽象层次与人工关联，给出小样验证条件。",
   "blockers": [],
-  "next_actions": [],
+  "next_actions": ["如采纳建议，选两个常用场景，用已有卡片链接验证树形浏览。"],
   "required_checks": [
     "npm run validate",
     "git diff --check"
@@ -15,12 +15,12 @@
     {
       "command": "npm run validate",
       "result": "passed",
-      "recorded_at": "2026-11-07"
+      "recorded_at": "2026-11-08"
     },
     {
       "command": "git diff --check",
       "result": "passed",
-      "recorded_at": "2026-11-07"
+      "recorded_at": "2026-11-08"
     }
   ]
 }
