@@ -1,42 +1,27 @@
 {
   "schema_version": 1,
-  "task_id": "0011-local-data-access",
+  "task_id": "0012-online-readiness-backlog",
   "phase": "complete",
-  "task_file": "tasks/0011-local-data-access.md",
+  "task_file": "tasks/0012-online-readiness-backlog.md",
   "updated_at": "2026-11-09",
-  "summary": "启动本地实例并通过应用只读验证现有知识库。",
+  "summary": "梳理常驻线上部署、正式库迁移与上线后的产品待办。",
   "blockers": [],
-  "next_actions": ["本地服务继续运行，可打开 6806 的知识卡页面。"],
+  "next_actions": [
+    "确定常驻主机、HTTPS 地址和访问范围。",
+    "用隔离环境验证部署入口并演练整库恢复。"
+  ],
   "required_checks": [
-    "npm run doctor",
-    "npm start",
-    "本地网页和 CLI 读回",
     "npm run validate",
-    "git diff --check"
+    "Git 差异检查"
   ],
   "verification": [
-    {
-      "command": "npm run doctor",
-      "result": "passed",
-      "recorded_at": "2026-11-09"
-    },
-    {
-      "command": "npm start",
-      "result": "passed",
-      "recorded_at": "2026-11-09"
-    },
-    {
-      "command": "本地网页和 CLI 读回",
-      "result": "passed",
-      "recorded_at": "2026-11-09"
-    },
     {
       "command": "npm run validate",
       "result": "passed",
       "recorded_at": "2026-11-09"
     },
     {
-      "command": "git diff --check",
+      "command": "Git 差异检查",
       "result": "passed",
       "recorded_at": "2026-11-09"
     }
