@@ -1,26 +1,44 @@
 {
   "schema_version": 1,
-  "task_id": "0010-concept-map-sample",
+  "task_id": "0011-local-data-access",
   "phase": "complete",
-  "task_file": "tasks/0010-concept-map-sample.md",
-  "updated_at": "2026-11-08",
-  "summary": "用 7 张已有卡绘制两个学科、三层概念的图谱小样。",
+  "task_file": "tasks/0011-local-data-access.md",
+  "updated_at": "2026-11-09",
+  "summary": "启动本地实例并通过应用只读验证现有知识库。",
   "blockers": [],
-  "next_actions": ["查看小样并判断中层方法和跨学科连线是否有助于探索。"],
+  "next_actions": ["本地服务继续运行，可打开 6806 的知识卡页面。"],
   "required_checks": [
+    "npm run doctor",
+    "npm start",
+    "本地网页和 CLI 读回",
     "npm run validate",
     "git diff --check"
   ],
   "verification": [
     {
+      "command": "npm run doctor",
+      "result": "passed",
+      "recorded_at": "2026-11-09"
+    },
+    {
+      "command": "npm start",
+      "result": "passed",
+      "recorded_at": "2026-11-09"
+    },
+    {
+      "command": "本地网页和 CLI 读回",
+      "result": "passed",
+      "recorded_at": "2026-11-09"
+    },
+    {
       "command": "npm run validate",
       "result": "passed",
-      "recorded_at": "2026-11-08"
+      "recorded_at": "2026-11-09"
     },
     {
       "command": "git diff --check",
       "result": "passed",
-      "recorded_at": "2026-11-08"
+      "recorded_at": "2026-11-09"
     }
   ]
 }
