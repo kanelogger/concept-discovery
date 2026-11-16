@@ -1,50 +1,20 @@
 {
   "schema_version": 1,
-  "task_id": "0013-node-decision-experiment",
+  "task_id": "0014-human-llm-wiki-plan",
   "phase": "complete",
-  "task_file": "tasks/0013-node-decision-experiment.md",
+  "task_file": "tasks/0014-human-llm-wiki-plan.md",
   "updated_at": "2026-11-17",
-  "summary": "完成10个历史节点、三组各两次对照及匿名双评分；本批未观察到关键词或方法卡的稳定整体增益。",
+  "summary": "面向人的Karpathy LLM Wiki知识闪卡方案已完成：保留现有底座，补资料编译维护与轻量回想，暂不排程。",
   "blockers": [],
   "next_actions": [
-    "如继续验证，先明确反复出现的真实决策失败类型，优先检查目标理解和未知/冲突状态分支。",
-    "新增实验另行冻结案例、判据和调用范围；本轮不追加模型调用或产品功能。"
+    "审阅docs/plans/human-llm-wiki.md的范围与分期。",
+    "后续实施另开P1a任务，细化来源/归属/提案的数据与接口并验证小样闭环。"
   ],
   "required_checks": [
     "npm run validate",
     "git diff --check"
   ],
   "verification": [
-    {
-      "command": "npm run doctor",
-      "result": "passed",
-      "recorded_at": "2026-11-17"
-    },
-    {
-      "command": "node .local/node-decision-20261116/run.mjs",
-      "result": "failed",
-      "recorded_at": "2026-11-17"
-    },
-    {
-      "command": "node .local/node-decision-20261116/preflight.mjs",
-      "result": "passed",
-      "recorded_at": "2026-11-17"
-    },
-    {
-      "command": "node .local/node-decision-20261116/run-v2.mjs",
-      "result": "passed",
-      "recorded_at": "2026-11-17"
-    },
-    {
-      "command": "node .local/node-decision-20261116/analyze.mjs",
-      "result": "passed",
-      "recorded_at": "2026-11-17"
-    },
-    {
-      "command": "独立Agent重算输入、响应、评分、统计与清理证据",
-      "result": "passed",
-      "recorded_at": "2026-11-17"
-    },
     {
       "command": "npm run validate",
       "result": "passed",
