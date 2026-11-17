@@ -17,8 +17,8 @@ dist/
 .reuse/scored.json
 .reuse/evidence/
 .reuse/cache/
-/.agents/skills
-/.agents/state/
+/.agents/
+/.impeccable/
 private-*/
 private-*.md
 
