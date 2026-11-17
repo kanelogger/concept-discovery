@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createRoot } from "react-dom/client";
-import { App as AntApp, Alert, Button, ConfigProvider, DatePicker, Divider, Empty, Flex, Form, Input, Layout, Modal, Pagination, Radio, Result, Select, Spin, Table, Tag, Typography } from "antd";
+import { App as AntApp, Alert, Button, ConfigProvider, DatePicker, Divider, Empty, Flex, Form, Input, Layout, Modal, Pagination, Result, Select, Spin, Table, Tag, Typography } from "antd";
 import zhCN from "antd/locale/zh_CN";
 import { ArrowLeftOutlined, ArrowUpOutlined, CheckOutlined, DeleteOutlined, EditOutlined, LogoutOutlined, PlusOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -9,14 +9,12 @@ import { createWorkspace, formatDate } from "./workspace.mjs";
 import { readRoute, pageSize } from "./routes.mjs";
 import { tagTone } from "./lib/utils.mjs";
 import { paperTheme } from "./themes/antd.mjs";
-import { AskCardContext, AskPanel } from "./ask.jsx";
 import { ModelSettings } from "./model-settings.jsx";
 import { WikiPage, RecallPanel } from "./wiki.jsx";
 
 dayjs.locale("zh-cn");
 const workspace = createWorkspace();
 const wikiDirty = value => workspace.setAuxiliaryDirty('wiki',value);
-const recallDirty = value => workspace.setAuxiliaryDirty('recall',value);
 const { Title, Text, Paragraph, Link } = Typography;
 
 function Brand({ onClick }) {
@@ -95,12 +93,6 @@ function CardList({ state }) {
       title="卡片已删除。" closable onClose={() => workspace.dismissDeletionReceipt()}
       description={<Text>可凭删除回执请 Agent 恢复。<Text id="delete-receipt" code copyable>{state.deletionReceipt}</Text></Text>} />}
     <DocumentMessage message={state.message} busy={state.busy} />
-    <Radio.Group id="list-mode" className="list-mode" aria-label="找卡方式" value={state.listMode}
-      onChange={event => void workspace.switchListMode(event.target.value)}>
-      <Radio.Button value="keyword">关键词搜索</Radio.Button>
-      <Radio.Button value="ask">按问题找卡</Radio.Button>
-    </Radio.Group>
-    {state.listMode === "ask" ? <AskPanel state={state} workspace={workspace} /> : <>
     <Form id="search-form" className="list-filters" layout="vertical">
       <Form.Item label="关键词" htmlFor="search-input" className="keyword-field">
         <Input.Search id="search-input" placeholder="搜索标题、正文和补充阅读" maxLength={1000} allowClear
@@ -131,7 +123,6 @@ function CardList({ state }) {
       <Pagination current={state.page} pageSize={pageSize} total={state.total} showSizeChanger={false}
         disabled={state.listLoading} onChange={page => void workspace.applyFilters({ page })} />
     </nav>
-    </>}
   </section>;
 }
 
@@ -146,8 +137,7 @@ function DocumentMessage({ message, busy }) {
     </Flex>} />;
 }
 
-function Reader({ current, askResult, hidden, authenticated }) {
-  const recommendation = askResult?.data.cards.find(card => card.id === current?.id);
+function Reader({ current, hidden, authenticated }) {
   const readings = current?.readings ?? [];
   const primaryReading = current?.primaryReading;
   const chineseOnly = current?.legacyFixedFields && readings.some(item => item.locale === "cn");
@@ -162,10 +152,9 @@ function Reader({ current, askResult, hidden, authenticated }) {
         {current?.tags?.map(tag => <TagChip key={tag} tag={tag} />)}
       </Flex>}
     </header>
-    {recommendation && <AskCardContext question={askResult.question} card={recommendation} />}
     {!primaryReading && readOnlyNotice}
     <RecallPanel command={workspace.command} current={current} active={!hidden} authenticated={authenticated}
-      onDirtyChange={recallDirty} onSaved={() => workspace.refreshCurrent(current.id)}>
+      onEditUnderstanding={() => void workspace.editUnderstanding()}>
       <div id="document-body" className="prose" dangerouslySetInnerHTML={{ __html: primaryReading?.html || current?.html || "<p>还没有正文，写下一条自己的理解吧。</p>" }} />
     </RecallPanel>
     {primaryReading && <details className="readings" key={primaryReading.id}>
@@ -198,29 +187,8 @@ function CardEditor({ state }) {
         maxLength={1000} required autoComplete="off" value={state.draft.title} readOnly={locked}
         onChange={event => workspace.setTitle(event.target.value)} />
     </Form.Item>
-    <Form.Item label="适用任务" htmlFor="edit-description" extra="用一两句话写清什么时候用这张卡、它能帮你做什么。可留空。">
-      <Input.TextArea id="edit-description" value={state.draft.description ?? ""} readOnly={locked}
-        autoSize={{ minRows: 2, maxRows: 6 }} maxLength={600}
-        onChange={event => workspace.setDescription(event.target.value)} />
-    </Form.Item>
-    <Flex gap={12} align="center" wrap>
-      <Button id="polish-description" disabled={locked || !state.askAvailable || !state.draft.title.trim() || (state.draft.description?.length ?? 0) > 600}
-        loading={state.polishBusy} onClick={() => void workspace.polishDescription()}>AI 润色</Button>
-      <Text type="secondary">{state.askAvailable ? "仅发送卡名和当前描述；采用后仍需保存。" : "先在模型设置中配置服务，即可润色。"}</Text>
-    </Flex>
-    {state.polishMessage && <Paragraph role="alert" type="danger">{state.polishMessage}</Paragraph>}
-    {state.polishSuggestion !== null && state.polishSuggestion !== undefined && <div className="description-suggestion">
-      <Form.Item label="润色建议（可修改）" htmlFor="description-suggestion">
-        <Input.TextArea id="description-suggestion" value={state.polishSuggestion} maxLength={600} readOnly={locked}
-          autoSize={{ minRows: 2, maxRows: 6 }} onChange={event => workspace.setPolishSuggestion(event.target.value)} />
-      </Form.Item>
-      <Flex gap={8}>
-        <Button id="adopt-description" disabled={locked || !state.polishSuggestion.trim()} onClick={() => workspace.adoptPolish()}>采用建议</Button>
-        <Button id="discard-description" type="text" disabled={locked} onClick={() => workspace.discardPolish()}>丢弃建议</Button>
-      </Flex>
-    </div>}
     <Divider />
-    <Text id="markdown-label" className="editor-body-label">正文</Text>
+    <label id="markdown-label" className="editor-body-label" htmlFor="markdown-source">Markdown 源码</label>
     <div id="markdown-editor" role="group" aria-labelledby="markdown-label" aria-describedby="editor-help">
       {Editor && <Editor key={state.editorSession} ref={workspace.setEditor} value={state.draft.markdown}
         active={state.editing && state.authenticated} readOnly={locked} previewOnly={state.preview}
@@ -302,7 +270,7 @@ function Workspace() {
         tabIndex={-1} aria-label="知识卡工作区" aria-busy={state.navigating || state.editorLoading}>
         {state.authenticated && state.route === "list" && <CardList state={state} />}
         <WikiPage command={workspace.command} active={state.route==='wiki'} authenticated={state.authenticated}
-          askAvailable={state.askAvailable} onOpenCard={id=>void workspace.navigate(id)} initialSourceId={state.wikiSourceId}
+          draftAvailable={state.draftAvailable} onOpenDraft={workspace.openWikiDraft} initialSourceId={state.wikiSourceId}
           onDirtyChange={wikiDirty} readModelSettings={workspace.readModelSettings} />
         {state.route === "missing" && <Result status="404" title="页面不存在"
           extra={<Button type="primary" onClick={() => void workspace.listPage()}>返回列表</Button>} />}
@@ -310,7 +278,7 @@ function Workspace() {
           <div className="record-controls">
             <Flex className="record-back" align="center" justify="space-between">
               <Button id="back-to-list" type="text" icon={<ArrowLeftOutlined />} onClick={() => void workspace.listPage({ restore: true })}>
-                {isDetail && state.askResult ? "返回本次结果" : "返回列表"}
+                返回列表
               </Button>
               {!isDetail && <Text type="secondary">{state.isNew ? "新增知识卡" : "编辑知识卡"}</Text>}
             </Flex>
@@ -331,7 +299,7 @@ function Workspace() {
           {state.editorLoading && <Flex className="editor-loading" align="center" gap={9} role="status">
             <Spin size="small" />正在加载编辑器…
           </Flex>}
-          <Reader current={state.current} askResult={isDetail ? state.askResult : null} hidden={!isDetail || !state.current || state.editing} authenticated={state.authenticated} />
+          <Reader current={state.current} hidden={!isDetail || !state.current || state.editing} authenticated={state.authenticated} />
           <CardEditor state={state} />
         </div>
       </Layout.Content>

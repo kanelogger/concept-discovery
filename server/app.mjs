@@ -5,7 +5,7 @@ import { Siyuan, fail } from '../lib/siyuan.mjs';
 import { commands as commandNames, execute } from '../lib/commands.mjs';
 import { renderMarkdown } from './render.mjs';
 import { readUIAsset } from './ui-assets.mjs';
-import { askErrors, createAskRunner } from './ask.mjs';
+import { draftErrors, createDraftRunner } from './draft.mjs';
 import { chatCompletions } from './model.mjs';
 import { executeWiki, wikiCommands } from '../lib/wiki.mjs';
 
@@ -27,18 +27,18 @@ export function assetPath(path){
   if(!decoded.startsWith('/assets/') || /[\\\u0000%]/.test(decoded) || decoded.split('/').slice(2).some(x=>!x||x==='.'||x==='..'))fail('outside_scope','附件路径无效');
   return '/data'+decoded;
 }
-export function createApp({kernelConfig,agentToken,accessCode,publicUrl,api:providedAPI,executeCommand=execute,llm,modelSettings,modelFetch,askTimeoutMs,logAsk,wikiRoot}){
+export function createApp({kernelConfig,agentToken,accessCode,publicUrl,api:providedAPI,executeCommand=execute,llm,modelSettings,modelFetch,draftTimeoutMs,logDraft,wikiRoot}){
   if(!agentToken||!accessCode)throw new Error('Application credentials are required');
   const api=providedAPI??new Siyuan(kernelConfig);
   const availableCommands=new Set([...commandNames,...wikiCommands]);
   const dispatch=(command,input,options={})=>wikiCommands.has(command)
-    ? executeWiki(api,command,input,{...options,wikiRoot})
+    ? executeWiki(api,command,input,{...options,wikiRoot,executeCommand})
     : executeCommand(api,command,input,options);
   const origin=new URL(publicUrl).origin;
   if(new URL(publicUrl).href!==origin+'/')throw new Error('publicUrl must be an origin');
   if(!/^https:/.test(origin)&&!['127.0.0.1','localhost','[::1]'].includes(new URL(origin).hostname))throw new Error('Remote application requires HTTPS');
   const sessions=new Map(),attempts=new Map();
-  const analysis=createAskRunner(null,{timeoutMs:askTimeoutMs,log:logAsk});
+  const analysis=createDraftRunner({timeoutMs:draftTimeoutMs,log:logDraft});
   const currentModel=()=>modelSettings ? modelSettings.current() : llm;
   const secure=origin.startsWith('https:')?'; Secure':'';
   const cookie=(value,age)=>`cd_session=${value}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${age}${secure}`;
@@ -70,7 +70,7 @@ export function createApp({kernelConfig,agentToken,accessCode,publicUrl,api:prov
       }
       const auth=authenticated(req);
       if(path==='/api/session'){
-        if(req.method==='GET'){send(res,200,{ok:true,data:{authenticated:!!auth,askAvailable:!!auth&&Boolean(currentModel())}});return;}
+        if(req.method==='GET'){send(res,200,{ok:true,data:{authenticated:!!auth,draftAvailable:!!auth&&Boolean(currentModel())}});return;}
         originCheck(req);
         if(req.method==='POST'){
           const key=req.socket.remoteAddress;const now=Date.now();
@@ -80,7 +80,7 @@ export function createApp({kernelConfig,agentToken,accessCode,publicUrl,api:prov
           if(typeof input.accessCode!=='string'||!same(input.accessCode,accessCode)){history.push(now);send(res,401,{ok:false,error:{code:'unauthorized',message:'访问码不正确'}});return;}
           for(const [key,expires]of sessions)if(expires<now)sessions.delete(key);
           const sid=randomBytes(32).toString('hex');sessions.set(sid,now+86400000);res.setHeader('Set-Cookie',cookie(sid,86400));
-          send(res,200,{ok:true,data:{authenticated:true,askAvailable:Boolean(currentModel())}});return;
+          send(res,200,{ok:true,data:{authenticated:true,draftAvailable:Boolean(currentModel())}});return;
         }
         if(req.method==='DELETE'){
           const sid=sessionId(req);sessions.delete(sid);analysis.revoke(sid);
@@ -101,18 +101,17 @@ export function createApp({kernelConfig,agentToken,accessCode,publicUrl,api:prov
       const command=/^\/api\/v1\/commands\/([a-z-]+)$/.exec(path)?.[1];
       if(command&&req.method==='POST'){
         if(!availableCommands.has(command))fail('invalid_command','此操作未开放');
-        if(command==='ask'||command==='polish-description'||command==='wiki-propose'){
+        if(command==='wiki-draft'){
           const input=await json(req,16384);
           const session=auth==='session'?sessionId(req):undefined;
           const expiresAt=sessions.get(session);
-          if(session&&!(expiresAt>Date.now()))fail('ask_session_expired',askErrors.ask_session_expired[1]);
+          if(session&&!(expiresAt>Date.now()))fail('draft_session_expired',draftErrors.draft_session_expired[1]);
           if(res.destroyed)return;
           const disconnect=new AbortController();
           const close=()=>disconnect.abort();
           res.once('close',close);
           try {
-            const data=await analysis.run({session,expiresAt,clientSignal:disconnect.signal,model:chatCompletions(currentModel(),modelFetch),
-              errorCodes:command==='wiki-propose'?['invalid_input','input_too_large','content_conflict','outside_scope','not_found']:[]},
+            const data=await analysis.run({session,expiresAt,clientSignal:disconnect.signal,model:chatCompletions(currentModel(),modelFetch)},
               options=>dispatch(command,input,{...options,publicUrl:origin}));
             if(!res.destroyed)send(res,200,{ok:true,data});
           } finally {
@@ -153,14 +152,14 @@ export function createApp({kernelConfig,agentToken,accessCode,publicUrl,api:prov
     }catch(error){
       if(res.destroyed)return;
       if(res.headersSent){res.destroy();return;}
-      if(Object.hasOwn(askErrors,error.code)){
-        const [status,message]=askErrors[error.code];
+      if(Object.hasOwn(draftErrors,error.code)){
+        const [status,message]=draftErrors[error.code];
         send(res,status,{ok:false,error:{code:error.code,message}});return;
       }
       let message=String(error.message??'操作失败');
       for(const secret of [agentToken,accessCode,api.c?.token])if(secret)message=message.replaceAll(secret,'[redacted]');
       const code=error.code??'error';
-      const status=code==='forbidden'?403:/conflict|locked|pending/.test(code)?409:/outside_scope/.test(code)?403:code==='input_too_large'?413:code==='invalid_command'?404:code.startsWith('invalid')?400:500;
+      const status=code==='forbidden'?403:/conflict|locked|pending/.test(code)?409:/outside_scope/.test(code)?403:code==='input_too_large'?413:code==='invalid_command'||code==='not_found'?404:code==='unsupported_structure'||code.startsWith('invalid')?400:500;
       send(res,status,{ok:false,error:{code,message}});
     }
   });

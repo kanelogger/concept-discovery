@@ -37,7 +37,7 @@ export function ModelSettings({ workspace, onClose }) {
     {error && <Alert type="error" title={error} showIcon />}
     {!loaded && !error && <Spin aria-label="正在读取模型设置" />}
     <Form form={form} layout="vertical" onFinish={submit} hidden={!loaded} disabled={busy} autoComplete="off">
-      <Typography.Paragraph type="secondary">提交问题时，问题和检索到的卡片片段会发送给这里配置的模型服务。</Typography.Paragraph>
+      <Typography.Paragraph type="secondary">生成整理稿时，所选原文与目标卡片正文会发送给这里配置的模型服务。</Typography.Paragraph>
       <Form.Item name="baseUrl" label="API 接口地址" rules={[{ required: true, whitespace: true, message: "请输入 API 接口地址" }]}>
         <Input placeholder="https://api.deepseek.com" maxLength={2000} />
       </Form.Item>

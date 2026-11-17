@@ -15,7 +15,7 @@ test('npm script references preserve source lines and ignore prose, package comm
   assert.equal(currentCommandDocument('tasks/current.md','tasks/current.md'), true);
 });
 
-test('an idle workflow accepts a fresh repository and rejects carried-over task state', (t) => {
+test('workflow validates its task pointer without requiring duplicate check records', (t) => {
   const dir = mkdtempSync(join(tmpdir(), 'cd-workflow-'));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
   const writeJson = (file, value) => writeFileSync(join(dir, file), JSON.stringify(value));
@@ -38,7 +38,6 @@ test('an idle workflow accepts a fresh repository and rejects carried-over task 
   const idle = {
     schema_version: 1, phase: 'idle', task_id: null, task_file: null,
     updated_at: '2026-11-06', summary: 'No current task',
-    blockers: [], next_actions: [], required_checks: [], verification: [],
   };
   writeJson('workflow-state.json', idle);
   assert.deepEqual(validateRepository(dir).errors, []);
@@ -46,10 +45,21 @@ test('an idle workflow accepts a fresh repository and rejects carried-over task 
   writeJson('workflow-state.json', {
     ...idle, task_id: 'old-task', verification: [{ command: 'npm test', result: 'passed' }],
   });
-  assert.deepEqual(validateRepository(dir).errors, [
-    'workflow-state.json: idle requires null task pointers',
-    'workflow-state.json: idle requires empty verification',
-  ]);
+  assert.deepEqual(validateRepository(dir).errors, ['workflow-state.json: idle requires null task pointers']);
+
+  mkdirSync(join(dir, 'tasks'));
+  writeFileSync(join(dir, 'tasks/current.md'), '# Current task\n\nValidation results live here.\n');
+  const active = { ...idle, phase: 'complete', task_id: 'current', task_file: 'tasks/current.md' };
+  writeJson('workflow-state.json', active);
+  assert.deepEqual(validateRepository(dir).errors, []);
+  writeJson('workflow-state.json', {
+    ...active, required_checks: ['old check'], verification: [{ command: 'old check', result: 'failed' }],
+  });
+  assert.deepEqual(validateRepository(dir).errors, [], 'legacy verification fields are no longer a completion gate');
+  writeJson('workflow-state.json', { ...active, task_file: 'tasks/missing.md' });
+  assert.ok(validateRepository(dir).errors.some(error => error.includes('missing path: tasks/missing.md')));
+  writeJson('workflow-state.json', { ...active, updated_at: '2026-02-30' });
+  assert.ok(validateRepository(dir).errors.some(error => error.includes('valid ISO date')));
 });
 
 test('UI publication serves only manifest assets and rejects escape, source and symlink requests', () => {

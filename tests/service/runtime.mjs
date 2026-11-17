@@ -5,9 +5,10 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { createServer } from "node:net";
 import { randomBytes } from "node:crypto";
+import { pathToFileURL } from "node:url";
 import assert from "node:assert/strict";
-import { repositoryRoot as projectRoot, sourceFiles, environmentSnapshot, sameInputs, assertOwnedRun, resourceCommands, cleanupCoordinator, finishAcceptance, createRunWriter, digest, writeJSON } from "../../scripts/acceptance.mjs";
-export { digest, writeJSON, createRunWriter };
+import { repositoryRoot as projectRoot, assertOwnedRun, resourceCommands, cleanupCoordinator, finishRun, digest, writeJSON } from "../../scripts/test-runtime.mjs";
+export { digest, writeJSON };
 const exec = promisify(execFile);
 export const acceptanceDirectory = resolve(projectRoot, ".local/service-acceptance");
 export function runPath(runId) {
@@ -20,13 +21,13 @@ const redact = (text, secrets) => secrets.filter(Boolean).reduce((value, secret)
 export async function runtime(label, { resume, build = true, ready = true, initialize, allocatePort } = {}) {
   if (!/^[a-z][a-z-]*$/.test(label)) throw new Error("Invalid acceptance scope");
   if (!resume && build) execFileSync(process.execPath, [resolve(projectRoot, "scripts/build-web.mjs")], { cwd: projectRoot, stdio: "inherit" });
-  let evidence, evidencePath, dir, root, name, url, port, env, cleanup, writer;
+  let evidence, evidencePath, dir, root, name, url, port, env, cleanup;
   let started = false;
   let signalHandler, startupServer, partialCleanupPromise;
   let signalling = false;
   const active = new Set();
   const secrets = [];
-  const persist = () => { if (evidencePath) { writer ??= createRunWriter(evidencePath, evidence); writer(); } };
+  const persist = () => { if (evidencePath) writeJSON(evidencePath, evidence); };
   const runProcess = async (command, args, input) => {
     const promise = exec(command, args, { cwd: projectRoot, env, maxBuffer: 16 * 1024 * 1024, timeout: 300000 });
     const operation = { child: promise.child, promise };
@@ -79,7 +80,6 @@ export async function runtime(label, { resume, build = true, ready = true, initi
       ({ privateDirectory: dir, configurationRoot: root, project: name, url, port } = evidence);
       started = evidence.stackMayExist === true;
       evidencePath = runPath(resume);
-      writer = createRunWriter(evidencePath, evidence);
     } else {
       dir = mkdtempSync(join(tmpdir(), "cd-service-"));
       root = join(dir, "private");
@@ -138,7 +138,7 @@ export async function runtime(label, { resume, build = true, ready = true, initi
     });
     const record = (step, data) => { evidence.records.push({ step, recordedAt: new Date().toISOString(), ...data }); persist(); };
     if (!resume) {
-      evidence.source = { head: execFileSync("git", ["rev-parse", "HEAD"], { cwd: projectRoot, encoding: "utf8" }).trim(), files: sourceFiles(), environment: environmentSnapshot() };
+      evidence.source = { head: execFileSync("git", ["rev-parse", "HEAD"], { cwd: projectRoot, encoding: "utf8" }).trim() };
       persist();
       await docker([...compose, "config", "--quiet"]);
       started = true;
@@ -189,7 +189,8 @@ export async function runtime(label, { resume, build = true, ready = true, initi
     let cliPath;
     const packageCLI = async () => {
       if (cliPath) return cliPath;
-      const output = execFileSync("npm", ["pack", "--json", "--pack-destination", dir], { cwd: projectRoot, encoding: "utf8" });
+      // runtime already built the assets used by this isolated application.
+      const output = execFileSync("npm", ["pack", "--ignore-scripts", "--json", "--pack-destination", dir], { cwd: projectRoot, encoding: "utf8" });
       const parsed = JSON.parse(output); const packed = Array.isArray(parsed) ? parsed[0] : Object.values(parsed)[0];
       const prefix = join(dir, "installed");
       execFileSync("npm", ["install", "--prefix", prefix, "--ignore-scripts", "--offline", "--no-audit", "--no-fund", join(dir, packed.filename)], { cwd: dir, stdio: "pipe" });
@@ -227,7 +228,7 @@ export async function runtime(label, { resume, build = true, ready = true, initi
       }
     };
     const finish = async passed => {
-      try { await finishAcceptance(evidence, passed, { inputs: sourceFiles, cleanup, persist }); }
+      try { await finishRun(evidence, passed, { cleanup, persist }); }
       finally { removeSignals(); console.log(`EVIDENCE ${evidencePath}`); }
     };
     return { dir, root, url, token, accessCode, name, port, call, cli, kernel, core, record, evidence, evidencePath, persist, finish, cleanup: async () => { try { await cleanup(); } finally { removeSignals(); } }, detach: removeSignals, restart: async () => { await docker([...compose, "restart"]); await waitReady(); } };
@@ -240,4 +241,17 @@ export async function runtime(label, { resume, build = true, ready = true, initi
     if (failures.length > 1) throw new AggregateError(failures, failures.map(value => value.message).join("; "));
     throw error;
   }
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  try {
+    const [command, runId, ...extra] = process.argv.slice(2);
+    if (command !== "cleanup" || !runId || extra.length) throw new Error("Usage: node tests/service/runtime.mjs cleanup <run-id>");
+    if (readRun(runId).cleaned) console.log("Test run already cleaned: " + runId);
+    else {
+      const instance = await runtime("cleanup", { resume: runId, build: false, ready: false });
+      await instance.cleanup();
+      console.log("Cleaned test run: " + runId);
+    }
+  } catch (error) { console.error(error.message); process.exitCode = 1; }
 }

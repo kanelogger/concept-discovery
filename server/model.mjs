@@ -21,7 +21,7 @@ export function loadModelConfig(profile, readSecret) {
 }
 
 const invalidModel = diagnostic => Object.assign(new Error("模型返回了无法核对的结果。"), {
-  code: "ask_invalid_output", diagnostic,
+  code: "draft_invalid_output", diagnostic,
 });
 
 async function readCompletion(response) {
@@ -44,7 +44,7 @@ async function readCompletion(response) {
   }
 }
 
-const retryable = new Set(["blank_content", "truncated", "content_json", "queries_shape", "queries_count", "queries_text", "answer_schema", "references", "description_schema"]);
+const retryable = new Set(["blank_content", "truncated", "content_json", "draft_schema", "draft_references"]);
 const count = value => Number.isSafeInteger(value) && value >= 0 ? value : 0;
 
 export function chatCompletions(config, fetcher = globalThis.fetch) {
@@ -64,7 +64,7 @@ export function chatCompletions(config, fetcher = globalThis.fetch) {
           headers: { Authorization: "Bearer " + config.apiKey, "Content-Type": "application/json" },
           body: JSON.stringify({
             model: config.model,
-            messages: [{ role: "system", content: prompt + (attempt === 2 ? "\n上次候选已因校验失败被丢弃。仅依据原始资料重新生成完整JSON；严格遵守字段、数组与文本长度，不加其他字段。若包含cards和steps，cardId必须来自候选，每个evidenceId必须属于对应卡片，steps的引用必须已列在所选cards中。" : "") }, { role: "user", content: JSON.stringify(data) }],
+            messages: [{ role: "system", content: prompt + (attempt === 2 ? "\n上次候选已因校验失败被丢弃。仅依据原始资料重新生成完整JSON；严格遵守字段、数组与文本长度，不加其他字段。quote必须逐字来自原始source.markdown；只生成一张卡的草稿。" : "") }, { role: "user", content: JSON.stringify(data) }],
             stream: false, response_format: { type: "json_object" },
             [config.maxTokenField]: budget,
             ...(directDeepSeek ? { thinking: { type: "disabled" } } : {}),
@@ -73,12 +73,12 @@ export function chatCompletions(config, fetcher = globalThis.fetch) {
       } catch {
         signal?.throwIfAborted();
         onDiagnostic({ attempt, outcome: "transport", budget });
-        fail("ask_unavailable", "模型服务暂时不可用。");
+        fail("draft_unavailable", "模型服务暂时不可用。");
       }
       if (!response.ok) {
         await response.body?.cancel().catch(() => {});
         onDiagnostic({ attempt, outcome: "http", budget });
-        fail("ask_unavailable", "模型服务暂时不可用。");
+        fail("draft_unavailable", "模型服务暂时不可用。");
       }
       let finishReason = "unknown";
       try {
@@ -102,7 +102,7 @@ export function chatCompletions(config, fetcher = globalThis.fetch) {
         return { value, promptTokens, completionTokens, attempts: attempt };
       } catch (error) {
         signal?.throwIfAborted();
-        const diagnostic = error.code === "ask_invalid_output" ? error.diagnostic : "provider_envelope";
+        const diagnostic = error.code === "draft_invalid_output" ? error.diagnostic : "provider_envelope";
         onDiagnostic({ attempt, outcome: diagnostic, budget, finishReason });
         if (attempt === 2 || !retryable.has(diagnostic)) throw invalidModel(diagnostic);
         if (diagnostic === "truncated") budget = Math.min(maxTokens * 2, 8192);

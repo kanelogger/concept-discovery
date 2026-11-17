@@ -1,5 +1,7 @@
 # 面向人的 LLM Wiki 知识闪卡改造方案
 
+> 历史方案：第一期之后已按[个人精简任务](../../tasks/0016-lightweight-wiki.md)收缩为单卡草稿与统一文档保存。以下保留设计演进，当前功能以[产品契约](../../specs/product-contract.md)为准。
+
 状态：第一期已实现并完成隔离验收；P2/P3仍为后续方案。日期：2026-11-17。实施证据见[第一期任务](../../tasks/0015-human-wiki-phase-one.md)。
 
 产品定位已由用户确认：以人的理解、联系与迁移为目标，采用 Karpathy 的 LLM Wiki 模式组织知识；首版闪卡采用轻量回想与展开，暂不做复习排程。本方案以当前代码和[产品契约](../../specs/product-contract.md)为基线，只规划改造，不代表能力已经上线。
@@ -41,7 +43,7 @@
 | LLM持续维护 | 无资料接纳→跨卡综合→审阅应用的业务流程 | **补充**持久提案、差异审阅、逐项应用和知识演化记录 |
 | 健康检查 | 无知识层lint入口 | **补充**机械检查与语义问题清单，修复仍经选择 |
 
-源码依据：[页面](../../web/app.jsx)、[工作区状态](../../web/workspace.mjs)、[路由](../../web/routes.mjs)、[内容规则](../../skills/concept-discovery/references/content.md)、[问答](../../lib/ask.mjs)、[检索证据](../../lib/ask-evidence.mjs)、[文档操作](../../lib/documents.mjs)、[读写保护](../../lib/siyuan.mjs)。
+源码依据：[页面](../../web/app.jsx)、[工作区状态](../../web/workspace.mjs)、[路由](../../web/routes.mjs)、[内容规则](../../skills/concept-discovery/references/content.md)、历史问答实现 `lib/ask.mjs`、`lib/ask-evidence.mjs`（见实施前提交 `da67aaf`）、[文档操作](../../lib/documents.mjs)、[读写保护](../../lib/siyuan.mjs)。
 
 关键定位：`web/workspace.mjs:236`和`web/app.jsx:164`体现旧卡长文优先；`lib/ask-evidence.mjs:11`体现目录上限，`:93`体现请求内临时证据编号；`lib/documents.mjs:309`与`lib/siyuan.mjs:266`体现单项而非多卡原子写入。以上为审计时行号，实现时需重新定位。
 

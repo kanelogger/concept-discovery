@@ -44,8 +44,7 @@ try {
   const installedRead = await test.cli("get-document", { id: created.id });
   const installedList = await test.cli("list", { offset: 0, limit: 50 });
   const installedSearch = await test.cli("search", { query: "原始理解", locale: "cn", limit: 5 });
-  const disabledAsk = await test.cli("ask", { question: "怎样找到资料？" }, false);
-  assert.equal(disabledAsk.code, "ask_unavailable");
+  assert.equal((await test.cli("ask", {}, false)).code, "invalid_command");
   assert.equal(installedRead.revision, card.revision);
   assert.equal(installedRead.markdown, card.markdown);
   assert.ok(installedList.items.some((item) => item.id === created.id));
@@ -186,12 +185,7 @@ try {
   const scopedList = await test.call("list", { query: "错位阅读独有线索XYZ" });
   assert.equal(scopedList.total, 0);
   assert.deepEqual((await test.call("get-document", { id: readingCard.id })).readings.map(item => item.id), [reading.id]);
-  const scopedEvidence = await test.core(`const {askEvidence}=await import('./lib/ask-evidence.mjs');
-    console.log(JSON.stringify({allowed:await askEvidence(api,['补充阅读独有线索XYZ']),denied:await askEvidence(api,['错位阅读独有线索XYZ'])}));`);
-  assert.deepEqual(scopedEvidence.allowed.map(item => item.id), [readingCard.id]);
-  assert.ok(scopedEvidence.allowed[0].evidence.some(item => item.readingId === reading.id && item.text.includes("补充阅读独有线索XYZ")));
-  assert.deepEqual(scopedEvidence.denied, []);
-  test.record("ask-source-scope", { parentId: readingCard.id, readingId: reading.id, misplacedId: misplaced.id, scopedList, scopedEvidence, disabledAsk });
+  test.record("reading-source-scope", { parentId: readingCard.id, readingId: reading.id, misplacedId: misplaced.id, scopedList });
   const layout = await test.core("const{id}=await import('./lib/siyuan.mjs');const doc=id();await api.newDoc(doc,'原生复杂布局','{{{row\\n\\n复杂布局里的原文。\\n\\n}}}',api.c.libraryRootId);await api.setAttrs(doc,{'custom-cd-schema':'2','custom-cd-kind':'concept'});console.log(JSON.stringify({id:doc}));");
   const layoutRead = await test.call("get-document", { id: layout.id });
   assert.equal(layoutRead.editable, false); assert.ok(layoutRead.readOnlyReason); assert.ok(layoutRead.markdown.includes("复杂布局里的原文。"));
@@ -268,7 +262,6 @@ try {
   const removedHits = await test.call("list", { query: "补充阅读独有线索XYZ" });
   assert.equal(removedHits.total, 0);
   assert.deepEqual(await test.call("search", { query: "补充阅读独有线索XYZ" }), []);
-  assert.deepEqual(await test.core(`const {askEvidence}=await import('./lib/ask-evidence.mjs'); console.log(JSON.stringify(await askEvidence(api,['补充阅读独有线索XYZ'])));`), []);
   await test.restart();
   assert.equal((await test.call("get-document", { id: reading.id }, false)).code, "outside_scope");
   const undo = await test.cli("recover", { op_id: "restore-deleted-parent", backup_op_id: remove.op_id, expected_revision: deleted.revision });

@@ -1,38 +1,53 @@
+import { normalize } from "../../lib/siyuan.mjs";
+import { installWikiModel } from "../service/wiki-integration.mjs";
 import { test, expect, opId, login, markdownValue, setMarkdown, gate, settled, ensureSource, chooseEditorMode } from "./fixtures.mjs";
 
 const create = (service, title, markdown = "初始正文。") => service.call("create", { op_id: opId("browser-create"), document: { title, markdown } });
 const savePath = "**/api/v1/commands/save-document";
 
-test("late understanding save cannot displace a new editor draft",async({service,ui})=>{
-  const {page,editorURL}=ui;
-  const card=await create(service,'回想迟到 '+opId('recall'),'## 自测\n\n为什么要核对写入结果？\n\n## 核心理解\n\n保留自己的解释。');
-  const release=gate(),requested=gate(),finished=gate();let held=false;
-  await page.route('**/api/v1/commands/wiki-understanding',async route=>{
-    held=true;const response=await route.fetch();requested.release();
-    await release.promise;try{await route.fulfill({response});}finally{finished.release();}
-  });
-  try{
-    await login(page,service,card.id);
-    await expect(page.locator('textarea[name="understanding"]')).toBeVisible();
-    await page.locator('textarea[name="understanding"]').fill('写回的理解在内核保存，新的编辑草稿也要保留。');
-    await page.locator('#wiki-save-understanding').click();await requested.promise;
-    await page.locator('#edit-card').click();await expect(page.locator('#discard-changes')).toBeVisible();
-    await page.locator('#discard-changes').click();
-    const draft='迟到理解保存不能覆盖这份新的编辑草稿。';
-    await setMarkdown(page,editorURL,draft);release.release();await finished.promise;await settled(page);
-    await expect(page.locator('#editor-form')).toBeVisible();
-    expect(await markdownValue(page,editorURL)).toBe(draft);
-    const read=await service.call('get-document',{id:card.id});
-    expect(read.markdown).toContain('写回的理解在内核保存');
-    expect(read.markdown).not.toContain(draft);
-    service.record('late-understanding-keeps-new-edit',{id:card.id,draft,understandingPersisted:true});
-  }finally{release.release();if(held)await finished.promise;}
+test("single-card draft enters the ordinary editor and preserves the original understanding", async ({ service, ui }) => {
+  const { page, editorURL } = ui;
+  await installWikiModel(service);
+  const original = '## 核心理解\n\n原有正文必须完整保留。\n\n## 我的理解\n\n这是我亲自写的理解。';
+  const title = '单卡合并 ' + opId('draft');
+  const card = await create(service, title, original);
+  await login(page, service);
+  await page.locator('#wiki-nav').click();
+  await page.getByLabel('资料标题', { exact: true }).fill('合成原文 ' + opId('source'));
+  await page.getByLabel('原始正文', { exact: true }).fill('合成资料说明：整理只产生草稿，审阅后保存才写入。');
+  await page.locator('#wiki-save-source').click();
+  await expect(page.locator('#wiki-page')).toContainText('原文快照已保存');
+  const source = (await service.call('sources-list', {})).items[0];
+  await page.getByLabel('整理到哪张卡片', { exact: true }).click();
+  await page.getByText(title, { exact: true }).click();
+  const before = await service.call('get-document', { id: card.id });
+  await page.locator('#wiki-generate-draft').click();
+  await expect(page.locator('#wiki-open-draft')).toBeVisible();
+  const generated = await page.getByLabel('整理稿（Markdown，可修改）', { exact: true }).inputValue();
+  expect(generated).toContain('/wiki?source=' + source.id);
+  expect((await service.call('get-document', { id: card.id })).revision).toBe(before.revision);
+  await page.locator('#wiki-open-draft').click();
+  await expect(page.locator('#editor-form')).toBeVisible();
+  expect(await markdownValue(page, editorURL)).toBe(before.markdown + '\n\n' + generated);
+  expect((await service.call('get-document', { id: card.id })).revision).toBe(before.revision);
+  await page.locator('#save-card').click();
+  await expect(page.locator('#reader')).toBeVisible();
+  const saved = await service.call('get-document', { id: card.id });
+  expect(normalize(saved.markdown).startsWith(normalize(before.markdown))).toBe(true);
+  expect(saved.markdown).toContain('这是我亲自写的理解。');
+  expect(saved.markdown).toContain('/wiki?source=' + source.id);
+  await page.locator('#wiki-edit-understanding').click();
+  await expect(page.locator('#editor-form')).toBeVisible();
+  expect(await markdownValue(page, editorURL)).toBe(saved.markdown);
+  expect((await service.call('get-document', { id: card.id })).revision).toBe(saved.revision);
+  service.record('single-card-ordinary-save', { id: card.id, sourceId: source.id, generationDidNotWrite: true, originalUnderstandingPreserved: true, ordinarySave: true });
 });
 
 test("startup list and lazy editor cannot replace a new draft", async ({ service, ui }) => {
   const { page, editorURL } = ui;
   await page.addInitScript(() => localStorage.setItem("concept-discovery.theme", "gray"));
   const related = await create(service, "启动竞态 " + opId("reference"), "- 原文第一项\n- 原文第二项");
+  const relatedDocument = await service.call("get-document", { id: related.id });
   const list = gate(), editor = gate(), listRequested = gate(), editorRequested = gate();
   const listFinished = gate(), editorFinished = gate();
   let listHeld = false, editorHeld = false;
@@ -88,11 +103,11 @@ test("startup list and lazy editor cannot replace a new draft", async ({ service
     await page.locator(`#card-list a[data-card-id="${related.id}"]`).click();
     await page.locator("#edit-card").click();
     const source = page.getByRole("textbox", { name: "Markdown 源码" });
-    await expect(source.locator(".cm-line").first()).toHaveText("- 原文第一项");
-    await chooseEditorMode(page, "可视化");
-    await expect(page.locator(".knowledge-contenteditable li").first()).toHaveText("原文第一项");
+    await expect(source).toHaveValue(relatedDocument.markdown);
+    await chooseEditorMode(page, "预览");
+    await expect(page.locator("#knowledge-markdown-preview li").first()).toHaveText("原文第一项");
     await ensureSource(page);
-    await expect(source.locator(".cm-line").first()).toHaveText("- 原文第一项");
+    await expect(source).toHaveValue(relatedDocument.markdown);
     await expect(page.locator("#save-card")).toBeDisabled();
     service.record("startup-intent-race", { relatedId: related.id, listReleasedBeforeEditor: true, emptyTitle: true, emptyNativeDocument: true });
   } finally {
@@ -109,22 +124,9 @@ test("stale search, document and preview responses cannot overwrite current stat
   const b = await create(service, "新线索 " + newTerm);
   expect((await service.call("search", { query: oldTerm, locale: "cn", limit: 20 })).map((item) => item.id)).toEqual([a.id]);
   expect((await service.call("search", { query: newTerm, locale: "cn", limit: 20 })).map((item) => item.id)).toEqual([b.id]);
-  await page.route("**/api/session", async route => {
-    const response = await route.fetch();
-    const json = await response.json();
-    if (json.data?.authenticated) json.data.askAvailable = true;
-    await route.fulfill({ response, json });
-  });
   await login(page, service, b.id);
-  await page.unroute("**/api/session");
   await page.locator("#back-to-list").click();
   await expect(page.locator("#list-page")).toBeVisible();
-  await page.locator("#list-mode").getByText("按问题找卡", { exact: true }).click();
-  await expect(page.getByRole("radio", { name: "按问题找卡", exact: true })).toBeChecked();
-  await page.locator("#ask-question").fill("发布前要核对哪些风险？");
-  await expect(page.locator("#submit-ask")).toBeEnabled();
-  await expect(page.locator('textarea[aria-hidden="true"]:visible')).toHaveCount(0);
-  await page.locator("#list-mode").getByText("关键词搜索", { exact: true }).click();
   const oldSearch = gate(), searched = gate(), searchFinished = gate();
   await page.route("**/api/v1/commands/list", async (route) => {
     if (route.request().postDataJSON().query !== oldTerm) return route.continue();
@@ -234,10 +236,10 @@ test("lost save response and interrupted create reconcile the original operation
   await page.getByRole("textbox", { name: "Markdown 源码" }).press("ControlOrMeta+s");
   await expect(page.locator("#check-operation")).toBeVisible();
   expect(requests).toHaveLength(1);
-  await expect.poll(async()=>{const content=page.locator("#knowledge-markdown .cm-content");return await content.getAttribute("aria-readonly")==="true"||await content.getAttribute("contenteditable")==="false";}).toBe(true);
+  await expect(page.locator("#markdown-source")).toHaveJSProperty("readOnly", true);
   await expect(page.locator("#edit-title")).toHaveJSProperty("readOnly", true);
   await expect(page.locator("#upload-image")).toBeDisabled();
-  await page.locator("#knowledge-markdown .cm-content").click();
+  await page.locator("#markdown-source").click();
   await page.keyboard.insertText("不允许写入");
   expect(await markdownValue(page, editorURL)).toBe(savedText);
   const committed = await service.cli("get-document", { id: card.id });
@@ -261,7 +263,7 @@ test("lost save response and interrupted create reconcile the original operation
   await setMarkdown(page, editorURL, "应续跑原始创建请求的正文。");
   await page.locator("#save-card").click();
   await expect(page.locator("#check-operation")).toBeVisible();
-  await expect.poll(async()=>{const content=page.locator("#knowledge-markdown .cm-content");return await content.getAttribute("aria-readonly")==="true"||await content.getAttribute("contenteditable")==="false";}).toBe(true);
+  await expect(page.locator("#markdown-source")).toHaveJSProperty("readOnly", true);
   expect(await markdownValue(page, editorURL)).toBe(partialInput.document.markdown);
   await page.locator("#check-operation").click();
   await expect(page.locator("#retry-operation")).toBeVisible();
@@ -294,7 +296,7 @@ test("concurrent Agent edit rejects stale save while retaining the browser draft
   expect(["revision_conflict", "version_conflict", "content_conflict"]).toContain(rejected.error.code);
   await expect(page.locator("#document-message-text")).toContainText("新的修改");
   expect(await markdownValue(page, editorURL)).toBe(draft);
-  await expect(page.locator("#knowledge-markdown .cm-content")).toHaveAttribute("contenteditable", "true");
+  await expect(page.locator("#markdown-source")).toHaveJSProperty("readOnly", false);
   const unchanged = await service.cli("get-document", { id: card.id });
   expect(unchanged.revision).toBe(latest.revision);
   expect(unchanged.markdown).toContain("Agent先写入的使用说明。");
@@ -314,14 +316,14 @@ test("upload failure and reauthentication preserve the draft and frozen save req
   await page.getByRole("button", { name: "加粗", exact: true }).click();
   await expect.poll(() => markdownValue(page, editorURL)).toBe("**" + text + "**");
   await setMarkdown(page, editorURL, draft);
-  await chooseEditorMode(page, "可视化");
-  await expect(page.locator(".knowledge-contenteditable strong").first()).toHaveText(text);
+  await chooseEditorMode(page, "预览");
+  await expect(page.locator("#knowledge-markdown-preview strong").first()).toHaveText(text);
   await ensureSource(page);
-  await expect(page.getByRole("textbox", { name: "Markdown 源码" })).toHaveText(/__保留 Markdown 标记__/);
+  await expect(page.getByRole("textbox", { name: "Markdown 源码" })).toHaveValue(/__保留 Markdown 标记__/);
   expect(await markdownValue(page, editorURL)).toBe(draft);
   const image = { name: "probe.png", mimeType: "image/png", buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAACAAAAAYCAIAAAAUMWhjAAAAJElEQVR4nGMQTwunKWIYtWDUglELRi0YtWDUglELRi0YGhYAAMJ9fB+MFECJAAAAAElFTkSuQmCC", "base64") };
   const source = page.getByRole("textbox", { name: "Markdown 源码" });
-  await source.locator(".cm-line").nth(1).click();
+  await source.evaluate(input => { const position = input.value.indexOf("\n") + 1; input.focus(); input.setSelectionRange(position, position); });
   await page.locator("#image-file").setInputFiles(image);
   await expect.poll(() => markdownValue(page, editorURL)).toMatch(/\*\*\n!\[probe\.png\]\(\/assets\/[^)]+\)\n__保留/);
   await setMarkdown(page, editorURL, draft);

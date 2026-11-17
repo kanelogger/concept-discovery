@@ -4,25 +4,18 @@ import { pathToFileURL } from "node:url";
 
 // Synthetic integration fixture, never a production model or quality benchmark.
 export const wikiFixtureKey = "wiki-fixture-key";
-const replaceSource = (value, source) => typeof value === "string"
-  ? value.replaceAll("$SOURCE_ID", source.id)
-  : Array.isArray(value) ? value.map(item => replaceSource(item, source))
-    : value && typeof value === "object" ? Object.fromEntries(Object.entries(value).map(([key, item]) => [key, replaceSource(item, source)])) : value;
-
 export function wikiFixtureReply(body, control = {}) {
   const user = body?.messages?.findLast(message => message.role === "user");
   const data = JSON.parse(user?.content ?? "{}");
-  if (!data.source || typeof data.source.id !== "string" || typeof data.source.markdown !== "string")
-    throw new Error("Fixture only accepts synthetic wiki source requests");
-  if (Object.hasOwn(data, "catalog")) return { cardIds: control.cardIds ?? [] };
-  if (!Array.isArray(data.candidates)) throw new Error("Unknown wiki fixture stage");
-  const items = control.items ?? [{
-    kind: "create", cardId: "", title: data.source.title + " · 知识卡",
+  if (!data.source || typeof data.source.id !== "string" || typeof data.source.markdown !== "string" ||
+      !(data.target === null || (data.target && typeof data.target.id === "string")))
+    throw new Error("Fixture only accepts a source and one optional target");
+  return control.draft ?? {
+    title: data.target?.title ?? data.source.title + " · 知识卡",
     body: "## 核心理解\n\n" + data.source.markdown.trim(),
-    question: "这份资料说明了什么？", reason: "依据当前合成资料整理知识。",
-    quotes: [{ sourceId: "$SOURCE_ID", quote: data.source.markdown.slice(0, 240) }],
-  }];
-  return { items: replaceSource(items, data.source) };
+    question: "这份资料说明了什么？",
+    quotes: [{ quote: data.source.markdown.slice(0, 240) }],
+  };
 }
 
 export function createWikiFixtureServer({ controlFile, recordFile } = {}) {

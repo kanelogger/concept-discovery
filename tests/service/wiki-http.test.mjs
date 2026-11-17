@@ -8,7 +8,7 @@ import {createApp} from '../../server/app.mjs';
 test('wiki HTTP commands retain session/token isolation, origin checks and private source scope',async()=>{
   const root=mkdtempSync(join(tmpdir(),'cd-wiki-http-'));
   const origin='http://127.0.0.1';
-  const app=createApp({publicUrl:origin,agentToken:'fixture-agent',accessCode:'fixture-access',
+  const app=createApp({publicUrl:origin,agentToken:'fixture-agent',accessCode:'fixture-access',logDraft:()=>{},
     api:{c:{dataDir:join(root,'operations')},identity:async()=>'fixture-library'},wikiRoot:join(root,'wiki')});
   await new Promise(resolve=>app.listen(0,'127.0.0.1',resolve));
   const url=origin+':'+app.address().port;
@@ -30,7 +30,8 @@ test('wiki HTTP commands retain session/token isolation, origin checks and priva
     assert.equal(read.hash,source.hash);assert.equal(read.markdown,input.markdown);
     const denied=await post('source-get',{id:'../../service.json'},auth);assert.notEqual(denied.status,200);
     assert.equal((await fetch(url+'/wiki/sources/'+source.id,{headers:auth})).status,404);
-    assert.equal((await post('wiki-propose',{sourceId:source.id},auth)).status,503);
+    assert.equal((await post('wiki-draft',{sourceId:source.id},auth)).status,503);
+    for(const command of ['ask','polish-description','wiki-propose','wiki-apply','wiki-understanding','wiki-recover']) assert.equal((await post(command,{},auth)).status,404,command);
     await fetch(url+'/api/session',{method:'DELETE',headers:{cookie,origin}});
     assert.equal((await post('source-get',{id:source.id},{cookie,origin})).status,401);
   }finally{await new Promise(resolve=>app.close(resolve));rmSync(root,{recursive:true,force:true});}

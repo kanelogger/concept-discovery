@@ -118,9 +118,6 @@ function validateState(root, state, errors) {
   if (!nonempty(state.summary)) errors.push('workflow-state.json: summary is required');
   if (state.phase === 'idle') {
     if (state.task_id !== null || state.task_file !== null) errors.push('workflow-state.json: idle requires null task pointers');
-    for (const field of ['blockers', 'next_actions', 'required_checks', 'verification']) {
-      if (!Array.isArray(state[field]) || state[field].length !== 0) errors.push(`workflow-state.json: idle requires empty ${field}`);
-    }
     return;
   }
   if (!nonempty(state.task_id) || !/^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(state.task_id)) errors.push('workflow-state.json: task_id must contain only letters, numbers, underscores or hyphens');
@@ -128,27 +125,6 @@ function validateState(root, state, errors) {
   if (taskError) errors.push(`workflow-state.json: task_file: ${taskError}`);
   else if (!statSync(resolve(root, state.task_file)).isFile()) errors.push('workflow-state.json: task_file must point to a file');
   if (state.task_file !== `tasks/${state.task_id}.md`) errors.push('workflow-state.json: task_file must be tasks/<task_id>.md');
-  if (!strings(state.blockers)) errors.push('workflow-state.json: blockers must be an array of strings');
-  if (!strings(state.next_actions)) errors.push('workflow-state.json: next_actions must be an array of strings');
-  if (!strings(state.required_checks) || !state.required_checks.length) errors.push('workflow-state.json: required_checks must be a nonempty array of nonempty command strings');
-  if (!Array.isArray(state.verification)) {
-    errors.push('workflow-state.json: verification must be an array');
-  } else {
-    for (const record of state.verification) {
-      if (!object(record) || !nonempty(record.command)
-        || !['passed', 'failed', 'skipped'].includes(record.result) || !timestamp(record.recorded_at)) {
-        errors.push('workflow-state.json: invalid verification record');
-      }
-    }
-  }
-  if (state.phase === 'complete') {
-    if (!Array.isArray(state.blockers) || state.blockers.length) errors.push('workflow-state.json: complete requires no blockers');
-    for (const command of Array.isArray(state.required_checks) ? state.required_checks : []) {
-      const latest = Array.isArray(state.verification) ? state.verification.filter((record) => record?.command === command).at(-1) : null;
-      if (latest?.result !== 'passed') errors.push(`workflow-state.json: complete requires a passed ${command} record as the latest result`);
-    }
-  }
-  if (state.phase === 'blocked' && (!Array.isArray(state.blockers) || !state.blockers.length)) errors.push('workflow-state.json: blocked requires a blocker');
 }
 
 function withoutCode(markdown) {

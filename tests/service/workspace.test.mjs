@@ -23,24 +23,9 @@ const ok = (data) => ({ ok: true, data });
 const card = (id) => ({ id, title: id, markdown: "原文", html: "<p>原文</p>", revision: "rev-1", editable: true });
 const tick = () => new Promise((resolve) => setImmediate(resolve));
 
-test('a late understanding refresh cannot navigate away from a newly edited draft',async()=>{
-  let release,reads=0;
-  const h=harness(async(url,body)=>{
-    if(url.endsWith('/get-document')){if(++reads===2)await new Promise(r=>{release=r;});return ok(card(body.id));}
-    throw new Error(url);
-  });
-  try{
-    await h.workspace.navigate('same-card');const refresh=h.workspace.refreshCurrent();await tick();
-    await h.workspace.editCard();h.workspace.setMarkdown('新的编辑草稿');release();
-    assert.equal(await refresh,false);assert.equal(h.workspace.getSnapshot().route,'edit');
-    assert.equal(h.workspace.getSnapshot().draft.markdown,'新的编辑草稿');
-    assert.equal(await h.workspace.refreshCurrent(),false);
-  }finally{h.workspace.destroy();}
-});
-
 test("wiki route refresh and protected auxiliary drafts retain their navigation and session", async () => {
   const h=harness((url,body)=>{
-    if(url==='/api/session')return ok({authenticated:true,askAvailable:true});
+    if(url==='/api/session')return ok({authenticated:true,draftAvailable:true});
     if(url.endsWith('/list'))return ok({items:[],total:0,tags:[]});
     if(url.endsWith('/source-import'))return {ok:false,status:401,error:{code:'unauthorized',message:'expired'}};
     throw new Error(url);
@@ -270,148 +255,6 @@ test("a delayed list return leaves newly moved keyboard focus alone", async () =
   } finally { m.destroy(); }
 });
 
-test("ask restores the in-memory result and focus after opening its card", async () => {
-  const data = { status: "answered", cards: [card("example")], steps: [], gaps: [] };
-  const h = harness((url, body) => {
-    if (url === "/api/session") return ok({ authenticated: true, askAvailable: true });
-    if (url.endsWith("/list")) return ok({ items: [], total: 0, tags: [] });
-    if (url.endsWith("/ask")) return ok(data);
-    if (url.endsWith("/get-document")) return ok(card(body.id));
-    throw new Error(url);
-  });
-  const pane = { scrollTop: 127, scrollTo(_x, y) { this.scrollTop = y; } };
-  const doc = h.browser.document;
-  doc.body = {};
-  const link = { dataset: { cardId: "example" }, focus() { doc.activeElement = link; }, scrollIntoView() {} };
-  const list = { querySelectorAll: () => [link], contains: value => value === link };
-  doc.activeElement = doc.body;
-  doc.getElementById = id => ({ workspace: pane, "list-page": list })[id] ?? null;
-  const m = h.workspace;
-  const question = "需要保护的测试问题";
-  try {
-    await m.start();
-    await m.applyFilters({ query: "原关键词" });
-    await m.switchListMode("ask");
-    m.setAskQuestion(question);
-    await m.submitAsk();
-    await m.navigate("example");
-    assert.equal(h.browser.location.href, "http://localhost/cards/example?mode=ask");
-    assert.equal(pane.scrollTop, 0);
-    assert.doesNotMatch(JSON.stringify(h.visits), /需要保护的测试问题/);
-
-    await m.listPage({ restore: true });
-    assert.deepEqual(m.getSnapshot().askResult, { question, data });
-    assert.equal(pane.scrollTop, 127);
-    assert.equal(doc.activeElement, link);
-    assert.equal(h.requests.filter(item => item.url.endsWith("/ask")).length, 1);
-
-    await m.switchListMode("keyword");
-    assert.equal(m.getSnapshot().query, "原关键词");
-    assert.equal(h.browser.location.href, "http://localhost/cards?q=%E5%8E%9F%E5%85%B3%E9%94%AE%E8%AF%8D");
-    h.browser.history.go(-1);
-    await tick();
-    assert.deepEqual(m.getSnapshot().askResult, { question, data });
-  } finally { m.destroy(); }
-
-  const reload = createWorkspace({ browser: h.browser, fetch: async () => ({
-    ok: true, status: 200, json: async () => ok({ authenticated: true, askAvailable: true }),
-  }) });
-  try {
-    await reload.start();
-    assert.equal(reload.getSnapshot().listMode, "ask");
-    assert.equal(reload.getSnapshot().askQuestion, "");
-    assert.equal(reload.getSnapshot().askResult, null);
-  } finally { reload.destroy(); }
-});
-
-test("cancelled ask responses cannot replace a later answer or end its session", async () => {
-  const pending = Promise.withResolvers();
-  let cancelledSignal;
-  const response = { status: "insufficient", cards: [], steps: [], gaps: ["资料缺口"] };
-  const h = harness((url, body, options) => {
-    if (url === "/api/session") return ok({ authenticated: true, askAvailable: true });
-    if (url.endsWith("/list")) return ok({ items: [], total: 0, tags: [] });
-    if (body.question === "延迟") { cancelledSignal = options.signal; return pending.promise; }
-    return ok(response);
-  });
-  const m = h.workspace;
-  try {
-    await m.start();
-    await m.switchListMode("ask");
-    m.setAskQuestion("延迟");
-    const previous = m.submitAsk();
-    m.cancelAsk();
-    assert.equal(cancelledSignal.aborted, true);
-    m.setAskQuestion("新问题");
-    await m.submitAsk();
-    pending.resolve({ status: 401, ok: false, error: { code: "unauthorized", message: "expired" } });
-    await previous;
-    assert.equal(m.getSnapshot().authenticated, true);
-    assert.deepEqual(m.getSnapshot().askResult, { question: "新问题", data: response });
-    assert.equal(m.getSnapshot().pending, null);
-  } finally { m.destroy(); }
-});
-
-test("an expired application session clears completed answers and invalidates pending analysis", async () => {
-  let expire = false;
-  const h = harness((url, body, options) => {
-    if (url === "/api/session") return ok({ authenticated: options.method !== "DELETE", askAvailable: true });
-    if (url.endsWith("/list")) return ok({ items: [], total: 0, tags: [] });
-    if (expire) return { status: 401, ok: false, error: { code: "ask_session_expired" } };
-    return ok({ status: "no_match", cards: [], steps: [], gaps: ["无可用依据"] });
-  });
-  const m = h.workspace;
-  try {
-    await m.start();
-    await m.switchListMode("ask");
-    m.setAskQuestion("旧问题");
-    await m.submitAsk();
-    assert.ok(m.getSnapshot().askResult);
-    expire = true;
-    m.setAskQuestion("会话到期时的问题");
-    await m.submitAsk();
-    assert.equal(m.getSnapshot().authenticated, false);
-    assert.equal(m.getSnapshot().askResult, null);
-    assert.equal(m.getSnapshot().askQuestion, "");
-    assert.equal(m.getSnapshot().askBusy, false);
-    assert.equal(m.getSnapshot().pending, null);
-    await m.login("access");
-    h.browser.history.go(-1);
-    await tick();
-    assert.equal(m.getSnapshot().askResult, null);
-  } finally { m.destroy(); }
-});
-
-test("opening a card or loading the editor prevents hidden analysis submissions", async () => {
-  for (const route of ["detail", "new"]) {
-    const ready = Promise.withResolvers();
-    const h = harness(async (url, body) => {
-      if (url === "/api/session") return ok({ authenticated: true, askAvailable: true });
-      if (url.endsWith("/list")) return ok({ items: [], total: 0, tags: [] });
-      if (url.endsWith("/ask")) return ok({ status: "answered", cards: [card("example")], steps: [], gaps: [] });
-      if (url.endsWith("/get-document")) { await ready.promise; return ok(card(body.id)); }
-      throw new Error(url);
-    }, async () => { await ready.promise; return { default() {} }; });
-    const m = h.workspace;
-    try {
-      await m.start();
-      await m.switchListMode("ask");
-      m.setAskQuestion("已有分析");
-      await m.submitAsk();
-      const transition = route === "detail" ? m.navigate("example") : m.editCard({ isNew: true });
-      await tick();
-      assert.equal(m.getSnapshot().navigating || m.getSnapshot().editorLoading, true);
-      m.setAskQuestion("不能在导航期间提交");
-      await m.submitAsk();
-      assert.equal(h.requests.filter(item => item.url.endsWith("/ask")).length, 1);
-      assert.equal(m.getSnapshot().askBusy, false);
-      ready.resolve();
-      await transition;
-      assert.equal(m.getSnapshot().route, route);
-    } finally { ready.resolve(); m.destroy(); }
-  }
-});
-
 test("a confirmed deletion is reconciled before returning to a refreshed list", async () => {
   let deleted = false;
   const h = harness((url, input) => {
@@ -457,51 +300,98 @@ test("following a deleted link clears the previous card and its action target", 
   } finally { h.workspace.destroy(); }
 });
 
-test("description suggestions stay local until adopted and saved, failures preserve drafts", async () => {
-  let fail = false;
-  const stored = { ...card("task-card"), markdown: "正文。\n\n## 适用情境\n\n原描述。\n\n## 边界\n\n原边界。" };
-  const h = harness((url, body) => {
-    if (url === "/api/session") return ok({ authenticated: true, askAvailable: true });
-    if (url.endsWith("/list")) return ok({ items: [], total: 0 });
-    if (url.endsWith("/get-document")) return ok(stored);
-    if (url.endsWith("/polish-description")) return fail ? {ok:false,status:503,error:{code:"ask_unavailable"}} : ok({description:"润色建议。"});
-    if (url.endsWith("/save-document")) { stored.markdown = body.markdown; return ok({id:stored.id}); }
+
+function wikiHarness({ existing = card('target'), loadEditor } = {}) {
+  let stored = existing;
+  return harness((url, body) => {
+    if (url === '/api/session') return ok({ authenticated: true, draftAvailable: true });
+    if (url.endsWith('/list')) return ok({ items: [], total: 0 });
+    if (url.endsWith('/get-document')) return ok({ ...stored, id: body.id });
+    if (url.endsWith('/save-document')) { stored = { ...stored, title: body.title, markdown: body.markdown, revision: 'saved' }; return ok({ id: body.id }); }
+    if (url.endsWith('/create')) { stored = { ...card('new-card'), ...body.document }; return ok({ id: stored.id }); }
     throw new Error(url);
-  });
-  const m = h.workspace;
+  }, loadEditor);
+}
+const generatedDraft = target => ({ source: { id: 'source-one', title: '原始资料', version: 1, hash: 'source-hash' }, target, title: target?.title || '新整理卡', markdown: '整理稿。\n\n> 原文依据\n\n[原文](/wiki?source=source-one)' });
+
+test('a single-card draft preserves original text and understanding until ordinary save', async () => {
+  const original = { ...card('target'), markdown: '原始正文\n\n## 我的理解\n\n这是我自己的解释。\n\n## 适用任务\n\n描述也属于原文。' };
+  const h = wikiHarness({ existing: original });
   try {
-    await m.start(); await m.navigate(stored.id); await m.editCard();
-    assert.equal(m.getSnapshot().draft.description, "原描述。");
-    assert.ok(!m.getSnapshot().draft.markdown.includes("原描述"));
-    await m.polishDescription();
-    assert.equal(m.dirty(), false);
-    assert.equal(m.getSnapshot().draft.description, "原描述。");
-    m.discardPolish(); assert.equal(m.getSnapshot().polishSuggestion, null);
-    await m.polishDescription(); m.setPolishSuggestion("修改建议。"); m.adoptPolish();
-    assert.equal(m.dirty(), true); assert.equal(stored.markdown.includes("修改建议"), false);
-    fail = true; await m.polishDescription();
-    assert.equal(m.getSnapshot().draft.description, "修改建议。");
-    assert.match(m.getSnapshot().polishMessage, /原描述已保留/);
-    await m.save();
-    assert.equal(stored.markdown, "正文。\n\n## 适用情境\n\n修改建议。\n\n## 边界\n\n原边界。");
-    const request = h.requests.find(r => r.url.endsWith("/polish-description"));
-    assert.deepEqual(request.body, {title:stored.title,description:"原描述。"});
-  } finally { m.destroy(); }
+    await h.workspace.start(); await h.workspace.wikiPage();
+    const generated = generatedDraft({ id: original.id, title: original.title, revision: original.revision });
+    assert.equal(await h.workspace.openWikiDraft(generated), true);
+    assert.equal(h.workspace.getSnapshot().route, 'edit');
+    assert.equal(h.workspace.getSnapshot().draft.markdown, original.markdown + '\n\n' + generated.markdown);
+    assert.equal(h.requests.some(request => /\/(create|save-document|wiki-apply|wiki-understanding)$/.test(request.url)), false);
+    await h.workspace.save();
+    const written = h.requests.find(request => request.url.endsWith('/save-document')).body;
+    assert.equal(written.expected_revision, original.revision);
+    assert.equal(written.markdown, original.markdown + '\n\n' + generated.markdown);
+    assert.equal(h.workspace.getSnapshot().current.markdown, written.markdown);
+  } finally { h.workspace.destroy(); }
 });
 
-test("late polish cannot replace a changed title or another card", async () => {
-  let release;
-  const h = harness(async (url, body) => {
-    if (url === "/api/session") return ok({authenticated:true, askAvailable:true});
-    if (url.endsWith("/list")) return ok({items:[],total:0});
-    if (url.endsWith("/get-document")) return ok(card(body.id));
-    if (url.endsWith("/polish-description")) { await new Promise(resolve => { release=resolve; }); return ok({description:"过期结果"}); }
-    throw new Error(url);
-  });
+test('a generated new card is an unsaved ordinary editor draft', async () => {
+  const h = wikiHarness();
   try {
-    const m=h.workspace; await m.start(); await m.navigate("one"); await m.editCard();
-    const pending=m.polishDescription(); await tick(); m.setTitle("新标题"); release(); await pending;
-    assert.equal(m.getSnapshot().polishSuggestion,null);
-    assert.equal(m.getSnapshot().draft.title,"新标题");
+    await h.workspace.start(); await h.workspace.wikiPage();
+    const generated = generatedDraft(null);
+    await h.workspace.openWikiDraft(generated);
+    assert.equal(h.workspace.getSnapshot().route, 'new');
+    assert.equal(h.workspace.getSnapshot().isNew, true);
+    assert.equal(h.workspace.dirty(), true);
+    assert.equal(h.requests.some(request => request.url.endsWith('/create')), false);
+    await h.workspace.save();
+    assert.deepEqual(h.requests.find(request => request.url.endsWith('/create')).body.document, { title: generated.title, markdown: generated.markdown });
+  } finally { h.workspace.destroy(); }
+});
+
+test('a stale generated target is rejected before entering an editor or writing', async () => {
+  const h = wikiHarness({ existing: { ...card('target'), revision: 'newer' } });
+  try {
+    await h.workspace.start(); await h.workspace.wikiPage();
+    await assert.rejects(h.workspace.openWikiDraft(generatedDraft({ id: 'target', title: 'target', revision: 'older' })), { code: 'revision_conflict' });
+    assert.equal(h.workspace.getSnapshot().route, 'wiki');
+    assert.equal(h.workspace.getSnapshot().editing, false);
+    assert.equal(h.requests.some(request => request.url.endsWith('/save-document')), false);
+  } finally { h.workspace.destroy(); }
+});
+
+test('a late draft editor load cannot replace a newer card navigation', async () => {
+  const waiting = Promise.withResolvers();
+  const h = wikiHarness({ loadEditor: () => waiting.promise });
+  try {
+    await h.workspace.start(); await h.workspace.wikiPage();
+    const opening = h.workspace.openWikiDraft(generatedDraft(null)); await tick();
+    await h.workspace.navigate('later'); waiting.resolve({ default() {} });
+    assert.equal(await opening, false);
+    assert.equal(h.workspace.getSnapshot().route, 'detail');
+    assert.equal(h.workspace.getSnapshot().current.id, 'later');
+    assert.equal(h.workspace.getSnapshot().editorLoading, false);
+  } finally { h.workspace.destroy(); }
+});
+
+test('my understanding opens the ordinary Markdown editor and saves with its original revision', async () => {
+  const original = { ...card('target'), markdown: '原文及旧理解，不应被抽取重写。' };
+  const h = wikiHarness({ existing: original });
+  try {
+    await h.workspace.start(); await h.workspace.navigate(original.id); await h.workspace.editUnderstanding();
+    assert.equal(h.workspace.getSnapshot().draft.markdown, original.markdown + '\n\n## 我的理解\n\n');
+    h.workspace.setMarkdown(h.workspace.getSnapshot().draft.markdown + '新的理解。');
+    await h.workspace.save();
+    assert.equal(h.requests.find(request => request.url.endsWith('/save-document')).body.expected_revision, original.revision);
+    assert.equal(h.requests.some(request => request.url.endsWith('/wiki-understanding')), false);
+  } finally { h.workspace.destroy(); }
+});
+
+test('my understanding reuses an existing section without manufacturing another empty heading', async () => {
+  const original = { ...card('target'), markdown: '原文。\n\n## 我的理解\n\n已经写下的理解。' };
+  const h = wikiHarness({ existing: original });
+  try {
+    await h.workspace.start(); await h.workspace.navigate(original.id); await h.workspace.editUnderstanding();
+    assert.equal(h.workspace.getSnapshot().draft.markdown, original.markdown);
+    assert.equal(h.workspace.dirty(), false);
+    assert.equal(h.requests.some(request => /\/(save-document|wiki-understanding)$/.test(request.url)), false);
   } finally { h.workspace.destroy(); }
 });

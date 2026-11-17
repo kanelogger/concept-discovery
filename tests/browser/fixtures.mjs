@@ -87,7 +87,7 @@ export async function ensureSource(page) {
 }
 export async function markdownValue(page,editorURL){
   await page.locator('#knowledge-markdown').waitFor({state:'visible'});
-  return page.evaluate(async moduleURL=>{const m=await import(moduleURL);const host=document.getElementById('knowledge-markdown');return m.getMarkdownValue?m.getMarkdownValue(host):m.EditorView.findFromDOM(host.querySelector('.cm-editor')).state.doc.toString();},editorURL);
+  return page.locator('#markdown-source').inputValue();
 }
 
 export async function setMarkdown(page, editorURL, value) {

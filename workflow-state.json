@@ -1,96 +1,13 @@
 {
   "schema_version": 1,
-  "task_id": "0015-human-wiki-phase-one",
+  "task_id": "0016-lightweight-wiki",
   "phase": "complete",
-  "task_file": "tasks/0015-human-wiki-phase-one.md",
+  "task_file": "tasks/0016-lightweight-wiki.md",
   "updated_at": "2026-11-17",
-  "summary": "第一期LLM Wiki闭环已实现并通过152项/完整阶段门禁，原61张卡内容比对一致；按用户要求完成临时文件清理，本机app/kernel服务已关闭。",
+  "summary": "个人LLM Wiki第一轮精简完成：单卡草稿与统一Markdown保存，问答/润色/多卡审批等支线及强制全量门禁已移除；93项检查、真实内核/浏览器与恢复验证通过，隔离资源已清理，正式数据未触及。",
   "blockers": [],
   "next_actions": [
-    "需要使用时执行npm start，再从本机/wiki选择小批实际资料试用；生成前确认模型设置可用并审阅资料范围。",
-    "后续依据人的理解/迁移观察评估P2，复习排程仍不加入。"
-  ],
-  "required_checks": [
-    "npm run check",
-    "npm run build:web",
-    "npm run check:full -- --ego-run cd-service-7ba65eb17a",
-    "git diff --check"
-  ],
-  "verification": [
-    {
-      "command": "npm run check",
-      "result": "passed",
-      "recorded_at": "2026-11-17"
-    },
-    {
-      "command": "npm run build:web",
-      "result": "passed",
-      "recorded_at": "2026-11-17"
-    },
-    {
-      "command": "npm run check",
-      "result": "passed",
-      "recorded_at": "2026-11-17"
-    },
-    {
-      "command": "npm run check:full -- --ego-run cd-service-7ba65eb17a",
-      "result": "passed",
-      "recorded_at": "2026-11-17"
-    },
-    {
-      "command": "独立源码与最终Ego/集成/冷恢复证据复核",
-      "result": "passed",
-      "recorded_at": "2026-11-17"
-    },
-    {
-      "command": "npm start",
-      "result": "passed",
-      "recorded_at": "2026-11-17"
-    },
-    {
-      "command": "node .local/wiki-phase-one/production-snapshot.mjs after",
-      "result": "passed",
-      "recorded_at": "2026-11-17"
-    },
-    {
-      "command": "npm run validate",
-      "result": "failed",
-      "recorded_at": "2026-11-17"
-    },
-    {
-      "command": "git diff --check",
-      "result": "passed",
-      "recorded_at": "2026-11-17"
-    },
-    {
-      "command": "npm run validate",
-      "result": "passed",
-      "recorded_at": "2026-11-17"
-    },
-    {
-      "command": "npm stop",
-      "result": "passed",
-      "recorded_at": "2026-11-17"
-    },
-    {
-      "command": "清理回读：16个一次性文件不存在，6806无监听，知识库与配置保留",
-      "result": "passed",
-      "recorded_at": "2026-11-17"
-    },
-    {
-      "command": "npm run test:ego -- verify --run cd-service-7ba65eb17a",
-      "result": "passed",
-      "recorded_at": "2026-11-17"
-    },
-    {
-      "command": "npm run validate",
-      "result": "passed",
-      "recorded_at": "2026-11-17"
-    },
-    {
-      "command": "git diff --check",
-      "result": "passed",
-      "recorded_at": "2026-11-17"
-    }
+    "需要使用时运行npm start；既有模型设置用于单卡草稿。",
+    "用选定的少量真实资料试用生成质量和审阅负担，按实际需要迭代。"
   ]
 }

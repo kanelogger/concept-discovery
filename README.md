@@ -2,13 +2,13 @@
 
 <img src="web/favicon.svg" alt="Concept Discovery Logo" width="64" height="64">
 
-面向人的 LLM Wiki 知识闪卡网站：资料导入→整理提案→审阅采用→轻量回想→理解写回。保留阅读、搜索与Markdown整理；明确要求时让Agent查询、应用或维护。只有明亮桌面界面，不做复习排程、自动评分、命令面板、厂商账号或同步订阅。
+个人桌面 LLM Wiki：**保存资料 → 生成一张草稿 → 编辑保存 → 阅读与回想**。
 
-Logo「卡片与发现」的[双色主标](web/favicon.svg)用于登录页、页头和浏览器标签页。[单色 SVG](docs/brand/logo-mono.svg) · [反白 SVG](docs/brand/logo-white.svg) · [资产与使用说明](docs/brand/README.md)
+知识卡支持关键词、标签及更新时间筛选，正文用 Markdown 维护。AI 只生成草稿，用户审阅后通过普通编辑器保存；“我的理解”也是正文。保留原文快照与稳定引用，不做多卡审批、应用内问答、描述润色、复习排程或后台采集。
 
 ## 启动
 
-需要Node 24、Docker与Compose。
+需要 Node 24、Docker 与 Compose。
 
 ```sh
 npm ci
@@ -16,7 +16,13 @@ npm run deploy:init
 npm start
 ```
 
-打开 http://127.0.0.1:6806 。访问码位于私有 `.local/knowledge/access-code`。初始化只接受新目录，已有配置和知识库拒绝覆盖。内核仅在容器网络运行，应用是唯一公开入口。
+打开 http://127.0.0.1:6806 。访问码位于私有 `.local/knowledge/access-code`。初始化拒绝覆盖已有目录。应用是唯一公开入口，内部思源保存卡片和附件。
+
+## 日常使用
+
+在“资料与整理”粘贴或导入 Markdown/UTF-8 文本，保存原文后选择新卡或一张可编辑已有卡，显式发送到配置的模型生成草稿。草稿进入普通编辑器；已有正文保留，建议作为追加内容供人工修改。点击保存才写卡。模型设置显示实际目的地，凭据仅保存在服务端。
+
+编辑器只提供 Markdown 源码、受限预览、基础格式与图片插入。问题可先回想再展开参考解释，写理解进入同一编辑器。早期固定字段卡和无法保真的原生结构保持可读，Agent仍可按块维护。旧来源链接、提案和记录可只读查看；已有正文、理解和快照不因精简而删除。
 
 ```sh
 export CONCEPT_DISCOVERY_CONFIG="$PWD/.local/knowledge/client.json"
@@ -24,20 +30,12 @@ printf '{"query":"瓶颈","locale":"cn","limit":5}' | node bin/concept-discovery
 npm stop
 ```
 
-CLI也可经npm pack安装后从任意目录使用。客户端配置指向应用地址和独立Agent令牌；远端要求HTTPS。服务端配置、工作区和操作备份含私密内容，不进入Git。
+[项目 Skill](skills/concept-discovery/SKILL.md)仅显式使用。网页和 CLI 共用应用接口，保存保留版本检查、op_id、备份、读回及未知操作核对。客户端只持有应用地址和独立 Agent Token。
 
-## 内容与维护
+## 开发与托管
 
-页头“资料与整理”接纳Markdown/UTF-8文本，保留原文快照与版本；用户选择发送到已配置模型生成提案，审阅引用和整理稿后采用。卡片有问题时可先回想再展开参考解释，“保存为我的理解”才写入思源。人的正文与AI整理区分别保留，未知操作沿原请求核对续跑。[第一期知识规则](specs/wiki-content.md)。
+`npm run check` 运行轻量文档及 Node 回归，`npm run build:web` 构建前端。按改动风险选择 `npm run test:integration` 或 `npm run test:browser`；不要求全量验收或固定浏览器证据协议。测试使用隔离样本，真实知识库不参与。
 
-React 工作台使用 Ant Design 组件及图标，沿用纸感主题；Markdown编辑器懒加载，资源随应用本地构建。标题加正文即可，按需补来源、边界、例子、自测文字、图片和相关链接。轻量卡、普通笔记可网页编辑；早期固定字段卡可读可搜，由Agent按块维护。结构无法保真编辑时提前说明，原文保留。
+[产品契约](specs/product-contract.md) · [知识规则](specs/wiki-content.md) · [命令](docs/agent-environment/commands.md) · [验证规则](rules/testing.md) · [托管与备份](docs/reading-experience.md)
 
-[项目Skill](skills/concept-discovery/SKILL.md)仅显式调用。修改需要当前指纹和操作ID，备份后写入并读回；结果不明先查operation-status，恢复拒绝覆盖后续修改。初始化和旧库迁移改由本地管理入口 `bin/maintenance.mjs` 执行，不提供公网管理API。
-
-## 检查与托管
-
-`npm test`运行关键Node与工具回归；`npm run check:full -- --ego-run <id>`组合真实API/安装CLI、关键Playwright与ego-lite日常流程证据。临时库、容器和凭据结束清理；真实数据不参与测试。自托管HTTPS及备份说明见[阅读与使用](docs/reading-experience.md)。
-
-[当前契约](specs/product-contract.md) · [命令](docs/agent-environment/commands.md) · [验证规则](rules/testing.md)。本机服务入口为 [6806](http://127.0.0.1:6806)。
-
-开发初始化运行 `npm run dev:init`（等价于 `npm run deploy:init -- --development`），默认网页访问码为 `8869527`；隔离preview样本也使用该值。普通 `npm run deploy:init` 保持随机码，Agent/内核令牌始终随机；已有目录不会覆盖。
+开发初始化 `npm run dev:init` 使用固定开发访问码；普通初始化使用随机访问码，Agent 与内核令牌始终独立随机。旧目录不会覆盖。

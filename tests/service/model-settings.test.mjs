@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { createApp } from "../../server/app.mjs";
 import { createModelSettings } from "../../server/model-settings.mjs";
 
-test("model settings require a browser session, save privately and take effect on the next ask", async () => {
+test("model settings require a browser session, save privately and take effect on the next draft", async () => {
   const dir = mkdtempSync(join(tmpdir(), "cd-model-settings-"));
   const file = join(dir, "model-settings.json");
   const old = {
@@ -18,15 +18,10 @@ test("model settings require a browser session, save privately and take effect o
   const sends = [];
   const server = createApp({
     publicUrl: origin, agentToken: "agent-fixture", accessCode: "access-fixture",
-    api: { c: {} }, modelSettings: settings, logAsk: () => {},
-    executeCommand: async (_api, name, _input, { complete }) => {
-      assert.equal(name, "ask");
-      await complete({ prompt: "fixture", data: {}, maxTokens: 12 });
-      return { cards: [] };
-    },
+    api: { c: { dataDir: join(dir, "operations") }, identity: async () => "settings-library" }, wikiRoot: join(dir, "wiki"), modelSettings: settings, logDraft: () => {},
     modelFetch: async (url, request) => {
       sends.push({ url, token: request.headers.Authorization, ...JSON.parse(request.body) });
-      return Response.json({ choices: [{ finish_reason: "stop", message: { content: "{}" } }] });
+      return Response.json({ choices: [{ finish_reason: "stop", message: { content: JSON.stringify({title:"草稿",body:"解释",question:"",quotes:[{quote:"合成原文"}]}) } }] });
     },
   });
   await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
@@ -57,9 +52,10 @@ test("model settings require a browser session, save privately and take effect o
     assert.equal(statSync(file).mode & 0o777, 0o600);
     assert.equal(JSON.parse(readFileSync(file, "utf8")).apiKey, "fixture-old-key");
     assert.equal(createModelSettings(file, old).current().model, "new-model");
-    assert.equal((await json("/api/v1/commands/ask", "POST", token, { question: "fixture" })).status, 200);
+    const source = (await (await json("/api/v1/commands/source-import", "POST", token, { op_id: "model-source", title: "合成来源", markdown: "合成原文" })).json()).data;
+    assert.equal((await json("/api/v1/commands/wiki-draft", "POST", token, { sourceId: source.id })).status, 200);
     assert.equal(sends[0].model, "new-model");
-    assert.equal(sends[0].max_tokens, 12);
+    assert.equal(sends[0].max_tokens, 6000);
     assert.equal(sends[0].token, "Bearer fixture-old-key");
     const changed = await json(path, "PUT", browser, { ...fields, baseUrl: "https://other.example/v1", apiKey: "fixture-new-key" });
     assert.equal(changed.status, 200);

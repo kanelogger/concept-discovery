@@ -13,7 +13,7 @@ stdin输入JSON，成功stdout返回{ok:true,data}；失败stderr返回{ok:false
 
 ## 查询与应用
 
-资料导入、整理提案、审阅采用与理解写回见[Wiki流程](references/wiki-workflows.md)。使用前区分来源快照、LLM整理区和人的理解；提案不等于已经写入。
+资料导入、单卡草稿及普通保存见[Wiki流程](references/wiki-workflows.md)。生成只返回建议，用户审阅后通过普通文档保存；人的理解在正文维护。
 
 - search：{query,locale:"cn"|"en",limit:5}，按任务线索查询标题/正文与补充阅读。空结果换线索或继续原任务，不补造库内卡片。
 - get：{id}，读取当前卡片及sections中的可修改块ID/指纹。get-document读取网页Markdown与可编辑状态；list按最近修改分页。
