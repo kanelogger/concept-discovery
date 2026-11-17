@@ -5,6 +5,13 @@ import {readRoute,routeHref} from '../../web/routes.mjs';
 import {Documents} from '../../lib/documents.mjs';
 import {DatabaseSync} from 'node:sqlite';
 
+test('wiki source links survive direct navigation and refresh without carrying card search state',()=>{
+ const href=routeHref('wiki','src_abcd',{query:'旧搜索'},'','ask');
+ assert.equal(href,'/wiki?source=src_abcd');
+ assert.equal(readRoute(href).kind,'wiki');
+ assert.equal(new URL(href,'http://localhost').searchParams.get('source'),'src_abcd');
+});
+
 test('tags are read from actual tag sections, without treating code examples or other sections as tags',()=>{
  assert.deepEqual(documentTags('## 标签\n\n方法论、验证\n\n## 用法\n\n不是标签\n\n```md\n## 标签\n伪标签\n```'),['方法论','验证']);
  assert.deepEqual(documentTags('## 中文 · 标签\n\n{{{row\n\n- 中文\n- 方法\n\n}}}\n{: custom-cd-field="tags"}'),['中文','方法']);

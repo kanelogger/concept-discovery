@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { runtime, digest } from "./runtime.mjs";
 import { normalize } from "../../lib/siyuan.mjs";
+import { verifyWiki } from "./wiki-integration.mjs";
 
 const test = await runtime("integration");
 let passed = false;
@@ -299,6 +300,7 @@ try {
   assert.ok(timeDetail.markdown.includes('原生修改正文后的新内容'));
   assert.equal(timeDetail.updated,nativeTimes.body);assert.equal(timeList.total,1);assert.equal(timeList.items[0].updated,timeDetail.updated);
   test.record('effective-document-update-time',{id:timeCard.id,nativeTimes,detail:timeDetail.updated,list:timeList});
+  await verifyWiki(test);
   passed = true;
   console.log("PASS real application/API integration, auth, compatibility, save and recovery");
 } catch (error) {

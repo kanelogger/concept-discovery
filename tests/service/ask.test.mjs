@@ -12,6 +12,14 @@ const origin = "http://127.0.0.1";
 const updated = "20261106010000";
 const excerpt = "上线前验证可回滚的最小改动，并记录故障隔离步骤。";
 
+test('wiki generation keeps bounded input errors while the ordinary model runner retains its error boundary',async()=>{
+  const runner=createAskRunner(async()=>({value:{},promptTokens:0,completionTokens:0}),{log:()=>{}});
+  const input={clientSignal:new AbortController().signal,errorCodes:['invalid_input']};
+  const reject=async()=>{throw Object.assign(new Error('完整原文已保留，请拆分后整理。'),{code:'invalid_input'});};
+  await assert.rejects(runner.run(input,reject),error=>error.code==='invalid_input'&&error.message.includes('原文已保留'));
+  await assert.rejects(runner.run({clientSignal:input.clientSignal},reject),error=>error.code==='ask_read_failed');
+});
+
 function library() {
   const db = new DatabaseSync(":memory:");
   db.exec(`CREATE TABLE blocks(id,root_id,box,path,type,content,updated);

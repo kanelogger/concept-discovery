@@ -23,6 +23,45 @@ const ok = (data) => ({ ok: true, data });
 const card = (id) => ({ id, title: id, markdown: "原文", html: "<p>原文</p>", revision: "rev-1", editable: true });
 const tick = () => new Promise((resolve) => setImmediate(resolve));
 
+test('a late understanding refresh cannot navigate away from a newly edited draft',async()=>{
+  let release,reads=0;
+  const h=harness(async(url,body)=>{
+    if(url.endsWith('/get-document')){if(++reads===2)await new Promise(r=>{release=r;});return ok(card(body.id));}
+    throw new Error(url);
+  });
+  try{
+    await h.workspace.navigate('same-card');const refresh=h.workspace.refreshCurrent();await tick();
+    await h.workspace.editCard();h.workspace.setMarkdown('新的编辑草稿');release();
+    assert.equal(await refresh,false);assert.equal(h.workspace.getSnapshot().route,'edit');
+    assert.equal(h.workspace.getSnapshot().draft.markdown,'新的编辑草稿');
+    assert.equal(await h.workspace.refreshCurrent(),false);
+  }finally{h.workspace.destroy();}
+});
+
+test("wiki route refresh and protected auxiliary drafts retain their navigation and session", async () => {
+  const h=harness((url,body)=>{
+    if(url==='/api/session')return ok({authenticated:true,askAvailable:true});
+    if(url.endsWith('/list'))return ok({items:[],total:0,tags:[]});
+    if(url.endsWith('/source-import'))return {ok:false,status:401,error:{code:'unauthorized',message:'expired'}};
+    throw new Error(url);
+  });
+  try{
+    h.browser.history.replaceState({},'', '/wiki');await h.workspace.start();
+    assert.equal(h.workspace.getSnapshot().route,'wiki');
+    h.workspace.setAuxiliaryDirty('wiki',true);
+    const leaving=h.workspace.listPage();await tick();
+    assert.equal(h.workspace.getSnapshot().confirmOpen,true);h.workspace.decideLeave(false);await leaving;
+    assert.equal(h.workspace.getSnapshot().route,'wiki');
+    await assert.rejects(h.workspace.command('source-import',{title:'草稿',markdown:'保留正文',op_id:'import-one'}));
+    assert.equal(h.workspace.getSnapshot().authenticated,false);
+    assert.equal(h.workspace.dirty(),true);
+    await h.workspace.login('access');
+    assert.equal(h.workspace.getSnapshot().route,'wiki');
+    assert.equal(h.workspace.dirty(),true);
+    h.workspace.setAuxiliaryDirty('wiki',false);
+  }finally{h.workspace.destroy();}
+});
+
 test("a 401 keeps the draft and frozen request for query then exact retry", async () => {
   let first = true;
   const h = harness((url, body) => {
@@ -57,7 +96,7 @@ test("late document reads cannot replace a newer navigation", async () => {
   } finally { h.workspace.destroy(); }
 });
 
-test("a legacy Chinese article is displayed at the parent card URL with the original notes available", async () => {
+test("a legacy concept is displayed first and keeps its long article as supplementary reading", async () => {
   const h = harness((url, body) => {
     if (url === "/api/session") return ok({ authenticated: true });
     if (!url.endsWith("/get-document")) throw new Error(url);
@@ -78,8 +117,9 @@ test("a legacy Chinese article is displayed at the parent card URL with the orig
     assert.equal(h.browser.location.href, "http://localhost/cards/legacy");
     assert.equal(current.id, "legacy");
     assert.equal(current.html, "<p>原文</p>");
-    assert.deepEqual(current.primaryReading, { id: "article", html: "<p>长文正文</p>" });
-    assert.deepEqual(h.requests.filter(request => request.body?.id).map(request => request.body.id), ["legacy", "article"]);
+    assert.equal(current.primaryReading, undefined);
+    assert.equal(current.readings[1].id, "article");
+    assert.deepEqual(h.requests.filter(request => request.body?.id).map(request => request.body.id), ["legacy"]);
   } finally { h.workspace.destroy(); }
 });
 

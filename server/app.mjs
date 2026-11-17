@@ -7,6 +7,7 @@ import { renderMarkdown } from './render.mjs';
 import { readUIAsset } from './ui-assets.mjs';
 import { askErrors, createAskRunner } from './ask.mjs';
 import { chatCompletions } from './model.mjs';
+import { executeWiki, wikiCommands } from '../lib/wiki.mjs';
 
 const same=(a,b)=>timingSafeEqual(createHash('sha256').update(a).digest(),createHash('sha256').update(b).digest());
 const staticFiles=new Map([['/',['index.html','text/html; charset=utf-8']],['/favicon.svg',['favicon.svg','image/svg+xml']]]);
@@ -26,9 +27,13 @@ export function assetPath(path){
   if(!decoded.startsWith('/assets/') || /[\\\u0000%]/.test(decoded) || decoded.split('/').slice(2).some(x=>!x||x==='.'||x==='..'))fail('outside_scope','附件路径无效');
   return '/data'+decoded;
 }
-export function createApp({kernelConfig,agentToken,accessCode,publicUrl,api:providedAPI,executeCommand=execute,llm,modelSettings,modelFetch,askTimeoutMs,logAsk}){
+export function createApp({kernelConfig,agentToken,accessCode,publicUrl,api:providedAPI,executeCommand=execute,llm,modelSettings,modelFetch,askTimeoutMs,logAsk,wikiRoot}){
   if(!agentToken||!accessCode)throw new Error('Application credentials are required');
   const api=providedAPI??new Siyuan(kernelConfig);
+  const availableCommands=new Set([...commandNames,...wikiCommands]);
+  const dispatch=(command,input,options={})=>wikiCommands.has(command)
+    ? executeWiki(api,command,input,{...options,wikiRoot})
+    : executeCommand(api,command,input,options);
   const origin=new URL(publicUrl).origin;
   if(new URL(publicUrl).href!==origin+'/')throw new Error('publicUrl must be an origin');
   if(!/^https:/.test(origin)&&!['127.0.0.1','localhost','[::1]'].includes(new URL(origin).hostname))throw new Error('Remote application requires HTTPS');
@@ -58,7 +63,7 @@ export function createApp({kernelConfig,agentToken,accessCode,publicUrl,api:prov
         if(!asset){send(res,404,{ok:false,error:{code:'not_found',message:'界面资源不存在'}});return;}
         res.setHeader('Content-Type',asset.type);res.end(asset.content);return;
       }
-      if(req.method==='GET'&&(staticFiles.has(path)||/^\/cards(?:\/[^/]+(?:\/edit)?)?$/.test(path))){
+      if(req.method==='GET'&&(staticFiles.has(path)||path==='/wiki'||/^\/cards(?:\/[^/]+(?:\/edit)?)?$/.test(path))){
         const [file,type]=staticFiles.get(path)??staticFiles.get('/');res.setHeader('Content-Type',type);
         const content=readFileSync(new URL('../web/'+file,import.meta.url));
         res.end(file==='index.html'?content.toString('utf8').replaceAll('__STYLE_NONCE__',styleNonce):content);return;
@@ -95,8 +100,8 @@ export function createApp({kernelConfig,agentToken,accessCode,publicUrl,api:prov
       }
       const command=/^\/api\/v1\/commands\/([a-z-]+)$/.exec(path)?.[1];
       if(command&&req.method==='POST'){
-        if(!commandNames.has(command))fail('invalid_command','此操作未开放');
-        if(command==='ask'||command==='polish-description'){
+        if(!availableCommands.has(command))fail('invalid_command','此操作未开放');
+        if(command==='ask'||command==='polish-description'||command==='wiki-propose'){
           const input=await json(req,16384);
           const session=auth==='session'?sessionId(req):undefined;
           const expiresAt=sessions.get(session);
@@ -106,15 +111,16 @@ export function createApp({kernelConfig,agentToken,accessCode,publicUrl,api:prov
           const close=()=>disconnect.abort();
           res.once('close',close);
           try {
-            const data=await analysis.run({session,expiresAt,clientSignal:disconnect.signal,model:chatCompletions(currentModel(),modelFetch)},
-              options=>executeCommand(api,command,input,{...options,publicUrl:origin}));
+            const data=await analysis.run({session,expiresAt,clientSignal:disconnect.signal,model:chatCompletions(currentModel(),modelFetch),
+              errorCodes:command==='wiki-propose'?['invalid_input','input_too_large','content_conflict','outside_scope','not_found']:[]},
+              options=>dispatch(command,input,{...options,publicUrl:origin}));
             if(!res.destroyed)send(res,200,{ok:true,data});
           } finally {
             res.off('close',close);
           }
           return;
         }
-        let data=await executeCommand(api,command,await json(req),{publicUrl:origin});
+        let data=await dispatch(command,await json(req),{publicUrl:origin});
         if(command==='get-document'){
           const html=renderMarkdown(data.markdown,{legacyFixedFields:data.legacyFixedFields,blocks:data.editable?data.blocks:undefined});
           data={...data,html};

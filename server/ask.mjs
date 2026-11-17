@@ -22,7 +22,7 @@ export function createAskRunner(completeModel, { timeoutMs = 90000, log = entry 
     revoke(session) {
       if (session && active?.session === session) active.controller.abort(stop("ask_session_expired"));
     },
-    async run({ session, expiresAt, clientSignal, model = completeModel }, execute) {
+    async run({ session, expiresAt, clientSignal, model = completeModel, errorCodes = [] }, execute) {
       if (!model) fail("ask_unavailable", askErrors.ask_unavailable[1]);
       if (active) fail("ask_busy", askErrors.ask_busy[1]);
       const controller = new AbortController();
@@ -53,6 +53,9 @@ export function createAskRunner(completeModel, { timeoutMs = 90000, log = entry 
         return result;
       } catch (error) {
         const cause = signal.aborted ? signal.reason : error;
+        if(!signal.aborted&&!clientSignal.aborted&&errorCodes.includes(cause?.code)){
+          metrics.error=cause.code;throw cause;
+        }
         const code = clientSignal.aborted ? "ask_cancelled" : Object.hasOwn(askErrors, cause?.code) ? cause.code : "ask_read_failed";
         metrics.error = code;
         if (['queries_shape', 'queries_count', 'queries_text', 'answer_schema', 'references'].includes(cause?.diagnostic)) metrics.validation = cause.diagnostic;

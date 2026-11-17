@@ -4,4 +4,6 @@
 
 新的私有配置位于.local/knowledge，初始化拒绝覆盖现存目录；旧.local/concept-discovery.sqlite和.local/concept-discovery-self-use是保留的真实资料，不属于测试垃圾。正式库在本机 6806 运行。
 
+第一期Wiki在该私有根的wiki目录保存原文快照、提案、导入回执与知识事件，按知识库身份隔离。这些是用户资料，需要和workspace、operations一起备份，不属于缓存或验收垃圾。
+
 [任务状态](workflow-state.json)记录当前交接。

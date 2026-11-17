@@ -6,6 +6,7 @@ RUN npm ci --ignore-scripts --no-audit --no-fund
 COPY web ./web
 COPY lib/task-description.mjs ./lib/task-description.mjs
 COPY scripts/build-web.mjs ./scripts/build-web.mjs
+COPY scripts/textarea-csp.mjs ./scripts/textarea-csp.mjs
 RUN npm run build:web
 
 FROM node:24.15-bookworm@sha256:f22d6a1f082c02f292e86929b5b0442ac2e5eaf438a5dea9b1566601c3e05940 AS runtime

@@ -55,6 +55,7 @@
     "README.md",
     ".dockerignore",
     "web/generated",
-    "scripts/build-web.mjs"
+    "scripts/build-web.mjs",
+    "scripts/textarea-csp.mjs"
   ]
 }

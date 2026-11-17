@@ -10,7 +10,7 @@
 
 - `npm test`：关键 Node 与工具回归，验证输入、状态、受保护写入和错误边界。
 - `npm run test:integration`：独立真实思源/应用 API、安装后的 CLI、写后读回、恢复、重启及发布资产一致性。
-- `npm run test:browser`：显式白名单中的五组 Playwright，覆盖启动竞态、请求乱序、未知结果续跑、版本冲突、上传/401 后草稿保护。仅保留必要正常 setup；日常流程由 ego-lite 验收。
+- `npm run test:browser`：显式白名单中的六组 Playwright，覆盖启动竞态、请求乱序、未知结果续跑、版本冲突、上传/401 后草稿保护，以及理解保存迟到时的新编辑草稿保护。仅保留必要正常 setup；日常流程由 ego-lite 验收。
 - `npm run test:ego -- start`：建立随机 project/端口的隔离栈。随后遵循已安装版本的 `ego-browser skill`，通过真实可见控件操作；页面 evaluate 仅做只读观察，API/CLI 用于样本准备、明确的 Agent 协作步骤和持久化读回。
 
 Ego 必需检查点：sign-in（登录/空态/退出）、authoring（真实编辑/格式/预览/图片/保存）、navigation（搜索、列表分页、内链/历史及放弃编辑）、compatibility（旧卡/复杂结构只读及来源链接）、agent-roundtrip（Agent 追加、网页编辑、恢复和重启读回）、desktop（1280/1440、键盘、长内容和状态）。搜索最多显示前20条，只有列表分页。

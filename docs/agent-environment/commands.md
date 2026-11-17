@@ -12,7 +12,7 @@
 | `npm run build:web` | esbuild 打包 CSS 与共享 React/懒编辑器 JS，生成发布清单 |
 | `npm test` | 关键 Node/工具永久回归 |
 | `npm run test:integration` | 独立真实 API、安装 CLI、恢复/重启与完整资产校验 |
-| `npm run test:browser` | 五组竞态/故障注入 Playwright |
+| `npm run test:browser` | 六组竞态/故障注入 Playwright |
 | `npm run test:ego -- start` | 启动日常真实用户验收栈，输出 run ID/地址/凭据路径 |
 | `npm run test:ego -- record --run <id> --checkpoint <name> --input <json>` | 记录真实观察与截图/读回 |
 | `npm run test:ego -- cleanup --run <id> --browser-finished <json>` | 精确回收指定测试栈，保留证据 |
@@ -20,6 +20,8 @@
 | `npm run check:full -- --ego-run <id>` | 全部自动检查与指定 ego 证据门禁 |
 
 客户端配置由 CONCEPT_DISCOVERY_CONFIG 指向私有 client.json；服务使用 CONCEPT_SERVICE_CONFIG。kernel.json 只交给本地维护入口 bin/maintenance.mjs。初始化/迁移不开放 HTTP，迁移源只读。
+
+第一期Wiki命令通过同一应用客户端使用：source-import/sources-list/source-get保存和读取原始快照，wiki-propose/wiki-proposals/wiki-proposal生成和审阅提案，wiki-apply采用选中项，wiki-card/wiki-understanding读取问题并显式写回人的理解，wiki-events读取知识记录，wiki-recover按受保护回执撤回AI区。[知识规则](../../specs/wiki-content.md) · [Agent流程](../../skills/concept-discovery/references/wiki-workflows.md)。
 
 测试只使用独立样本栈，按 run ID 持久化归属；证据在样本工作区外。完整入口拒绝缩范围和暂留开关，缺失/陈旧/未清理的 ego 证据返回非零。受限环境需按当前会话申请本机端口和 Docker 权限；项目文件不授予机器权限。
 
@@ -57,4 +59,4 @@ DeepSeek 的已验收配置为 baseUrl 使用 `https://api.deepseek.com`，model
 printf '%s\n' '{"question":"项目上线前怎样排查失败风险？"}' | concept-discovery ask
 ```
 
-status 为 answered、insufficient 或 no_match。应用最长处理 90 秒，CLI 等待上限为 100 秒。直接连接官方DeepSeek端点的受支持模型会显式关闭默认思考模式，使结构化输出使用有限预算。每个阶段对空白、截断、无效JSON及结构错误最多恢复一次；截断时预算最多翻倍至8192，仍共用原90秒期限。模型拒绝不重试。无效引用或回答字段校验失败的候选先被丢弃，只允许用原始合法证据重新生成一次；再次失败仍返回错误，不能放松校验或补造引用。诊断日志只保留阶段、尝试次数、预算、结束类型和校验类别，不含用户问题、卡片内容或凭据。
+status 为 answered、insufficient 或 no_match。应用最长处理 90 秒，CLI 的模型分析及提案采用等待上限为 120 秒。直接连接官方DeepSeek端点的受支持模型会显式关闭默认思考模式，使结构化输出使用有限预算。每个阶段对空白、截断、无效JSON及结构错误最多恢复一次；截断时预算最多翻倍至8192，仍共用原90秒期限。模型拒绝不重试。无效引用或回答字段校验失败的候选先被丢弃，只允许用原始合法证据重新生成一次；再次失败仍返回错误，不能放松校验或补造引用。诊断日志只保留阶段、尝试次数、预算、结束类型和校验类别，不含用户问题、卡片内容或凭据。

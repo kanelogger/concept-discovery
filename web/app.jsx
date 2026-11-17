@@ -11,9 +11,12 @@ import { tagTone } from "./lib/utils.mjs";
 import { paperTheme } from "./themes/antd.mjs";
 import { AskCardContext, AskPanel } from "./ask.jsx";
 import { ModelSettings } from "./model-settings.jsx";
+import { WikiPage, RecallPanel } from "./wiki.jsx";
 
 dayjs.locale("zh-cn");
 const workspace = createWorkspace();
+const wikiDirty = value => workspace.setAuxiliaryDirty('wiki',value);
+const recallDirty = value => workspace.setAuxiliaryDirty('recall',value);
 const { Title, Text, Paragraph, Link } = Typography;
 
 function Brand({ onClick }) {
@@ -143,7 +146,7 @@ function DocumentMessage({ message, busy }) {
     </Flex>} />;
 }
 
-function Reader({ current, askResult, hidden }) {
+function Reader({ current, askResult, hidden, authenticated }) {
   const recommendation = askResult?.data.cards.find(card => card.id === current?.id);
   const readings = current?.readings ?? [];
   const primaryReading = current?.primaryReading;
@@ -161,7 +164,10 @@ function Reader({ current, askResult, hidden }) {
     </header>
     {recommendation && <AskCardContext question={askResult.question} card={recommendation} />}
     {!primaryReading && readOnlyNotice}
-    <div id="document-body" className="prose" dangerouslySetInnerHTML={{ __html: primaryReading?.html || current?.html || "<p>还没有正文，写下一条自己的理解吧。</p>" }} />
+    <RecallPanel command={workspace.command} current={current} active={!hidden} authenticated={authenticated}
+      onDirtyChange={recallDirty} onSaved={() => workspace.refreshCurrent(current.id)}>
+      <div id="document-body" className="prose" dangerouslySetInnerHTML={{ __html: primaryReading?.html || current?.html || "<p>还没有正文，写下一条自己的理解吧。</p>" }} />
+    </RecallPanel>
     {primaryReading && <details className="readings" key={primaryReading.id}>
       <summary><Text strong>卡片笔记与出处</Text></summary>
       {readOnlyNotice}
@@ -267,6 +273,9 @@ function Workspace() {
     if (!link || event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || link.target === "_blank" || link.hasAttribute("download")) return;
     const url = new URL(link.href, location.href);
     const route = readRoute(url.href);
+    if(url.origin===location.origin&&route.kind==='wiki'){
+      event.preventDefault();void workspace.wikiPage({sourceId:url.searchParams.get('source')});return;
+    }
     if (url.origin !== location.origin || route.kind !== "detail") return;
     event.preventDefault();
     void workspace.navigate(route.id, { hash: route.hash });
@@ -283,6 +292,8 @@ function Workspace() {
           void workspace.home();
         }} />
         <Flex align="center" gap={8}>
+          <Button id="cards-nav" type="text" size="small" onClick={() => void workspace.listPage()}>知识卡</Button>
+          <Button id="wiki-nav" type="text" size="small" onClick={() => void workspace.wikiPage()}>资料与整理</Button>
           <Button id="model-settings" type="text" size="small" onClick={() => setShowModelSettings(true)}>模型设置</Button>
           <Button id="logout" type="text" size="small" icon={<LogoutOutlined />} onClick={() => void workspace.logout()}>退出</Button>
         </Flex>
@@ -290,9 +301,12 @@ function Workspace() {
       <Layout.Content id="workspace" className={isDetail ? "workspace page-workspace detail-workspace" : "workspace page-workspace"}
         tabIndex={-1} aria-label="知识卡工作区" aria-busy={state.navigating || state.editorLoading}>
         {state.authenticated && state.route === "list" && <CardList state={state} />}
+        <WikiPage command={workspace.command} active={state.route==='wiki'} authenticated={state.authenticated}
+          askAvailable={state.askAvailable} onOpenCard={id=>void workspace.navigate(id)} initialSourceId={state.wikiSourceId}
+          onDirtyChange={wikiDirty} readModelSettings={workspace.readModelSettings} />
         {state.route === "missing" && <Result status="404" title="页面不存在"
           extra={<Button type="primary" onClick={() => void workspace.listPage()}>返回列表</Button>} />}
-        <div className="record-page" hidden={state.route === "list" || state.route === "missing"}>
+        <div className="record-page" hidden={state.route === "list" || state.route === "missing" || state.route==='wiki'}>
           <div className="record-controls">
             <Flex className="record-back" align="center" justify="space-between">
               <Button id="back-to-list" type="text" icon={<ArrowLeftOutlined />} onClick={() => void workspace.listPage({ restore: true })}>
@@ -317,7 +331,7 @@ function Workspace() {
           {state.editorLoading && <Flex className="editor-loading" align="center" gap={9} role="status">
             <Spin size="small" />正在加载编辑器…
           </Flex>}
-          <Reader current={state.current} askResult={isDetail ? state.askResult : null} hidden={!isDetail || !state.current || state.editing} />
+          <Reader current={state.current} askResult={isDetail ? state.askResult : null} hidden={!isDetail || !state.current || state.editing} authenticated={state.authenticated} />
           <CardEditor state={state} />
         </div>
       </Layout.Content>

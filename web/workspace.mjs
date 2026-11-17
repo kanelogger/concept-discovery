@@ -48,7 +48,7 @@ export function createWorkspace({ fetch: fetcher = globalThis.fetch, loadEditor 
   const update = (patch) => { if (destroyed) return; state = { ...state, ...patch }; listeners.forEach((listener) => listener()); };
   const message = (text = "", options = {}) => update({ message: text ? { text, checkLabel: state.pending?.command === "delete-document" ? "核对删除结果" : undefined, ...options } : null });
   const draft = () => ({ title: state.draft.title, description: state.draft.description ?? "", markdown: editor?.getValue() ?? state.draft.markdown });
-  const dirty = () => state.editing && (draft().title !== state.base?.title || draft().markdown !== state.base?.markdown || draft().description !== (state.base?.description ?? ""));
+  const dirty = () => Object.values(state.auxDirty ?? {}).some(Boolean) || state.editing && (draft().title !== state.base?.title || draft().markdown !== state.base?.markdown || draft().description !== (state.base?.description ?? ""));
   const protectedDraft = () => Boolean(state.pending || state.uploading || dirty());
   const uncertain = (error) => error.status === 401 || error.status >= 500 || ["transport_unknown", "readback_conflict", "operation_pending"].includes(error.code);
   function abortAsk() {
@@ -233,17 +233,8 @@ export function createWorkspace({ fetch: fetcher = globalThis.fetch, loadEditor 
     try {
       const card = await command("get-document", { id });
       if (requestId !== documentRequest) return false;
-      const chineseArticle = card.legacyFixedFields && card.readings?.find(reading => reading.locale === "cn" && reading.title === "中文长文");
-      let primaryReading;
-      if (chineseArticle) {
-        try {
-          const article = await command("get-document", { id: chineseArticle.id });
-          if (article.html) primaryReading = { id: article.id, html: article.html };
-        } catch (error) {
-          if (error.status === 401) throw error;
-          // The original card and its reading link remain available on failure.
-        }
-      }
+      // Keep the concept itself first; long readings remain available below.
+      const primaryReading = undefined;
       if (requestId !== documentRequest) return false;
       const listPosition = !fromHistory && state.route === "list" ? rememberListPosition(id) : undefined;
       update({ route: "detail", current: { ...card, primaryReading }, editing: false, isNew: false, base: null, preview: false, pending: null, documentStatus: "知识卡", message: null });
@@ -285,6 +276,7 @@ export function createWorkspace({ fetch: fetcher = globalThis.fetch, loadEditor 
       askQuestion: result?.question ?? "", askResult: result ?? null, askMessage: null,
     });
     if(route.kind==='list')return listPage({protect:false,replace,fromHistory:!replace});
+    if(route.kind==='wiki')return wikiPage({protect:false,replace,fromHistory:!replace,sourceId:new URL(browser.location.href).searchParams.get('source')});
     if(route.kind==='new')return editCard({isNew:true,protect:false,replace,fromHistory:!replace});
     if(route.kind==='detail'||route.kind==='edit'){
       const loaded=await navigate(route.id,{protect:false,replace,fromHistory:!replace,hash:route.hash});
@@ -298,6 +290,27 @@ export function createWorkspace({ fetch: fetcher = globalThis.fetch, loadEditor 
     try { await showApp(await request("/api/session", { body: { accessCode } })); }
     catch (error) { update({ loginMessage: error.status === 401 || error.status === 403 ? "访问码不正确，请重新输入。" : "暂时无法进入知识库，请检查服务后重试。", loginError: true }); }
     finally { update({ loginBusy: false }); }
+  }
+  async function wikiPage({protect=true,replace=false,fromHistory=false,sourceId}={}) {
+    if(protect&&!await guard())return false;
+    clearTimeout(queryTimer);++listRequest;++documentRequest;abortAsk();clearPolish();
+    update({route:'wiki',editing:false,isNew:false,base:null,navigating:false,message:null,wikiSourceId:sourceId??null,documentStatus:'资料与整理'});
+    if(!fromHistory)commitLocation('wiki',sourceId,{replace});
+    currentUrl=browser.location.href;browser.document.title='资料与整理 · Concept Discovery';
+    browser.requestAnimationFrame(()=>browser.document.getElementById('workspace')?.focus());
+    return true;
+  }
+  async function refreshCurrent(id=state.current?.id) {
+    if(!id||state.route!=='detail'||state.editing||state.current?.id!==id)return false;
+    const requestId=++documentRequest;
+    try{
+      const card=await command('get-document',{id});
+      if(requestId!==documentRequest||state.route!=='detail'||state.editing||state.current?.id!==id)return false;
+      update({current:card});return true;
+    }catch(error){
+      if(requestId===documentRequest&&state.route==='detail'&&!state.editing)message(errorText(error,'保存已完成，但正文暂时无法刷新。'),{error:true,reload:true});
+      return false;
+    }
   }
   async function editCard({ isNew = false, protect = true, replace = false, fromHistory = false } = {}) {
     if ((protect && !await guard()) || state.editorLoading) return;
@@ -476,7 +489,8 @@ export function createWorkspace({ fetch: fetcher = globalThis.fetch, loadEditor 
   return {
     subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener); }, getSnapshot: () => state,
     async start() { try { const session = await request("/api/session", { method: "GET" }); if (session.authenticated) await showApp(session); else showLogin(); } catch { showLogin("暂时无法连接知识库，请检查服务后重试。"); } },
-    login, logout, navigate, editCard, loadList, listPage, applyFilters, filters, href, setQuery, save, deleteCard, checkOperation, uploadImages, cancelEdit, home, decideLeave,
+    login, logout, navigate, editCard, loadList, listPage, applyFilters, filters, href, setQuery, save, deleteCard, checkOperation, uploadImages, cancelEdit, home, decideLeave, wikiPage, command, refreshCurrent,
+    setAuxiliaryDirty(scope,value) { if(Boolean(value)!==Boolean(state.auxDirty?.[scope]))update({auxDirty:{...state.auxDirty,[scope]:Boolean(value)}}); },
     dismissDeletionReceipt() { update({ deletionReceipt: null }); },
     switchListMode, submitAsk, cancelAsk, polishDescription,
     setDescription(value) { clearPolish(); update({ draft: { ...state.draft, description: value } }); },

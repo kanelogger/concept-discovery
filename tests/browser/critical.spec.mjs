@@ -3,6 +3,32 @@ import { test, expect, opId, login, markdownValue, setMarkdown, gate, settled, e
 const create = (service, title, markdown = "初始正文。") => service.call("create", { op_id: opId("browser-create"), document: { title, markdown } });
 const savePath = "**/api/v1/commands/save-document";
 
+test("late understanding save cannot displace a new editor draft",async({service,ui})=>{
+  const {page,editorURL}=ui;
+  const card=await create(service,'回想迟到 '+opId('recall'),'## 自测\n\n为什么要核对写入结果？\n\n## 核心理解\n\n保留自己的解释。');
+  const release=gate(),requested=gate(),finished=gate();let held=false;
+  await page.route('**/api/v1/commands/wiki-understanding',async route=>{
+    held=true;const response=await route.fetch();requested.release();
+    await release.promise;try{await route.fulfill({response});}finally{finished.release();}
+  });
+  try{
+    await login(page,service,card.id);
+    await expect(page.locator('textarea[name="understanding"]')).toBeVisible();
+    await page.locator('textarea[name="understanding"]').fill('写回的理解在内核保存，新的编辑草稿也要保留。');
+    await page.locator('#wiki-save-understanding').click();await requested.promise;
+    await page.locator('#edit-card').click();await expect(page.locator('#discard-changes')).toBeVisible();
+    await page.locator('#discard-changes').click();
+    const draft='迟到理解保存不能覆盖这份新的编辑草稿。';
+    await setMarkdown(page,editorURL,draft);release.release();await finished.promise;await settled(page);
+    await expect(page.locator('#editor-form')).toBeVisible();
+    expect(await markdownValue(page,editorURL)).toBe(draft);
+    const read=await service.call('get-document',{id:card.id});
+    expect(read.markdown).toContain('写回的理解在内核保存');
+    expect(read.markdown).not.toContain(draft);
+    service.record('late-understanding-keeps-new-edit',{id:card.id,draft,understandingPersisted:true});
+  }finally{release.release();if(held)await finished.promise;}
+});
+
 test("startup list and lazy editor cannot replace a new draft", async ({ service, ui }) => {
   const { page, editorURL } = ui;
   await page.addInitScript(() => localStorage.setItem("concept-discovery.theme", "gray"));

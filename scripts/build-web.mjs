@@ -3,6 +3,7 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { adaptTextareaCSP } from './textarea-csp.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const output = resolve(root, 'web/generated');
@@ -11,6 +12,7 @@ const output = resolve(root, 'web/generated');
 const rcStyleNonce = {
   name: 'rc-style-nonce',
   setup(build) {
+    build.onLoad({filter:/@rc-component[\\/]input[\\/]es[\\/]calculateNodeHeight\.js$/},({path})=>({contents:adaptTextareaCSP(readFileSync(path,'utf8')),loader:'js'}));
     build.onLoad({ filter: /@rc-component[\\/]util[\\/]es[\\/]Dom[\\/]dynamicCSS\.js$/ }, ({ path }) => {
       const source = readFileSync(path, 'utf8');
       const original = '  if (csp?.nonce) {\n    styleNode.nonce = csp?.nonce;\n  }';

@@ -1,27 +1,69 @@
 {
   "schema_version": 1,
-  "task_id": "0014-human-llm-wiki-plan",
+  "task_id": "0015-human-wiki-phase-one",
   "phase": "complete",
-  "task_file": "tasks/0014-human-llm-wiki-plan.md",
+  "task_file": "tasks/0015-human-wiki-phase-one.md",
   "updated_at": "2026-11-17",
-  "summary": "面向人的Karpathy LLM Wiki知识闪卡方案已完成：保留现有底座，补资料编译维护与轻量回想，暂不排程。",
+  "summary": "第一期LLM Wiki闭环已实现并通过152项/完整阶段门禁，本机6806已更新，原61张卡内容比对一致。",
   "blockers": [],
   "next_actions": [
-    "审阅docs/plans/human-llm-wiki.md的范围与分期。",
-    "后续实施另开P1a任务，细化来源/归属/提案的数据与接口并验证小样闭环。"
+    "从本机/wiki选择小批实际资料试用，生成前确认模型设置可用并审阅资料范围。",
+    "后续依据人的理解/迁移观察评估P2，复习排程仍不加入。"
   ],
   "required_checks": [
-    "npm run validate",
+    "npm run check",
+    "npm run build:web",
+    "npm run check:full -- --ego-run cd-service-7ba65eb17a",
     "git diff --check"
   ],
   "verification": [
     {
-      "command": "npm run validate",
+      "command": "npm run check",
       "result": "passed",
       "recorded_at": "2026-11-17"
     },
     {
+      "command": "npm run build:web",
+      "result": "passed",
+      "recorded_at": "2026-11-17"
+    },
+    {
+      "command": "npm run check",
+      "result": "passed",
+      "recorded_at": "2026-11-17"
+    },
+    {
+      "command": "npm run check:full -- --ego-run cd-service-7ba65eb17a",
+      "result": "passed",
+      "recorded_at": "2026-11-17"
+    },
+    {
+      "command": "独立源码与最终Ego/集成/冷恢复证据复核",
+      "result": "passed",
+      "recorded_at": "2026-11-17"
+    },
+    {
+      "command": "npm start",
+      "result": "passed",
+      "recorded_at": "2026-11-17"
+    },
+    {
+      "command": "node .local/wiki-phase-one/production-snapshot.mjs after",
+      "result": "passed",
+      "recorded_at": "2026-11-17"
+    },
+    {
+      "command": "npm run validate",
+      "result": "failed",
+      "recorded_at": "2026-11-17"
+    },
+    {
       "command": "git diff --check",
+      "result": "passed",
+      "recorded_at": "2026-11-17"
+    },
+    {
+      "command": "npm run validate",
       "result": "passed",
       "recorded_at": "2026-11-17"
     }
