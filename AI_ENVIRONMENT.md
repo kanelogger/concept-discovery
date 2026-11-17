@@ -1,5 +1,7 @@
 # 当前环境入口
 
+先读根[执行环境声明](project.yml)，命令和服务以其引用的实际配置为准；产品状态仍见[项目清单](project.json)。清单声明能力需求，不授予权限，亦不代表服务当前已启动。
+
 使用Node24、Docker Compose和固定思源3.8.9内核。独立应用发布桌面网页，默认回环6806；启动命令见[命令说明](docs/agent-environment/commands.md)。
 
 真实配置和工作区在.local/knowledge。旧.local/concept-discovery.sqlite和.local/concept-discovery-self-use也是保留资料，测试和清理不触碰。初始化拒绝覆盖已有目录。

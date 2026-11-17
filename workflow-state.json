@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "task_id": "0016-lightweight-wiki",
+  "task_id": "0017-agent-bootstrap",
   "phase": "complete",
-  "task_file": "tasks/0016-lightweight-wiki.md",
+  "task_file": "tasks/0017-agent-bootstrap.md",
   "updated_at": "2026-11-17",
-  "summary": "个人LLM Wiki第一轮精简完成并本地提交；93项检查及真实内核/浏览器/恢复验证通过。按用户“只保留成果”清理6份一次性文件和7个空目录，保留成果与必要证据，已核对测试资源无残留，正式数据未触及。",
+  "summary": "Agent接入完成：真实环境声明、12条薄索引及五节点读取/增量维护协议可用；当前无密钥要求。93项公共检查、独立接续及隔离真实内核链路通过，资源已清理，形成独立本地提交。",
   "blockers": [],
   "next_actions": [
-    "需要使用时运行npm start；既有模型设置用于单卡草稿。",
-    "用选定的少量真实资料试用生成质量和审阅负担，按实际需要迭代。"
+    "后续任务从AGENTS与workflow-state进入，按需读取原始来源并维护受影响索引。",
+    "跨平台或真实模型质量在实际需要时另行验证。"
   ]
 }

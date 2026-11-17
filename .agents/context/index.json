@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "entries": {
+    "app.cli": {
+      "file": "docs/agent-environment/commands.md",
+      "section": "应用CLI",
+      "aliases": [
+        "应用CLI"
+      ],
+      "summary": "应用CLI配置、命令与版本回执使用",
+      "when": [],
+      "sha256": "ece8ec20aedab75f82a58f1f14e36fbf2d7052e33accf37dacf422508e0840d2"
+    },
+    "business.draft": {
+      "file": "specs/product-contract.md",
+      "section": "资料与单卡草稿",
+      "aliases": [
+        "单卡草稿"
+      ],
+      "summary": "原文快照、单卡只读生成、预算和人工编辑边界",
+      "when": [
+        "plan",
+        "implement"
+      ],
+      "sources": [
+        {
+          "file": "lib/wiki.mjs",
+          "sha256": "ffd9faad279c2c66913efdb7f96a3537c06546d0fa3cbc6c621c1a8e6fb42482"
+        },
+        {
+          "file": "lib/wiki-store.mjs",
+          "sha256": "761ec9b9d7f531bb27ad1a495edc5ab789b3acaccca35da7e25f274feaa88956"
+        },
+        {
+          "file": "lib/wiki-draft.mjs",
+          "sha256": "fb2b6569f9cc984ea3364a5f94b3b6c206f83950a54ff9f12751df6e82cf4623"
+        },
+        {
+          "file": "web/workspace.mjs",
+          "sha256": "55da2f1fd487866a70932c9451926de0fe7ca12cb1cb293256e51dc83ef5776e"
+        }
+      ],
+      "sha256": "15f1e5bcc0b014e8078f768b0c27f5ec7be09fbd0aede0438993e79f881e5706"
+    },
+    "business.entry": {
+      "file": "lib/wiki.mjs",
+      "aliases": [
+        "Wiki实现"
+      ],
+      "summary": "资料命令、单卡草稿和历史只读分派的真实入口",
+      "when": [
+        "implement"
+      ],
+      "sha256": "ffd9faad279c2c66913efdb7f96a3537c06546d0fa3cbc6c621c1a8e6fb42482"
+    },
+    "business.runtime": {
+      "file": "specs/product-contract.md",
+      "section": "运行与验证",
+      "aliases": [
+        "运行边界"
+      ],
+      "summary": "运行隔离、数据归属和当前产品范围",
+      "when": [],
+      "sources": [
+        {
+          "file": "deploy/compose.yaml",
+          "sha256": "95d35747c3b75f33ea6322894676d5ed2c127390f4776857cb2c3a3d0ade9d8d"
+        },
+        {
+          "file": "scripts/deploy-init.mjs",
+          "sha256": "63b5436689b4d06bd7a7ddc5f719cc849135c8b5009983e28d4fdbbbad790740"
+        },
+        {
+          "file": "lib/wiki-store.mjs",
+          "sha256": "761ec9b9d7f531bb27ad1a495edc5ab789b3acaccca35da7e25f274feaa88956"
+        }
+      ],
+      "sha256": "15f1e5bcc0b014e8078f768b0c27f5ec7be09fbd0aede0438993e79f881e5706"
+    },
+    "business.save": {
+      "file": "specs/product-contract.md",
+      "section": "应用接口与写保护",
+      "aliases": [
+        "写保护"
+      ],
+      "summary": "应用命令、普通保存保护和未知结果核对",
+      "when": [
+        "plan",
+        "verify"
+      ],
+      "sources": [
+        {
+          "file": "lib/commands.mjs",
+          "sha256": "fff3e792220748483f37da689fd14a7fee9c8d011c11365462a138b2d711095c"
+        },
+        {
+          "file": "lib/documents.mjs",
+          "sha256": "e8e06f53d971d0923104610334bed3545fd05d531a58687e80540f4c8d1d1ce5"
+        },
+        {
+          "file": "lib/siyuan.mjs",
+          "sha256": "c12ccfb3dadaae3783defe6222f39140ef11208eb9066774dd97a1148a357f4c"
+        },
+        {
+          "file": "server/app.mjs",
+          "sha256": "119b3e2183cd47af22ff2b727deff96b4d7a2ce449418cdcb769b0dacb4f53ce"
+        },
+        {
+          "file": "server/model-settings.mjs",
+          "sha256": "019e3deae97cda1c1dd44649a59b7c46f11bf0c218b0e42d4b949284cf58b37e"
+        }
+      ],
+      "sha256": "15f1e5bcc0b014e8078f768b0c27f5ec7be09fbd0aede0438993e79f881e5706"
+    },
+    "commands": {
+      "file": "package.json",
+      "select": [
+        "scripts"
+      ],
+      "aliases": [
+        "真实命令"
+      ],
+      "summary": "实际npm scripts，精确命令以这里为准",
+      "when": [
+        "start",
+        "verify"
+      ],
+      "sha256": "2cd414ab3b9d80b04cba89b398ae7e92c8fc9a8f20df81e6c04539cd49d3ef6b"
+    },
+    "environment.check": {
+      "file": "project.yml",
+      "select": [
+        "environment",
+        "commands",
+        "check"
+      ],
+      "aliases": [
+        "检查环境"
+      ],
+      "summary": "日常check前置条件、副作用、失败处理与验证范围",
+      "when": [
+        "verify"
+      ],
+      "sources": [
+        {
+          "file": "package.json",
+          "sha256": "2cd414ab3b9d80b04cba89b398ae7e92c8fc9a8f20df81e6c04539cd49d3ef6b"
+        },
+        {
+          "file": "scripts/validate.mjs",
+          "sha256": "3c61e76c977b0b1db2ff470d83c25606dfc75b982ab6bc8ab0aaf84ba28c2a72"
+        },
+        {
+          "file": "rules/testing.md",
+          "sha256": "2efb1f73961f1538167a3bc0678b65ca3a2572e79cb7a2bc405d876e7b01b4c4"
+        }
+      ],
+      "sha256": "ce544c8df84b48ab173dabca5cfef4243fb49b1a88855508445f94e8d6a8244c"
+    },
+    "environment.services": {
+      "file": "project.yml",
+      "select": [
+        "environment",
+        "services"
+      ],
+      "aliases": [
+        "服务"
+      ],
+      "summary": "应用和内部内核的启动、就绪与停止入口",
+      "when": [],
+      "sources": [
+        {
+          "file": "deploy/compose.yaml",
+          "sha256": "95d35747c3b75f33ea6322894676d5ed2c127390f4776857cb2c3a3d0ade9d8d"
+        },
+        {
+          "file": "scripts/deploy-init.mjs",
+          "sha256": "63b5436689b4d06bd7a7ddc5f719cc849135c8b5009983e28d4fdbbbad790740"
+        },
+        {
+          "file": "scripts/service-start.mjs",
+          "sha256": "925d3ba6f0455f76ce4598e4749302fb2fe3bb4c0d8da5d899d9b0dd1e5fc5bc"
+        }
+      ],
+      "sha256": "ce544c8df84b48ab173dabca5cfef4243fb49b1a88855508445f94e8d6a8244c"
+    },
+    "environment.toolchains": {
+      "file": "project.yml",
+      "select": [
+        "environment",
+        "toolchains"
+      ],
+      "aliases": [
+        "工具链"
+      ],
+      "summary": "工具链版本的定义来源和核对方式",
+      "when": [
+        "start"
+      ],
+      "sources": [
+        {
+          "file": "package.json",
+          "sha256": "2cd414ab3b9d80b04cba89b398ae7e92c8fc9a8f20df81e6c04539cd49d3ef6b"
+        },
+        {
+          "file": "deploy/Dockerfile",
+          "sha256": "ecc87e36d3f8e15b538fea5191992293821a0899ae076f44b84e600ba60a2889"
+        },
+        {
+          "file": "deploy/compose.yaml",
+          "sha256": "95d35747c3b75f33ea6322894676d5ed2c127390f4776857cb2c3a3d0ade9d8d"
+        }
+      ],
+      "sha256": "ce544c8df84b48ab173dabca5cfef4243fb49b1a88855508445f94e8d6a8244c"
+    },
+    "security": {
+      "file": "rules/security.md",
+      "aliases": [
+        "安全边界"
+      ],
+      "summary": "私有凭据、外部资料及写入权限边界",
+      "when": [
+        "plan",
+        "implement"
+      ],
+      "sha256": "99cd178f74ba6d3832477b8be9a0e525d882b74dae00880d4dc8ab3ebe18f0f1"
+    },
+    "verification": {
+      "file": "rules/testing.md",
+      "aliases": [
+        "验证规则"
+      ],
+      "summary": "按改动风险选检查、隔离测试资源及精确清理",
+      "when": [
+        "plan",
+        "verify"
+      ],
+      "sha256": "2efb1f73961f1538167a3bc0678b65ca3a2572e79cb7a2bc405d876e7b01b4c4"
+    },
+    "workflow": {
+      "file": "workflow/README.md",
+      "section": "开始与执行",
+      "aliases": [
+        "工作流"
+      ],
+      "summary": "任务开始、计划、实施、验证和交接的上下文责任",
+      "when": [
+        "start",
+        "plan",
+        "handoff"
+      ],
+      "sha256": "02a9cdd8dd4cbba60b3577c582604cc4f12ada938280f3c414f5e992a438c723"
+    }
+  }
+}
