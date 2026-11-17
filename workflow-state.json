@@ -4,10 +4,10 @@
   "phase": "complete",
   "task_file": "tasks/0015-human-wiki-phase-one.md",
   "updated_at": "2026-11-17",
-  "summary": "第一期LLM Wiki闭环已实现并通过152项/完整阶段门禁，本机6806已更新，原61张卡内容比对一致。",
+  "summary": "第一期LLM Wiki闭环已实现并通过152项/完整阶段门禁，原61张卡内容比对一致；按用户要求完成临时文件清理，本机app/kernel服务已关闭。",
   "blockers": [],
   "next_actions": [
-    "从本机/wiki选择小批实际资料试用，生成前确认模型设置可用并审阅资料范围。",
+    "需要使用时执行npm start，再从本机/wiki选择小批实际资料试用；生成前确认模型设置可用并审阅资料范围。",
     "后续依据人的理解/迁移观察评估P2，复习排程仍不加入。"
   ],
   "required_checks": [
@@ -64,6 +64,31 @@
     },
     {
       "command": "npm run validate",
+      "result": "passed",
+      "recorded_at": "2026-11-17"
+    },
+    {
+      "command": "npm stop",
+      "result": "passed",
+      "recorded_at": "2026-11-17"
+    },
+    {
+      "command": "清理回读：16个一次性文件不存在，6806无监听，知识库与配置保留",
+      "result": "passed",
+      "recorded_at": "2026-11-17"
+    },
+    {
+      "command": "npm run test:ego -- verify --run cd-service-7ba65eb17a",
+      "result": "passed",
+      "recorded_at": "2026-11-17"
+    },
+    {
+      "command": "npm run validate",
+      "result": "passed",
+      "recorded_at": "2026-11-17"
+    },
+    {
+      "command": "git diff --check",
       "result": "passed",
       "recorded_at": "2026-11-17"
     }
