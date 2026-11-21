@@ -8,20 +8,27 @@ Logo「卡片与发现」的[双色主标](web/favicon.svg)用于登录页、页
 
 ## 启动
 
-需要Node 24、Docker与Compose。
+需要 Node 24、Docker 与 Compose。首次使用时，在仓库根目录初始化一次知识库。
 
 ```sh
-npm ci
 npm run deploy:init
-npm start
 ```
+
+之后在仓库根目录用同一个脚本管理开发环境。
+
+| 命令 | 用途 |
+| --- | --- |
+| `./start-dev.sh` 或 `./start-dev.sh start` | 构建并在后台启动应用和思源内核 |
+| `./start-dev.sh stop` | 停止应用和思源内核，保留知识库数据 |
+| `./start-dev.sh restart` | 重新构建应用并重启应用和思源内核。修改代码后可用此命令刷新运行中的版本 |
+
+启动和重启时，脚本会在需要时尝试启动当前选用的 OrbStack。使用其他 Docker 引擎或执行停止命令时，请确保对应引擎正在运行。
 
 打开 http://127.0.0.1:6806 。访问码位于私有 `.local/knowledge/access-code`。初始化只接受新目录，已有配置和知识库拒绝覆盖。内核仅在容器网络运行，应用是唯一公开入口。
 
 ```sh
 export CONCEPT_DISCOVERY_CONFIG="$PWD/.local/knowledge/client.json"
 printf '{"query":"瓶颈","locale":"cn","limit":5}' | node bin/concept-discovery.mjs search
-npm stop
 ```
 
 CLI也可经npm pack安装后从任意目录使用。客户端配置指向应用地址和独立Agent令牌；远端要求HTTPS。服务端配置、工作区和操作备份含私密内容，不进入Git。
@@ -34,7 +41,7 @@ React 工作台使用 Ant Design 组件及图标，沿用纸感主题；Markdown
 
 ## 检查与托管
 
-`npm test`运行关键Node与工具回归；`npm run check:full -- --ego-run <id>`组合真实API/安装CLI、关键Playwright与ego-lite日常流程证据。临时库、容器和凭据结束清理；真实数据不参与测试。自托管HTTPS及备份说明见[阅读与使用](docs/reading-experience.md)。
+运行本地检查或构建前，先用 `npm ci` 安装依赖。`npm test`运行关键Node与工具回归；`npm run check:full -- --ego-run <id>`组合真实API/安装CLI、关键Playwright与ego-lite日常流程证据。临时库、容器和凭据结束清理；真实数据不参与测试。自托管HTTPS及备份说明见[阅读与使用](docs/reading-experience.md)。
 
 [当前契约](specs/product-contract.md) · [命令](docs/agent-environment/commands.md) · [验证规则](rules/testing.md)。本机服务入口为 [6806](http://127.0.0.1:6806)。
 
