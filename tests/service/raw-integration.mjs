@@ -33,6 +33,7 @@ export async function verifyRawCli(instance) {
     assert.equal((await call('check')).cards,2);
     const wrongRoot = join(instance.dir,'different-private-root');
     mkdirSync(wrongRoot);
+    writeFileSync(join(wrongRoot,'service.json'), '{}');
     writeFileSync(join(wrongRoot,'compose.env'), `COMPOSE_PROJECT_NAME=${instance.name}\nCONCEPT_PRIVATE_ROOT=${wrongRoot}\nKERNEL_ACCESS_CODE=unused\n`);
     await assert.rejects(run(process.execPath,[cli,'sync','--raw-root',raw,'--private-root',wrongRoot]),
       error => error.stderr.includes('挂载与所选知识库不符'));

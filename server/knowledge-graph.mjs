@@ -1,5 +1,5 @@
 import { fromMarkdown } from 'mdast-util-from-markdown';
-import { tagsFromNodes } from '../lib/card-list.mjs';
+import { disciplinesFromTags, tagsFromNodes } from '../lib/card-list.mjs';
 import { CardBodyReader } from '../lib/card-body-reader.mjs';
 import { documentMarkdown } from '../lib/documents.mjs';
 import { cardScope } from '../lib/library-scope.mjs';
@@ -56,14 +56,11 @@ function graphDocument(raw, { id, schema, content }, available, origin) {
   const markdown = documentMarkdown(raw);
   const body = fromMarkdown(markdown).children;
   const tags = tagsFromNodes(body, { proseOnly: true });
-  const disciplines = tags.flatMap(tag => {
-    const name = /^学科\s*[:：]\s*(.+)$/.exec(tag)?.[1]?.trim();
-    return name ? [name] : [];
-  });
+  const disciplines = disciplinesFromTags(tags);
   const membershipLines = content === '场景图鉴'
     ? parseCatalog(body, available, origin).membershipLines : undefined;
   const { references } = renderCardReferences(markdown, { origin, id, legacyFixedFields: schema === '1', membershipLines, annotate: false });
-  return { categories: [...new Set(disciplines.length ? disciplines : tags)], summary: cardExcerpt(body), references };
+  return { categories: disciplines.length ? disciplines : tags, summary: cardExcerpt(body), references };
 }
 
 export async function readKnowledgeGraph(api, { origin, signal, cardBodies = new CardBodyReader(api) }) {

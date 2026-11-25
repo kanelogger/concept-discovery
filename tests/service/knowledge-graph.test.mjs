@@ -131,12 +131,14 @@ test('an empty library, a partial body read and complete failure are distinct an
 
 test('graph nodes carry their own disciplines and reading summaries without creating category links', async t => {
   const { api, add } = library(t);
-  add(1, '有多个学科', '## 标签\n\n- 专题\n- 学科：心理学\n- 学科: 统计学\n\n## 核心理解\n\n先检查证据，再报告结论。');
+  add(1, '有多个学科', '## 标签\n\n- 专题\n- 学科：心理学\n- 学科: 统计学\n- 学科: 心理学\n\n## 核心理解\n\n先检查证据，再报告结论。');
   add(2, '普通标签', '## 标签\n\n- 专题\n\n## 适用情境\n\n比较两个样本。');
   add(3, '无分类', '标签只是正文中的一个词。');
+  add(4, '空学科标签', '## 标签\n\n- 学科：\n- 备选专题');
   const data = await readKnowledgeGraph(api, { origin });
   assert.deepEqual(data.nodes.map(({ categories, summary }) => [categories, summary]), [
     [['心理学', '统计学'], '先检查证据，再报告结论。'], [['专题'], '比较两个样本。'], [[], ''],
+    [['学科：', '备选专题'], ''],
   ]);
   assert.deepEqual(data.edges, []);
 });
