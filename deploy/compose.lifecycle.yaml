@@ -1,0 +1,6 @@
+services:
+  app:
+    environment:
+      CONCEPT_LIFECYCLE_SOCKET: /lifecycle/worker.sock
+    volumes:
+      - ${CONCEPT_LIFECYCLE_SOCKET_DIR:?Set dedicated lifecycle socket directory}:/lifecycle:ro

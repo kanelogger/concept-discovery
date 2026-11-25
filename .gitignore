@@ -1,0 +1,39 @@
+.DS_store
+.DS_Store
+node_modules/
+coverage/
+test-results/
+playwright-report/
+blob-report/
+dist/
+.playwright-cli/
+.local/
+/.deployment.local.md
+.env
+.env.*
+!.env.example
+*.log
+.reuse/search-cache.json
+.reuse/candidates.json
+.reuse/scored.json
+.reuse/evidence/
+.reuse/cache/
+/.agents/
+.bootstrap-*.tmp
+/.impeccable/
+private-*/
+private-*.md
+
+/web/generated/
+
+# kane-agent-harness:begin ignore/ignore
+# 仅提交 Harness 的项目采用基线；本机索引、技能、缓存与收据仍按目录忽略。
+!/.agents/
+/.agents/*
+!/.agents/harness.json
+/.kane-harness-pending.json
+Thumbs.db
+
+# 环境文件沿用上方较严规则，仅允许经脱敏的 .env.example。
+# 已跟踪文件不受忽略规则保护，提交前核对暂存内容。
+# kane-agent-harness:end ignore/ignore

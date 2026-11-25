@@ -1,0 +1,239 @@
+# 环境声明，不是命令执行器、权限授予或当前服务状态。
+# 路径相对项目根；命令以 definition_source 为准，核实后由 Agent 调用。
+schema_version: 1
+project:
+  name: concept-discovery
+  purpose: 中文单人桌面知识卡网站，公开接口只读，知识卡、附件及原文通过本地 raw 原稿维护
+  language: zh-CN
+  timezone: Asia/Shanghai
+
+environment:
+  supported_platforms: null # 跨平台支持范围尚未独立验证；本次主机为 macOS。
+  toolchains:
+    - name: Node.js 与 npm
+      version_source: package.json 的 engines.node、package-lock.json、deploy/Dockerfile
+      check: node --version；npm --version；npm run doctor
+    - name: Docker 与 Compose
+      version_source: deploy/compose.yaml 与 deploy/Dockerfile；未固定宿主 Docker/Compose 版本
+      check: docker version；docker compose version
+    - name: 思源内核
+      version_source: deploy/compose.yaml 的 kernel.image，固定 v3.8.9 及镜像摘要
+      check: 核对 Compose 镜像声明，真实集成检查就绪及读写；不读取正式库确认版本
+  commands:
+    doctor:
+      run: npm run doctor
+      working_directory: .
+      definition_source: package.json
+      script: doctor
+      implementation_sources: [scripts/doctor.mjs]
+      prerequisites: [Node.js 24, Git]
+      side_effects: []
+      verification_scope: Node 24.7 及以上的 24.x、Git 和仓库根；不证明依赖、Docker或业务可用
+      failure_handling: 非零退出后检查失败项，不修改系统配置
+    check:
+      run: npm run check
+      working_directory: .
+      definition_source: package.json
+      script: check
+      implementation_sources: [scripts/validate.mjs, rules/testing.md]
+      prerequisites: [Node.js 24, Git, 锁文件依赖已安装, HTTP测试可绑定临时回环端口]
+      side_effects: [合成临时文件, 测试回环监听]
+      verification_scope: 入口/任务/文档链接、raw 原稿离线检查及 Node 回归，不启动 Docker、浏览器或外部模型
+      failure_handling: 非零退出检查具体失败；监听权限失败不能视为业务失败或通过
+    raw:
+      run: npm run raw -- check
+      working_directory: .
+      definition_source: package.json
+      script: raw
+      implementation_sources: [scripts/raw.mjs, scripts/raw-sync.mjs, scripts/raw-connection.mjs, lib/raw-format.mjs, lib/raw-write.mjs]
+      prerequisites: [Node.js 24, 锁文件依赖已安装；实例操作另需 Docker 和已启动的目标 Compose 栈]
+      side_effects: [check 只读本地原稿；sync、archive 和 recover 写入选定目标库并核对实例绑定；rebase 和结算可更新实例基线；export 写入新目录]
+      verification_scope: 原稿解析、预览、受保护同步与读回，以及本地单次回执查询和恢复；具体参数及冲突处理见命令说明
+      failure_handling: 核对报告中的原稿路径、目标实例和操作状态，续跑同一冻结计划
+    build_web:
+      run: npm run build:web
+      working_directory: .
+      definition_source: package.json
+      script: build:web
+      implementation_sources: [scripts/build-web.mjs]
+      prerequisites: [Node.js 24, 锁文件依赖已安装]
+      side_effects: [覆盖被忽略的 web/generated 构建产物]
+      verification_scope: 前端资产可构建，不证明浏览器交互或真实内核链路
+      failure_handling: 修复构建错误后重跑；不手改生成文件
+    integration:
+      run: npm run test:integration
+      working_directory: .
+      definition_source: package.json
+      script: test:integration
+      implementation_sources: [tests/service/integration.mjs, tests/service/auth-container.mjs, tests/service/runtime.mjs]
+      prerequisites: [Node.js 24.7+, 锁文件依赖已安装, Docker与Compose可用, OpenSSL 命令, 测试回环端口, 固定镜像可用或可下载]
+      side_effects: [前端构建, 独立Compose栈及专属应用镜像, 临时私有根, .local/service-acceptance 下的合成证据]
+      verification_scope: 隔离思源内核的原稿同步与回读、冲突及恢复；验证回环模式和 HTTPS 密码登录下的只读 HTTP/CLI，及容器管理命令撤销会话
+      failure_handling: 子命令限时300秒，就绪最多180轮，每轮请求最多1秒并间隔500ms；正常或信号退出回收本轮资源，失败按 run.json 和 rules/testing.md 精确清理
+    lifecycle_integration:
+      run: npm run test:lifecycle
+      working_directory: .
+      definition_source: package.json
+      script: test:lifecycle
+      implementation_sources: [tests/service/card-lifecycle-integration.mjs, tests/service/runtime.mjs, tests/service/lifecycle-native-runtime.mjs]
+      prerequisites: [Git, Node.js 24.7+, Docker 与 Compose 或经核验的 macOS 思源 3.8.9 内核]
+      side_effects: [隔离思源实例, 临时 Git 远端与账本, 合成卡归档与原生清理证据]
+      verification_scope: 合成卡 Git 快进、队列重启、原 ID 恢复、入链冲突与按权威决定清理原生文件及历史。原生 macOS 模式不验证 Compose 和 Linux 进程锁
+      failure_handling: 使用独立运行目录及现有测试资源清理流程，保留去敏验收结果
+    database_first_integration:
+      run: npm run test:database-first
+      working_directory: .
+      definition_source: package.json
+      script: test:database-first
+      implementation_sources: [tests/service/database-first-integration.mjs, tests/service/runtime.mjs, scripts/card-database-workflow.mjs]
+      prerequisites: [Git, Node.js 24.7+, Docker 与 Compose]
+      side_effects: [隔离思源, 临时 Git 远端和删除账本, 合成卡生命周期验收证据]
+      verification_scope: 数据库先写入与同 ID 恢复、四小时批次导出、待删暂停分享及账本和线上清理读回
+      failure_handling: 清理独立 Compose 与临时目录，在 .local/service-acceptance 保留验收结果
+    lifecycle_proxy:
+      run: npm run test:lifecycle-proxy
+      working_directory: .
+      definition_source: package.json
+      script: test:lifecycle-proxy
+      implementation_sources: [tests/service/card-lifecycle-proxy.mjs, tests/service/card-lifecycle-proxy-recovery.mjs, tests/service/lifecycle-nginx-fixture.mjs, deploy/nginx-lifecycle-gate.conf]
+      prerequisites: [Node.js 24.7+, 支持 http_auth_request 的 Nginx, Git, OpenSSL 命令, 临时回环端口]
+      side_effects: [独立临时代理和 HTTPS 应用, 临时 Git 账本, 合成内核夹具]
+      verification_scope: 旧镜像、旧账本或未核实的恢复环境不转发直链、分享读写或恢复请求，核实后读回保留卡
+      failure_handling: 检查临时代理进程、测试请求及配置，保留正式代理配置
+    browser:
+      run: npm run test:browser
+      working_directory: .
+      definition_source: package.json
+      script: test:browser
+      implementation_sources: [tests/browser/playwright.config.mjs, tests/service/runtime.mjs]
+      prerequisites: [integration 的运行条件, Playwright Chromium]
+      side_effects: [隔离测试栈, 浏览器子进程, .local/browser-results/report.json 报告, .local/browser-results/artifacts 测试产物目录, .local/service-acceptance 下的合成证据]
+      verification_scope: 桌面卡片阅读与回想、图谱与图鉴导航、资料与历史提案、旧写入链接跳转和迟到响应保护
+      failure_handling: 单项限时90秒，信号和结束时回收归属本轮的资源；按 rules/testing.md 处理残留
+    init:
+      run: npm run deploy:init
+      directory_selection: 默认.local/knowledge；独立目录按scripts/deploy-init.mjs以参数数组显式传入
+      working_directory: .
+      definition_source: package.json
+      script: deploy:init
+      implementation_sources: [scripts/deploy-init.mjs]
+      prerequisites: [Node.js 24, 明确且尚不存在的私有目录]
+      side_effects: [创建 workspace/operations 和独立私有配置及随机凭据；未指定目录时默认 .local/knowledge]
+      verification_scope: 初始化拒绝已有目录，不启动服务；写入显式回环模式并生成 Agent 与内核认证材料
+      failure_handling: 已有路径立即拒绝，不覆盖、不清理正式库；部分初始化先核对归属和内容
+    start:
+      run: npm start
+      developer_entry: ./start-dev.sh
+      developer_restart_entry: ./start-dev.sh restart
+      working_directory: .
+      definition_source: package.json
+      script: start
+      implementation_sources: [start-dev.sh, deploy/compose.yaml, scripts/service-start.mjs]
+      prerequisites: [Docker与Compose可用, 已初始化的 .local/knowledge/compose.env, 端口6806空闲或已正确配置]
+      side_effects: [镜像构建或下载, 启动应用与内部内核, 回环应用端口, 读写所选私有根, 开发脚本可启动已选用的 OrbStack]
+      verification_scope: 通过应用 /api/status 检查只读服务是否已响应；实际读卡和原稿同步需另验
+      failure_handling: 检查本次栈日志及私有配置；./start-dev.sh stop 停服务并保留数据，不能删除正式库恢复
+    stop:
+      run: npm stop
+      developer_entry: ./start-dev.sh stop
+      working_directory: .
+      definition_source: package.json
+      script: stop
+      implementation_sources: [start-dev.sh, deploy/compose.yaml]
+      prerequisites: [Docker与Compose可用, 对应 .local/knowledge/compose.env]
+      side_effects: [停止该Compose栈及网络，保留宿主私有数据]
+      verification_scope: 核对本次目标栈资源；不是测试清理入口
+      failure_handling: 按配置和项目身份定位，不批量清理其他栈
+  services:
+    - name: knowledge-app
+      connection_source: deploy/compose.yaml；私有 compose.env 的 CONCEPT_PORT，默认127.0.0.1:6806
+      start: start
+      readiness: 应用 /api/status 返回200；内部启动程序先等待内核就绪并初始化知识库
+      stop: stop
+    - name: siyuan-kernel
+      connection_source: deploy/compose.yaml；私有 kernel.json，仅Compose内部kernel:6806
+      start: start
+      readiness: scripts/service-start.mjs 使用已配置凭据核对内核，不向宿主发布内核端口
+      stop: stop
+  tools:
+    - name: Concept Discovery 项目 Skill
+      provided_by: 项目
+      source: skills/concept-discovery/SKILL.md
+      version_source: Git中受管源码
+      required_for: 用户明确调用 Concept Discovery 或直接要求适用 Concepts 时读取，普通任务不触发推荐
+    - name: Kane Agent Harness
+      provided_by: 用户调用的本机技能
+      source: 技能目录的 SKILL.md 与 scripts/main.ts
+      version_source: 分发正文由技能 catalog 核对，已采用基线见 .agents/harness.json
+      required_for: 采用、核验或升级协作部件时使用 Bun 1.3.8 或更新版本
+  variables:
+    - name: CONCEPT_DISCOVERY_CONFIG
+      purpose: CLI 的应用地址及独立Agent Token文件配置入口
+      source: 私有 client.json，详见 docs/agent-environment/commands.md
+    - name: CONCEPT_SERVICE_CONFIG
+      purpose: 服务端配置入口
+      source: deploy/compose.yaml；私有 service.json
+    - name: CONCEPT_PRIVATE_ROOT
+      purpose: Compose专属私有根挂载
+      source: scripts/deploy-init.mjs 生成的私有 compose.env
+    - name: CONCEPT_PORT
+      purpose: 宿主回环应用端口
+      source: 私有 compose.env；deploy/compose.yaml
+    - name: CONCEPT_UID
+      purpose: 容器用户ID映射
+      source: scripts/deploy-init.mjs 生成的私有 compose.env
+    - name: CONCEPT_GID
+      purpose: 容器组ID映射
+      source: scripts/deploy-init.mjs 生成的私有 compose.env
+    - name: KERNEL_ACCESS_CODE
+      purpose: 独立内核访问认证值，仅内部使用，与Agent Token分离
+      source: 私有 compose.env，仅保存名称不记录值
+  local_paths:
+    knowledge:
+      path: .local/knowledge
+      retention: 持久私有数据；workspace为卡片/理解/附件，operations为回执/备份，wiki为原文及历史归档，旧导入回执随库保留，raw-sync为本实例原稿绑定与未完成计划，连同必要配置、凭据与认证库整体备份；不由测试或清理访问
+    legacy_sqlite:
+      path: .local/concept-discovery.sqlite
+      retention: 历史保留数据，不自动读取、迁移或删除
+    legacy_self_use:
+      path: .local/concept-discovery-self-use
+      retention: 历史保留资料，不由测试或清理访问
+    test_evidence:
+      path: .local/service-acceptance
+      retention: 按本次run保存少量必要合成证据和诊断；测试临时私有根在系统临时目录，需按归属回收
+    bootstrap_state:
+      path: .agents/state
+      retention: 被忽略的本机收据与脱敏验证证据，不提交
+
+requirements:
+  credentials: [] # 无第三方 API 密钥要求。回环模式的 Agent 与内核凭据由初始化生成；HTTPS 模式另需站主开通。
+  filesystem:
+    - path: .
+      access: [read, write]
+      purpose: 授权的仓库编辑和构建；受当前会话权限约束
+    - path: .local/knowledge
+      access: [read, write]
+      purpose: 仅明确要求的正式应用使用和维护；不属于隔离测试数据
+    - path: .agents/context
+      access: [read, write]
+      purpose: 按来源增量维护被 Git 忽略的本机上下文索引
+    - path: .agents/state
+      access: [read, write]
+      purpose: 本机bootstrap收据和执行证据
+  network:
+    - purpose: 启用可选公众号配置时读取微信网页分享票据和固定版本 SDK
+      targets: api.weixin.qq.com、res.wx.qq.com
+      source: server/wechat-share.mjs
+    - purpose: 按锁文件安装依赖或构建镜像
+      targets: npm registry和固定Node/思源镜像仓库，沿现有锁文件与Docker配置
+      source: package-lock.json；deploy/Dockerfile；deploy/compose.yaml
+    - purpose: 本机使用及隔离测试
+      targets: 回环应用端口、临时测试端口与Compose内部内核
+      source: deploy/compose.yaml；tests/service/runtime.mjs
+
+guides:
+  environment: AI_ENVIRONMENT.md
+  commands: docs/agent-environment/commands.md
+  workflow: workflow/README.md
+  verification: rules/testing.md
+  security: rules/security.md

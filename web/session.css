@@ -1,0 +1,101 @@
+body:has(.session-page) { min-width: 0; }
+
+.session-page {
+  min-block-size: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+.session-brand {
+  min-block-size: 60px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-inline: clamp(18px, 4vw, 40px);
+  background: var(--header);
+  border-block-end: 1px solid var(--border);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -.025em;
+}
+.session-brand img { flex: none; }
+.session-main {
+  align-self: center;
+  justify-self: center;
+  inline-size: min(calc(100% - 36px), 424px);
+  margin-block: 28px clamp(28px, 9vh, 92px);
+  padding: clamp(24px, 5vw, 40px);
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+}
+.session-main h1 {
+  margin: 0 0 20px;
+  font-size: clamp(1.5rem, 4vw, 1.75rem);
+  line-height: 1.4;
+  font-weight: 630;
+  letter-spacing: -.025em;
+}
+.session-main p {
+  margin-block: 0 20px;
+  line-height: 1.6;
+  color: var(--muted);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.session-form, .session-field { display: grid; }
+.session-form { gap: 18px; }
+.session-field { gap: 6px; min-width: 0; }
+.session-field label { font-size: 14px; font-weight: 550; }
+.session-field input {
+  display: block;
+  min-width: 0;
+  width: 100%;
+  height: 44px;
+  padding: 9px 11px;
+  background: var(--paper);
+  border: 1px solid var(--control-border);
+  border-radius: 7px;
+  color: var(--ink);
+  font: inherit;
+}
+.session-password { display: flex; align-items: stretch; gap: 7px; }
+.session-password button {
+  padding: 0 6px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  color: var(--link);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.session-password button:hover:not(:disabled) {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.session-form .session-error {
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--danger-border);
+  border-radius: 6px;
+  color: var(--danger);
+  background: var(--danger-surface);
+}
+.session-primary {
+  min-block-size: 44px;
+  width: 100%;
+  margin: 0;
+  padding: 8px 14px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 550;
+  cursor: pointer;
+}
+.session-primary:hover:not(:disabled) { background: var(--accent-hover); }
+.session-form button:disabled { cursor: wait; opacity: .7; }
+.app-header .session-logout { margin-inline-start: 5px; color: var(--muted); }

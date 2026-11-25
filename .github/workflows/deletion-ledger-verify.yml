@@ -1,0 +1,49 @@
+name: Verify a deletion ledger candidate
+
+on:
+  repository_dispatch:
+    types: [concept-ledger-candidate]
+
+permissions: {}
+
+concurrency:
+  group: ledger-${{ github.event.client_payload.prefix }}-${{ github.event.client_payload.candidate }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: >-
+      vars.CONCEPT_LEDGER_WRITER_LOGIN != '' &&
+      github.event.sender.login == vars.CONCEPT_LEDGER_WRITER_LOGIN
+    runs-on: ubuntu-latest
+    environment: concept-ledger-verifier
+    timeout-minutes: 8
+    container:
+      image: node:24.15-bookworm@sha256:f22d6a1f082c02f292e86929b5b0442ac2e5eaf438a5dea9b1566601c3e05940
+    steps:
+      - name: Fetch pinned verifier source
+        env:
+          VERIFIER_SOURCE: ${{ vars.CONCEPT_LEDGER_VERIFIER_SOURCE }}
+        shell: bash
+        run: |
+          [[ "$VERIFIER_SOURCE" =~ ^[a-f0-9]{40}$ ]]
+          git config --global --add safe.directory "$PWD"
+          git init
+          git remote add origin "https://github.com/$GITHUB_REPOSITORY.git"
+          git fetch --no-tags --depth=1 origin "$VERIFIER_SOURCE"
+          git checkout --detach FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$VERIFIER_SOURCE"
+          npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Verify and publish the candidate check
+        env:
+          LEDGER_CANDIDATE: ${{ github.event.client_payload.candidate }}
+          LEDGER_CANDIDATE_PREFIX: ${{ github.event.client_payload.prefix }}
+          LEDGER_PRODUCTION_BRANCH: ${{ vars.CONCEPT_LEDGER_PRODUCTION_BRANCH }}
+          LEDGER_DRILL_BRANCH: ${{ vars.CONCEPT_LEDGER_DRILL_BRANCH }}
+          LEDGER_CHECK_CONTEXT: ${{ vars.CONCEPT_LEDGER_CHECK_CONTEXT }}
+          LEDGER_ALLOWED_SIGNERS: ${{ vars.CONCEPT_LEDGER_ALLOWED_SIGNERS }}
+          LEDGER_VERIFIER_APP_ID: ${{ vars.CONCEPT_LEDGER_VERIFIER_APP_ID }}
+          LEDGER_VERIFIER_INSTALLATION_ID: ${{ vars.CONCEPT_LEDGER_VERIFIER_INSTALLATION_ID }}
+          LEDGER_VERIFIER_KEY: ${{ secrets.CONCEPT_LEDGER_VERIFIER_KEY }}
+        run: node scripts/github-verify-deletion-ledger.mjs

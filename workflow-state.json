@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "task_id": "0065-simplify-codebase",
+  "task_file": "tasks/0065-simplify-codebase.md",
+  "phase": "complete",
+  "updated_at": "2026-11-25",
+  "summary": "已删除无消费者的分类表、搜索分支及三个内部导出。341 项回归通过，隔离副本集成通过。"
+}

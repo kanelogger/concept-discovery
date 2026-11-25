@@ -1,0 +1,4 @@
+# 原始资料按字节校验，保留正文和来源中的 Markdown 硬换行。
+raw/**/article.md whitespace=-blank-at-eol
+raw/**/assets/** -text
+raw/**/assets/*.md whitespace=-blank-at-eol,-blank-at-eof

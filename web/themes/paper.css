@@ -1,0 +1,44 @@
+/* 纸感 Paper · 低饱和暖纸色，像一桌便签
+   Palette parameters: L=0.908 C=0.027 hue=27 span=360 count=8 */
+:root {
+  --swatch-coral: #EBD6D3;
+  --swatch-apricot: #EFDFC9;
+  --swatch-sand: #ECE5C6;
+  --swatch-sage: #DDE7D3;
+  --swatch-celadon: #D3E5DF;
+  --swatch-mist: #D7E2EC;
+  --swatch-smoke: #E0DAEA;
+  --swatch-plum: #EFDCE6;
+
+  --canvas: color-mix(in srgb, var(--swatch-apricot) 30%, white);
+  --paper: color-mix(in srgb, var(--swatch-apricot) 12%, white);
+  --surface: color-mix(in srgb, var(--swatch-apricot) 56%, white);
+  --header: var(--surface);
+  --hover: color-mix(in srgb, var(--swatch-apricot) 38%, white);
+  --ink: #1A1A1A;
+  --muted: #62564D;
+  --accent: var(--ink);
+  --accent-hover: #41352E;
+  --on-accent: var(--paper);
+  --link: #594032;
+  --focus: #765544;
+  --selected: var(--swatch-apricot);
+  --selection: var(--swatch-mist);
+  --border: #DBCCBB;
+  --control-border: #918276;
+  --scroll-thumb: #AA9989;
+  --danger: #8A3129;
+  --danger-surface: color-mix(in srgb, var(--swatch-coral) 50%, white);
+  --danger-border: #B78077;
+  --backdrop: rgb(44 30 21 / 24%);
+  --shadow: rgb(44 30 21 / 16%);
+}
+
+[data-tag-tone="0"] { --tag-bg: var(--swatch-coral); }
+[data-tag-tone="1"] { --tag-bg: var(--swatch-apricot); }
+[data-tag-tone="2"] { --tag-bg: var(--swatch-sand); }
+[data-tag-tone="3"] { --tag-bg: var(--swatch-sage); }
+[data-tag-tone="4"] { --tag-bg: var(--swatch-celadon); }
+[data-tag-tone="5"] { --tag-bg: var(--swatch-mist); }
+[data-tag-tone="6"] { --tag-bg: var(--swatch-smoke); }
+[data-tag-tone="7"] { --tag-bg: var(--swatch-plum); }

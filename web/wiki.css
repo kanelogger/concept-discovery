@@ -1,0 +1,14 @@
+.wiki-page { max-width: 900px; margin-inline: auto; padding: 42px 40px 80px; overflow-wrap: anywhere; }
+.wiki-page h1 { margin: 0 0 28px; font-size: 28px; letter-spacing: -.025em; }
+.wiki-source-choice { display: grid; gap: 8px; }
+.wiki-source-choice label { font-weight: 600; }
+.wiki-source-choice .ant-select, .wiki-archive .ant-select { width: 100%; }
+.wiki-selected-source, .wiki-archive { margin-block-start: 32px; padding-block-start: 24px; border-block-start: 1px solid var(--border); }
+.wiki-selected-source h2 { margin: 0 0 12px; font-size: 22px; }
+.wiki-source-meta { margin-block-end: 20px; }
+.wiki-source-text { font-family: inherit; font-size: 16px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+.wiki-archive summary { padding-block: 8px; cursor: pointer; color: var(--link); font-weight: 600; }
+.wiki-archive summary:hover { text-decoration: underline; text-underline-offset: .2em; }
+.wiki-archive blockquote { border-inline-start: 1px solid var(--control-border); margin-inline: 0; padding-inline-start: 18px; white-space: pre-wrap; }
+.wiki-notice { margin-block: 18px; }
+@media (max-width: 1100px) { .wiki-page { padding-inline: 28px; } }

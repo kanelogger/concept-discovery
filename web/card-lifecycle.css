@@ -1,0 +1,100 @@
+.lifecycle-dialog {
+  width: min(34rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 1.5rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+.lifecycle-dialog:modal { overscroll-behavior: contain; }
+.lifecycle-dialog::backdrop { background: var(--backdrop); overflow: hidden; overscroll-behavior: contain; }
+.lifecycle-dialog h1 { margin: 0; font-size: 1.25rem; overflow-wrap: anywhere; }
+.lifecycle-dialog details { margin-block: .75rem; }
+.lifecycle-dialog summary { cursor: pointer; }
+.lifecycle-dialog ul { padding-inline-start: 1.4em; overflow-wrap: anywhere; }
+.lifecycle-dialog li small { display: block; color: var(--muted); }
+.lifecycle-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.lifecycle-dialog .lifecycle-actions { justify-content: flex-end; margin-block-start: 1.25rem; }
+.lifecycle-password, .lifecycle-editor { display: grid; gap: .4rem; }
+.lifecycle-password input, .lifecycle-editor input, .lifecycle-editor textarea {
+  width: 100%;
+  min-height: 2.4rem;
+  padding: .35rem .6rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--control-border);
+  border-radius: 5px;
+  font: inherit;
+}
+.lifecycle-editor textarea { resize: vertical; }
+.lifecycle-error { color: var(--danger); }
+body:has(.lifecycle-page) { min-width: 0; }
+.lifecycle-archive { max-width: 64rem; margin-inline: auto; padding: 2.5rem clamp(1rem, 4vw, 2.5rem); }
+.lifecycle-archive h1 { margin: 0 0 1.3rem; font-size: 1.75rem; }
+.lifecycle-archive h2 { margin: 0; font-size: 1rem; overflow-wrap: anywhere; }
+.lifecycle-cards { padding: 0; margin-block: 1rem; list-style: none; border-block-start: 1px solid var(--border); }
+.lifecycle-cards li { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .65rem 1.25rem; padding-block: 1rem; border-block-end: 1px solid var(--border); }
+.lifecycle-cards li p { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin: .25rem 0 0; color: var(--muted); }
+.lifecycle-task { padding: .75rem 1rem; background: var(--surface); border-radius: 5px; }
+.lifecycle-task p { margin: 0; }
+.lifecycle-task .lifecycle-actions { margin-block-start: .65rem; }
+.app-header:has(.manual-deletion-trigger) > .ant-flex { margin-inline-start: auto; }
+.app-header .manual-deletion-trigger {
+  margin-inline-start: .75rem;
+  color: var(--danger);
+  background: var(--danger-surface);
+  border-color: var(--danger-border);
+}
+.manual-deletions-dialog {
+  width: min(40rem, calc(100% - 2rem));
+  line-height: 1.55;
+}
+.manual-deletion-heading, .manual-deletion-copy { display: flex; align-items: center; gap: .75rem; }
+.manual-deletion-heading { justify-content: space-between; }
+.manual-deletions-dialog > p { margin: .75rem 0; color: var(--muted); }
+.manual-deletion-item { padding-block: 1rem; border-block-start: 1px solid var(--border); }
+.manual-deletion-item:last-child { padding-block-end: 0; }
+.manual-deletion-item h2 { margin: 0; font-size: 1rem; overflow-wrap: anywhere; }
+.manual-deletion-item ul { margin-block: .5rem; }
+.manual-deletion-item pre {
+  padding: .65rem .75rem;
+  margin-block: .5rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--surface);
+  border-radius: 5px;
+  user-select: all;
+}
+.manual-deletion-item code { font-size: .83rem; }
+.manual-deletion-copy span { color: var(--muted); }
+@media (max-width: 999px) {
+  /* Keep the owner controls reachable above the desktop reading workspace. */
+  .app-header:has(.manual-deletion-trigger),
+  .app-header:has(.manual-deletions-dialog) {
+    width: min(100%, 100vw);
+    padding-inline: 1rem;
+  }
+}
+@media (max-width: 720px) {
+  .app-header:has(.manual-deletion-trigger),
+  .app-header:has(.manual-deletions-dialog) {
+    flex-wrap: wrap;
+    height: auto;
+    line-height: normal;
+    gap: .4rem;
+    padding-block: .55rem;
+  }
+  .app-header:has(.manual-deletion-trigger) > .ant-flex,
+  .app-header:has(.manual-deletions-dialog) > .ant-flex {
+    order: 1;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  .app-header .manual-deletion-trigger { margin-inline-start: auto; }
+}
+@media (max-width: 560px) {
+  .lifecycle-page .app-header { padding-inline: 1rem; }
+  .lifecycle-page .brand { gap: 5px; font-size: .82rem; }
+  .lifecycle-page .brand-mark { width: 22px; height: 22px; }
+}

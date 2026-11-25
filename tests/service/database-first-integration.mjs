@@ -1,0 +1,235 @@
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync,writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
+import { runtime } from './runtime.mjs';
+import { openCardLifecycleTasks } from '../../scripts/card-lifecycle-tasks.mjs';
+import { openCardExportQueue } from '../../scripts/card-export-queue.mjs';
+import { openCardLifecycleGit } from '../../scripts/card-lifecycle-git.mjs';
+import { openGitDeletionLedger } from '../../scripts/git-deletion-ledger.mjs';
+import { createCardLifecyclePurge } from '../../scripts/card-lifecycle-purge.mjs';
+import { createDatabaseWorkflow } from '../../scripts/card-database-workflow.mjs';
+import { applyRawSync,archiveRawCard,readPendingRawSync,selectRawSyncPlan } from '../../scripts/raw-sync.mjs';
+import { removeCardOriginal } from '../../scripts/remove-card-original.mjs';
+import { cardShareStore } from '../../server/card-share-store.mjs';
+
+const instance=await runtime('database-first');
+const resources=[];
+let passed=false;
+try {
+  let clock=Date.parse('2026-11-25T01:00:00+08:00');
+  let interruptOriginal,interruptVerified;
+  const rpc=async(method,args={})=>{
+    const interrupted=method==='raw-document' && interruptOriginal && args.legacyId===interruptOriginal && args.expected_revision===null;
+    const reply=await instance.core(`
+      const {rawWrite}=await import('./lib/raw-write.mjs');
+      const {rawInventory}=await import('./lib/raw-inventory.mjs');
+      try {
+        const data=input.method==='inventory' ? await rawInventory(api,input.args) : await rawWrite(api,input.method,input.args);
+        console.log(JSON.stringify({data}));
+      } catch (error) {
+        console.log(JSON.stringify({error:{message:error.message,code:error.code}}));
+      }`,{method,args});
+    if (reply.error) throw Object.assign(new Error(reply.error.message),{code:reply.error.code});
+    const lostReadback=method==='raw-created-card-evidence' && interruptVerified && args.rawId===interruptVerified;
+    if (interrupted || lostReadback) {
+      interruptOriginal=null;
+      interruptVerified=null;
+      throw Object.assign(new Error('合成故障，原生主卡已写入但响应丢失。'),{code:'lifecycle_transport_closed'});
+    }
+    return reply.data;
+  };
+  const library=await rpc('raw-target');
+  const repo=join(instance.dir,'writer'), remote=join(instance.dir,'remote.git');
+  const exec=(cwd,...args)=>execFileSync('git',args,{cwd,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
+  exec(instance.dir,'init','--bare',remote);
+  exec(instance.dir,'init','-b','main',repo);
+  exec(repo,'config','user.name','合成维护');
+  exec(repo,'config','user.email','synthetic@example.invalid');
+  mkdirSync(join(repo,'raw/合成学科/example'),{recursive:true});
+  writeFileSync(join(repo,'raw/合成学科/example/article.md'),'---\nname: 既有合成原稿\n---\n\n## 核心理解\n\n用于隔离验收。\n');
+  const rebuiltPath='raw/合成学科/rebuilt/article.md';
+  const previousId='20261124100000-oldcard';
+  mkdirSync(join(repo,'raw/合成学科/rebuilt'),{recursive:true});
+  writeFileSync(join(repo,rebuiltPath),`---\nname: 仅 Git 归档\nsiyuan_id: ${previousId}\nstatus: archived\narchived_at: 2026-11-24T02:00:00.000Z\n---\n\n## 核心理解\n\n引用[既有合成原稿](../example/article.md)。\n`);
+  const stalePath='raw/合成学科/stale-rebuilt/article.md';
+  mkdirSync(join(repo,'raw/合成学科/stale-rebuilt'),{recursive:true});
+  writeFileSync(join(repo,stalePath),'---\nname: 中断后修改的合成归档\nstatus: archived\narchived_at: 2026-11-24T02:00:00.000Z\n---\n\n## 核心理解\n\n原版本。\n');
+  const verifiedPath='raw/合成学科/verified-rebuilt/article.md';
+  mkdirSync(join(repo,'raw/合成学科/verified-rebuilt'),{recursive:true});
+  writeFileSync(join(repo,verifiedPath),'---\nname: 读回中断的合成归档\nstatus: archived\narchived_at: 2026-11-24T02:00:00.000Z\n---\n\n## 核心理解\n\n旧正文。\n');
+  for (const key of ['legacy-unmarked','legacy-missing']) {
+    const folder=join(repo,'raw/合成学科',key);
+    mkdirSync(folder,{recursive:true});
+    writeFileSync(join(folder,'article.md'),`---\nname: ${key}\n---\n\n## 核心理解\n\n旧版合成文本 ${key}。\n`);
+  }
+  exec(repo,'add','raw');
+  exec(repo,'commit','-m','合成原稿基线');
+  exec(repo,'remote','add','origin',remote);
+  exec(repo,'push','origin','main');
+  const anchor=exec(repo,'commit-tree',exec(repo,'mktree'),'-m','合成空账本');
+  exec(repo,'push','origin',anchor+':refs/heads/deletion-drill');
+  const git=openCardLifecycleGit({cwd:repo,remote:'origin'});
+  const setup=(filename,options)=>openCardLifecycleTasks(join(instance.dir,filename),{...options,now:()=>clock});
+  const tasks=setup('tasks.sqlite',{databaseFirst:true}), legacyTasks=setup('legacy.sqlite');
+  const queue=openCardExportQueue(join(instance.dir,'exports.sqlite'),{now:()=>clock});
+  const shareDb=new DatabaseSync(join(instance.dir,'shares.sqlite'));
+  const shares=cardShareStore(shareDb);
+  const ledger=openGitDeletionLedger({cwd:repo,remote:'origin',branch:'deletion-drill',anchor,initialHead:anchor,
+    journalPath:join(instance.dir,'ledger.sqlite')});
+  resources.push(tasks,legacyTasks,queue,shareDb,ledger);
+  const stateDir=join(instance.root,'raw-sync'), materialsRoot=join(instance.dir,'materials');
+  mkdirSync(materialsRoot);
+  const purge=createCardLifecyclePurge({git,ledger,stateDir,rpc,shares,materialsRoot,
+    removeUnpublishedCopies:git.clearUnpublishedCardCopies});
+  const workflowOptions={tasks,legacyTasks,queue,stateDir,library,rpc,shares,git,purge};
+  const workflow=createDatabaseWorkflow(workflowOptions);
+  const {worker}=workflow;
+  const owner='synthetic-owner';
+  const write=async input=>{
+    const preview=await worker.preview(owner,input);
+    return {preview,result:await worker.confirm(owner,preview.id)};
+  };
+  const importScope={rawRoot:join(repo,'raw'),stateDir,rpc};
+  await applyRawSync({...importScope,plan:(await selectRawSyncPlan(importScope)).plan});
+  for (const rawId of ['legacy-unmarked','legacy-missing']) await archiveRawCard({rawId,stateDir,rpc});
+  const missingPath='raw/合成学科/legacy-missing/article.md';
+  exec(repo,'rm','--',missingPath);
+  exec(repo,'commit','-m','模拟旧流程移走合成卡原稿');
+  exec(repo,'push','origin','main');
+  const originalHead=git.snapshot();
+  const legacy=Object.fromEntries((await worker.archives()).map(({rawId,state})=>[rawId,state]));
+  assert.equal(legacy['legacy-unmarked'],'needs-marker');
+  assert.equal(legacy['legacy-missing'],'missing-raw');
+  await assert.rejects(worker.preview(owner,{action:'restore',id:'legacy-missing'}),{code:'content_conflict'});
+  const archivedPurge=await write({action:'purge',id:'legacy-unmarked'});
+  assert.equal((await write({action:'compensate',id:archivedPurge.preview.id})).result.state,'complete');
+  assert.equal((await worker.archives()).find(card=>card.rawId==='legacy-unmarked').state,'needs-marker');
+  const missing=await write({action:'purge',id:'legacy-missing'});
+  assert.equal(missing.result.state,'awaiting-export');
+  assert.equal((await write({action:'mark-archive',id:'legacy-unmarked'})).result.state,'complete');
+  const archiveFromGit=(await worker.archives()).find(card=>card.rawId==='rebuilt');
+  assert.equal(archiveFromGit.state,'from-raw');
+  const created=await write({action:'create',title:'合成数据库首版',markdown:'## 核心理解\n\n未到四小时不会发布。'});
+  const {documentId}=created.result.progress;
+  const {rawId}=created.preview;
+  const path='raw/未分类/'+rawId+'/article.md';
+  assert.equal(git.snapshot(),originalHead);
+  assert.equal((await instance.call('get-document',{id:documentId})).title,'合成数据库首版');
+  const draft=await worker.draft(owner,documentId);
+  await write({...draft,action:'edit',title:'合成数据库新版本'});
+  await write({action:'archive',id:documentId});
+  assert.equal((await worker.archives()).find(card=>card.rawId===rawId).state,'archived');
+  await write({action:'restore',id:rawId});
+  assert.equal((await instance.call('get-document',{id:documentId})).title,'合成数据库新版本');
+  const rebuilt=await write({action:'restore',id:'rebuilt'});
+  assert.equal(rebuilt.result.state,'complete',JSON.stringify(rebuilt.result.progress));
+  const newId=rebuilt.result.progress.documentId;
+  assert.notEqual(newId,previousId);
+  const restored=await rpc('raw-database-card',{identity:library,id:newId,body:true});
+  assert.match(restored.markdown,/\/cards\/\d{14}-[a-z0-9]{7}/);
+  assert.equal(git.snapshot(),originalHead);
+  assert.equal(workflow.hasExport(),false);
+  assert.equal(await workflow.runScheduledExport(),null);
+  clock=Date.parse('2026-11-25T04:00:00+08:00');
+  assert.equal((await workflow.runScheduledExport()).state,'complete');
+  assert.match(exec(remote,'show','main:'+path),/合成数据库新版本/);
+  assert.match(exec(remote,'show','main:'+rebuiltPath),new RegExp('siyuan_id: '+newId));
+  assert.doesNotMatch(exec(remote,'show','main:'+rebuiltPath),/^status: archived/m);
+  assert.match(exec(remote,'show','main:'+rebuiltPath),/\.\.\/example\/article\.md/);
+  assert.match(exec(remote,'show','main:raw/合成学科/legacy-unmarked/article.md'),/^status: archived/m);
+  for (const commit of exec(remote,'rev-list',originalHead+'..main').split('\n'))
+    assert.equal(exec(remote,'ls-tree',commit,'--',missingPath),'');
+  assert.equal(ledger.snapshot().decisions.get(missing.preview.id).decision.rawId,'legacy-missing');
+  assert.ok(!worker.syncStatus().manualDeletions.some(item=>item.rawId==='legacy-missing'));
+  const share=shares.create(documentId,0,{body:'旧的合成分享'});
+  const scheduled=await write({action:'purge',id:rawId});
+  const pendingArchive=await rpc('raw-database-card',{identity:library,id:documentId,includeArchived:true});
+  await rpc('raw-recover',{identity:library,id:documentId,op_id:'synthetic-pre-purge-cold-copy',
+    backup_op_id:pendingArchive.archiveOp,expected_revision:pendingArchive.revision,expected_signature:pendingArchive.signature});
+  await workflow.reconcileRecovery();
+  assert.match((await rpc('raw-database-card',{identity:library,id:documentId,includeArchived:true})).archiveOp,/^db-pending-cold-/);
+  const cancel=await write({action:'compensate',id:scheduled.preview.id});
+  assert.equal(cancel.result.state,'complete',JSON.stringify(cancel.result.progress));
+  assert.equal((await instance.call('get-document',{id:documentId})).title,'合成数据库新版本');
+  assert.equal(shares.contentFor(share),undefined);
+  assert.equal(shares.create(documentId,0,{body:'迟到的合成分享'}),undefined);
+  assert.equal(queue.pendingPurge(library,rawId),null);
+  await workflow.verifyRecovery();
+  const {preview,result}=await write({action:'purge',id:rawId});
+  assert.equal(result.state,'awaiting-export');
+  assert.equal(shares.contentFor(share),undefined);
+  assert.equal(ledger.snapshot().decisions.has(preview.id),false);
+  assert.equal(workflow.hasExport(),false);
+  assert.match(exec(remote,'show','main:'+path),/合成数据库新版本/);
+  clock=Date.parse('2026-11-25T08:00:00+08:00');
+  assert.equal(await workflow.runScheduledExport(),null);
+  const reminder=worker.syncStatus().manualDeletions.find(item=>item.rawId===rawId);
+  assert.deepEqual(reminder.paths,[path]);
+  const digest=reminder.command.match(/'([a-f0-9]{64})'$/)[1];
+  exec(repo,'pull','--ff-only','origin','main');
+  removeCardOriginal(repo,[rawId,documentId,path.slice(4),digest]);
+  assert.equal(git.snapshot(),exec(repo,'rev-parse','HEAD'));
+  exec(repo,'commit','-m','站主手工删除合成原稿');
+  exec(repo,'push','origin','main');
+  await workflow.pollManualOriginals({force:true});
+  assert.ok(!worker.syncStatus().manualDeletions.some(item=>item.rawId===rawId));
+  assert.equal(ledger.snapshot().decisions.has(preview.id),false);
+  const published=await workflow.runScheduledExport();
+  assert.equal(published.state,'complete',JSON.stringify({error:published.errorCode}));
+  assert.equal(ledger.snapshot().decisions.get(preview.id).decision.rawId,rawId);
+  assert.throws(()=>exec(remote,'show','main:'+path));
+  await assert.rejects(instance.call('get-document',{id:documentId}));
+  assert.equal(shares.purged(documentId),true);
+  await workflow.verifyRecovery();
+  interruptOriginal='stale-rebuilt';
+  const interrupted=await write({action:'restore',id:interruptOriginal});
+  assert.equal(interrupted.result.state,'running');
+  const interruptedId=tasks.get(interrupted.preview.id).progress.creation.id;
+  exec(repo,'pull','--ff-only','origin','main');
+  writeFileSync(join(repo,stalePath),exec(remote,'show','main:'+stalePath).replace('原版本。','并发更新版本。')+'\n');
+  exec(repo,'add','--',stalePath);
+  exec(repo,'commit','-m','合成归档导入中断后原稿变化');
+  exec(repo,'push','origin','main');
+  const stale=await worker.runOnce();
+  assert.equal(stale.state,'needs-review');
+  assert.equal(stale.progress.error,'content_conflict');
+  assert.ok(await instance.call('get-document',{id:interruptedId}));
+  await assert.rejects(workflow.verifyRecovery(),{code:'operation_pending'});
+  exec(repo,'revert','--no-edit','HEAD');
+  exec(repo,'push','origin','main');
+  let closedBeforeResume=false;
+  const continued=await workflow.resumeInterruptedOriginal(()=>{closedBeforeResume=true;});
+  assert.equal(closedBeforeResume,true);
+  assert.equal(continued.id,interrupted.preview.id);
+  assert.equal(continued.state,'complete',JSON.stringify(continued.progress));
+  assert.equal(continued.progress.documentId,interruptedId);
+  await workflow.verifyRecovery();
+
+  interruptVerified='verified-rebuilt';
+  const lostReadback=await write({action:'restore',id:interruptVerified});
+  assert.equal(lostReadback.result.state,'running');
+  assert.equal(readPendingRawSync(stateDir,library),null);
+  const laterId=tasks.get(lostReadback.preview.id).progress.creation.id;
+  writeFileSync(join(repo,verifiedPath),exec(remote,'show','main:'+verifiedPath).replace('旧正文。','并发新正文。')+'\n');
+  exec(repo,'add','--',verifiedPath);
+  exec(repo,'commit','-m','合成归档原生已读回后原稿变化');
+  exec(repo,'push','origin','main');
+  assert.equal((await worker.runOnce()).state,'needs-review');
+  await assert.rejects(workflow.verifyRecovery(),{code:'operation_pending'});
+  exec(repo,'revert','--no-edit','HEAD');
+  exec(repo,'push','origin','main');
+  const restarted=createDatabaseWorkflow(workflowOptions);
+  assert.equal((await restarted.resumeInterruptedOriginal()).progress.documentId,laterId);
+  await restarted.verifyRecovery();
+  instance.record('database-first-git-and-purge',{realSiyuan:true,localGit:true,databaseSourceReadback:true,
+    fourHourExport:true,purgeAfterNextBoundary:true,decisionReadback:true,retainedGitHistory:true,
+    archiveFromGit:true,rebuiltWithNewId:true,resolvedReference:true,legacyMissingVerifiedFromRemovalParent:true,ownerCommittedOriginal:true,legacyMarkerExported:true,
+    staleInterruptedRawRestoreKeptGateClosed:true,originalRecoveryReopenedAfterSourceReconciled:true,
+    staleAfterNativeReadbackAndBeforeExportEnqueue:true,compensationRestoredSameNativeId:true,staleShareRejectedAfterCompensation:true});
+  passed=true;
+} finally {
+  for (const resource of resources.reverse()) resource.close();
+  await instance.finish(passed);
+}

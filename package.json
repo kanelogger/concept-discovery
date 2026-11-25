@@ -1,0 +1,63 @@
+{
+  "name": "concept-discovery",
+  "private": true,
+  "version": "0.3.0",
+  "type": "module",
+  "engines": {
+    "node": ">=24.7 <25"
+  },
+  "scripts": {
+    "doctor": "node scripts/doctor.mjs",
+    "validate": "node scripts/validate.mjs",
+    "raw": "node scripts/raw.mjs",
+    "test": "node --test tests/service/*.test.mjs tests/tooling/*.test.mjs",
+    "test:integration": "node tests/service/integration.mjs && node tests/service/auth-container.mjs",
+    "test:lifecycle": "node tests/service/card-lifecycle-integration.mjs",
+    "test:database-first": "node tests/service/database-first-integration.mjs",
+    "test:lifecycle-proxy": "node tests/service/card-lifecycle-proxy.mjs && node tests/service/card-lifecycle-proxy-recovery.mjs",
+    "check": "npm run validate && npm run raw -- check && npm test",
+    "deploy:init": "node scripts/deploy-init.mjs",
+    "start": "docker compose --env-file .local/knowledge/compose.env -f deploy/compose.yaml up --build -d",
+    "stop": "docker compose --env-file .local/knowledge/compose.env -f deploy/compose.yaml down",
+    "build:web": "node scripts/build-web.mjs",
+    "prepack": "npm run build:web",
+    "test:browser": "playwright test --config tests/browser/playwright.config.mjs"
+  },
+  "dependencies": {
+    "@ant-design/icons": "6.3.4",
+    "antd": "6.7.0",
+    "d3": "7.9.2",
+    "dayjs": "1.11.23",
+    "markdown-it": "14.3.2",
+    "mdast-util-from-markdown": "2.0.3",
+    "mdast-util-gfm": "3.1.0",
+    "micromark": "4.0.3",
+    "micromark-extension-gfm": "3.0.0",
+    "micromark-util-decode-string": "2.0.1",
+    "parse5": "8.0.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "yaml": "2.9.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "esbuild": "0.28.2"
+  },
+  "bin": {
+    "concept-discovery": "bin/concept-discovery.mjs"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "server",
+    "web",
+    "skills/concept-discovery",
+    "deploy",
+    "scripts/deploy-init.mjs",
+    "scripts/service-start.mjs",
+    "README.md",
+    ".dockerignore",
+    "web/generated",
+    "scripts/build-web.mjs"
+  ]
+}

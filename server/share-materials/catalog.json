@@ -1,0 +1,2074 @@
+{
+  "abstraction-laddering": {
+    "id": "abstraction-laddering",
+    "cardTitle": "抽象阶梯法",
+    "discipline": "元认知与思维方法论",
+    "title": "抽象阶梯法：把问题往上问，再往下拆",
+    "description": "往上追问目标，能发现最初的问题可能只是局部；往下追问具体做法，则能把一个方向展开成可尝试的方案。",
+    "coverLine": "往上问目标，往下问做法"
+  },
+  "accounting-as-language-its-limits": {
+    "id": "accounting-as-language-its-limits",
+    "cardTitle": "会计作为商业语言及其局限",
+    "discipline": "会计学",
+    "title": "会计语言的局限：从报表数字追到真实交易",
+    "description": "同一笔订单在收款、交付和确认利润时会留下不同记录。把三张报表与合同对照，能看清数字依赖哪些估计。",
+    "coverLine": "从数字追到交易"
+  },
+  "action-reaction": {
+    "id": "action-reaction",
+    "cardTitle": "作用力与反作用力",
+    "discipline": "物理学与化学",
+    "title": "作用力与反作用力｜成对的力各作用在哪里",
+    "description": "两个物体相互作用时，对彼此的力等大反向。分开画出两件物体的受力，就能看清为何这对力不会在同一件物体上抵消。",
+    "coverLine": "成对的力落在不同物体上"
+  },
+  "adaptation": {
+    "id": "adaptation",
+    "cardTitle": "适应性",
+    "discipline": "生物学与进化论",
+    "title": "适应性｜环境变了，先保住必需功能",
+    "description": "进化中的适应来自多代选择。借到组织场景时，可以先分清需要保留的功能与原有做法，再观察新环境是否持续。",
+    "coverLine": "分清必需功能和原有办法"
+  },
+  "adaptation-path-dependence": {
+    "id": "adaptation-path-dependence",
+    "cardTitle": "适应性与路径依赖",
+    "discipline": "复杂系统与决策科学",
+    "title": "适应性与路径依赖｜合适的做法为什么难改",
+    "description": "当前有利的做法会吸引资源和配套。理解今天为何沿用它，还要回看最初的岔路和后来的改道成本。",
+    "coverLine": "合适的选择也会留下惯性"
+  },
+  "adaptive-radiation": {
+    "id": "adaptive-radiation",
+    "cardTitle": "适应性辐射",
+    "discipline": "生物学与进化论",
+    "title": "适应性辐射｜共同祖先如何分出多种支系",
+    "description": "出现多种空缺的生态位置时，共同祖先的后代可能走向不同支系。要识别这种分化，可对照亲缘起点与各支系利用的资源。",
+    "coverLine": "共同起点，分用不同资源"
+  },
+  "adversarial-system": {
+    "id": "adversarial-system",
+    "cardTitle": "对抗制与辩证过程",
+    "discipline": "法学与政治学",
+    "title": "对抗制与辩证过程：让反证挑战关键前提",
+    "description": "评审扩建时，请反方找出能推翻需求预测的数据，再按事先约定的证据标准判断。双方发言都应聚焦同一争点。",
+    "coverLine": "请反方检验关键假设"
+  },
+  "adverse-selection": {
+    "id": "adverse-selection",
+    "cardTitle": "逆向选择",
+    "discipline": "微观经济学",
+    "title": "逆向选择：统一报价为何会改变客户构成",
+    "description": "延保只按平均故障率收费时，故障风险高的客户更愿意购买。低风险者退出后，原有报价可能不足以覆盖赔付。",
+    "coverLine": "谁更愿意接受均价"
+  },
+  "agency-costs": {
+    "id": "agency-costs",
+    "cardTitle": "代理成本",
+    "discipline": "微观经济学",
+    "title": "代理成本：委托出去的决策有哪些代价",
+    "description": "按材料支出提成，装修受托人可能更少控制造价。换一种付费方式也会带来新偏差，监督和验收还需投入。",
+    "coverLine": "权力交出去以后"
+  },
+  "analysis-paralysis": {
+    "id": "analysis-paralysis",
+    "cardTitle": "分析瘫痪",
+    "discipline": "心理学",
+    "title": "分析瘫痪：什么时候该停止收集资料？",
+    "description": "比较选项迟迟没有进展时，先找出哪条未知信息真会改变选择，再决定要继续调查，还是做一个可逆的小试验。",
+    "coverLine": "什么信息会改变选择？"
+  },
+  "anchoring-bias": {
+    "id": "anchoring-bias",
+    "cardTitle": "锚定偏差",
+    "discipline": "心理学",
+    "title": "锚定偏差：第一个数字如何牵动报价",
+    "description": "最先听到的数字即使毫无根据，也可能拖住后续估计。让独立数据和自己的需求先给出区间，再看对方报价。",
+    "coverLine": "先估价，再看报价"
+  },
+  "antifragile-design": {
+    "id": "antifragile-design",
+    "cardTitle": "反脆弱设计",
+    "discipline": "工程学",
+    "title": "反脆弱设计｜让可恢复的失败改进系统",
+    "description": "控制单次损失，为故障保留替代路径，并用反馈修改规则，检验重复遇到问题时系统是否表现得更好。",
+    "coverLine": "让失败留下可用的改进"
+  },
+  "arithmetic-expected-value": {
+    "id": "arithmetic-expected-value",
+    "cardTitle": "算术期望值",
+    "discipline": "数学与统计学",
+    "title": "算术期望值｜如何把失败代价算进去",
+    "description": "把每种结果的净收益乘以发生概率，再把各项相加。用统一口径计入所有分支，才可以比较重复选择的平均价值。",
+    "coverLine": "各结果按概率加权"
+  },
+  "asymmetric-information": {
+    "id": "asymmetric-information",
+    "cardTitle": "信息不对称",
+    "discipline": "微观经济学",
+    "title": "信息不对称：二手相机的质量谁能核实",
+    "description": "卖家知道相机维修史，买家只能按能查到的信息出价。独立检测、保修和记录可以缩小差距，各自也有覆盖边界。",
+    "coverLine": "谁掌握可核验信息"
+  },
+  "asymmetry-convexity": {
+    "id": "asymmetry-convexity",
+    "cardTitle": "不对称性与凸性",
+    "discipline": "数学与统计学",
+    "title": "不对称性与凸性｜同样的平均投入，为何结果不同",
+    "description": "用同一平均投入，比较波动和稳定两种做法的平均收益。收益曲线在相关区间呈凸性时，波动的平均收益至少持平。",
+    "coverLine": "固定均值，再比较波动"
+  },
+  "audit-independent-verification": {
+    "id": "audit-independent-verification",
+    "cardTitle": "审计与独立验证",
+    "discipline": "会计学",
+    "title": "审计与独立验证：一项断言如何查实",
+    "description": "直接向客户函证可以确认应收款是否存在，偿付能力还要另行判断。证据来源和覆盖范围决定审计能回答什么。",
+    "coverLine": "证据覆盖到哪里"
+  },
+  "authority-misinfluence-tendency": {
+    "id": "authority-misinfluence-tendency",
+    "cardTitle": "权威错误影响倾向",
+    "discipline": "心理学",
+    "title": "权威错误影响倾向：头衔如何替代证据",
+    "description": "资历有助于找到专业意见，也容易让团队略过核查。遇到高风险决定，先各自判断，再请专家说明证据覆盖的范围。",
+    "coverLine": "专家的判断凭什么？"
+  },
+  "autocatalysis": {
+    "id": "autocatalysis",
+    "cardTitle": "自我催化模型",
+    "discipline": "物理学与化学",
+    "title": "自我催化模型｜产出怎样推动下一轮反应",
+    "description": "自催化反应的产物能促进同种反应。借用这个模型时，先查产出怎样变成有效投入，再看容量和损耗允许加速持续多久。",
+    "coverLine": "产出也是下一轮的投入"
+  },
+  "automation-checklists": {
+    "id": "automation-checklists",
+    "cardTitle": "自动化与检查清单",
+    "discipline": "工程学",
+    "title": "自动化与检查清单｜什么时候需要人判断",
+    "description": "自动化适合规则明确且能验证的重复步骤。清单适合提醒人判断关键节点。出现异常时，要有人能接手和恢复。",
+    "coverLine": "重复步骤自动化，异常有人接手"
+  },
+  "availability-misweighing-tendency": {
+    "id": "availability-misweighing-tendency",
+    "cardTitle": "易得性偏差",
+    "discipline": "心理学",
+    "title": "易得性偏差：醒目新闻容易扭曲风险估计",
+    "description": "一次事故越鲜明，越容易在估算风险时被加重。回到同一人群、同一时段的基线，才能看出印象偏了多少。",
+    "coverLine": "先看基线，再估风险"
+  },
+  "avoiding-ideology": {
+    "id": "avoiding-ideology",
+    "cardTitle": "避免意识形态偏见",
+    "discipline": "元认知与思维方法论",
+    "title": "避免意识形态偏见：让立场接受现实检验",
+    "description": "观点一旦成了身份，承认反例便容易像背叛阵营。写下这个观点的可检验预测，以及哪一种结果会让自己改变意见。",
+    "coverLine": "什么结果会让我改立场？"
+  },
+  "avoiding-stupidity-over-seeking-brilliance": {
+    "id": "avoiding-stupidity-over-seeking-brilliance",
+    "cardTitle": "避蠢优于求智",
+    "discipline": "元认知与思维方法论",
+    "title": "避蠢优于求智：先排除会让积累归零的错误",
+    "description": "有些决定一旦出错，就会中断整个计划。先找出难以挽回、难以及时发现的失败方式，为它们单独设置保护。",
+    "coverLine": "给不可挽回的错误设防"
+  },
+  "balancing-feedback-loop": {
+    "id": "balancing-feedback-loop",
+    "cardTitle": "平衡反馈回路",
+    "discipline": "物理学与化学",
+    "title": "平衡反馈回路｜偏离目标后如何拉回来",
+    "description": "实际值偏离目标时，系统作出抑制偏差的反应。沿着反馈路径看变化如何被抵消，就能理解系统为什么趋于稳定。",
+    "coverLine": "偏差出现，回路拉回"
+  },
+  "barnum-effect": {
+    "id": "barnum-effect",
+    "cardTitle": "巴纳姆效应",
+    "discipline": "心理学",
+    "title": "巴纳姆效应：为什么一句套话像在说你？",
+    "description": "宽泛的性格描述容易让人觉得被看透。把它写成可观察的行为，再看换个人是否同样觉得准，便能检验描述的区分力。",
+    "coverLine": "换个人也会觉得准吗？"
+  },
+  "basic-arithmetic-order-of-magnitude-estimation": {
+    "id": "basic-arithmetic-order-of-magnitude-estimation",
+    "cardTitle": "基本算术与数量级估算",
+    "discipline": "数学与统计学",
+    "title": "基本算术与数量级估算｜先算出大致范围",
+    "description": "把陌生的量拆成几个能粗估、带单位的因子，先算大致范围，再核实对结论影响最大且最容易查证的数据。",
+    "coverLine": "先算数量级，再查关键数"
+  },
+  "basic-game-theory": {
+    "id": "basic-game-theory",
+    "cardTitle": "博弈论基础",
+    "discipline": "数学与统计学",
+    "title": "博弈论基础｜把对方的选择也算进去",
+    "description": "收益取决于他人的选择时，列出参与者能做什么、知道什么以及谁先行动，再看各方会如何回应别人的选择。",
+    "coverLine": "选择取决于彼此怎么选"
+  },
+  "basics-of-contract-law": {
+    "id": "basics-of-contract-law",
+    "cardTitle": "合同法基本原则",
+    "discipline": "法学与政治学",
+    "title": "合同法基本原则：月底交付之后呢",
+    "description": "软件合同约定月底交付，还需要明确谁验收、缺陷如何补救、何时付款。按时间线看双方承诺，更容易发现分歧。",
+    "coverLine": "把验收写进承诺"
+  },
+  "bayes-theorem": {
+    "id": "bayes-theorem",
+    "cardTitle": "贝叶斯定理",
+    "discipline": "数学与统计学",
+    "title": "贝叶斯定理｜用似然比修正先验赔率",
+    "description": "似然比衡量证据在假说为真和为假时分别有多常见。用先验赔率乘以似然比，就得到看到证据后的赔率。",
+    "coverLine": "赔率随证据更新"
+  },
+  "bayesian-updating": {
+    "id": "bayesian-updating",
+    "cardTitle": "贝叶斯更新",
+    "discipline": "复杂系统与决策科学",
+    "title": "贝叶斯更新｜一条新证据值多大调整",
+    "description": "先给判断一个起始概率，再比较证据在两种解释下出现的可能性。证据越能区分解释，越值得调整判断。",
+    "coverLine": "证据能区分解释吗"
+  },
+  "bet-seldom-bet-big": {
+    "id": "bet-seldom-bet-big",
+    "cardTitle": "少下注下大注",
+    "discipline": "投资学与金融学",
+    "title": "少下注下大注：判断优势与仓位是两道题",
+    "description": "看似分散的三项业务，可能都依赖同一家客户。即使对机会有把握，投入规模也受连带损失和承受能力约束。",
+    "coverLine": "三份押注一处风险"
+  },
+  "biological-redundancy": {
+    "id": "biological-redundancy",
+    "cardTitle": "生物冗余设计",
+    "discipline": "生物学与进化论",
+    "title": "生物冗余设计｜局部受损后谁能接替",
+    "description": "成对器官、部分可替代的通路和闲置储备，都可能在受损时维持功能。判断冗余是否有效，还要检查彼此共享的依赖。",
+    "coverLine": "备选路径会一起失效吗"
+  },
+  "bottleneck-effect-founder-effect": {
+    "id": "bottleneck-effect-founder-effect",
+    "cardTitle": "瓶颈效应与创始人效应",
+    "discipline": "生物学与进化论",
+    "title": "瓶颈效应与创始人效应｜少数个体如何改变群体",
+    "description": "原群体骤减和少数个体另建群体，都可能放大留下者的偶然特征。之后即使种群数量增加，旧有多样性也未必恢复。",
+    "coverLine": "数量回来，多样性未必回来"
+  },
+  "breakpoints": {
+    "id": "breakpoints",
+    "cardTitle": "断裂点",
+    "discipline": "工程学",
+    "title": "断裂点｜在系统停摆前识别退化",
+    "description": "在持续压力下，系统外表可能正常，损伤却在累积。监测退化的趋势，并提前确定何时检查、何时处置。",
+    "coverLine": "表面正常时也要看退化"
+  },
+  "brooks-law": {
+    "id": "brooks-law",
+    "cardTitle": "布鲁克斯定律",
+    "discipline": "工程学",
+    "title": "布鲁克斯定律｜为什么延期项目加人可能更慢",
+    "description": "临时增员需要培训新人、拆分工作和增加沟通。软件项目已经延期又依赖密切协调时，这些开销可能拖慢进度。",
+    "coverLine": "加人也会增加协调成本"
+  },
+  "burden-of-proof": {
+    "id": "burden-of-proof",
+    "cardTitle": "举证责任与证据标准",
+    "discipline": "法学与政治学",
+    "title": "举证责任与证据标准：由谁证明到什么程度",
+    "description": "举证责任关乎谁提出证据及谁承受证据不足的后果。证明门槛可以反映误判代价，比如内部试用与全面投放的风险差异。",
+    "coverLine": "谁证明，证明到哪"
+  },
+  "cartesian-thinking": {
+    "id": "cartesian-thinking",
+    "cardTitle": "笛卡尔方法",
+    "discipline": "元认知与思维方法论",
+    "title": "笛卡尔方法：把复杂问题拆开之后再复查",
+    "description": "先审查判断前提，把难题拆成较简单的部分，按由简到繁的次序推进。结尾复查是否有遗漏，以及各部分怎样相互影响。",
+    "coverLine": "拆开求解，合起来检查"
+  },
+  "cash-flow-vs-earnings": {
+    "id": "cash-flow-vs-earnings",
+    "cardTitle": "现金流量vs利润",
+    "discipline": "会计学",
+    "title": "现金流与利润：账上赚的钱何时到账",
+    "description": "赊销在交货时可以产生利润，现金可能几个月后才到账。把应收、存货和非现金费用串起来，就能解释账面与现金的差异。",
+    "coverLine": "利润何时变成现金"
+  },
+  "catalysts": {
+    "id": "catalysts",
+    "cardTitle": "催化剂",
+    "discipline": "物理学与化学",
+    "title": "催化剂｜反应更快抵达同一个平衡",
+    "description": "催化剂提供活化能较低的反应路径，使反应更快接近平衡。在给定条件下，平衡常数保持不变，催化剂也可能在使用中失活。",
+    "coverLine": "路径变快，平衡常数照旧"
+  },
+  "checklist-method": {
+    "id": "checklist-method",
+    "cardTitle": "检查清单方法",
+    "discipline": "元认知与思维方法论",
+    "title": "检查清单方法：在还能叫停的地方查漏",
+    "description": "熟手也会在中断与交接时漏掉关键步骤。为后果明确的事项写下可观察的完成证据，在还能暂停操作时核对。",
+    "coverLine": "把检查放在还能叫停处"
+  },
+  "circle-of-competence": {
+    "id": "circle-of-competence",
+    "cardTitle": "能力圈",
+    "discipline": "投资学与金融学",
+    "title": "能力圈：你能说出判断何时失效吗",
+    "description": "熟悉一个行业，意味着能解释关键变量、写出预测并用事实检验。说不清哪种证据会让自己改判，边界就还模糊。",
+    "coverLine": "写下什么会让你改判"
+  },
+  "circle-of-competence-metacognitive-level": {
+    "id": "circle-of-competence-metacognitive-level",
+    "cardTitle": "能力圈（元认知层面）",
+    "discipline": "元认知与思维方法论",
+    "title": "能力圈：怎样验证自己真的会判断？",
+    "description": "听懂一种解释和能反复预测结果之间还有距离。记下事前理由、把握和结果，看看自己在哪类问题上经常失准。",
+    "coverLine": "用预测标出判断边界"
+  },
+  "co-evolution": {
+    "id": "co-evolution",
+    "cardTitle": "协同进化",
+    "discipline": "生物学与进化论",
+    "title": "协同进化｜两个物种如何互相改变选择压力",
+    "description": "一方可遗传的性状变化会影响另一方哪些特征更利于繁殖。后者的演化又反馈回来，改变前者所处的选择条件。",
+    "coverLine": "选择压力沿两条方向传递"
+  },
+  "comparative-advantage": {
+    "id": "comparative-advantage",
+    "cardTitle": "比较优势",
+    "discipline": "微观经济学",
+    "title": "比较优势：分工取决于各自放弃什么",
+    "description": "即使一个人写稿和画图都更快，另一人也可能更适合写稿。分工要比较双方放弃的产出，也要计入协调代价。",
+    "coverLine": "谁放弃的产出更少"
+  },
+  "competitive-destruction": {
+    "id": "competitive-destruction",
+    "cardTitle": "竞争性毁灭",
+    "discipline": "微观经济学",
+    "title": "竞争性毁灭：新方式如何绕开旧优势",
+    "description": "顾客原本用冲印分享照片，新技术却能直接满足这个用途。判断旧业务会不会失去需求，要看替代品的成本和使用门槛。",
+    "coverLine": "客户会换一种做法"
+  },
+  "complex-adaptive-systems": {
+    "id": "complex-adaptive-systems",
+    "cardTitle": "复杂适应系统",
+    "discipline": "生物学与进化论",
+    "title": "复杂适应系统｜当参与者看着彼此改策略",
+    "description": "个体根据彼此行动调整策略，整体规律也会随之变化。先看各方得到的信息和反应时机，再观察小范围改动后的反馈。",
+    "coverLine": "规则一动，参与者也会动"
+  },
+  "complex-systems": {
+    "id": "complex-systems",
+    "cardTitle": "复杂系统",
+    "discipline": "复杂系统与决策科学",
+    "title": "复杂系统｜从相互作用理解整体",
+    "description": "部件间的反馈和非线性作用，会让同一改动在不同条件下产生不同结果。用小范围试验和持续反馈修正判断。",
+    "coverLine": "局部改动，整体会怎样"
+  },
+  "compound-interest": {
+    "id": "compound-interest",
+    "cardTitle": "复利效应",
+    "discipline": "数学与统计学",
+    "title": "复利效应｜每期收益怎样进入下一轮",
+    "description": "收益留在本金中，下一期就按更大的基数计算。以每期增长一成为例，连续三期的总增长是三成三点一。",
+    "coverLine": "收益也参与下一轮增长"
+  },
+  "concept-map": {
+    "id": "concept-map",
+    "cardTitle": "概念图",
+    "discipline": "元认知与思维方法论",
+    "title": "概念图：把你理解的关系画出来",
+    "description": "把实体画成节点，在连线上写清它们有什么关系。个人能借图看出理解的空白，团队也能发现各自的解释差在哪里。",
+    "coverLine": "在线上写清概念的关系"
+  },
+  "conditional-probability-base-rates": {
+    "id": "conditional-probability-base-rates",
+    "cardTitle": "条件概率与基础比率",
+    "discipline": "数学与统计学",
+    "title": "条件概率与基础比率｜先确认在谁里面数",
+    "description": "要判断被标记的对象究竟有多可能属于某一类，可在同一张表记录该类原本的比例、命中的数量和误标的数量。",
+    "coverLine": "看命中之前先看分母"
+  },
+  "confidence-calibration": {
+    "id": "confidence-calibration",
+    "cardTitle": "置信度校准",
+    "discipline": "元认知与思维方法论",
+    "title": "置信度校准：七成把握能兑现几成？",
+    "description": "把对事件的信心写成概率，再集中核对同一概率档的实际结果。长期给出七成的预测，约有七成兑现才算贴近。",
+    "coverLine": "七成把握兑现了几成？"
+  },
+  "confirmation-bias": {
+    "id": "confirmation-bias",
+    "cardTitle": "确认偏误",
+    "discipline": "心理学",
+    "title": "确认偏误：搜索词也会偏向既有结论",
+    "description": "偏好会悄悄进入搜索、选样与解读。调查前写明什么发现足以改变结论，并用同一套标准衡量正反证据。",
+    "coverLine": "什么证据能让我改判？"
+  },
+  "conflict-resolution-diagram": {
+    "id": "conflict-resolution-diagram",
+    "cardTitle": "冲突解决图",
+    "discipline": "复杂系统与决策科学",
+    "title": "冲突解决图｜从双方主张追到需求",
+    "description": "双方都坚持自己的方案时，先追问各自希望满足什么需求，再找共同目标和兼顾两方需求的办法。",
+    "coverLine": "主张背后有什么需求"
+  },
+  "connection-circles": {
+    "id": "connection-circles",
+    "cardTitle": "连接圆圈",
+    "discipline": "复杂系统与决策科学",
+    "title": "连接圆圈｜沿因果箭头找反馈",
+    "description": "把关键要素排在圆周上，用箭头标出彼此影响。顺着箭头追到起点，看看反馈是在放大变化，还是在抵消变化。",
+    "coverLine": "沿影响画出反馈回路"
+  },
+  "consequentialism-vs-deontology": {
+    "id": "consequentialism-vs-deontology",
+    "cardTitle": "后果主义vs义务论",
+    "discipline": "历史学与哲学",
+    "title": "后果主义与义务论：好结果与应守原则冲突时",
+    "description": "后果主义衡量不同选择会给谁带来什么结果，义务论追问应兑现哪些承诺、尊重哪些权利。两者冲突时，可以明确取舍依据。",
+    "coverLine": "结果和义务如何取舍？"
+  },
+  "conservation-of-energy": {
+    "id": "conservation-of-energy",
+    "cardTitle": "能量守恒",
+    "discipline": "物理学与化学",
+    "title": "能量守恒｜把边界两侧的流动算全",
+    "description": "能量可以改变形式，也可以跨过系统边界。先划定范围与时间窗口，再核对输入、输出、储存变化和耗散。",
+    "coverLine": "先划边界，再算能量"
+  },
+  "contrast-misreaction-tendency": {
+    "id": "contrast-misreaction-tendency",
+    "cardTitle": "对比错误反应倾向",
+    "discipline": "心理学",
+    "title": "对比错误反应倾向：标价怎样被邻居改变",
+    "description": "同样的价格挨着更贵的选项就可能显得划算。统一比较单位，带上外部基准和自己的预算上限，可以减弱陈列顺序的影响。",
+    "coverLine": "把价格放回同一把尺"
+  },
+  "convergent-evolution": {
+    "id": "convergent-evolution",
+    "cardTitle": "趋同进化",
+    "discipline": "生物学与进化论",
+    "title": "趋同进化｜相似形态可能有不同来路",
+    "description": "面对相似的功能难题，不同支系可能独立演化出相似特征。要说明这种相似从何而来，还需核对亲缘历史和结构细节。",
+    "coverLine": "同样的难题可能得到相似解法"
+  },
+  "conways-law": {
+    "id": "conways-law",
+    "cardTitle": "康威定律",
+    "discipline": "工程学",
+    "title": "康威定律｜组织如何沟通，系统如何分工",
+    "description": "系统的模块和接口常会反映团队之间的沟通方式。设计跨团队系统时，也要看看实际的协作边界在哪里。",
+    "coverLine": "系统会映出沟通边界"
+  },
+  "correlation-is-not-causation": {
+    "id": "correlation-is-not-causation",
+    "cardTitle": "相关不等于因果",
+    "discipline": "数学与统计学",
+    "title": "相关不等于因果｜两个指标一起变，原因可能是什么",
+    "description": "同时变化可能来自正向因果、反向因果、共同原因或抽样巧合。提出可区分的解释，再检查时间顺序、混杂因素和对照。",
+    "coverLine": "同涨同跌，先找解释"
+  },
+  "critical-mass": {
+    "id": "critical-mass",
+    "cardTitle": "临界质量",
+    "discipline": "物理学与化学",
+    "title": "临界质量｜何时新增能弥补流失",
+    "description": "当参与规模较小，新增可能赶不上流失。找到参与者能吸引新人或更有效产出的条件，就知道何时可能实现自我维持。",
+    "coverLine": "新增什么时候追得上流失"
+  },
+  "critical-mass-phase-transitions-in-systems": {
+    "id": "critical-mass-phase-transitions-in-systems",
+    "cardTitle": "临界质量与相变",
+    "discipline": "复杂系统与决策科学",
+    "title": "临界质量与相变｜何时转入新状态",
+    "description": "参与密度或连接程度的变化，有时会改变系统维持活动的方式。判断是否跨过临界区，要观察新状态能否自行维持。",
+    "coverLine": "新状态能自行维持吗"
+  },
+  "curiosity-tendency": {
+    "id": "curiosity-tendency",
+    "cardTitle": "好奇心倾向",
+    "discipline": "心理学",
+    "title": "好奇心倾向：把意外变成可调查的问题",
+    "description": "当事实出乎预料，先挑出最可能改变下一步的疑问，再找一个成本低、能区分两种解释的办法去观察。",
+    "coverLine": "把意外问成问题"
+  },
+  "curse-of-knowledge": {
+    "id": "curse-of-knowledge",
+    "cardTitle": "知识诅咒",
+    "discipline": "心理学",
+    "title": "知识诅咒：熟手为什么讲不清第一步？",
+    "description": "写说明的人容易略去自己早已熟悉的前提。让首次接触的读者实际操作一遍，可以看到他们在哪里停下来。",
+    "coverLine": "让新手实际走一遍"
+  },
+  "cynefin-framework": {
+    "id": "cynefin-framework",
+    "cardTitle": "Cynefin 情境框架",
+    "discipline": "复杂系统与决策科学",
+    "title": "Cynefin 情境框架｜按因果清晰度行动",
+    "description": "先判断因果是否清楚、结果能否预测，再选择按规则处理、先深入分析，或通过小规模试探获取反馈。",
+    "coverLine": "先认清情境，再选做法"
+  },
+  "darwinian-objectivity": {
+    "id": "darwinian-objectivity",
+    "cardTitle": "达尔文式客观态度",
+    "discipline": "元认知与思维方法论",
+    "title": "达尔文式客观态度：趁反例还新鲜时记下来",
+    "description": "看到与原判断相反的事实，立即记录原话和观察条件。时间一久，回忆容易偏向支持原观点的材料。",
+    "coverLine": "遇见反例就记下来"
+  },
+  "decision-matrix": {
+    "id": "decision-matrix",
+    "cardTitle": "决策矩阵",
+    "discipline": "复杂系统与决策科学",
+    "title": "决策矩阵｜把评分依据摆到桌面上",
+    "description": "列出备选方案和评价因素，为因素分配权重并逐项评分。比较总分时，也可以检查看重的因素如何影响结果。",
+    "coverLine": "哪项权重左右了选择"
+  },
+  "decision-tree-theory": {
+    "id": "decision-tree-theory",
+    "cardTitle": "决策树",
+    "discipline": "数学与统计学",
+    "title": "决策树｜画清选择、偶然事件和后果",
+    "description": "遇到多阶段决定，把能控制的选择和无法控制的事件分别画出，在分支末端标记结果，再从后续路径比较方案。",
+    "coverLine": "把每条路径及后果画出来"
+  },
+  "deferred-revenue-revenue-recognition": {
+    "id": "deferred-revenue-revenue-recognition",
+    "cardTitle": "递延收入与收入确认",
+    "discipline": "会计学",
+    "title": "递延收入与收入确认：预付一年怎么算",
+    "description": "客户一次付清年费，企业接下来仍要履约。把收款、交付和退款权放在同一条时间线上，更容易判断收入归属。",
+    "coverLine": "收款之后还有履约"
+  },
+  "delay-effects": {
+    "id": "delay-effects",
+    "cardTitle": "延迟效应",
+    "discipline": "复杂系统与决策科学",
+    "title": "延迟效应｜给干预留下观察时间",
+    "description": "从实施到见效有时差，连续加码可能过冲，太早撤回可能放弃有效措施。分别记录实施、早期信号和成熟结果的时间。",
+    "coverLine": "见效前别急着下结论"
+  },
+  "depreciation-amortization": {
+    "id": "depreciation-amortization",
+    "cardTitle": "折旧与摊销",
+    "discipline": "会计学",
+    "title": "折旧与摊销：资产成本如何分到各年",
+    "description": "设备购置款可能一次付清，报表则分年确认成本。使用寿命、残值和更换支出能解释利润与长期现金需求的差异。",
+    "coverLine": "设备成本分到哪年"
+  },
+  "deprival-superreaction-tendency": {
+    "id": "deprival-superreaction-tendency",
+    "cardTitle": "被剥夺超级反应倾向",
+    "discipline": "心理学",
+    "title": "被剥夺超级反应倾向：快到手时为何难放下？",
+    "description": "当预期中的收益落空，人容易为挽回它抬高出价。回到今天的条件，问自己若从头选择还愿意付多少。",
+    "coverLine": "从头选，还愿意付吗？"
+  },
+  "design-for-maintainability": {
+    "id": "design-for-maintainability",
+    "cardTitle": "可维护性设计",
+    "discipline": "工程学",
+    "title": "可维护性设计｜走一遍故障恢复流程",
+    "description": "评审时实际演练常见维护任务，从发现故障、定位部件到替换和复验，把所需时间与工具都算进设计。",
+    "coverLine": "从发现故障走到恢复"
+  },
+  "discounted-cash-flow": {
+    "id": "discounted-cash-flow",
+    "cardTitle": "现金流贴现法",
+    "discipline": "投资学与金融学",
+    "title": "现金流贴现法：把未来的钱折回今天",
+    "description": "不同年份的现金流要按时间和风险折回同一时点。长期增长率稍作改变就可能牵动终值，估值宜呈现假设与区间。",
+    "coverLine": "未来现金值多少"
+  },
+  "disliking-hating-tendency": {
+    "id": "disliking-hating-tendency",
+    "cardTitle": "讨厌与憎恨倾向",
+    "discipline": "心理学",
+    "title": "讨厌与憎恨倾向：反感如何牵连观点",
+    "description": "对一个人的反感会拉低对其作品和意见的评价。隐去名字，把主张准确复述出来，再检验证据与执行后果。",
+    "coverLine": "隐去名字，再评论证"
+  },
+  "double-entry-bookkeeping": {
+    "id": "double-entry-bookkeeping",
+    "cardTitle": "复式记账法",
+    "discipline": "会计学",
+    "title": "复式记账法：一笔交易怎样改变两个账户",
+    "description": "用现金买设备，一项资产减少、另一项增加。凭借贷平衡可以追踪资金去向，认定交易性质仍需凭证。",
+    "coverLine": "一笔交易两边记"
+  },
+  "doubt-avoidance-tendency": {
+    "id": "doubt-avoidance-tendency",
+    "cardTitle": "避免怀疑倾向",
+    "discipline": "心理学",
+    "title": "避免怀疑倾向：为什么急着相信第一个答案？",
+    "description": "悬而未决让人难受，时间压力又让完整的解释变得诱人。留出澄清窗口，写清缺什么事实，以及等待的代价。",
+    "coverLine": "给疑问一点时间"
+  },
+  "drug-misinfluence-tendency": {
+    "id": "drug-misinfluence-tendency",
+    "cardTitle": "化学物质错误影响倾向",
+    "discipline": "心理学",
+    "title": "化学物质错误影响倾向：自觉清醒可靠吗？",
+    "description": "酒精等影响中枢神经系统的物质会改变反应和自我监控。重大决定可提前安排在其他时段，或指定替代执行人。",
+    "coverLine": "提前安排替代执行人"
+  },
+  "echo-chamber": {
+    "id": "echo-chamber",
+    "cardTitle": "回音室效应",
+    "discipline": "心理学",
+    "title": "回音室效应：外部的声音为什么进不来？",
+    "description": "回音室会不断削弱成员对外部消息来源的信任。要让不同证据有机会被评估，还得处理来源可信度和信任关系。",
+    "coverLine": "外部证据如何被听见？"
+  },
+  "economies-of-scale": {
+    "id": "economies-of-scale",
+    "cardTitle": "规模优势",
+    "discipline": "微观经济学",
+    "title": "规模优势：产量增加何时能降低单位成本",
+    "description": "多生产一些可以摊薄设备成本，也可能触发扩建新产线。把固定支出和产能阈值列出来，才能判断规模优势能维持多久。",
+    "coverLine": "规模大到哪一步"
+  },
+  "ecosystem-thinking": {
+    "id": "ecosystem-thinking",
+    "cardTitle": "生态系统思维",
+    "discipline": "生物学与进化论",
+    "title": "生态系统思维｜少了一个环节，谁先受影响",
+    "description": "把食物、空间、服务和废物沿参与者之间的关系画出来。设想少了一个环节，沿图追踪损失怎样传递，哪里还有替代来源。",
+    "coverLine": "顺着关系寻找损失与替代"
+  },
+  "eisenhower-matrix": {
+    "id": "eisenhower-matrix",
+    "cardTitle": "艾森豪威尔矩阵",
+    "discipline": "管理学与商业",
+    "title": "用艾森豪威尔矩阵给重要的事腾时间",
+    "description": "按重要性和紧急程度看每件事，再决定立即做、安排时间、委派或删减。给长期项目留出时段，可以防止它被急事挤掉。",
+    "coverLine": "重要的事先留时间"
+  },
+  "emergence": {
+    "id": "emergence",
+    "cardTitle": "涌现性",
+    "discipline": "复杂系统与决策科学",
+    "title": "涌现性｜简单互动如何形成整体模式",
+    "description": "部件按局部规则互动，可能产生单个部件没有的整体模式。改变个体看到的信息或响应方式，可以检验模式从何而来。",
+    "coverLine": "整体模式从局部互动长出"
+  },
+  "empiricism": {
+    "id": "empiricism",
+    "cardTitle": "经验主义",
+    "discipline": "历史学与哲学",
+    "title": "经验主义：让解释经受观察",
+    "description": "把解释写成具体预测，在不同条件或对照中观察。回看数据怎样支持结论，也检查测量方法本身是否可靠。",
+    "coverLine": "把解释写成可观察的预测"
+  },
+  "endowment-effect": {
+    "id": "endowment-effect",
+    "cardTitle": "禀赋效应",
+    "discipline": "心理学",
+    "title": "禀赋效应：东西到手后为什么更贵？",
+    "description": "已经拥有的东西，往往要更高的补偿才肯让出。用事先约定的中立标准复评，能把所有权和真实使用价值分开看。",
+    "coverLine": "买进和卖出各值多少？"
+  },
+  "engineering-margin-of-safety": {
+    "id": "engineering-margin-of-safety",
+    "cardTitle": "安全边际（工程源头）",
+    "discipline": "工程学",
+    "title": "安全边际｜给实际载荷和估算误差留余量",
+    "description": "把承载能力和预计需求放在同一工况下比较，留出余量应对载荷变化、老化和估算误差，条件改变后再核对。",
+    "coverLine": "余量要按同一工况算"
+  },
+  "enlightenment-rationalism": {
+    "id": "enlightenment-rationalism",
+    "cardTitle": "启蒙运动的理性传统",
+    "discipline": "历史学与哲学",
+    "title": "启蒙运动的理性传统：让理由接受公开反驳",
+    "description": "把权威提出的结论写成任何人都能复查的论证，说明用了哪些前提，有什么证据，以及哪些反例值得回应。",
+    "coverLine": "公开理由，让他人复查"
+  },
+  "entropy": {
+    "id": "entropy",
+    "cardTitle": "熵",
+    "discipline": "物理学与化学",
+    "title": "熵｜冰箱降温为何符合热力学第二定律",
+    "description": "孤立系统的总熵不会自发减少。冰箱用电把热量排到箱外，箱内可以变冷，分析时要把外部环境也考虑进去。",
+    "coverLine": "箱内变冷，热量排向箱外"
+  },
+  "envy-jealousy-tendency": {
+    "id": "envy-jealousy-tendency",
+    "cardTitle": "艳羡与妒忌倾向",
+    "discipline": "心理学",
+    "title": "艳羡与妒忌倾向：追平别人值多少代价？",
+    "description": "只盯着相对差距，人甚至会接受让自己更糟的方案。列出自己的实际诉求、可获得的收益，以及因此放弃的机会。",
+    "coverLine": "比较之前先看自己的所得"
+  },
+  "epigenetics": {
+    "id": "epigenetics",
+    "cardTitle": "表观遗传学",
+    "discipline": "生物学与进化论",
+    "title": "表观遗传学｜相同 DNA 如何呈现不同表达",
+    "description": "相同 DNA 序列可以对应不同的基因表达状态。讨论环境影响时，要分清个体内持续变化、后代直接暴露和真正跨代传递。",
+    "coverLine": "表达变化要看传到了哪一代"
+  },
+  "equilibrium-and-far-from-equilibrium": {
+    "id": "equilibrium-and-far-from-equilibrium",
+    "cardTitle": "均衡与远离均衡态",
+    "discipline": "物理学与化学",
+    "title": "均衡与远离均衡态｜稳定外观背后的持续流动",
+    "description": "平衡状态没有持续的宏观净流。远离平衡的开放系统也能看似稳定，因为持续输入和耗散可以维持可见状态。",
+    "coverLine": "稳定外观背后可能仍在流动"
+  },
+  "evidence-based-practice": {
+    "id": "evidence-based-practice",
+    "cardTitle": "循证实践",
+    "discipline": "元认知与思维方法论",
+    "title": "循证实践：如何把研究证据用在眼前的问题？",
+    "description": "同时考察研究质量、实践经验和相关人的需求，看看证据是否适合当前情境。采取行动后再复核实际效果。",
+    "coverLine": "证据适合眼前这件事吗？"
+  },
+  "evolutionary-arms-race": {
+    "id": "evolutionary-arms-race",
+    "cardTitle": "进化军备竞赛",
+    "discipline": "生物学与进化论",
+    "title": "进化军备竞赛｜双方为什么会相互升级",
+    "description": "一方占优后，另一方的应对会重新改变竞争条件。按时间记录双方做了什么，才能判断持续投入是否改变了相对位置。",
+    "coverLine": "一方改变，另一方随之应对"
+  },
+  "evolutionary-epistemology": {
+    "id": "evolutionary-epistemology",
+    "cardTitle": "进化认识论",
+    "discipline": "历史学与哲学",
+    "title": "进化认识论：知识如何通过竞争与筛选修正？",
+    "description": "用变异、选择和保留理解观念的更新。保留多个竞争解释，留下检验和淘汰理由，并让新的证据可以重新打开问题。",
+    "coverLine": "让不同解释接受同场检验"
+  },
+  "excessive-self-regard-tendency": {
+    "id": "excessive-self-regard-tendency",
+    "cardTitle": "自视过高的倾向",
+    "discipline": "心理学",
+    "title": "自视过高的倾向：怎样区分能力与运气？",
+    "description": "评价自己的成绩容易加分。留一份事前预测，找同类成绩当参照，再把结果交给不知道作者是谁的人独立打分。",
+    "coverLine": "让成绩脱离作者评分"
+  },
+  "exponential-growth": {
+    "id": "exponential-growth",
+    "cardTitle": "指数增长与种群动力学",
+    "discipline": "生物学与进化论",
+    "title": "指数增长与种群动力学｜基数变大之后会怎样",
+    "description": "每个个体平均带来相近数量的新增个体时，净增长量随基数增大。资源、空间或机会趋紧时，应重新估算增长率。",
+    "coverLine": "基数会增长，资源也会变紧"
+  },
+  "externalities": {
+    "id": "externalities",
+    "cardTitle": "外部性",
+    "discipline": "微观经济学",
+    "title": "外部性：交易外的人承担了什么",
+    "description": "夜间配送方便商家，也可能给邻居带来噪声。把私人账里遗漏的影响列出来，才能比较改时间、换设备和隔音的代价。",
+    "coverLine": "交易之外的那笔账"
+  },
+  "extinction-irreversibility": {
+    "id": "extinction-irreversibility",
+    "cardTitle": "灭绝与不可逆性",
+    "discipline": "生物学与进化论",
+    "title": "灭绝与不可逆性｜物种消失后失去什么",
+    "description": "物种灭绝意味着一条演化谱系停止延续。面对类似的不可逆损失，先找出哪些信息、能力或对象一旦失去就无法重建。",
+    "coverLine": "有些损失无法重新长出来"
+  },
+  "failure-mode-analysis": {
+    "id": "failure-mode-analysis",
+    "cardTitle": "故障模式分析",
+    "discipline": "工程学",
+    "title": "故障模式分析｜逐项追查功能会怎样失效",
+    "description": "列出每项功能可能的失效方式、影响对象、成因和现有检测手段，优先处理后果严重且不易察觉的问题。",
+    "coverLine": "先查严重且隐蔽的故障"
+  },
+  "fallacy-of-composition": {
+    "id": "fallacy-of-composition",
+    "cardTitle": "合成谬误",
+    "discipline": "元认知与思维方法论",
+    "title": "合成谬误：每个环节都快，整体就快吗？",
+    "description": "从部分推向整体，需要说清性质能否相加。即使每个环节各自很快，连接方式、等待和资源约束仍会拖慢整体。",
+    "coverLine": "环节之间发生了什么？"
+  },
+  "fallacy-of-division": {
+    "id": "fallacy-of-division",
+    "cardTitle": "分解谬误",
+    "discipline": "元认知与思维方法论",
+    "title": "分解谬误：好看的平均数能说明谁做得好？",
+    "description": "整体评价很容易盖住成员之间的差异。要根据一个平均值判断具体任务，先查分布、计算口径和该任务自身的数据。",
+    "coverLine": "平均数下有什么差异？"
+  },
+  "false-consensus-effect": {
+    "id": "false-consensus-effect",
+    "cardTitle": "错误共识效应",
+    "discipline": "心理学",
+    "title": "错误共识效应：以为大家都和我一样",
+    "description": "附近的人可能恰好同意你。先把自己的做法当成待验证的假设，分别询问不同背景的人，再说明共识覆盖的人群。",
+    "coverLine": "问问不同背景的人"
+  },
+  "falsifiability-criterion": {
+    "id": "falsifiability-criterion",
+    "cardTitle": "可证伪性",
+    "discipline": "元认知与思维方法论",
+    "title": "可证伪性：什么观察会让主张站不住？",
+    "description": "一个经验主张要能接受检验，需要指出哪种观察与它不相容。实际发现异常时，还应检查测量和辅助假设。",
+    "coverLine": "写下主张的失败条件"
+  },
+  "falsification": {
+    "id": "falsification",
+    "cardTitle": "否证思维",
+    "discipline": "元认知与思维方法论",
+    "title": "否证思维：先找最可能推翻判断的反例",
+    "description": "对严格的全称主张，一个可靠反例就够关键。检验之前固定前提和通过条件，可以防止看到结果后悄悄改标准。",
+    "coverLine": "主动找能推翻判断的事实"
+  },
+  "fault-tolerance": {
+    "id": "fault-tolerance",
+    "cardTitle": "容错设计与优雅降级",
+    "discipline": "工程学",
+    "title": "容错设计与优雅降级｜出故障先保住什么",
+    "description": "事先定好局部故障时哪些能力必须保留、哪些可以暂时降低，再安排依赖隔离、状态提示和恢复步骤。",
+    "coverLine": "局部故障时保住要紧事"
+  },
+  "feedback-loops": {
+    "id": "feedback-loops",
+    "cardTitle": "反馈环",
+    "discipline": "物理学与化学",
+    "title": "反馈环｜输出如何改变下一轮输入",
+    "description": "沿因果箭头走一圈，记录每步变化的方向和耗时。输出回到输入后，可能放大偏差、抵消偏差，也可能带来振荡。",
+    "coverLine": "追一圈，看变化如何返回"
+  },
+  "feynman-technique": {
+    "id": "feynman-technique",
+    "cardTitle": "费曼技巧",
+    "discipline": "元认知与思维方法论",
+    "title": "费曼技巧：用初学者听得懂的话重讲一遍",
+    "description": "讲给初学者听，尤其把因果过程讲完整。遇到只能用术语带过的地方就回去补课，再换个例子让对方预测。",
+    "coverLine": "能讲清中间为什么吗？"
+  },
+  "fiduciary-duty": {
+    "id": "fiduciary-duty",
+    "cardTitle": "信托责任",
+    "discipline": "法学与政治学",
+    "title": "信托责任：代人决策时如何处理利益冲突",
+    "description": "采购负责人推荐自己持股的供应商，即使报价合理，仍涉及利益冲突。授权范围、披露和独立审查决定如何处理。",
+    "coverLine": "受托决策为谁负责"
+  },
+  "first-principles-thinking": {
+    "id": "first-principles-thinking",
+    "cardTitle": "第一性原理",
+    "discipline": "元认知与思维方法论",
+    "title": "第一性原理：从基本事实重新搭出方案",
+    "description": "把沿用多年的做法拆成目标、约束和可核对的事实。先验证关键前提，再看看从这些条件出发还能怎样达到目标。",
+    "coverLine": "从事实和约束重新出发"
+  },
+  "five-ws-principle": {
+    "id": "five-ws-principle",
+    "cardTitle": "五何原则",
+    "discipline": "元认知与思维方法论",
+    "title": "五何原则：让接手的人知道为什么要做",
+    "description": "交接时交代谁在何时何地做什么，以及为什么。前四项让行动有明确落点，理由则帮助接手者应对条件变化。",
+    "coverLine": "交代行动，也交代理由"
+  },
+  "fragility-antifragility": {
+    "id": "fragility-antifragility",
+    "cardTitle": "脆弱性与反脆弱性",
+    "discipline": "复杂系统与决策科学",
+    "title": "脆弱性与反脆弱性｜比较同幅变化的两面",
+    "description": "比较幅度相等、方向相反的两次变化。不利变化损失更大时，波动通常有害。收益曲线向上弯曲时，波动可能带来收益。",
+    "coverLine": "同幅波动，得失对称吗"
+  },
+  "franklins-self-improvement-system": {
+    "id": "franklins-self-improvement-system",
+    "cardTitle": "富兰克林的自我修炼",
+    "discipline": "历史学与哲学",
+    "title": "富兰克林的自我修炼：每周把一项美德练成动作",
+    "description": "把抽象的美德写成看得见的行为，每周集中练一项。每日回顾时记录在哪些场合失手，再检验后来有没有改善。",
+    "coverLine": "每周集中练一项"
+  },
+  "frequency-illusion": {
+    "id": "frequency-illusion",
+    "cardTitle": "频率错觉",
+    "discipline": "心理学",
+    "title": "频率错觉：刚学会的词怎么到处都是？",
+    "description": "学会识别一个现象后，更容易发现它。用同一识别标准比较相等的观察时段，才能看出实际发生次数有没有增加。",
+    "coverLine": "看见更多，还是发生更多？"
+  },
+  "fundamental-attribution-error": {
+    "id": "fundamental-attribution-error",
+    "cardTitle": "基本归因错误",
+    "discipline": "心理学",
+    "title": "基本归因错误：评价一个人之前先看情境",
+    "description": "遇到糟糕表现时，人容易先归咎性格。把做了什么与性格推断分开，再看同一个人在不同规则下的表现。",
+    "coverLine": "先看情境，再评表现"
+  },
+  "goodharts-law": {
+    "id": "goodharts-law",
+    "cardTitle": "古德哈特定律",
+    "discipline": "管理学与商业",
+    "title": "古德哈特定律：数字变好，结果为何变差",
+    "description": "只按条目数考核，可能得到更多浅薄内容。指标一旦承受达标压力，还要复查用户能否找到、理解并用好这些知识。",
+    "coverLine": "数字之外检查结果"
+  },
+  "goodwill-impairment": {
+    "id": "goodwill-impairment",
+    "cardTitle": "商誉及其减值",
+    "discipline": "会计学",
+    "title": "商誉及其减值：收购溢价靠什么兑现",
+    "description": "并购时为协同效应支付的溢价可能形成商誉。客户流失会动摇原有假设，经济损失也可能早于账面减值。",
+    "coverLine": "回看并购时的假设"
+  },
+  "half-life": {
+    "id": "half-life",
+    "cardTitle": "半衰期",
+    "discipline": "物理学与化学",
+    "title": "半衰期｜每隔多久，剩余量减半",
+    "description": "当存量按相同比例衰减时，可以用固定的半衰期描述。若每两天减半，开始时的八十单位六天后就剩十单位。",
+    "coverLine": "每次减掉剩余量的一半"
+  },
+  "hanlons-razor": {
+    "id": "hanlons-razor",
+    "cardTitle": "汉隆剃刀",
+    "discipline": "元认知与思维方法论",
+    "title": "汉隆剃刀：出错后先检查疏忽和误解",
+    "description": "遇到令人恼火的失误，可以先查误会、流程漏洞或能力限制。再看问题是否反复出现、有没有改正和明确的伤害证据。",
+    "coverLine": "先查疏忽与误解"
+  },
+  "hard-choice-model": {
+    "id": "hard-choice-model",
+    "cardTitle": "艰难选择模型",
+    "discipline": "复杂系统与决策科学",
+    "title": "艰难选择模型｜按影响和可比性分配精力",
+    "description": "小事可以快速决定。遇到影响大且难以比较的选项，先说清最在意的取舍，再考虑用小范围试验降低风险。",
+    "coverLine": "把精力留给真正难选的事"
+  },
+  "herding-behavior": {
+    "id": "herding-behavior",
+    "cardTitle": "羊群行为",
+    "discipline": "心理学",
+    "title": "羊群行为：许多人可能只跟着一个判断",
+    "description": "结果难以观察时，人们会照着前一批人的选择行动。追查当前共识来自几条独立信息，可以看出跟随的成分。",
+    "coverLine": "队伍里有几条独立消息？"
+  },
+  "historical-contingency-path-dependence": {
+    "id": "historical-contingency-path-dependence",
+    "cardTitle": "历史偶然性与路径依赖",
+    "discipline": "历史学与哲学",
+    "title": "历史偶然性与路径依赖：岔路之后为何难改道？",
+    "description": "偶然事件可以影响早期选择。投入、制度和习惯会沿选中的路线累积，让当初很小的差别在多年后依旧发挥作用。",
+    "coverLine": "一次岔路，长期影响"
+  },
+  "hitchens-razor": {
+    "id": "hitchens-razor",
+    "cardTitle": "希钦斯剃刀",
+    "discipline": "元认知与思维方法论",
+    "title": "希钦斯剃刀：谁负责提供主张的证据？",
+    "description": "听到没有证据的断言，可以先把它列为待证。说清需要什么材料才能继续讨论，让提出主张的人承担举证。",
+    "coverLine": "先让主张附上证据"
+  },
+  "hofstadters-law": {
+    "id": "hofstadters-law",
+    "cardTitle": "霍夫斯塔特定律",
+    "discipline": "工程学",
+    "title": "霍夫斯塔特定律｜估时留了余量也可能超期",
+    "description": "这条自指格言提醒我们，即使已经考虑到自己会低估工期，任务仍然可能比预期耗费更多时间。",
+    "coverLine": "连预留的工期也会用完"
+  },
+  "hyrums-law": {
+    "id": "hyrums-law",
+    "cardTitle": "海勒姆定律",
+    "discipline": "工程学",
+    "title": "海勒姆定律｜哪些未承诺的行为会被依赖",
+    "description": "接口的使用者多了，就可能有人依赖那些能观察到、却未写入契约的行为。修改接口前也要留意这些依赖。",
+    "coverLine": "看得见的行为也会被依赖"
+  },
+  "iceberg-model": {
+    "id": "iceberg-model",
+    "cardTitle": "冰山模型",
+    "discipline": "复杂系统与决策科学",
+    "title": "冰山模型｜从一次事件追到系统结构",
+    "description": "同类问题反复出现时，从具体事件观察长期模式，再追问什么结构让它持续，哪些习以为常的假设维持了结构。",
+    "coverLine": "事件之下还有三层"
+  },
+  "illusion-of-truth": {
+    "id": "illusion-of-truth",
+    "cardTitle": "虚假真相效应",
+    "discipline": "心理学",
+    "title": "虚假真相效应：说法听熟了就更可信吗？",
+    "description": "同一说法反复露面会让它显得可信。沿着转载追到原始证据，再找独立检验，能分清重复出现与新增证据。",
+    "coverLine": "转发再多也要追到原证据"
+  },
+  "immune-system-antifragility": {
+    "id": "immune-system-antifragility",
+    "cardTitle": "免疫系统与抗脆弱性",
+    "discipline": "生物学与进化论",
+    "title": "免疫系统与抗脆弱性｜特异性记忆如何改变再次响应",
+    "description": "适应性免疫能对已识别的抗原形成特异性记忆。借用这个例子谈系统学习时，要确认后续改善持续，且单次损失可恢复。",
+    "coverLine": "是否学到了，要看再次响应"
+  },
+  "impact-effort-matrix": {
+    "id": "impact-effort-matrix",
+    "cardTitle": "影响—投入矩阵",
+    "discipline": "复杂系统与决策科学",
+    "title": "影响—投入矩阵｜优先处理高影响低投入的事",
+    "description": "把预期影响和所需投入分开评估。先识别省力而重要的任务，再为高投入的大项目留出容量。",
+    "coverLine": "先做高影响低投入的事"
+  },
+  "incentive-structure-agency-problem": {
+    "id": "incentive-structure-agency-problem",
+    "cardTitle": "激励结构与代理问题",
+    "discipline": "法学与政治学",
+    "title": "激励结构与代理问题：签约奖励会留下什么",
+    "description": "只按签约额发奖金，销售可能放宽高风险客户的账期。把回款和退货纳入观察，才能看到由谁承担晚些才显现的损失。",
+    "coverLine": "谁签单，谁扛坏账"
+  },
+  "incentives-economic-view": {
+    "id": "incentives-economic-view",
+    "cardTitle": "激励机制",
+    "discipline": "微观经济学",
+    "title": "激励机制：规则公布后，人会怎么做",
+    "description": "仓库只按出库件数发奖励，员工可能先拣小件，大件反而积压。沿决定、获益和承担后果的人查找考核的漏洞。",
+    "coverLine": "考核会把人推向哪里"
+  },
+  "inconsistency-avoidance-tendency": {
+    "id": "inconsistency-avoidance-tendency",
+    "cardTitle": "避免不一致性倾向",
+    "discipline": "心理学",
+    "title": "避免不一致性倾向：公开承诺之后还怎么改口？",
+    "description": "发过的声明会让转向变难，也会影响我们怎么挑事实。决定时记下初始依据和改判条件，为修正留出路径。",
+    "coverLine": "提前写下改判条件"
+  },
+  "independence": {
+    "id": "independence",
+    "cardTitle": "独立思考",
+    "discipline": "投资原则与品格",
+    "title": "独立思考：开会前先写下自己的证据",
+    "description": "评审供应商时，先独立打分并保留理由，再听其他组的意见。新证据值得吸收，也可以请别人挑战自己最看重的依据。",
+    "coverLine": "先写判断再听意见"
+  },
+  "influence-from-mere-association-tendency": {
+    "id": "influence-from-mere-association-tendency",
+    "cardTitle": "受简单联想影响的倾向",
+    "discipline": "心理学",
+    "title": "受简单联想影响的倾向：好感如何转移？",
+    "description": "人物与商品反复同时出现，好感容易从一个转给另一个。把对象单独拿出来，再查它本身有哪些可观察的质量证据。",
+    "coverLine": "把好感与质量分别核对"
+  },
+  "intellectual-humility": {
+    "id": "intellectual-humility",
+    "cardTitle": "认知谦逊",
+    "discipline": "历史学与哲学",
+    "title": "认知谦逊：知道依据，也知道何时改判",
+    "description": "把已知事实、判断依据和仍然未知的内容逐一写明。先在现有证据下作选择，同时给新观察留下修正判断的机会。",
+    "coverLine": "知道凭什么，也知道何时改"
+  },
+  "intellectual-property-law": {
+    "id": "intellectual-property-law",
+    "cardTitle": "知识产权法",
+    "discipline": "法学与政治学",
+    "title": "知识产权法：一件产品有哪些保护范围",
+    "description": "同一产品可能同时涉及技术方案、具体表达和来源标识。判断替代实现是否受限，要回到权利的范围、地域和期限。",
+    "coverLine": "先分清保护对象"
+  },
+  "intrinsic-value": {
+    "id": "intrinsic-value",
+    "cardTitle": "内在价值",
+    "discipline": "投资学与金融学",
+    "title": "内在价值：同样的利润能留下多少钱",
+    "description": "两家企业利润一样，设备更换所需资金可能相差很大。内在价值关心资产整个剩余寿命能给所有者分配多少。",
+    "coverLine": "利润扣掉维持成本"
+  },
+  "inventory-valuation-methods": {
+    "id": "inventory-valuation-methods",
+    "cardTitle": "存货计价方法",
+    "discipline": "会计学",
+    "title": "存货计价：同一笔销售为何毛利不同",
+    "description": "若两批货的进价不同，结转哪批成本会影响当期毛利和期末库存。比较报表时，可从采购价格和成本分配方法查起。",
+    "coverLine": "售出的是哪批成本"
+  },
+  "inversion": {
+    "id": "inversion",
+    "cardTitle": "逆向思考",
+    "discipline": "元认知与思维方法论",
+    "title": "逆向思考：从最想避免的结果倒推",
+    "description": "想清楚方案最可能怎样失败，沿着失败过程找到促成它的条件。把能预防或提早检查的部分加进原计划。",
+    "coverLine": "沿着失败过程倒推"
+  },
+  "ishikawa-diagram": {
+    "id": "ishikawa-diagram",
+    "cardTitle": "石川图",
+    "discipline": "工程学",
+    "title": "石川图｜先把可能的原因盘清楚",
+    "description": "先写清要调查的具体问题，再按类别画出可能的成因。把图当作调查线索，逐一核对原因与证据。",
+    "coverLine": "把可能的原因分组画出来"
+  },
+  "issue-trees": {
+    "id": "issue-trees",
+    "cardTitle": "问题树",
+    "discipline": "元认知与思维方法论",
+    "title": "问题树：把难题拆成可以逐个回答的问题",
+    "description": "将大问题展开成分层的子问题或原因，标出哪些枝条该优先调查。团队可以对着同一棵树讨论分工和分析顺序。",
+    "coverLine": "顺着问题的分支找重点"
+  },
+  "iteration-prototyping": {
+    "id": "iteration-prototyping",
+    "cardTitle": "迭代与原型",
+    "discipline": "工程学",
+    "title": "迭代与原型｜先验证最没把握的假设",
+    "description": "每轮挑出一个关键假设，先定义要观察的现象，再做一个足以暴露问题的原型，依据反馈修改或放弃方案。",
+    "coverLine": "先验证最没把握的事"
+  },
+  "kantian-fairness-tendency": {
+    "id": "kantian-fairness-tendency",
+    "cardTitle": "康德式公平倾向",
+    "discipline": "心理学",
+    "title": "康德式公平倾向：这条规则能适用于每个人吗？",
+    "description": "参与者有时宁愿付出代价，也要抗议偏袒。分配时交代程序、贡献与结果，并让受影响的人有机会核查和申诉。",
+    "coverLine": "同一条规则适用于谁？"
+  },
+  "ladder-of-inference": {
+    "id": "ladder-of-inference",
+    "cardTitle": "推论阶梯",
+    "discipline": "元认知与思维方法论",
+    "title": "推论阶梯：从结论走回真正看见的事实",
+    "description": "从行动和结论往回走，分辨选了哪些信息、加了什么解释和假设。把跳过的环节补齐，争论就能落到具体证据。",
+    "coverLine": "从结论回到观察"
+  },
+  "latticework-of-mental-models": {
+    "id": "latticework-of-mental-models",
+    "cardTitle": "多元思维模型框架",
+    "discipline": "元认知与思维方法论",
+    "title": "多元思维模型框架：让不同模型互相校验",
+    "description": "为每个模型标清解释的机制、成立条件和失效信号。遇到新问题，可让不同模型提出竞争解释，再用观察筛选。",
+    "coverLine": "给模型标出失效信号"
+  },
+  "law-of-large-numbers": {
+    "id": "law-of-large-numbers",
+    "cardTitle": "大数定律",
+    "discipline": "数学与统计学",
+    "title": "大数定律｜为什么长期平均更稳定",
+    "description": "在满足相应条件时，重复观测的均值会趋近总体期望。即使之前观测偏向一边，下一次结果也无须为过去补差。",
+    "coverLine": "稳定的是长期平均"
+  },
+  "lessons-of-history": {
+    "id": "lessons-of-history",
+    "cardTitle": "以史为鉴",
+    "discipline": "历史学与哲学",
+    "title": "以史为鉴：用条件相似、结局不同的案例对照",
+    "description": "先说明当下问题可能由什么机制驱动，再比较条件相近而结果不同的历史案例，把制度、技术和人口差异也列出来。",
+    "coverLine": "挑结局不同的案例对照"
+  },
+  "lifelong-learning": {
+    "id": "lifelong-learning",
+    "cardTitle": "终身学习",
+    "discipline": "投资原则与品格",
+    "title": "终身学习：学过的东西能用到新问题吗",
+    "description": "带着问题阅读，隔一段时间脱稿解释，再去解决陌生任务。实际结果能暴露原来的预测错在哪里，也提示哪些知识已经过期。",
+    "coverLine": "用新任务检验所学"
+  },
+  "liking-loving-tendency": {
+    "id": "liking-loving-tendency",
+    "cardTitle": "喜欢与热爱倾向",
+    "discipline": "心理学",
+    "title": "喜欢与热爱倾向：好感怎样影响录用判断？",
+    "description": "喜欢一个人，会让他的能力看起来更强，反面材料也显得没那么重要。先写岗位标准，再逐项评估实际证据。",
+    "coverLine": "先定标准，再评熟人"
+  },
+  "limits-of-extrapolation-nonlinearity": {
+    "id": "limits-of-extrapolation-nonlinearity",
+    "cardTitle": "趋势外推的局限",
+    "discipline": "数学与统计学",
+    "title": "趋势外推的局限｜找出会先改变斜率的条件",
+    "description": "过去的趋势能持续多久，取决于背后的机制、资源和限制。延长趋势线前，先看容量、竞争、价格和增长阶段可能怎样变。",
+    "coverLine": "哪条约束会先到"
+  },
+  "lindy-effect": {
+    "id": "lindy-effect",
+    "cardTitle": "林迪效应",
+    "discipline": "管理学与商业",
+    "title": "林迪效应：用过去的寿命推测还能活多久",
+    "description": "多年仍被采用是某些知识或制度有延续力的线索。使用这条线索时，要看旧环境是否还在，也要留意已退出的同类。",
+    "coverLine": "经受过哪些变化"
+  },
+  "lollapalooza-tendency": {
+    "id": "lollapalooza-tendency",
+    "cardTitle": "Lollapalooza倾向",
+    "discipline": "心理学",
+    "title": "Lollapalooza倾向：多种心理力量怎样互相放大",
+    "description": "芒格关注多种心理倾向同向发力的情形。分析一个极端结果时，试着拿掉其中一种力量，看其他力量是否也会减弱。",
+    "coverLine": "哪几股力量在相互增强？"
+  },
+  "man-with-a-hammer-syndrome": {
+    "id": "man-with-a-hammer-syndrome",
+    "cardTitle": "铁锤人倾向",
+    "discipline": "元认知与思维方法论",
+    "title": "铁锤人倾向：老工具如何改写了新问题？",
+    "description": "熟悉的工具容易限制你对问题的描述。先只写发生了什么损失，再提出一个老工具处理不了的原因并设法区分。",
+    "coverLine": "描述损失时先放下工具"
+  },
+  "map-is-not-the-territory": {
+    "id": "map-is-not-the-territory",
+    "cardTitle": "地图不是疆域",
+    "discipline": "元认知与思维方法论",
+    "title": "地图不是疆域：指标删去了现实的哪部分？",
+    "description": "指标只保留对某个用途有用的切面。查清定义、缺失的人群和更新时间，再拿原始案例核对它是否适合眼前的任务。",
+    "coverLine": "拿一个真实案例对照指标"
+  },
+  "margin-of-safety": {
+    "id": "margin-of-safety",
+    "cardTitle": "安全边际",
+    "discipline": "投资学与金融学",
+    "title": "安全边际：估计错一点还能承受吗",
+    "description": "一家店续租后利润可能下降，原来的估值就要重算。安全边际让价格与审慎估计之间留有余量，能吸收部分误差。",
+    "coverLine": "给估计误差留余量"
+  },
+  "marginal-analysis": {
+    "id": "marginal-analysis",
+    "cardTitle": "边际分析",
+    "discipline": "数学与统计学",
+    "title": "边际分析｜下一单位投入还划算吗",
+    "description": "从当前起点出发，比较再增加一点投入能获得多少收益。收益不能覆盖新增成本，或资源约束改变时，就重新判断。",
+    "coverLine": "算下一单位的得失"
+  },
+  "marginal-cost-marginal-revenue": {
+    "id": "marginal-cost-marginal-revenue",
+    "cardTitle": "边际成本与边际收益",
+    "discipline": "微观经济学",
+    "title": "边际成本与边际收益：多接一单值不值",
+    "description": "旅馆空房降价时，关键是新增房费能否覆盖清洁等费用。旺季还可能挤掉原价客人，就要计入放弃的收益。",
+    "coverLine": "多做一单怎么算"
+  },
+  "marginal-utility": {
+    "id": "marginal-utility",
+    "cardTitle": "边际效用",
+    "discipline": "微观经济学",
+    "title": "边际效用：第二瓶水还有多大用处",
+    "description": "第一瓶水解渴，喝足后再来一瓶的价值通常较低。若恰好缺一件才能配齐，新增一件的满足感反而可能更大。",
+    "coverLine": "多一份有多少用"
+  },
+  "mental-accounting": {
+    "id": "mental-accounting",
+    "cardTitle": "心理账户",
+    "discipline": "心理学",
+    "title": "心理账户：奖金和工资为什么花得不一样？",
+    "description": "同一笔钱归进工资和奖金账户，可能按不同规矩花。把可选支出放回同一份现金流，再看哪个用途更符合整体目标。",
+    "coverLine": "把钱放回同一份预算"
+  },
+  "minto-pyramid": {
+    "id": "minto-pyramid",
+    "cardTitle": "明托金字塔原理",
+    "discipline": "元认知与思维方法论",
+    "title": "明托金字塔原理：把读者最想知道的放在前面",
+    "description": "先说结论，再给支撑结论的论点，最后给证据和细节。组织每一层时，让并列论点回答同一个问题。",
+    "coverLine": "结论在前，证据托底"
+  },
+  "momentum": {
+    "id": "momentum",
+    "cardTitle": "动量与惯性",
+    "discipline": "物理学与化学",
+    "title": "动量与惯性｜为何停得越快，制动力越大",
+    "description": "动量由质量和速度决定。对同一物体，要完成相同的动量改变，所需净冲量相同，时间越短，平均净力越大。",
+    "coverLine": "相同动量变化，时间越短越费力"
+  },
+  "monopoly-oligopoly": {
+    "id": "monopoly-oligopoly",
+    "cardTitle": "垄断与寡头",
+    "discipline": "微观经济学",
+    "title": "垄断与寡头：看市场份额前先找替代品",
+    "description": "镇上只有一家影院，家庭放映和邻镇影院仍可能分流。界定顾客实际选择的市场后，再看新对手进场有多难。",
+    "coverLine": "顾客还能选谁"
+  },
+  "moral-hazard": {
+    "id": "moral-hazard",
+    "cardTitle": "道德风险",
+    "discipline": "微观经济学",
+    "title": "道德风险：有人兜底后，行为会怎样变",
+    "description": "如果加急运费全部报销，部门可能少做提前排程。观察可预见急件的变化，有助于区分保障价值和激励偏差。",
+    "coverLine": "兜底改变了什么"
+  },
+  "moral-hazard-legal-view": {
+    "id": "moral-hazard-legal-view",
+    "cardTitle": "道德风险法学视角",
+    "discipline": "法学与政治学",
+    "title": "道德风险的法学视角：如何保留预防动机",
+    "description": "买了设备保险后，使用者可能推迟保养。查看检查权、维护义务与损失分担，可以判断条款如何改变保障后的行为。",
+    "coverLine": "保障之后谁来预防"
+  },
+  "mr-market": {
+    "id": "mr-market",
+    "cardTitle": "市场先生",
+    "discipline": "投资学与金融学",
+    "title": "市场先生：报价和经营事实各说了什么",
+    "description": "报价大幅波动时，可先核对订单、产量和现金变化。若大客户已流失，跌价也可能带来值得重审的新信息。",
+    "coverLine": "报价背后变了什么"
+  },
+  "multidisciplinary-approach": {
+    "id": "multidisciplinary-approach",
+    "cardTitle": "跨学科思维",
+    "discipline": "元认知与思维方法论",
+    "title": "跨学科思维：同一现象可以问哪些不同问题？",
+    "description": "对一个结果分别追问谁获益、参与者怎样理解规则、故障如何传播。再用观察判断哪个机制最能解释现场。",
+    "coverLine": "用不同学科追问同一现象"
+  },
+  "multiplicative-systems": {
+    "id": "multiplicative-systems",
+    "cardTitle": "乘法系统思维",
+    "discipline": "数学与统计学",
+    "title": "乘法系统思维｜连续过关为何越走越难",
+    "description": "连续闯关的成功率，要把各关在前面已通过的条件下的通过率相乘。五道独立且各有九成通过率的关，全过约五成九。",
+    "coverLine": "每一道必经关口都算数"
+  },
+  "narrative-fallacy": {
+    "id": "narrative-fallacy",
+    "cardTitle": "叙事谬误",
+    "discipline": "心理学",
+    "title": "叙事谬误：结局如何改写我们眼中的线索？",
+    "description": "知道结果后，最顺畅的故事容易让人忽略其他可能。回到事前能获得的事实，检验一个解释是否也能独立预测。",
+    "coverLine": "回到结局揭晓之前"
+  },
+  "negligence-vs-strict-liability": {
+    "id": "negligence-vs-strict-liability",
+    "cardTitle": "过失与严格责任",
+    "discipline": "法学与政治学",
+    "title": "过失与严格责任：损害发生后要证明什么",
+    "description": "过失责任关注有没有达到适用的注意标准，严格责任在特定情况下可省去过失要件。损害和因果关系仍需按制度判断。",
+    "coverLine": "损害与责任要件"
+  },
+  "network-theory": {
+    "id": "network-theory",
+    "cardTitle": "网络理论",
+    "discipline": "数学与统计学",
+    "title": "网络理论｜什么连接能传播消息或切断网络",
+    "description": "把对象画成节点，把具体关系画成边。顺着连接的方向和强弱追踪传播，也看看断开哪条连接会使网络分开。",
+    "coverLine": "一条边可能连着两群人"
+  },
+  "niche-differentiation": {
+    "id": "niche-differentiation",
+    "cardTitle": "利基分化",
+    "discipline": "生物学与进化论",
+    "title": "利基分化｜相似对象如何错开直接竞争",
+    "description": "在不同时间、空间或资源上分工，可以降低直接竞争。用于比较相似业务时，找出各自被选择的场合和需求规模。",
+    "coverLine": "相似对象也能服务不同场合"
+  },
+  "nonlinear-consequences": {
+    "id": "nonlinear-consequences",
+    "cardTitle": "非线性后果",
+    "discipline": "物理学与化学",
+    "title": "非线性后果｜增加同样的投入，结果会差多少",
+    "description": "投入翻倍时，产出未必翻倍。对输入和输出分段取样，找出斜率在哪里改变，再检查是否存在饱和、阈值或反馈。",
+    "coverLine": "斜率会随状态改变"
+  },
+  "normal-accidents": {
+    "id": "normal-accidents",
+    "cardTitle": "正常事故",
+    "discipline": "工程学",
+    "title": "正常事故｜小异常如何叠成大故障",
+    "description": "系统交互复杂、环节紧密相接时，小异常可能叠成难以预见的故障。检查异常能否看见、隔离和及时处置。",
+    "coverLine": "异常叠加时还有多少时间"
+  },
+  "normal-non-normal-distributions": {
+    "id": "normal-non-normal-distributions",
+    "cardTitle": "正态与非正态分布",
+    "discipline": "数学与统计学",
+    "title": "正态与非正态分布｜把注意力放到分布尾部",
+    "description": "即使平均值和方差相同，偏斜或厚尾数据也可能有不同的极端风险。先画分布，再结合分位数检查尾部样本。",
+    "coverLine": "均值会漏掉尾部风险"
+  },
+  "occams-razor": {
+    "id": "occams-razor",
+    "cardTitle": "奥卡姆剃刀",
+    "discipline": "元认知与思维方法论",
+    "title": "奥卡姆剃刀：什么时候该选更简单的解释？",
+    "description": "先看两个解释能否覆盖同样的关键事实。若与证据同样吻合，再优先选择需要更少额外假设的解释。",
+    "coverLine": "证据相当时再比简洁"
+  },
+  "off-balance-sheet-contingent-liabilities": {
+    "id": "off-balance-sheet-contingent-liabilities",
+    "cardTitle": "表外负债与或有负债",
+    "discipline": "会计学",
+    "title": "表外负债与或有负债：从附注追到付款义务",
+    "description": "担保、承诺和诉讼可能带来未来支出。把触发条件、金额范围和付款时间放在一起，才能看清资金压力。",
+    "coverLine": "义务什么时候触发"
+  },
+  "ooda-loop": {
+    "id": "ooda-loop",
+    "cardTitle": "OODA 循环",
+    "discipline": "复杂系统与决策科学",
+    "title": "OODA 循环｜让行动反馈回到观察",
+    "description": "环境持续变化时，反复观察、判断、决定和行动。把行动产生的结果纳入下一轮观察，及时修正对情境的理解。",
+    "coverLine": "把反馈带进下一轮"
+  },
+  "opportunity-cost": {
+    "id": "opportunity-cost",
+    "cardTitle": "机会成本",
+    "discipline": "微观经济学",
+    "title": "机会成本：免费的场地也有代价",
+    "description": "自有场地同期若能出租，办展就会放弃那笔租金。时间、资金和精力有限时，成本也包括放弃的最佳可行用途。",
+    "coverLine": "留给此事就少了彼事"
+  },
+  "opportunity-cost-in-accounting": {
+    "id": "opportunity-cost-in-accounting",
+    "cardTitle": "机会成本会计视角",
+    "discipline": "会计学",
+    "title": "会计中的机会成本：账簿漏掉了哪笔收益",
+    "description": "同一台机器只能接一笔订单，排期占掉的另一笔订单通常没有分录。比较两单时，仍需计入放弃的可行收益。",
+    "coverLine": "算上没接的那一单"
+  },
+  "overoptimism-tendency": {
+    "id": "overoptimism-tendency",
+    "cardTitle": "过度乐观倾向",
+    "discipline": "心理学",
+    "title": "过度乐观倾向：相信会赢时如何估算胜率？",
+    "description": "有动力去做和有把握做成可以分别判断。先看同类情境的胜率与失败原因，再用证据说明自己为何会偏离基准。",
+    "coverLine": "先查同类项目的胜率"
+  },
+  "parasitism-mutualism": {
+    "id": "parasitism-mutualism",
+    "cardTitle": "寄生与共生",
+    "discipline": "生物学与进化论",
+    "title": "寄生与共生｜把长期关系的收益和成本算清",
+    "description": "共生泛指紧密共处，可以包括互利和寄生。分别看双方获得的资源、承担的成本和分开的后果，关系也可能随环境改变。",
+    "coverLine": "紧密共处时，分别看双方损益"
+  },
+  "pari-mutuel-system": {
+    "id": "pari-mutuel-system",
+    "cardTitle": "彩池投注系统",
+    "discipline": "投资学与金融学",
+    "title": "彩池投注系统：最可能赢也要看赔率",
+    "description": "彩池的赔率会随投注分布变化。热门结果可能最容易押中，回报却偏低，判断一项选择还得把概率与赔率放在一起。",
+    "coverLine": "概率之外还有赔率"
+  },
+  "parkinsons-law": {
+    "id": "parkinsons-law",
+    "cardTitle": "帕金森定律",
+    "discipline": "管理学与商业",
+    "title": "帕金森定律：任务为何总能填满时间",
+    "description": "没有明确完成标准，余下时间容易被额外讨论和润色占满。先按复杂度安排合理时限，再到点确认交付是否齐全。",
+    "coverLine": "写清做到哪就够"
+  },
+  "patents-trademarks-franchises": {
+    "id": "patents-trademarks-franchises",
+    "cardTitle": "专利权、商标权与特许经营权",
+    "discipline": "微观经济学",
+    "title": "专利权、商标权与特许经营权各保护什么",
+    "description": "注册商标帮助顾客认出来源，专利在一定范围内提供排他权，特许经营依赖合同。期限、地域和可执行性影响价值。",
+    "coverLine": "排他权从哪里来"
+  },
+  "path-dependence-lock-in": {
+    "id": "path-dependence-lock-in",
+    "cardTitle": "路径依赖与锁定",
+    "discipline": "工程学",
+    "title": "路径依赖与锁定｜把迁移成本单独算清",
+    "description": "工具、培训、数据格式和习惯会提高转换成本。判断要不要换方案时，分别计算现有优势、配套收益和一次性迁移费用。",
+    "coverLine": "旧方案的好处也包括配套"
+  },
+  "patience-discipline": {
+    "id": "patience-discipline",
+    "cardTitle": "耐心与纪律",
+    "discipline": "投资原则与品格",
+    "title": "耐心与纪律：等待也有行动条件",
+    "description": "准备扩店时，先写下复购、租约和现金缓冲的要求。碰到热门铺位仍逐项核对，条件变化时用新证据更新判断。",
+    "coverLine": "事先写清何时行动"
+  },
+  "permutations-and-combinations": {
+    "id": "permutations-and-combinations",
+    "cardTitle": "排列组合原理",
+    "discipline": "数学与统计学",
+    "title": "排列组合原理｜换个顺序要不要另算一次",
+    "description": "先问顺序是否重要、能否重复。五人中选两名身份相同的代表有十组，分任主持与记录时则有二十种安排。",
+    "coverLine": "角色变了，计数也变了"
+  },
+  "phase-transitions": {
+    "id": "phase-transitions",
+    "cardTitle": "相变与临界现象",
+    "discipline": "物理学与化学",
+    "title": "相变与临界现象｜水沸腾后热量去了哪里",
+    "description": "纯水在一个标准大气压下约一百摄氏度沸腾。此时继续加热，热量可以用来汽化，水温未必继续升高。",
+    "coverLine": "持续加热可以用来改变相态"
+  },
+  "physics-envy": {
+    "id": "physics-envy",
+    "cardTitle": "物理学妒忌",
+    "discipline": "元认知与思维方法论",
+    "title": "物理学妒忌：精确公式可能掩盖哪些未知？",
+    "description": "人在模型和规则变化后会调整行动，参数也可能随之改变。使用公式时写清拟合用了哪些数据，有哪些情形超出样本。",
+    "coverLine": "写下公式能用到哪里"
+  },
+  "planning-fallacy": {
+    "id": "planning-fallacy",
+    "cardTitle": "规划谬误",
+    "discipline": "心理学",
+    "title": "规划谬误：理想工期遗漏了哪些时间？",
+    "description": "时间表常按顺利推进来写，中断、返工和外部依赖容易漏算。用相似项目的实际工期打底，再说明本次的差异。",
+    "coverLine": "先看项目实际做了多久"
+  },
+  "pluralistic-ignorance": {
+    "id": "pluralistic-ignorance",
+    "cardTitle": "多数无知与从众谬误",
+    "discipline": "元认知与思维方法论",
+    "title": "多数无知与从众谬误：沉默为何会被听成赞同？",
+    "description": "会上大家都可能私下存疑，却把彼此的沉默当成赞同。把各自真实意见和对他人意见的猜测分开收集，就能看清误会。",
+    "coverLine": "沉默的人实际怎么想？"
+  },
+  "power-laws": {
+    "id": "power-laws",
+    "cardTitle": "幂律分布",
+    "discipline": "数学与统计学",
+    "title": "幂律分布｜为什么少数大事件能左右总量",
+    "description": "在幂律中，放大尺度后，尾部出现的频率按一定幂次下降。判断数据是否符合幂律，要看尾部跨度、样本量并比较其他重尾解释。",
+    "coverLine": "少数大事件可能左右总量"
+  },
+  "pragmatism": {
+    "id": "pragmatism",
+    "cardTitle": "实用主义",
+    "discipline": "历史学与哲学",
+    "title": "实用主义：不同说法会引出什么行动？",
+    "description": "两个概念听起来相冲突时，找出它们会让人采取不同行动的场景。比较实际后果，能看清争论的差异落在哪里。",
+    "coverLine": "看概念会改变什么行动"
+  },
+  "precedent": {
+    "id": "precedent",
+    "cardTitle": "先例原则",
+    "discipline": "法学与政治学",
+    "title": "先例原则：相似的案子有哪些关键差别",
+    "description": "限期试用退款的旧例，遇到难以转售的定制品时可能需要区分。援引先例要找出原决定依赖的事实和理由。",
+    "coverLine": "找出真正相似之处"
+  },
+  "premortems": {
+    "id": "premortems",
+    "cardTitle": "极端情景模拟",
+    "discipline": "元认知与思维方法论",
+    "title": "极端情景模拟：开工前做一次失败复盘",
+    "description": "请成员独立写下项目已经失败的经过，再一起讨论。用后果、预警可能性和干预空间，挑出值得现在处理的风险。",
+    "coverLine": "假定失败，再写经过"
+  },
+  "price-discrimination": {
+    "id": "price-discrimination",
+    "cardTitle": "价格歧视",
+    "discipline": "微观经济学",
+    "title": "价格歧视：同场演出为什么有两种票价",
+    "description": "学生票可能让更多观众入场，也可能让愿付全价的人改买低价票。分组能否落实、低价票能否转卖，都会影响效果。",
+    "coverLine": "两种票价面向谁"
+  },
+  "price-elasticity": {
+    "id": "price-elasticity",
+    "cardTitle": "价格弹性与定价权",
+    "discipline": "微观经济学",
+    "title": "价格弹性与定价权：提价后顾客还买吗",
+    "description": "价格弹性看价格改变时销量如何反应。判断一次提价的效果，还要区分淡旺季影响，观察顾客转向替代品的速度。",
+    "coverLine": "提价后的销量"
+  },
+  "principle-of-least-energy": {
+    "id": "principle-of-least-energy",
+    "cardTitle": "最小能量原理",
+    "discipline": "物理学与化学",
+    "title": "最小能量原理｜小球为何停在碗底",
+    "description": "在给定约束下，稳定平衡常对应适当能量函数的局部最小值。像小球轻轻移离碗底时，系统会出现恢复作用。",
+    "coverLine": "碗底附近有恢复作用"
+  },
+  "prisoners-dilemma": {
+    "id": "prisoners-dilemma",
+    "cardTitle": "囚徒困境",
+    "discipline": "微观经济学",
+    "title": "囚徒困境：各自理性如何造成双输",
+    "description": "单次互动中，双方各自都有背离合作的理由，最后却比共同合作更差。重复往来和可执行承诺可能改变收益排序。",
+    "coverLine": "为什么明知该合作"
+  },
+  "probabilistic-thinking-expected-value": {
+    "id": "probabilistic-thinking-expected-value",
+    "cardTitle": "概率思维与期望值",
+    "discipline": "数学与统计学",
+    "title": "概率思维与期望值｜给每种可能的后果加权",
+    "description": "把结果拆成互斥的情形，分别估计概率和后果，再算加权平均。试算乐观、基准和悲观情形，找出最影响结论的估计。",
+    "coverLine": "用几种情形检查估计"
+  },
+  "productive-thinking-model": {
+    "id": "productive-thinking-model",
+    "cardTitle": "高效思维模型",
+    "discipline": "元认知与思维方法论",
+    "title": "高效思维模型：先定义成功，再发散找答案",
+    "description": "弄清问题和成功标准之后，提出能带来新解法的关键问题。先尽量生成选项，再按标准筛选并协调资源执行。",
+    "coverLine": "先提出方案，再做筛选"
+  },
+  "punctuated-equilibrium": {
+    "id": "punctuated-equilibrium",
+    "cardTitle": "间断均衡",
+    "discipline": "生物学与进化论",
+    "title": "间断均衡｜化石记录为何看起来跳着变",
+    "description": "化石记录可能呈现漫长的稳定期与相对短促的变化期。看到两个时点差距很大时，还要检查取样间隔和中间状态。",
+    "coverLine": "先查地层之间漏了多少记录"
+  },
+  "quality-control": {
+    "id": "quality-control",
+    "cardTitle": "质量控制",
+    "discipline": "工程学",
+    "title": "质量控制｜从抽样记录判断波动来源",
+    "description": "在关键步骤持续抽样并保留时间顺序，辨认常见波动与特殊原因。末端检查能拦截坏品，过程改进能减少坏品。",
+    "coverLine": "按时间看波动，追查异动"
+  },
+  "reason-respecting-tendency": {
+    "id": "reason-respecting-tendency",
+    "cardTitle": "重视理由倾向",
+    "discipline": "心理学",
+    "title": "重视理由倾向：有个理由就该通融吗？",
+    "description": "说出原因常能让请求更易被接受。遇到破例的要求，问问这个理由究竟支持哪一步，以及采用它会产生什么后果。",
+    "coverLine": "理由和请求真的相关吗？"
+  },
+  "reciprocation-tendency": {
+    "id": "reciprocation-tendency",
+    "cardTitle": "回馈倾向",
+    "discipline": "心理学",
+    "title": "回馈倾向：一份好意如何影响一笔交易？",
+    "description": "收礼后容易觉得欠了人情，被冒犯时也可能急着加码反击。把关系与条款分开评估，给重大决定留下冷却时间。",
+    "coverLine": "让人情和条款各归其位"
+  },
+  "red-queen-effect": {
+    "id": "red-queen-effect",
+    "cardTitle": "红皇后效应",
+    "discipline": "生物学与进化论",
+    "title": "红皇后效应｜进步为何有时只能保住原位",
+    "description": "当对手也在进步、客户门槛也在变化，单看自身成绩很难判断位置。把变化放到同一时间轴上，才能看出相对优势。",
+    "coverLine": "跑得更快，可能仍在原位"
+  },
+  "redundancy": {
+    "id": "redundancy",
+    "cardTitle": "冗余与备份",
+    "discipline": "工程学",
+    "title": "冗余与备份｜功能如何继续，数据如何找回",
+    "description": "冗余用额外组件或路径降低单处故障对服务的影响。备份留存可恢复的副本，帮助在数据出问题时找回内容。",
+    "coverLine": "服务能接替，数据能恢复"
+  },
+  "regression-to-the-mean": {
+    "id": "regression-to-the-mean",
+    "cardTitle": "回归均值",
+    "discipline": "数学与统计学",
+    "title": "回归均值｜一次极端表现后来为何趋于平常",
+    "description": "一次表现混合了稳定能力和偶然波动。按极端成绩挑人或项目，下一次的偶然因素往往没那么极端，组平均便可能回落或回升。",
+    "coverLine": "极端成绩往往有运气成分"
+  },
+  "regulatory-capture": {
+    "id": "regulatory-capture",
+    "cardTitle": "监管俘获",
+    "discipline": "法学与政治学",
+    "title": "监管俘获：行业影响怎样进入规则",
+    "description": "监管长期依赖行业提供专业信息时，规则可能逐渐向行业倾斜。受益者、异议参与机会和独立核验有助于判断影响。",
+    "coverLine": "监管证据谁能核验"
+  },
+  "reinforcing-feedback-loop": {
+    "id": "reinforcing-feedback-loop",
+    "cardTitle": "强化反馈回路",
+    "discipline": "物理学与化学",
+    "title": "强化反馈回路｜变化怎样在每一轮被放大",
+    "description": "本轮变化推动下一轮沿同一个方向变化。强化可以让增长越来越快，也可以让下降加速，关键要找出中间的反馈路径。",
+    "coverLine": "放大可以朝两个方向发生"
+  },
+  "rent-seeking": {
+    "id": "rent-seeking",
+    "cardTitle": "寻租行为",
+    "discipline": "微观经济学",
+    "title": "寻租行为：争取准入特权耗费了什么",
+    "description": "当企业靠限制竞争获得收益，资源可能从改进产品转向争夺特权。核对规则是否有公共目的，以及是否有成本更低的替代。",
+    "coverLine": "规则在保护谁"
+  },
+  "rent-seeking-legal-view": {
+    "id": "rent-seeking-legal-view",
+    "cardTitle": "寻租行为法学视角",
+    "discipline": "法学与政治学",
+    "title": "寻租行为的法学视角：牌照门槛排除了谁",
+    "description": "牌照规则可能只有现有企业能满足。核对它能否承认质量等同的替代资质，有助于检验限制有多少公共收益。",
+    "coverLine": "同等资质能否入场"
+  },
+  "repeat-what-works": {
+    "id": "repeat-what-works",
+    "cardTitle": "重复有效的行为",
+    "discipline": "元认知与思维方法论",
+    "title": "重复有效的行为：好结果怎样变成习惯？",
+    "description": "把有效做法拆成可重复的动作，在相近条件下再次尝试并记录结果。有效步骤能复现之后，再把它编入日常流程。",
+    "coverLine": "先复现，再变成习惯"
+  },
+  "resonance": {
+    "id": "resonance",
+    "cardTitle": "共振",
+    "discipline": "物理学与化学",
+    "title": "共振｜反复推动为何让振幅变大",
+    "description": "驱动频率接近系统的固有频率时，输入的能量可以逐次累积，振幅随之变大。放大程度还受阻尼和频率偏差限制。",
+    "coverLine": "频率靠近，振幅可能放大"
+  },
+  "reversibility-irreversibility": {
+    "id": "reversibility-irreversibility",
+    "cardTitle": "可逆性与不可逆性",
+    "discipline": "物理学与化学",
+    "title": "可逆性与不可逆性｜撤回决定要付出什么",
+    "description": "判断能否撤回时，把时间、金钱、受影响的人和无法收回的信息都算进去。越难逆转，越值得把关键验证提前做。",
+    "coverLine": "把撤回的代价提前算清"
+  },
+  "reward-and-punishment-superresponse-tendency": {
+    "id": "reward-and-punishment-superresponse-tendency",
+    "cardTitle": "奖励和惩罚超级反应倾向",
+    "discipline": "心理学",
+    "title": "奖励和惩罚超级反应倾向：建议背后的激励",
+    "description": "奖励和惩罚既改变行为，也会改变当事人对事实的解释。评估建议时追问谁得利、何时兑现、谁承担坏结果。",
+    "coverLine": "谁拿奖励，谁担后果？"
+  },
+  "rise-and-fall-of-empires": {
+    "id": "rise-and-fall-of-empires",
+    "cardTitle": "帝国兴衰周期",
+    "discipline": "历史学与哲学",
+    "title": "帝国兴衰周期：怎样检验一条兴衰解释？",
+    "description": "把财政、疆域治理、精英激励与外部冲击放进具体因果链。用事件时序和反例检验，看看解释能否覆盖不同帝国。",
+    "coverLine": "沿时序检验帝国兴衰"
+  },
+  "risk-first": {
+    "id": "risk-first",
+    "cardTitle": "风险优先",
+    "discipline": "投资原则与品格",
+    "title": "风险优先：先算什么会让行动中断",
+    "description": "大单利润可观，客户延期和供应商催款仍可能同时出现。把最坏情境所需垫款、连带损失和恢复时间列在一起。",
+    "coverLine": "先看还能不能继续"
+  },
+  "sagans-standard": {
+    "id": "sagans-standard",
+    "cardTitle": "萨根标准",
+    "discipline": "元认知与思维方法论",
+    "title": "萨根标准：惊人主张需要怎样的证据？",
+    "description": "把惊人之处具体化，说清它与哪些可靠知识冲突。检查测量、选择性报告和替代解释，再看是否有独立验证。",
+    "coverLine": "证据能经得起独立检验吗？"
+  },
+  "sample-size-statistical-significance": {
+    "id": "sample-size-statistical-significance",
+    "cardTitle": "样本量与统计显著性",
+    "discipline": "数学与统计学",
+    "title": "样本量与统计显著性｜先定义值得检出的差异",
+    "description": "小样本中，随机波动容易看起来像真实效果。实验前确定指标、采样方式和最小实际差异，报告时给出效应大小和置信区间。",
+    "coverLine": "显著性之外还要看差异多大"
+  },
+  "sampling-bias": {
+    "id": "sampling-bias",
+    "cardTitle": "取样偏差",
+    "discipline": "数学与统计学",
+    "title": "取样偏差｜你的样本漏掉了谁",
+    "description": "如果样本更容易纳入某类对象，就可能把这类人的特点当成整个群体的特点。解读前先检查样本是怎么选出来的。",
+    "coverLine": "谁更容易被抽中"
+  },
+  "scaling-effects-diseconomies-in-engineering": {
+    "id": "scaling-effects-diseconomies-in-engineering",
+    "cardTitle": "规模效应与反效应",
+    "discipline": "工程学",
+    "title": "规模效应与反效应｜放大后会先卡在哪里",
+    "description": "相似形体长度翻倍时，面积变为四倍，体积变为八倍。系统扩容时，要重新核算散热、承重和运输能力。",
+    "coverLine": "尺寸一起变，比例各不同"
+  },
+  "search-costs": {
+    "id": "search-costs",
+    "cardTitle": "搜寻成本",
+    "discipline": "微观经济学",
+    "title": "搜寻成本：还值得再比一家吗",
+    "description": "多找一个选项也会占用时间和精力。是否继续搜寻，可以用下一次比较可能省下的钱或避开的损失，衡量它的代价。",
+    "coverLine": "多查一次值多少"
+  },
+  "second-order-thinking": {
+    "id": "second-order-thinking",
+    "cardTitle": "二阶思维",
+    "discipline": "元认知与思维方法论",
+    "title": "二阶思维：眼前奏效之后还会发生什么？",
+    "description": "沿直接结果继续追问参与者会怎样调整、激励会不会改变。顺着这些反应走到下一阶段，能看见即时收益的长期影响。",
+    "coverLine": "奏效之后还会怎样？"
+  },
+  "self-organized-criticality": {
+    "id": "self-organized-criticality",
+    "cardTitle": "自组织临界性",
+    "discipline": "复杂系统与决策科学",
+    "title": "自组织临界性｜为什么小扰动有时引发大级联",
+    "description": "持续积累压力又能局部释放的系统，有时会自行接近临界状态。沙堆模型展示了小扰动如何带来规模不一的级联。",
+    "coverLine": "小扰动也可能层层传开"
+  },
+  "senescence-misinfluence-tendency": {
+    "id": "senescence-misinfluence-tendency",
+    "cardTitle": "衰老错误影响倾向",
+    "discipline": "心理学",
+    "title": "衰老错误影响倾向：按实际表现评估能力",
+    "description": "记忆、反应速度和长期经验会以不同节奏变化。把重要判断留下记录、交由同伴复核，再按实际表现安排分工。",
+    "coverLine": "用任务表现判断能力"
+  },
+  "separation-of-powers": {
+    "id": "separation-of-powers",
+    "cardTitle": "权力分立与制衡",
+    "discipline": "法学与政治学",
+    "title": "权力分立与制衡：复核如何形成约束",
+    "description": "由不同人录入、批准和对账，可以减少错误贯穿整个付款流程。复核者须能独立取证，也须有权拦下越权行为。",
+    "coverLine": "独立取证才能制衡"
+  },
+  "signaling-theory": {
+    "id": "signaling-theory",
+    "cardTitle": "信号理论",
+    "discipline": "生物学与进化论",
+    "title": "信号理论｜什么样的承诺能透露真实质量",
+    "description": "当双方掌握的信息不同，承诺是否可信，要看不同能力的人付出的成本。若难以兑现的人更难长期承担代价，承诺更有信息量。",
+    "coverLine": "可靠的信号要看谁承担得起"
+  },
+  "simple-pain-avoiding-psychological-denial": {
+    "id": "simple-pain-avoiding-psychological-denial",
+    "cardTitle": "避免痛苦的心理否认",
+    "discipline": "心理学",
+    "title": "避免痛苦的心理否认：如何重新面对坏消息？",
+    "description": "坏结果越难接受，越容易被淡化或绕开。降低承认问题的代价，拿出可观察的证据，再商量一个可以先做的动作。",
+    "coverLine": "从一条可核对的事实开始"
+  },
+  "single-point-of-failure": {
+    "id": "single-point-of-failure",
+    "cardTitle": "单点故障",
+    "discipline": "工程学",
+    "title": "单点故障｜这一步停了还有别的路吗",
+    "description": "沿任务路径找出共享依赖，对每个组件、权限和岗位逐一追问，单独失效时还有哪条路能走通。",
+    "coverLine": "逐一假设共享依赖失效"
+  },
+  "sit-on-your-ass-investing": {
+    "id": "sit-on-your-ass-investing",
+    "cardTitle": "坐等投资法",
+    "discipline": "投资学与金融学",
+    "title": "坐等投资法：等待期间需要跟踪什么",
+    "description": "一季利润下降，可能来自淡季，也可能是客户永久转向新技术。写明持有理由和失效条件，能让等待经得起复核。",
+    "coverLine": "等待也要核对理由"
+  },
+  "six-thinking-hats": {
+    "id": "six-thinking-hats",
+    "cardTitle": "六顶思考帽",
+    "discipline": "元认知与思维方法论",
+    "title": "六顶思考帽：让讨论一次处理一种问题",
+    "description": "用不同轮次讨论事实、感受、风险、价值和创意，再管理讨论进程。成员在同一时段集中处理一类问题，减少彼此错位。",
+    "coverLine": "同一轮只谈同一类问题"
+  },
+  "social-desirability-bias": {
+    "id": "social-desirability-bias",
+    "cardTitle": "社会期许偏差",
+    "discipline": "心理学",
+    "title": "社会期许偏差：体面的答案如何影响调查？",
+    "description": "社会规范与评价压力会改变受访者怎么回答。使用中性提问、询问具体经历并适当保护隐私，能让答案更接近实际。",
+    "coverLine": "问经历，少问表态"
+  },
+  "social-proof-tendency": {
+    "id": "social-proof-tendency",
+    "cardTitle": "社会认同倾向",
+    "discipline": "心理学",
+    "title": "社会认同倾向：多数人的选择有多少分量？",
+    "description": "不熟悉的场合里，别人的举动常被当成线索。只有他们分别掌握相关事实，一致选择才可能提供更多证据。",
+    "coverLine": "多数意见有几个独立来源？"
+  },
+  "socratic-method": {
+    "id": "socratic-method",
+    "cardTitle": "苏格拉底式追问",
+    "discipline": "历史学与哲学",
+    "title": "苏格拉底式追问：一句主张怎样越问越清楚？",
+    "description": "请对方界定在主张什么，再沿理由、前提和推论追问。一个可能的反例会帮助双方看清卡在原则还是词义。",
+    "coverLine": "从定义问到反例"
+  },
+  "stoicism": {
+    "id": "stoicism",
+    "cardTitle": "斯多葛主义",
+    "discipline": "历史学与哲学",
+    "title": "斯多葛主义：忧虑之中有哪些事仍能选择？",
+    "description": "把担忧拆成能直接决定的动作、可以尝试影响的因素、必须准备承受的结果。把日常注意放回判断、行动与品格。",
+    "coverLine": "把精力放到能选择的行动"
+  },
+  "stress-influence-tendency": {
+    "id": "stress-influence-tendency",
+    "cardTitle": "压力影响倾向",
+    "discipline": "心理学",
+    "title": "压力影响倾向：事先演练能分担什么？",
+    "description": "压力升高会压缩注意范围，也可能让人难以及时回忆步骤。提前演练、减少同时处理的任务，并安排同伴相互核对。",
+    "coverLine": "压力上来前先演练"
+  },
+  "sunk-cost-economic-perspective": {
+    "id": "sunk-cost-economic-perspective",
+    "cardTitle": "沉没成本",
+    "discipline": "微观经济学",
+    "title": "沉没成本：项目做了一半，还该继续吗",
+    "description": "停掉模具项目可能保留转卖收入，继续则要再付完工费用。把收不回的旧投入划掉，再比较两条路的未来收益和代价。",
+    "coverLine": "从今天重新算"
+  },
+  "sunk-cost-fallacy": {
+    "id": "sunk-cost-fallacy",
+    "cardTitle": "沉没成本谬误",
+    "discipline": "心理学",
+    "title": "沉没成本谬误：从今天出发还值得做吗？",
+    "description": "过去花掉的时间和金钱收不回来。把继续、停止和换方案摆在一起，比较从今天起各自还会带来哪些支出和收益。",
+    "coverLine": "从今天起还值不值？"
+  },
+  "sunk-cost-vs-marginal-cost": {
+    "id": "sunk-cost-vs-marginal-cost",
+    "cardTitle": "沉没成本vs边际成本",
+    "discipline": "会计学",
+    "title": "沉没成本与边际成本：接单时该算什么",
+    "description": "机器的历史买价若无法收回，就从追加订单的比较中剔除。材料、电费、加班及挤掉的交付仍会改变结果。",
+    "coverLine": "这次追加要花多少"
+  },
+  "superposition-and-emergence": {
+    "id": "superposition-and-emergence",
+    "cardTitle": "叠加原理与涌现",
+    "discipline": "物理学与化学",
+    "title": "叠加原理与涌现｜相加能否解释整体响应",
+    "description": "在线性系统中，各自施加两个输入的响应可以直接相加。若组合后出现由相互作用产生的新行为，就要研究部件如何互动。",
+    "coverLine": "单独测量能解释整体吗"
+  },
+  "supply-and-demand": {
+    "id": "supply-and-demand",
+    "cardTitle": "供给与需求",
+    "discipline": "微观经济学",
+    "title": "供给与需求：同样涨价，原因可能不同",
+    "description": "集市摊位减少可能抬高菜价、压低销量，节日需求上升则可能同时推高价量。若两边同变，还需额外证据。",
+    "coverLine": "看价格也看成交量"
+  },
+  "surfing-model": {
+    "id": "surfing-model",
+    "cardTitle": "冲浪模型",
+    "discipline": "微观经济学",
+    "title": "冲浪模型：行业增长怎样转为自身优势",
+    "description": "基础设施普及能为配套业务带来顾客，平台也可能很快补上相同功能。持续留存和毛利有助于区分浪潮与经营优势。",
+    "coverLine": "浪潮过后留下什么"
+  },
+  "survivorship-bias": {
+    "id": "survivorship-bias",
+    "cardTitle": "幸存者偏差",
+    "discipline": "心理学",
+    "title": "幸存者偏差：样本里的失败者去了哪里？",
+    "description": "能被观察到的对象往往已通过一轮筛选。找出样本如何形成，再查退出者为何消失，才能评价当前结果代表什么。",
+    "coverLine": "把消失的样本找回来"
+  },
+  "survivorship-bias-historical-perspective": {
+    "id": "survivorship-bias-historical-perspective",
+    "cardTitle": "生存者偏差（历史视角）",
+    "discipline": "历史学与哲学",
+    "title": "历史视角下的生存者偏差：谁的声音留了下来？",
+    "description": "今天能找到的档案经历过保存、传播与编写的筛选。辨认谁更有机会留下记录，再用物证、账册和对立方记载核对。",
+    "coverLine": "谁的声音没能进入档案？"
+  },
+  "systems-thinking": {
+    "id": "systems-thinking",
+    "cardTitle": "系统思维",
+    "discipline": "工程学",
+    "title": "系统思维｜追踪反馈、延迟和转移的成本",
+    "description": "要解释某种行为反复出现的原因，先划定边界，再看反馈、存量和流量。局部改善的成本可能晚些时候落到别处。",
+    "coverLine": "局部优化把成本转给了谁"
+  },
+  "thought-experiments": {
+    "id": "thought-experiments",
+    "cardTitle": "思想实验",
+    "discipline": "元认知与思维方法论",
+    "title": "思想实验：改变一个条件，看看会发生什么",
+    "description": "先定好想象情境的规则，只改变关键条件并推导结果。出现矛盾时回查假设，也可据此提出需要在现实中测量的问题。",
+    "coverLine": "只改变一个关键条件"
+  },
+  "tight-coupling-loose-coupling": {
+    "id": "tight-coupling-loose-coupling",
+    "cardTitle": "紧耦合与松耦合",
+    "discipline": "工程学",
+    "title": "紧耦合与松耦合｜给故障隔离留多少时间",
+    "description": "部件依赖固定顺序、时机或共享资源时，故障可能立即牵连下游。缓冲、可替换接口和独立排程能留出恢复时间。",
+    "coverLine": "上游停了，下游能撑多久"
+  },
+  "tipping-moment": {
+    "id": "tipping-moment",
+    "cardTitle": "倾覆力矩",
+    "discipline": "物理学与化学",
+    "title": "倾覆力矩｜重力何时让倾斜继续",
+    "description": "在静态条件下，重力作用线通常在支撑范围内时有助于恢复。一旦越过支撑边缘，重力就可能让物体继续倾倒。",
+    "coverLine": "重力作用线何时越过支点"
+  },
+  "too-hard-pile": {
+    "id": "too-hard-pile",
+    "cardTitle": "太难堆",
+    "discipline": "投资学与金融学",
+    "title": "太难堆：哪些问题值得暂时搁置",
+    "description": "如果并购判断取决于尚未公开的合同，先记下待查条款和披露日期。给搁置设好重新评估的条件，注意力就有了去处。",
+    "coverLine": "写下何时重新评估"
+  },
+  "trade-off-analysis": {
+    "id": "trade-off-analysis",
+    "cardTitle": "权衡分析",
+    "discipline": "工程学",
+    "title": "权衡分析｜先定硬约束，再比较取舍",
+    "description": "先写清必须满足的条件。找出没有其他方案能在一项指标上胜过、同时在其余指标上至少持平的候选，再按重点取舍。",
+    "coverLine": "先画底线，再谈优先级"
+  },
+  "tragedy-of-the-commons": {
+    "id": "tragedy-of-the-commons",
+    "cardTitle": "公地悲剧",
+    "discipline": "法学与政治学",
+    "title": "公地悲剧：多放一头牛的损失谁承担",
+    "description": "多放一头牛能增加一户收入，草场耗损却由所有农户分担。可观察的用量和可执行的轮牧规则能改变过度取用的诱因。",
+    "coverLine": "个人收益与共同耗损"
+  },
+  "transaction-costs": {
+    "id": "transaction-costs",
+    "cardTitle": "交易成本",
+    "discipline": "微观经济学",
+    "title": "交易成本：外包报价之外还要算什么",
+    "description": "外包要找人、谈合同和反复交接，自建也有协调开支。按同等服务水平比较全部成本，才能判断工作放在哪里合适。",
+    "coverLine": "报价之外还有交接"
+  },
+  "twaddle-tendency": {
+    "id": "twaddle-tendency",
+    "cardTitle": "废话倾向",
+    "discipline": "心理学",
+    "title": "废话倾向：一句话到底改变了什么？",
+    "description": "会议里的表达可以维持关系和地位，也可能不带来新信息。追问它新增了什么事实，改变哪个判断，是否需要决定。",
+    "coverLine": "这句话改变了哪个判断？"
+  },
+  "two-track-analysis": {
+    "id": "two-track-analysis",
+    "cardTitle": "双轨分析",
+    "discipline": "元认知与思维方法论",
+    "title": "双轨分析：一边算成本，一边看人的反应",
+    "description": "先评估事实、概率和可行选项，再单独检查激励、感受与判断偏差。合起来看，人的反应可能会改变原本的成本和收益。",
+    "coverLine": "算清事实，也算人的反应"
+  },
+  "use-it-or-lose-it-tendency": {
+    "id": "use-it-or-lose-it-tendency",
+    "cardTitle": "不用就忘倾向",
+    "discipline": "心理学",
+    "title": "不用就忘倾向：让学过的内容真正用得上",
+    "description": "久不调用的知识，往往先表现为想不起来。隔一段时间合上答案实际做一次，把错误留下来指导下一轮练习。",
+    "coverLine": "隔几天合上答案再做"
+  },
+  "viscosity-friction": {
+    "id": "viscosity-friction",
+    "cardTitle": "粘滞性与摩擦力",
+    "discipline": "物理学与化学",
+    "title": "粘滞性与摩擦力｜启动门槛与持续阻力",
+    "description": "摩擦抵抗接触面滑动，黏性抵抗不同流层的相对运动。把它们借作类比时，要区分启动门槛和持续运动中的阻力。",
+    "coverLine": "开始动和一直动，各有阻力"
+  },
+  "zero-risk-bias": {
+    "id": "zero-risk-bias",
+    "cardTitle": "零风险偏差",
+    "discipline": "心理学",
+    "title": "零风险偏差：清零一项能降低多少总风险？",
+    "description": "把一项风险消除会带来完成感。先明确不可接受的底线，再看同样资源投到不同方案能减少多少总体损失。",
+    "coverLine": "清零一项前先算总损失"
+  },
+  "zwicky-box": {
+    "id": "zwicky-box",
+    "cardTitle": "茨维基盒",
+    "discipline": "元认知与思维方法论",
+    "title": "茨维基盒：把复杂方案拆开再组合",
+    "description": "为每个相对独立的属性列出几种取值，再挑选不同取值拼成整套方案。检查搭配是否可行，能发现头脑风暴容易漏掉的选项。",
+    "coverLine": "给每个属性列几种取值"
+  },
+  "cd0064-acceptance-target": {
+    "id": "cd0064-acceptance-target",
+    "cardTitle": "合成卡 0064 待删除",
+    "discipline": "任务验收",
+    "title": "合成卡 0064 待删除｜专属合成封面",
+    "description": "仅用于验收已删除专属摘要不再可读。",
+    "coverLine": "合成卡 0064 待删除"
+  },
+  "cd0064-acceptance-keeper": {
+    "id": "cd0064-acceptance-keeper",
+    "cardTitle": "合成卡 0064 保留验证",
+    "discipline": "任务验收",
+    "title": "合成卡 0064 保留验证｜专属合成封面",
+    "description": "仅用于验收保留卡的分享素材仍可读。",
+    "coverLine": "合成卡 0064 保留验证"
+  }
+}

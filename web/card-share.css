@@ -1,0 +1,55 @@
+.detail-workspace .card-share-panel {
+  max-inline-size: var(--reader-width);
+  margin-block: -12px 28px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--paper);
+}
+.card-share-panel p { margin: 0 0 12px; color: var(--muted); }
+.card-share-panel label { display: block; margin-block-end: 5px; }
+.card-share-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.card-share-panel .card-share-link-help { margin-block: 6px 0; }
+.card-share-link-help + button { margin-block-start: 12px; }
+.card-share-actions input {
+  flex: 1 1 18rem;
+  min-inline-size: 0;
+  padding: 6px 9px;
+  border: 1px solid var(--control-border);
+  border-radius: 5px;
+  background: var(--paper);
+  color: inherit;
+  font: inherit;
+}
+.card-share-sample { max-inline-size: 24rem; margin-block: 0 14px; }
+.card-share-sample > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  overflow-wrap: anywhere;
+}
+.card-share-sample strong, .card-share-sample div p { grid-column: 1; }
+.card-share-sample div p { margin: 0; }
+.card-share-sample img { grid-column: 2; grid-row: 1 / span 2; border-radius: 4px; object-fit: cover; }
+.card-share-panel :is(.card-share-error, [role="status"]:not(:empty)) { margin-block: 8px 0; }
+.card-share-panel .card-share-error { color: var(--danger); }
+.shared-card { min-block-size: 100vh; min-block-size: 100dvh; background: #fcfaf7; }
+.shared-card-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-block-size: 60px;
+  padding-inline: clamp(16px, 4vw, 32px);
+  background: var(--header);
+  border-block-end: 1px solid var(--border);
+  font-weight: 600;
+}
+.shared-card-main {
+  inline-size: min(42.75rem, 100% - 2rem);
+  margin-inline: auto;
+  padding-block: clamp(24px, 6vw, 56px) 60px;
+}
+.shared-card-wechat { margin-block: -12px 22px; color: var(--muted); }

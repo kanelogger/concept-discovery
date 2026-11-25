@@ -1,0 +1,32 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { inspectPurgeCopies } from '../../lib/card-lifecycle-copies.mjs';
+
+test('历史中已脱离当前正文的旧版附件仍须核对归属', async t => {
+  const root = mkdtempSync(join(tmpdir(),'cd-purge-history-'));
+  t.after(()=>rmSync(root,{recursive:true,force:true}));
+  const id='20261125080000-docabcd', notebookId='20261125080001-bookabc', identity='synthetic';
+  const api={c:{dataDir:join(root,'operations'),notebookId},identity:async()=>identity,sql:async()=>[]};
+  const args={identity,documents:[id],assets:[],knownRemote:[]};
+  const history = join(root,'workspace/history/2026-11-25-080000-update',notebookId,id+'.sy');
+  const legacy = join(root,"workspace/data/assets/O'Malley, 旧图片.png");
+  mkdirSync(dirname(legacy),{recursive:true});
+  mkdirSync(dirname(history),{recursive:true});
+  writeFileSync(legacy,'合成旧版附件');
+  writeFileSync(history,JSON.stringify({data:"assets/O'Malley, 旧图片.png"}));
+  await assert.rejects(inspectPurgeCopies(api,args),{code:'outside_scope',message:/O'Malley, 旧图片\.png/});
+  writeFileSync(history,JSON.stringify({data:"![旧图](<assets/O'Malley, 旧图片.png>)"}));
+  await assert.rejects(inspectPurgeCopies(api,args),{code:'outside_scope',message:/O'Malley, 旧图片\.png/});
+  writeFileSync(history,JSON.stringify({data:'<img src="assets/O&apos;Malley, 旧图片.png">'}));
+  await assert.rejects(inspectPurgeCopies(api,args),{code:'outside_scope',message:/O'Malley, 旧图片\.png/});
+  rmSync(legacy);
+  const unquoted = join(dirname(legacy),'old.png');
+  writeFileSync(unquoted,'合成未加引号的附件');
+  writeFileSync(history,JSON.stringify({data:'<img src=assets/old.png>'}));
+  await assert.rejects(inspectPurgeCopies(api,args),{code:'outside_scope',message:/old\.png/});
+  rmSync(unquoted);
+  assert.deepEqual((await inspectPurgeCopies(api,args)).assets,[]);
+});

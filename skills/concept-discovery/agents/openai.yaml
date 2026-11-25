@@ -1,0 +1,5 @@
+interface:
+  display_name: "Concept Discovery"
+  short_description: "按明确要求查询和应用知识卡，或维护本地原稿并同步到知识库"
+policy:
+  allow_implicit_invocation: false
