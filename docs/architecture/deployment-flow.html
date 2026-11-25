@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>部署流程 · Concept Discovery</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" defer crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js" integrity="sha384-en/ztfPSRkGfME4KIm05joYXynqzUgbsG5nMrj/xEFAHXkeZfO3yMK8QQ+mP7p1/" defer crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <style>
+    * { box-sizing: border-box; }
+    :root { color-scheme: dark; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 32px;
+      background: #020617;
+      color: #f4f7fb;
+      font: 15px/1.65 'JetBrains Mono', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', monospace;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .header { margin: 0 0 22px; }
+    .header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .project { display: flex; align-items: center; gap: 9px; margin: 0 0 5px; color: #bbc8db; font-size: 13px; }
+    .pulse-dot, .card-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: none; }
+    .pulse-dot { background: #fbbf24; }
+    @media (prefers-reduced-motion: no-preference) {
+      .pulse-dot { animation: pulse 1.6s ease-in-out 2; }
+    }
+    @keyframes pulse { 50% { opacity: 0.52; } }
+    h1 { margin: 0; font-size: clamp(27px, 4vw, 38px); line-height: 1.2; letter-spacing: -0.035em; }
+    .subtitle { margin: 10px 0 0; color: #bbc8db; font-size: 14px; }
+    .diagram-container {
+      margin: 0;
+      overflow: auto;
+      background: #0b1224;
+      border: 1px solid #263753;
+      border-radius: 12px;
+    }
+    svg { display: block; width: 100%; min-width: 950px; }
+    .pan-hint { display: none; margin: 8px 0 0; color: #bbc8db; font-size: 13px; }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+    .card { background: #0b1224; border: 1px solid #263753; border-radius: 9px; padding: 14px 16px; }
+    .card h2 { display: flex; align-items: center; gap: 9px; margin: 0 0 6px; font-size: 15px; }
+    .card p { margin: 0; color: #bbc8db; font-size: 13px; overflow-wrap: anywhere; }
+    .footer { margin-top: 14px; padding-top: 12px; border-top: 1px solid #263753; color: #bbc8db; font-size: 12px; }
+    .footer p { margin: 7px 0 0; }
+    .footer nav { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+    .footer a { color: #a8e5f1; text-underline-offset: 3px; }
+    .toolbar { display: flex; position: relative; align-items: center; flex-shrink: 0; }
+    .toolbar-toggle, .toolbar-actions button {
+      min-width: 44px;
+      min-height: 44px;
+      padding: 0 10px;
+      color: #e2e8f0;
+      border: 1px solid #344662;
+      background: #0f1b30;
+      border-radius: 6px;
+      cursor: pointer;
+      font: inherit;
+    }
+    .toolbar-toggle { font-size: 23px; line-height: 1; }
+    .toolbar-toggle:hover, .toolbar-actions button:hover { background: #20304a; }
+    .toolbar-actions {
+      position: absolute;
+      top: 50px;
+      right: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px;
+      background: #0b1224;
+      border: 1px solid #344662;
+      border-radius: 8px;
+      box-shadow: 0 10px 24px #020617aa;
+    }
+    .toolbar-actions[hidden] { display: none; }
+    .toolbar-actions button { font-size: 13px; white-space: nowrap; }
+    :where(button, a, figure):focus-visible { outline: 2px solid #fbbf24; outline-offset: 3px; }
+    .export-status { margin: 8px 0 0; color: #fbbf24; font-size: 13px; }
+    .export-status:empty { display: none; }
+    @media (max-width: 1015px) {
+      body { padding: 14px; }
+      .pan-hint { display: block; }
+    }
+    @media (max-width: 680px) {
+      .cards { grid-template-columns: 1fr; }
+    }
+    body.export-layout { width: 1264px; padding: 32px; }
+    .export-layout h1 { font-size: 38px; }
+    .export-layout .pan-hint { display: none; }
+    .export-layout .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    @media print {
+      body { padding: 0; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .toolbar, .pan-hint { display: none !important; }
+      svg { min-width: 0; }
+      .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .diagram-container, .card { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main id="report-container" class="container">
+    <header class="header">
+      <div class="header-row">
+        <div>
+          <p class="project" lang="en"><span class="pulse-dot" aria-hidden="true"></span>Concept Discovery</p>
+          <h1>部署流程</h1>
+        </div>
+        <div class="toolbar">
+          <button type="button" class="toolbar-toggle" aria-label="导出选项" aria-controls="export-actions" aria-expanded="false">⋯</button>
+          <div id="export-actions" class="toolbar-actions" hidden>
+            <button type="button" data-export="copy">复制图片</button>
+            <button type="button" data-export="png">下载 PNG</button>
+            <button type="button" data-export="pdf">下载 PDF</button>
+          </div>
+        </div>
+      </div>
+      <p class="subtitle">受管 HTTPS 实例从代码验证、冷备切换到就绪放行和合成卡验收的顺序。</p>
+      <p class="export-status" role="status"></p>
+    </header>
+
+    <figure class="diagram-container" tabindex="0" aria-label="部署流程图">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 704" role="img"
+          aria-labelledby="diagram-title" aria-describedby="diagram-description" font-family="'JetBrains Mono', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', monospace">
+        <title id="diagram-title">部署流程</title>
+        <desc id="diagram-description">锁定并验证发布提交，核对云端数据和账本，关闸停写后冷备，再切换应用及维护进程。就绪门禁通过才放行受保护的请求，并验收合成卡。失败时关闸，按同模式恢复后重新验收。</desc>
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M40 0 H0 V40" fill="none" stroke="#20304a" stroke-width="0.7"/>
+          </pattern>
+          <marker id="frontend-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#22d3ee"/></marker>
+          <marker id="backend-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#34d399"/></marker>
+          <marker id="data-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#a78bfa"/></marker>
+          <marker id="cloud-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#fbbf24"/></marker>
+          <marker id="security-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#fb7185"/></marker>
+          <marker id="queue-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#fb923c"/></marker>
+          <marker id="external-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#94a3b8"/></marker>
+          <marker id="external-back" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8 0 L0 4 L8 8 Z" fill="#94a3b8"/></marker>
+        </defs>
+        <rect width="1180" height="704" fill="#0b1224"/>
+        <rect width="1180" height="704" fill="url(#grid)"/>
+          <g>
+            <rect x="27" y="27" width="1126" height="151" rx="12" fill="#0d1528" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="8 5"/>
+            <text x="46" y="54" fill="#94a3b8" font-size="16" font-weight="700" text-anchor="start">发布准备</text>
+            <text x="1134" y="54" fill="#bbc8db" font-size="13" font-weight="400" text-anchor="end">开发机与 Git 仓库</text>
+          </g>
+          <g>
+            <rect x="27" y="222" width="1126" height="435" rx="12" fill="#0d1528" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="8 5"/>
+            <text x="46" y="249" fill="#fbbf24" font-size="16" font-weight="700" text-anchor="start">云端切换与验收</text>
+          </g>
+          <text x="820" y="249" fill="#bbc8db" font-size="13" font-weight="400" text-anchor="end">腾讯云 Lighthouse · Nginx · Docker Compose</text>
+          <path d="M355 116 H437" fill="none" stroke="#34d399" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#backend-arrow)"/>
+          <path d="M743 116 H825" fill="none" stroke="#34d399" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#backend-arrow)"/>
+          <path d="M978 160 V270" fill="none" stroke="#34d399" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#backend-arrow)"/>
+          <path d="M825 315 H743" fill="none" stroke="#34d399" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#backend-arrow)"/>
+          <path d="M437 315 H355" fill="none" stroke="#34d399" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#backend-arrow)"/>
+          <path d="M202 360 V432" fill="none" stroke="#34d399" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#backend-arrow)"/>
+          <path d="M355 478 H437" fill="none" stroke="#34d399" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#backend-arrow)"/>
+          <path d="M743 478 H825" fill="none" stroke="#34d399" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#backend-arrow)"/>
+          <path d="M202 525 V565" fill="none" stroke="#fb7185" stroke-width="1.6" stroke-linejoin="round" stroke-dasharray="5 5" marker-end="url(#security-arrow)"/>
+          <g>
+            <rect x="49" y="73" width="306" height="87" rx="8" fill="#0f172a"/><rect x="49" y="73" width="306" height="87" rx="8" fill="#1e293b" fill-opacity="0.5" stroke="#94a3b8" stroke-width="1.5"/><rect x="64" y="86" width="28" height="24" rx="4" fill="#1e293b"/><text x="78" y="103" fill="#94a3b8" font-size="12" font-weight="700" text-anchor="middle">01</text>
+            <text x="104" y="105" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">锁定发布提交</text>
+            <text x="65" y="128" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">按锁文件安装依赖</text>
+            <text x="65" y="147" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">核对待发布差异与来源</text>
+          </g>
+          <g>
+            <rect x="437" y="73" width="306" height="87" rx="8" fill="#0f172a"/><rect x="437" y="73" width="306" height="87" rx="8" fill="#064e3b" fill-opacity="0.4" stroke="#34d399" stroke-width="1.5"/><rect x="452" y="86" width="28" height="24" rx="4" fill="#064e3b"/><text x="466" y="103" fill="#34d399" font-size="12" font-weight="700" text-anchor="middle">02</text>
+            <text x="492" y="105" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">构建与隔离验证</text>
+            <text x="453" y="128" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">npm run check · build:web</text>
+            <text x="453" y="147" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">按范围运行思源、门禁和浏览器用例</text>
+          </g>
+          <g>
+            <rect x="825" y="73" width="306" height="87" rx="8" fill="#0f172a"/><rect x="825" y="73" width="306" height="87" rx="8" fill="#1e293b" fill-opacity="0.5" stroke="#94a3b8" stroke-width="1.5"/><rect x="840" y="86" width="28" height="24" rx="4" fill="#1e293b"/><text x="854" y="103" fill="#94a3b8" font-size="12" font-weight="700" text-anchor="middle">03</text>
+            <text x="880" y="105" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">送达已审阅版本</text>
+            <text x="841" y="128" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">按发布提交传至宿主并核对身份</text>
+            <text x="841" y="147" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">确认应用与维护进程的发布来源</text>
+          </g>
+          <g>
+            <rect x="825" y="270" width="306" height="90" rx="8" fill="#0f172a"/><rect x="825" y="270" width="306" height="90" rx="8" fill="#4c1d95" fill-opacity="0.4" stroke="#a78bfa" stroke-width="1.5"/><rect x="840" y="283" width="28" height="24" rx="4" fill="#4c1d95"/><text x="854" y="300" fill="#a78bfa" font-size="12" font-weight="700" text-anchor="middle">04</text>
+            <text x="880" y="302" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">关闸、停写并冷备</text>
+            <text x="841" y="325" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">核对挂载、签名账本与旧队列后关闸</text>
+            <text x="841" y="344" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">暂停写入或停栈，冷备并校验</text>
+          </g>
+          <g>
+            <rect x="437" y="270" width="306" height="90" rx="8" fill="#0f172a"/><rect x="437" y="270" width="306" height="90" rx="8" fill="#881337" fill-opacity="0.4" stroke="#fb7185" stroke-width="1.5"/><rect x="452" y="283" width="28" height="24" rx="4" fill="#881337"/><text x="466" y="300" fill="#fb7185" font-size="12" font-weight="700" text-anchor="middle">05</text>
+            <text x="492" y="302" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">切换到同一提交</text>
+            <text x="453" y="325" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">应用镜像与宿主维护进程同提交</text>
+            <text x="453" y="344" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">沿用私有挂载及独立控制库</text>
+          </g>
+          <g>
+            <rect x="49" y="270" width="306" height="90" rx="8" fill="#0f172a"/><rect x="49" y="270" width="306" height="90" rx="8" fill="#064e3b" fill-opacity="0.4" stroke="#34d399" stroke-width="1.5"/><rect x="64" y="283" width="28" height="24" rx="4" fill="#064e3b"/><text x="78" y="300" fill="#34d399" font-size="12" font-weight="700" text-anchor="middle">06</text>
+            <text x="104" y="302" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">启动应用和维护进程</text>
+            <text x="65" y="325" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">应用启动脚本等待固定思源内核</text>
+            <text x="65" y="344" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">应用启动后检查 /api/status</text>
+          </g>
+          <g>
+            <rect x="49" y="432" width="306" height="93" rx="8" fill="#0f172a"/><rect x="49" y="432" width="306" height="93" rx="8" fill="#881337" fill-opacity="0.4" stroke="#fb7185" stroke-width="1.5"/><rect x="64" y="445" width="28" height="24" rx="4" fill="#881337"/><text x="78" y="462" fill="#fb7185" font-size="12" font-weight="700" text-anchor="middle">07</text>
+            <text x="104" y="464" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">核对就绪门禁</text>
+            <text x="65" y="487" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">Nginx 检查 /api/readiness</text>
+            <text x="65" y="506" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">核对权威账本与恢复状态</text>
+          </g>
+          <g>
+            <rect x="437" y="432" width="306" height="93" rx="8" fill="#0f172a"/><rect x="437" y="432" width="306" height="93" rx="8" fill="#78350f" fill-opacity="0.3" stroke="#fbbf24" stroke-width="1.5"/><rect x="452" y="445" width="28" height="24" rx="4" fill="#78350f"/><text x="466" y="462" fill="#fbbf24" font-size="12" font-weight="700" text-anchor="middle">08</text>
+            <text x="492" y="464" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">放行受保护请求</text>
+            <text x="453" y="487" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">持续检查业务请求的就绪状态</text>
+            <text x="453" y="506" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">核对登录保护与实际运行版本</text>
+          </g>
+          <g>
+            <rect x="825" y="432" width="306" height="93" rx="8" fill="#0f172a"/><rect x="825" y="432" width="306" height="93" rx="8" fill="#083344" fill-opacity="0.4" stroke="#22d3ee" stroke-width="1.5"/><rect x="840" y="445" width="28" height="24" rx="4" fill="#083344"/><text x="854" y="462" fill="#22d3ee" font-size="12" font-weight="700" text-anchor="middle">09</text>
+            <text x="880" y="464" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">验收合成卡</text>
+            <text x="841" y="487" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">核对读卡、分享、归档、恢复及彻删</text>
+            <text x="841" y="506" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">分别验证手动批次与自然批次</text>
+          </g>
+          <g>
+            <rect x="49" y="565" width="1082" height="69" rx="8" fill="#0f172a"/><rect x="49" y="565" width="1082" height="69" rx="8" fill="#881337" fill-opacity="0.4" stroke="#fb7185" stroke-width="1.5"/>
+            <text x="65" y="593" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">就绪未通过 · 保持关闸</text>
+            <text x="65" y="616" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">按相同数据模式恢复应用和维护进程。冷备恢复须撤销旧会话和分享，重放权威删除决定，读回后返回步骤 07。</text>
+          </g>
+          <text x="395" y="463" fill="#34d399" font-size="13" font-weight="500" text-anchor="middle" paint-order="stroke" stroke="#0b1224" stroke-width="5" stroke-linejoin="round">通过</text>
+          <g>
+            <text x="49" y="685" fill="#f4f7fb" font-size="13" font-weight="700" text-anchor="start">图例</text>
+            <path d="M 160 681 h 30" fill="none" stroke="#34d399" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#backend-arrow)"/>
+            <text x="202" y="685" fill="#bbc8db" font-size="13" font-weight="400" text-anchor="start">发布与验收路径</text>
+            <path d="M 443 681 h 30" fill="none" stroke="#fb7185" stroke-width="1.6" stroke-linejoin="round" stroke-dasharray="5 5" marker-end="url(#security-arrow)"/>
+            <text x="485" y="685" fill="#bbc8db" font-size="13" font-weight="400" text-anchor="start">失败或恢复路径</text>
+          </g>
+      </svg>
+    </figure>
+    <p class="pan-hint">横向滚动可查看全图。</p>
+
+    <div class="cards">
+      <article class="card">
+        <h2><span class="card-dot" style="background:#22d3ee" aria-hidden="true"></span>本机首次启动</h2>
+        <p>依次运行 deploy:init、npm start、原稿同步预览及同步，随后在 127.0.0.1:6806 打开应用。已有实例沿用原私有目录。</p>
+      </article>
+      <article class="card">
+        <h2><span class="card-dot" style="background:#fb7185" aria-hidden="true"></span>回退与恢复</h2>
+        <p>数据库优先实例收到第一笔写入后，应用与维护进程应以同一模式恢复。冷备须结合独立控制库，并核对删除目标和保留卡后放行。</p>
+      </article>
+      <article class="card">
+        <h2><span class="card-dot" style="background:#fbbf24" aria-hidden="true"></span>生产验收记录</h2>
+        <p>2026-11-25，9025a7c 在生产通过手动批次和北京时间 20:00 自然批次验收，后者自动重试后结算。e25001f 续跑彻删，旧分享返回 404。</p>
+      </article>
+    </div>
+
+    <footer class="footer">
+      <nav aria-label="图中依据">
+        <a href="../agent-environment/commands.md#应用启动与状态">部署命令</a>
+        <a href="../../deploy/Dockerfile">应用镜像</a>
+        <a href="../../deploy/nginx-lifecycle-gate.conf">Nginx 门禁</a>
+        <a href="../../tasks/0067-project-architecture-diagrams.md#决策与进度">验收依据</a>
+      </nav>
+      <p>源码基线 24bd0db · 生产信息引用 2026-11-25 验收记录</p>
+    </footer>
+  </main>
+  <script>
+    const report = document.getElementById('report-container');
+    const toolbar = document.querySelector('.toolbar');
+    const toggle = document.querySelector('.toolbar-toggle');
+    const actions = document.querySelector('.toolbar-actions');
+    const status = document.querySelector('.export-status');
+    const outputName = 'concept-discovery-deployment-flow';
+
+    function showActions(expanded) {
+      toggle.setAttribute('aria-expanded', String(expanded));
+      actions.hidden = !expanded;
+      if (!expanded) toggle.focus();
+    }
+
+    toggle.addEventListener('click', () => showActions(actions.hidden));
+    toolbar.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !actions.hidden) showActions(false);
+    });
+
+    async function capture() {
+      await document.fonts.ready;
+      document.body.classList.add('export-layout');
+      try {
+        const bounds = report.getBoundingClientRect();
+        const padding = 32;
+        return html2canvas(document.body, {
+          backgroundColor: '#020617',
+          scale: 2,
+          useCORS: true,
+          x: bounds.left + window.scrollX - padding,
+          y: bounds.top + window.scrollY - padding,
+          width: Math.ceil(bounds.width + padding * 2),
+          height: Math.ceil(bounds.height + padding * 2),
+          windowWidth: 1264,
+          scrollX: 0,
+          scrollY: 0,
+          ignoreElements: (element) => element.classList?.contains('toolbar'),
+          onclone: (clonedDocument) => {
+            clonedDocument.body.classList.add('export-layout');
+            clonedDocument.querySelector('.diagram-container').scrollLeft = 0;
+          },
+        });
+      } finally {
+        document.body.classList.remove('export-layout');
+      }
+    }
+
+    async function copyAsImage() {
+      const image = capture().then((canvas) => new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('PNG')), 'image/png');
+      }));
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': image })]);
+    }
+
+    async function downloadPNG() {
+      const canvas = await capture();
+      const link = document.createElement('a');
+      link.download = outputName + '.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    async function downloadPDF() {
+      const canvas = await capture();
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+        unit: 'px',
+        compress: true,
+        format: [canvas.width, canvas.height],
+        hotfixes: ['px_scaling'],
+      });
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, canvas.width, canvas.height, undefined, 'FAST');
+      pdf.save(outputName + '.pdf');
+    }
+
+    const exportsByType = { copy: copyAsImage, png: downloadPNG, pdf: downloadPDF };
+    actions.addEventListener('click', async ({ target }) => {
+      const type = target.dataset.export;
+      if (!type || actions.getAttribute('aria-busy') === 'true') return;
+      if (!window.html2canvas || (type === 'pdf' && !window.jspdf)) {
+        status.textContent = '导出组件未加载，请联网后重新打开。';
+        return;
+      }
+      if (type === 'copy' && (!navigator.clipboard?.write || !window.ClipboardItem)) {
+        status.textContent = '当前浏览器无法复制图片。可以下载 PNG。';
+        return;
+      }
+      actions.setAttribute('aria-busy', 'true');
+      status.textContent = '';
+      try {
+        await exportsByType[type]();
+        status.textContent = type === 'copy' ? '已复制图片。' : '已下载文件。';
+      } catch {
+        status.textContent = type === 'copy' ? '复制失败。可以下载 PNG。' : '导出失败，请重试。';
+      } finally {
+        actions.removeAttribute('aria-busy');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -35,6 +35,8 @@ npm run raw -- sync
 
 ## 开发与托管
 
+项目图解见[技术架构](docs/architecture/technical-architecture.html)、[业务架构](docs/architecture/business-architecture.html)和[部署流程](docs/architecture/deployment-flow.html)。在浏览器中打开 HTML，可从右上角菜单导出 PNG 或 PDF。
+
 本机检查使用 `npm run check`。默认服务绑定 `127.0.0.1`。远程访问需要配置 HTTPS 和站主账户。[命令参考](docs/agent-environment/commands.md) · [托管与备份](docs/reading-experience.md) · [产品契约](specs/product-contract.md)
 
 软件采用 [MIT 许可证](LICENSE)。

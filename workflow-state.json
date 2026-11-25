@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "task_id": "0066-simplify-internal-contracts",
-  "task_file": "tasks/0066-simplify-internal-contracts.md",
+  "task_id": "0067-project-architecture-diagrams",
+  "task_file": "tasks/0067-project-architecture-diagrams.md",
   "phase": "complete",
   "updated_at": "2026-11-25",
-  "summary": "复用 Markdown 差分语义键并统一图谱与图鉴的学科标签解析。341 项回归、前端构建和隔离思源集成通过。"
+  "summary": "交付技术架构、业务架构和部署流程三张独立 HTML 图，完成事实复核、Chromium 排版与导出验证。"
 }

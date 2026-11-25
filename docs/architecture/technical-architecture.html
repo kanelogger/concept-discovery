@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>技术架构 · Concept Discovery</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" defer crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js" integrity="sha384-en/ztfPSRkGfME4KIm05joYXynqzUgbsG5nMrj/xEFAHXkeZfO3yMK8QQ+mP7p1/" defer crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <style>
+    * { box-sizing: border-box; }
+    :root { color-scheme: dark; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 32px;
+      background: #020617;
+      color: #f4f7fb;
+      font: 15px/1.65 'JetBrains Mono', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', monospace;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .header { margin: 0 0 22px; }
+    .header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .project { display: flex; align-items: center; gap: 9px; margin: 0 0 5px; color: #bbc8db; font-size: 13px; }
+    .pulse-dot, .card-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: none; }
+    .pulse-dot { background: #22d3ee; }
+    @media (prefers-reduced-motion: no-preference) {
+      .pulse-dot { animation: pulse 1.6s ease-in-out 2; }
+    }
+    @keyframes pulse { 50% { opacity: 0.52; } }
+    h1 { margin: 0; font-size: clamp(27px, 4vw, 38px); line-height: 1.2; letter-spacing: -0.035em; }
+    .subtitle { margin: 10px 0 0; color: #bbc8db; font-size: 14px; }
+    .diagram-container {
+      margin: 0;
+      overflow: auto;
+      background: #0b1224;
+      border: 1px solid #263753;
+      border-radius: 12px;
+    }
+    svg { display: block; width: 100%; min-width: 950px; }
+    .pan-hint { display: none; margin: 8px 0 0; color: #bbc8db; font-size: 13px; }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+    .card { background: #0b1224; border: 1px solid #263753; border-radius: 9px; padding: 14px 16px; }
+    .card h2 { display: flex; align-items: center; gap: 9px; margin: 0 0 6px; font-size: 15px; }
+    .card p { margin: 0; color: #bbc8db; font-size: 13px; overflow-wrap: anywhere; }
+    .footer { margin-top: 14px; padding-top: 12px; border-top: 1px solid #263753; color: #bbc8db; font-size: 12px; }
+    .footer p { margin: 7px 0 0; }
+    .footer nav { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+    .footer a { color: #a8e5f1; text-underline-offset: 3px; }
+    .toolbar { display: flex; position: relative; align-items: center; flex-shrink: 0; }
+    .toolbar-toggle, .toolbar-actions button {
+      min-width: 44px;
+      min-height: 44px;
+      padding: 0 10px;
+      color: #e2e8f0;
+      border: 1px solid #344662;
+      background: #0f1b30;
+      border-radius: 6px;
+      cursor: pointer;
+      font: inherit;
+    }
+    .toolbar-toggle { font-size: 23px; line-height: 1; }
+    .toolbar-toggle:hover, .toolbar-actions button:hover { background: #20304a; }
+    .toolbar-actions {
+      position: absolute;
+      top: 50px;
+      right: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px;
+      background: #0b1224;
+      border: 1px solid #344662;
+      border-radius: 8px;
+      box-shadow: 0 10px 24px #020617aa;
+    }
+    .toolbar-actions[hidden] { display: none; }
+    .toolbar-actions button { font-size: 13px; white-space: nowrap; }
+    :where(button, a, figure):focus-visible { outline: 2px solid #22d3ee; outline-offset: 3px; }
+    .export-status { margin: 8px 0 0; color: #fbbf24; font-size: 13px; }
+    .export-status:empty { display: none; }
+    @media (max-width: 1015px) {
+      body { padding: 14px; }
+      .pan-hint { display: block; }
+    }
+    @media (max-width: 680px) {
+      .cards { grid-template-columns: 1fr; }
+    }
+    body.export-layout { width: 1264px; padding: 32px; }
+    .export-layout h1 { font-size: 38px; }
+    .export-layout .pan-hint { display: none; }
+    .export-layout .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    @media print {
+      body { padding: 0; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .toolbar, .pan-hint { display: none !important; }
+      svg { min-width: 0; }
+      .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .diagram-container, .card { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main id="report-container" class="container">
+    <header class="header">
+      <div class="header-row">
+        <div>
+          <p class="project" lang="en"><span class="pulse-dot" aria-hidden="true"></span>Concept Discovery</p>
+          <h1>技术架构</h1>
+        </div>
+        <div class="toolbar">
+          <button type="button" class="toolbar-toggle" aria-label="导出选项" aria-controls="export-actions" aria-expanded="false">⋯</button>
+          <div id="export-actions" class="toolbar-actions" hidden>
+            <button type="button" data-export="copy">复制图片</button>
+            <button type="button" data-export="png">下载 PNG</button>
+            <button type="button" data-export="pdf">下载 PDF</button>
+          </div>
+        </div>
+      </div>
+      <p class="subtitle">从浏览器与 CLI 到 Node.js、思源内核和宿主维护进程。</p>
+      <p class="export-status" role="status"></p>
+    </header>
+
+    <figure class="diagram-container" tabindex="0" aria-label="技术架构图">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 653" role="img"
+          aria-labelledby="diagram-title" aria-describedby="diagram-description" font-family="'JetBrains Mono', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', monospace">
+        <title id="diagram-title">技术架构</title>
+        <desc id="diagram-description">浏览器、命令行和分享访客经 Nginx 到 Node 应用。应用通过 Compose 网络查询思源。站主维护调用宿主维护进程，进程经临时维护容器写入思源，更新分享状态，并对接 GitHub 原稿与删除账本。</desc>
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M40 0 H0 V40" fill="none" stroke="#20304a" stroke-width="0.7"/>
+          </pattern>
+          <marker id="frontend-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#22d3ee"/></marker>
+          <marker id="backend-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#34d399"/></marker>
+          <marker id="data-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#a78bfa"/></marker>
+          <marker id="cloud-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#fbbf24"/></marker>
+          <marker id="security-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#fb7185"/></marker>
+          <marker id="queue-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#fb923c"/></marker>
+          <marker id="external-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#94a3b8"/></marker>
+          <marker id="external-back" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8 0 L0 4 L8 8 Z" fill="#94a3b8"/></marker>
+        </defs>
+        <rect width="1180" height="653" fill="#0b1224"/>
+        <rect width="1180" height="653" fill="url(#grid)"/>
+          <g>
+            <rect x="295" y="27" width="856" height="569" rx="12" fill="#0d1528" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="8 5"/>
+            <text x="314" y="54" fill="#fbbf24" font-size="16" font-weight="700" text-anchor="start">腾讯云 Lighthouse</text>
+            <text x="1132" y="54" fill="#bbc8db" font-size="13" font-weight="400" text-anchor="end">受管 HTTPS 实例</text>
+          </g>
+          <g>
+            <rect x="548" y="103" width="576" height="180" rx="12" fill="#0d1528" stroke="#34d399" stroke-width="1.5" stroke-dasharray="8 5"/>
+            <text x="567" y="130" fill="#34d399" font-size="16" font-weight="700" text-anchor="start">Docker Compose</text>
+            <text x="1105" y="130" fill="#bbc8db" font-size="13" font-weight="400" text-anchor="end">回环 127.0.0.1:6806 映射到 app:3000</text>
+          </g>
+          <text x="565" y="321" fill="#a78bfa" font-size="14" font-weight="700" text-anchor="start">持久存储</text>
+          <path d="M249 123 H271 V206 H317" fill="none" stroke="#22d3ee" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#frontend-arrow)"/>
+          <path d="M249 245 H317" fill="none" stroke="#22d3ee" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#frontend-arrow)"/>
+          <path d="M249 388 H271 V265 H317" fill="none" stroke="#22d3ee" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#frontend-arrow)"/>
+          <path d="M495 230 H567" fill="none" stroke="#22d3ee" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#frontend-arrow)"/>
+          <path d="M796 204 H877" fill="none" stroke="#34d399" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#backend-arrow)"/>
+          <path d="M670 250 V340" fill="none" stroke="#a78bfa" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#data-arrow)"/>
+          <path d="M990 250 V340" fill="none" stroke="#a78bfa" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#data-arrow)"/>
+          <path d="M710 470 V430" fill="none" stroke="#a78bfa" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#data-arrow)"/>
+          <path d="M567 239 H532 V509 H564" fill="none" stroke="#fb7185" stroke-width="1.6" stroke-linejoin="round" stroke-dasharray="5 5" marker-end="url(#security-arrow)"/>
+          <path d="M796 514 H849 V300 H939 V251" fill="none" stroke="#34d399" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#backend-arrow)"/>
+          <path d="M249 549 H564" fill="none" stroke="#94a3b8" stroke-width="1.6" stroke-linejoin="round" marker-start="url(#external-back)" marker-end="url(#external-arrow)"/>
+          <g>
+            <rect x="32" y="85" width="217" height="76" rx="8" fill="#0f172a"/><rect x="32" y="85" width="217" height="76" rx="8" fill="#083344" fill-opacity="0.4" stroke="#22d3ee" stroke-width="1.5"/>
+            <text x="48" y="113" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">站主浏览器</text>
+            <text x="48" y="136" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">React · Ant Design · D3</text>
+          </g>
+          <g>
+            <rect x="32" y="207" width="217" height="76" rx="8" fill="#0f172a"/><rect x="32" y="207" width="217" height="76" rx="8" fill="#1e293b" fill-opacity="0.5" stroke="#94a3b8" stroke-width="1.5"/>
+            <text x="48" y="235" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">Agent CLI</text>
+            <text x="48" y="258" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">同一只读命令 · 独立令牌</text>
+          </g>
+          <g>
+            <rect x="32" y="329" width="217" height="76" rx="8" fill="#0f172a"/><rect x="32" y="329" width="217" height="76" rx="8" fill="#1e293b" fill-opacity="0.5" stroke="#94a3b8" stroke-width="1.5"/>
+            <text x="48" y="357" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">持链访客</text>
+            <text x="48" y="380" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">只访问已分享的快照</text>
+          </g>
+          <g>
+            <rect x="32" y="511" width="217" height="76" rx="8" fill="#0f172a"/><rect x="32" y="511" width="217" height="76" rx="8" fill="#1e293b" fill-opacity="0.5" stroke="#94a3b8" stroke-width="1.5"/>
+            <text x="48" y="539" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">GitHub</text>
+            <text x="48" y="562" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">main 原稿 · 签名删除账本</text>
+          </g>
+          <g>
+            <rect x="317" y="190" width="178" height="93" rx="8" fill="#0f172a"/><rect x="317" y="190" width="178" height="93" rx="8" fill="#881337" fill-opacity="0.4" stroke="#fb7185" stroke-width="1.5"/>
+            <text x="333" y="222" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">Nginx / TLS</text>
+            <text x="333" y="245" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">HTTPS · 反向代理</text>
+            <text x="333" y="264" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">/api/readiness 门禁</text>
+          </g>
+          <g>
+            <rect x="567" y="154" width="229" height="97" rx="8" fill="#0f172a"/><rect x="567" y="154" width="229" height="97" rx="8" fill="#064e3b" fill-opacity="0.4" stroke="#34d399" stroke-width="1.5"/>
+            <text x="583" y="186" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">Node.js 24 应用</text>
+            <text x="583" y="209" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">静态网页 · 同源 HTTP API</text>
+            <text x="583" y="228" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">会话 · 分享 · 站主管理</text>
+          </g>
+          <g>
+            <rect x="877" y="154" width="227" height="97" rx="8" fill="#0f172a"/><rect x="877" y="154" width="227" height="97" rx="8" fill="#064e3b" fill-opacity="0.4" stroke="#34d399" stroke-width="1.5"/>
+            <text x="893" y="186" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">思源内核 3.8.9</text>
+            <text x="893" y="209" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">kernel:6806 · 仅 Compose 内</text>
+            <text x="893" y="228" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">文档 · 块 · 附件</text>
+          </g>
+          <g>
+            <rect x="564" y="340" width="232" height="90" rx="8" fill="#0f172a"/><rect x="564" y="340" width="232" height="90" rx="8" fill="#4c1d95" fill-opacity="0.4" stroke="#a78bfa" stroke-width="1.5"/>
+            <text x="580" y="372" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">应用私有状态</text>
+            <text x="580" y="395" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">wiki/ 原文及历史</text>
+            <text x="580" y="414" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">SQLite 会话与分享</text>
+          </g>
+          <g>
+            <rect x="876" y="340" width="228" height="90" rx="8" fill="#0f172a"/><rect x="876" y="340" width="228" height="90" rx="8" fill="#4c1d95" fill-opacity="0.4" stroke="#a78bfa" stroke-width="1.5"/>
+            <text x="892" y="372" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">思源工作区</text>
+            <text x="892" y="395" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">workspace/ 卡片与附件</text>
+          </g>
+          <g>
+            <rect x="564" y="470" width="232" height="104" rx="8" fill="#0f172a"/><rect x="564" y="470" width="232" height="104" rx="8" fill="#fb923c" fill-opacity="0.15" stroke="#fb923c" stroke-width="1.5"/>
+            <text x="580" y="502" fill="#f4f7fb" font-size="18" font-weight="700" text-anchor="start">宿主维护进程</text>
+            <text x="580" y="525" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">SQLite 任务与导出队列</text>
+            <text x="580" y="544" fill="#bbc8db" font-size="13.5" font-weight="400" text-anchor="start">独立控制库 · 宿主互斥锁</text>
+          </g>
+          <text x="273" y="111" fill="#22d3ee" font-size="13" font-weight="500" text-anchor="middle" paint-order="stroke" stroke="#0b1224" stroke-width="5" stroke-linejoin="round">HTTPS</text>
+          <text x="531" y="218" fill="#22d3ee" font-size="13" font-weight="500" text-anchor="middle" paint-order="stroke" stroke="#0b1224" stroke-width="5" stroke-linejoin="round">回环</text>
+          <text x="836" y="193" fill="#34d399" font-size="13" font-weight="500" text-anchor="middle" paint-order="stroke" stroke="#0b1224" stroke-width="5" stroke-linejoin="round">内核 API</text>
+          <text x="521" y="421" fill="#fb7185" font-size="13" font-weight="500" text-anchor="end" paint-order="stroke" stroke="#0b1224" stroke-width="5" stroke-linejoin="round">Unix 套接字</text>
+          <text x="866" y="462" fill="#34d399" font-size="13" font-weight="500" text-anchor="start" paint-order="stroke" stroke="#0b1224" stroke-width="5" stroke-linejoin="round">临时维护容器</text>
+          <text x="722" y="454" fill="#a78bfa" font-size="13" font-weight="500" text-anchor="start" paint-order="stroke" stroke="#0b1224" stroke-width="5" stroke-linejoin="round">分享状态</text>
+          <text x="400" y="537" fill="#bbc8db" font-size="13" font-weight="500" text-anchor="middle" paint-order="stroke" stroke="#0b1224" stroke-width="5" stroke-linejoin="round">同步原稿 · 核对账本</text>
+          <g>
+            <text x="33" y="631" fill="#f4f7fb" font-size="13" font-weight="700" text-anchor="start">图例</text>
+            <path d="M 136 627 h 30" fill="none" stroke="#22d3ee" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#frontend-arrow)"/>
+            <text x="178" y="631" fill="#bbc8db" font-size="13" font-weight="400" text-anchor="start">HTTPS / HTTP 访问</text>
+            <path d="M 399 627 h 30" fill="none" stroke="#34d399" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#backend-arrow)"/>
+            <text x="441" y="631" fill="#bbc8db" font-size="13" font-weight="400" text-anchor="start">内核请求 / 受保护写入</text>
+            <path d="M 699 627 h 30" fill="none" stroke="#fb7185" stroke-width="1.6" stroke-linejoin="round" stroke-dasharray="5 5" marker-end="url(#security-arrow)"/>
+            <text x="741" y="631" fill="#bbc8db" font-size="13" font-weight="400" text-anchor="start">就绪与站主维护</text>
+            <path d="M 942 627 h 30" fill="none" stroke="#a78bfa" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#data-arrow)"/>
+            <text x="984" y="631" fill="#bbc8db" font-size="13" font-weight="400" text-anchor="start">私有存储</text>
+          </g>
+      </svg>
+    </figure>
+    <p class="pan-hint">横向滚动可查看全图。</p>
+
+    <div class="cards">
+      <article class="card">
+        <h2><span class="card-dot" style="background:#22d3ee" aria-hidden="true"></span>本机和远程入口</h2>
+        <p>本机模式经回环直连应用。远程模式经 Nginx 进入，私有页面使用站主会话，Agent CLI 使用独立只读令牌。</p>
+      </article>
+      <article class="card">
+        <h2><span class="card-dot" style="background:#a78bfa" aria-hidden="true"></span>数据持久化</h2>
+        <p>私有根还保存 operations/ 操作回执与备份，以及 raw-sync/ 实例绑定与修订基线。受管任务队列和账本检查点保存在冷备之外。</p>
+      </article>
+      <article class="card">
+        <h2><span class="card-dot" style="background:#fb923c" aria-hidden="true"></span>两条维护入口</h2>
+        <p>普通本机用 raw CLI 校验原稿、经临时容器写入并读回。受管实例由宿主维护进程串行写入。删除候选由独立 GitHub 工作流验证后才能发布到权威账本。</p>
+      </article>
+    </div>
+
+    <footer class="footer">
+      <nav aria-label="图中依据">
+        <a href="../../specs/product-contract.md">产品契约</a>
+        <a href="../../deploy/compose.yaml">Compose 配置</a>
+        <a href="../agent-environment/commands.md#站主卡片维护与冷备门禁">受管部署与门禁</a>
+      </nav>
+      <p>源码基线 24bd0db · 2026-11-25</p>
+    </footer>
+  </main>
+  <script>
+    const report = document.getElementById('report-container');
+    const toolbar = document.querySelector('.toolbar');
+    const toggle = document.querySelector('.toolbar-toggle');
+    const actions = document.querySelector('.toolbar-actions');
+    const status = document.querySelector('.export-status');
+    const outputName = 'concept-discovery-technical-architecture';
+
+    function showActions(expanded) {
+      toggle.setAttribute('aria-expanded', String(expanded));
+      actions.hidden = !expanded;
+      if (!expanded) toggle.focus();
+    }
+
+    toggle.addEventListener('click', () => showActions(actions.hidden));
+    toolbar.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !actions.hidden) showActions(false);
+    });
+
+    async function capture() {
+      await document.fonts.ready;
+      document.body.classList.add('export-layout');
+      try {
+        const bounds = report.getBoundingClientRect();
+        const padding = 32;
+        return html2canvas(document.body, {
+          backgroundColor: '#020617',
+          scale: 2,
+          useCORS: true,
+          x: bounds.left + window.scrollX - padding,
+          y: bounds.top + window.scrollY - padding,
+          width: Math.ceil(bounds.width + padding * 2),
+          height: Math.ceil(bounds.height + padding * 2),
+          windowWidth: 1264,
+          scrollX: 0,
+          scrollY: 0,
+          ignoreElements: (element) => element.classList?.contains('toolbar'),
+          onclone: (clonedDocument) => {
+            clonedDocument.body.classList.add('export-layout');
+            clonedDocument.querySelector('.diagram-container').scrollLeft = 0;
+          },
+        });
+      } finally {
+        document.body.classList.remove('export-layout');
+      }
+    }
+
+    async function copyAsImage() {
+      const image = capture().then((canvas) => new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('PNG')), 'image/png');
+      }));
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': image })]);
+    }
+
+    async function downloadPNG() {
+      const canvas = await capture();
+      const link = document.createElement('a');
+      link.download = outputName + '.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    async function downloadPDF() {
+      const canvas = await capture();
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+        unit: 'px',
+        compress: true,
+        format: [canvas.width, canvas.height],
+        hotfixes: ['px_scaling'],
+      });
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, canvas.width, canvas.height, undefined, 'FAST');
+      pdf.save(outputName + '.pdf');
+    }
+
+    const exportsByType = { copy: copyAsImage, png: downloadPNG, pdf: downloadPDF };
+    actions.addEventListener('click', async ({ target }) => {
+      const type = target.dataset.export;
+      if (!type || actions.getAttribute('aria-busy') === 'true') return;
+      if (!window.html2canvas || (type === 'pdf' && !window.jspdf)) {
+        status.textContent = '导出组件未加载，请联网后重新打开。';
+        return;
+      }
+      if (type === 'copy' && (!navigator.clipboard?.write || !window.ClipboardItem)) {
+        status.textContent = '当前浏览器无法复制图片。可以下载 PNG。';
+        return;
+      }
+      actions.setAttribute('aria-busy', 'true');
+      status.textContent = '';
+      try {
+        await exportsByType[type]();
+        status.textContent = type === 'copy' ? '已复制图片。' : '已下载文件。';
+      } catch {
+        status.textContent = type === 'copy' ? '复制失败。可以下载 PNG。' : '导出失败，请重试。';
+      } finally {
+        actions.removeAttribute('aria-busy');
+      }
+    });
+  </script>
+</body>
+</html>
