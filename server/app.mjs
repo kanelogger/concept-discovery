@@ -5,7 +5,7 @@ import { Siyuan, fail } from '../lib/siyuan.mjs';
 import { execute } from '../lib/commands.mjs';
 import { assertReadCommand, readOnlyReason } from '../lib/read-commands.mjs';
 import { CardBodyReader } from '../lib/card-body-reader.mjs';
-import { readUIAsset } from './ui-assets.mjs';
+import { loadUIAssets } from './ui-assets.mjs';
 import { executeWiki, headingQuestion, wikiCommands } from '../lib/wiki.mjs';
 import { readScenarioAtlas } from '../lib/scenario-atlas.mjs';
 import { readKnowledgeGraph } from './knowledge-graph.mjs';
@@ -35,7 +35,8 @@ export function assetPath(path){
   if(!decoded.startsWith('/assets/') || /[\\\u0000%]/.test(decoded) || decoded.split('/').slice(2).some(x=>!x||x==='.'||x==='..'))fail('outside_scope','附件路径无效');
   return '/data'+decoded;
 }
-export function createApp({kernelConfig,agentToken,publicUrl,authMode='required',authStore,trustedProxyAddress,api:providedAPI,executeCommand=execute,wikiRoot,scenarioTimeoutMs=30000,graphTimeoutMs=120000,wechatShare,getShareMaterial=defaultShareMaterial,lifecycle,requireLifecycleReadiness=false}){
+export function createApp({kernelConfig,agentToken,publicUrl,authMode='required',authStore,trustedProxyAddress,api:providedAPI,executeCommand=execute,wikiRoot,scenarioTimeoutMs=30000,graphTimeoutMs=120000,wechatShare,getShareMaterial=defaultShareMaterial,lifecycle,requireLifecycleReadiness=false,
+  uiAssetRoot,previousUIAssetRoot=process.env.CONCEPT_PREVIOUS_UI_DIR,requireUIAssets=false}){
   if(!agentToken)throw new Error('Agent token is required');
   const api=providedAPI??new Siyuan(kernelConfig);
   const cardBodies = new CardBodyReader(api);
@@ -46,6 +47,7 @@ export function createApp({kernelConfig,agentToken,publicUrl,authMode='required'
   if(new URL(publicUrl).href!==origin+'/')throw new Error('publicUrl must be an origin');
   const authRequired=authenticationMode(publicOrigin,authMode)==='required';
   if(authRequired&&!authStore)throw new Error('The required authentication store is missing');
+  const ui = loadUIAssets({uiAssetRoot,previousUIAssetRoot,requireUIAssets});
   const readAsset=(path,signal=AbortSignal.timeout(30000))=>fetch(api.origin+'/api/file/getFile',{
     method:'POST',redirect:'error',signal,
     headers:{Authorization:'Token '+api.c.token,'Content-Type':'application/json'},
@@ -73,7 +75,12 @@ export function createApp({kernelConfig,agentToken,publicUrl,authMode='required'
     res.setHeader('Vary','Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site');
     res.setHeader('Content-Security-Policy',`default-src 'self'; script-src 'self'; style-src 'self' 'nonce-${styleNonce}'; img-src 'self' https: http: data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'`);
     try{
-      const url=new URL(req.url,origin),path=url.pathname;
+      const url = new URL(req.url, origin);
+      // Preserve raw path segments for both origin-form and absolute-form request targets.
+      const rawPath = req.url.split('?', 1)[0].replace(/^https?:\/\/[^/\\?#]+/i, '');
+      const uiRequest = rawPath.startsWith('/ui/') || url.pathname.startsWith('/ui/');
+      const canonicalUI = rawPath === url.pathname && url.origin === origin && !url.username && !url.password;
+      const path = uiRequest && !canonicalUI ? '/ui/' : url.pathname;
       if(requireLifecycleReadiness&&path!=='/api/status'){
         let ready;
         try{ready=(await lifecycle?.ready())?.ready===true;}catch{}
@@ -112,8 +119,14 @@ export function createApp({kernelConfig,agentToken,publicUrl,authMode='required'
         fail('unauthorized','请登录后继续。');
       }
       if(req.method==='GET'&&path.startsWith('/ui/')){
-        const asset=readUIAsset(path.slice(4));
+        const asset=ui.read(path.slice(4),req.headers['accept-encoding']);
         if(!asset){send(res,404,{ok:false,error:{code:'not_found',message:'界面资源不存在'}});return;}
+        res.appendHeader('Vary','Accept-Encoding, Origin');
+        if(!authRequired)res.appendHeader('Vary','Authorization');
+        if(asset.status===406){res.writeHead(406).end();return;}
+        if(asset.immutable)res.setHeader('Cache-Control','public, max-age=31536000, immutable');
+        if(asset.encoding!=='identity')res.setHeader('Content-Encoding',asset.encoding);
+        res.setHeader('Content-Length',asset.content.length);
         res.setHeader('Content-Type',asset.type);res.end(asset.content);return;
       }
       if(sharePage){
@@ -125,6 +138,7 @@ export function createApp({kernelConfig,agentToken,publicUrl,authMode='required'
         const content=readFileSync(new URL('../web/'+file,import.meta.url));
         if(file!=='index.html'){res.end(content);return;}
         const html=content.toString('utf8').replaceAll('__STYLE_NONCE__',styleNonce).replaceAll('__AUTH_MODE__',authMode)
+          .replace('<!-- UI_ASSETS -->',ui.entryHTML)
           .replaceAll('__LIFECYCLE__',authRequired&&lifecycle?'enabled':'disabled');
         const preview=sharePage?await share.pagePreview(path):null;
         if(sharePage&&path!=='/share'&&!preview)res.statusCode=404;

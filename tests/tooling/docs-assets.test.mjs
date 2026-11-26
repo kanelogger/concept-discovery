@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, symlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { documentAnchors, markdownLinks, npmScriptReferences, currentCommandDocument, validateRepository } from '../../scripts/validate.mjs';
-import { readUIAsset } from '../../server/ui-assets.mjs';
+import { loadUIAssets } from '../../server/ui-assets.mjs';
 
 test('npm script references preserve source lines and ignore prose, package commands and JS examples', () => {
   const source = 'npm run invented in prose\n`npm run check -- --flag`\n\n```sh\nnpm ci\nnpm --silent run --silent test:browser\nnpm test\n```\n```js\nconst text = "npm run not-a-command";\n```';
@@ -159,15 +160,36 @@ test('repository link validation retains the path boundary and checks anchors ac
   ]);
 });
 
-test('UI publication serves only manifest assets and rejects escape, source and symlink requests', () => {
+test('UI publication validates program paths, manifest entries and regular files before startup', () => {
   const dir = mkdtempSync(join(tmpdir(), 'cd-ui-assets-'));
   try {
-    mkdirSync(join(dir,'chunks'));
-    writeFileSync(join(dir,'manifest.json'),JSON.stringify({assets:[{path:'chunks/app.js'},{path:'escape.js'}]}));
-    writeFileSync(join(dir,'chunks/app.js'),'export const ok = true;');
-    symlinkSync(join(dir,'chunks/app.js'),join(dir,'escape.js'));
-    assert.equal(readUIAsset('chunks/app.js',dir).type,'text/javascript; charset=utf-8');
-    for(const path of ['../package.json','%2e%2e/package.json','chunks//app.js','source.jsx','escape.js']) assert.equal(readUIAsset(path,dir),null,path);
-    assert.equal(readUIAsset('manifest.json',dir).type,'application/json; charset=utf-8');
+    const path = 'chunks/app.js';
+    const content = 'export const ok = true;';
+    const sha256 = createHash('sha256').update(content).digest('hex');
+    const manifest = { schema: 1, entry: { js: path, css: [] }, assets: [{ path, sha256 }] };
+    const manifestPath = join(dir, 'manifest.json');
+    const load = () => loadUIAssets({uiAssetRoot: dir});
+    mkdirSync(join(dir, 'chunks'));
+    writeFileSync(join(dir, path), content);
+    writeFileSync(manifestPath, JSON.stringify(manifest));
+    symlinkSync(join(dir, path), join(dir, 'escape.js'));
+    symlinkSync(join(dir, 'chunks'), join(dir, 'linked'));
+    const ui = load();
+    assert.equal(ui.read(path).type, 'text/javascript; charset=utf-8');
+    assert.equal(ui.read('manifest.json').type, 'application/json; charset=utf-8');
+    for (const bad of ['../package.json','%2e%2e/package.json','chunks//app.js','source.jsx','escape.js','linked/app.js']) {
+      assert.equal(ui.read(bad), null, bad);
+      writeFileSync(manifestPath, JSON.stringify({...manifest, assets: [...manifest.assets, {path: bad, sha256}]}));
+      assert.throws(load, undefined, bad);
+    }
+    writeFileSync(manifestPath, JSON.stringify({...manifest, entry: {js: 'unlisted.js', css: []}}));
+    assert.throws(load, /manifest entry/);
+    writeFileSync(manifestPath, JSON.stringify(manifest));
+    writeFileSync(join(dir, path), 'changed during packaging');
+    assert.throws(load, /does not match/);
+    rmSync(manifestPath);
+    assert.throws(load, {code: 'ENOENT'});
+    symlinkSync(join(dir, path), manifestPath);
+    assert.throws(load, /symbolic link/);
   } finally { rmSync(dir,{recursive:true,force:true}); }
 });

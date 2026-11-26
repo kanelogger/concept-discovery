@@ -176,6 +176,12 @@ environment:
     - name: CONCEPT_PRIVATE_ROOT
       purpose: Compose专属私有根挂载
       source: scripts/deploy-init.mjs 生成的私有 compose.env
+    - name: CONCEPT_PREVIOUS_UI_ROOT
+      purpose: 启用升级重叠期时，将上一版程序产物目录只读挂载给应用
+      source: deploy/compose.ui-overlap.yaml
+    - name: CONCEPT_PREVIOUS_UI_DIR
+      purpose: 站点读取上一版程序分包的可选目录
+      source: deploy/compose.ui-overlap.yaml；server/app.mjs
     - name: CONCEPT_PORT
       purpose: 宿主回环应用端口
       source: 私有 compose.env；deploy/compose.yaml

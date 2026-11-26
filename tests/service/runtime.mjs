@@ -227,6 +227,7 @@ export async function runtime(label, { resume, build = true, ready = true, initi
       cliPath = join(prefix, "node_modules/concept-discovery/bin/concept-discovery.mjs");
       const packedFiles = new Set(packed.files.map((file) => file.path));
       const manifest = JSON.parse(readFileSync(resolve(projectRoot, "web/generated/manifest.json"), "utf8"));
+      assert.equal(manifest.schema, 2);
       const assets = {};
       for (const asset of [...manifest.assets, { path: "manifest.json", sha256: digest(readFileSync(resolve(projectRoot, "web/generated/manifest.json"))) }]) {
         const relative = "web/generated/" + asset.path;
@@ -235,11 +236,22 @@ export async function runtime(label, { resume, build = true, ready = true, initi
         const installed = digest(readFileSync(join(prefix, "node_modules/concept-discovery", relative)));
         assert.equal(expected, asset.sha256, "asset manifest fingerprint: " + asset.path);
         assert.equal(installed, expected, "installed asset: " + asset.path);
-        const response = await fetch(url + "/ui/" + asset.path);
+        const response = await fetch(url + "/ui/" + asset.path, { headers: { "accept-encoding": "identity" } });
         assert.equal(response.status, 200, "published asset: " + asset.path);
         const published = digest(Buffer.from(await response.arrayBuffer()));
         assert.equal(published, expected, "Docker HTTP asset: " + asset.path);
-        assets[asset.path] = { expectedHash: expected, installedHash: installed, publishedHash: published };
+        const encodings = asset.encodings ?? [];
+        for (const encoding of encodings) {
+          const sidecar = relative + (encoding === "gzip" ? ".gz" : ".br");
+          assert.ok(packedFiles.has(sidecar), "npm pack includes " + sidecar);
+          assert.equal(digest(readFileSync(join(prefix, "node_modules/concept-discovery", sidecar))),
+            digest(readFileSync(resolve(projectRoot, sidecar))), "installed encoding: " + sidecar);
+          const encoded = await fetch(url + "/ui/" + asset.path, { headers: { "accept-encoding": encoding } });
+          assert.equal(encoded.status, 200, sidecar);
+          assert.equal(encoded.headers.get("content-encoding"), encoding, sidecar);
+          assert.equal(digest(Buffer.from(await encoded.arrayBuffer())), expected, "decoded Docker HTTP asset: " + sidecar);
+        }
+        assets[asset.path] = { expectedHash: expected, installedHash: installed, publishedHash: published, encodings };
       }
       record("packaged-cli", { package: packed.filename, shasum: packed.shasum, unrelatedWorkingDirectory: dir, assets });
       return cliPath;

@@ -11,6 +11,7 @@
 | 纯业务计算、输入校验 | 相关 Node 测试；完成时运行 `npm run check` |
 | 读写命令、版本、回执、鉴权 | 相关 Node 回归，加 `npm run test:integration` 的真实内核链路及拒绝路径 |
 | 浏览器请求顺序、旧链接、阅读位置或前进后退 | 相关 Node 回归，加 `npm run test:browser` |
+| 加载耗时采样或程序资源缓存 | `node --test tests/performance/field-load.test.mjs` 核对真实浏览器的缓存命中、304、连接失败和去敏；以同一探针对旧版与新版运行 `node tests/performance/field-load.mjs --fixture`，核对每次可读时刻、会话及列表请求。 |
 | 存储布局、内核升级、备份/恢复协议 | 真实集成及独立冷备恢复检查；按改动补充浏览器检查 |
 | 构建、依赖或部署 | 构建及真实集成；界面依赖变化时补充浏览器检查 |
 

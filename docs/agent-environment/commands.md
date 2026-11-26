@@ -84,6 +84,18 @@ printf '%s\n' '{"query":"瓶颈","limit":5}' | node bin/concept-discovery.mjs se
 
 初始化拒绝已有目录，并分别生成 Agent 与内核凭据。首次启动创建「知识卡」根文档和「关系归档」；需要项目中的内容时，在目标实例显式同步原稿。已有实例继续读取原来的知识库。`GET /api/status` 返回 `{"ok":true,"data":{"readOnly":true}}`，用于健康探针。
 
+### 网页加载耗时
+
+用 `node tests/performance/field-load.mjs --fixture` 跑隔离列表，用 `--fixture --view card` 验证带 HTTPS 站主会话的合成阅读。各组输出五对冷访与正常二访、资源传输字节和内容可读时间。缓存与去敏回归可单独运行 `node --test tests/performance/field-load.test.mjs`。
+
+实站测量以读者实际入口为准。例如 `node tests/performance/field-load.mjs --url https://kb.example.com/cards --view cards --owner-login` 会打开专用浏览器让站主登录；替换为自己的站点。对未登录入口可使用 `--view login`。每对使用新上下文，二访在同一上下文新开页。JSON 写向标准输出，可保存在忽略目录 `.local/performance/`。保留失败样本；零个可读样本时无法计算页面性能。合成测量、公网登录页和已登录阅读页分别报告。
+
+### 升级时保留上一版程序分包
+
+新 HTML 从当前构建清单取带哈希的 JS 和 CSS。为使切换前打开的标签页能继续下载旧分包，在替换运行中的应用容器前，将其 `/app/web/generated/.` 用 `docker cp` 复制到本次发布专用的新目录。只复制这份程序产物，并核对目录根有 `manifest.json`。
+
+将宿主绝对目录设为 `CONCEPT_PREVIOUS_UI_ROOT`，在原 Compose 文件组合后追加 `-f deploy/compose.ui-overlap.yaml` 再启动。该覆盖文件把旧目录只读挂载到 `/ui-previous`。首次部署可直接使用原 Compose 配置。完成切换后，用切换前记录的分包 URL 读回旧文件，再打开新页面确认它引用当前入口；新部署只需保留上一套程序分包。[Compose 覆盖文件](../../deploy/compose.ui-overlap.yaml)
+
 ## 开通和恢复站主
 
 新配置带有 `"auth": { "mode": "local" }`，仅允许将 `publicUrl` 设为回环地址，直接进入阅读。旧的纯本机配置若缺少 `auth`，可在原 `service.json` 中加入该字段，沿用已有数据。公网代理接入的实例需设为 `required`，并将 `publicUrl` 与读者的 `client.json.url` 都设成实际 HTTPS 源。配置示例中的字段加到已有 `service.json`，保留原内核和 Agent 配置。

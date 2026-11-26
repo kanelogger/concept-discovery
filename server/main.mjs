@@ -39,7 +39,7 @@ export async function start(path=process.env.CONCEPT_SERVICE_CONFIG,{authStore:p
   const authStore=providedStore??openServiceAuth(c.auth);
   let server;
   try{
-    server=createApp({...c,wechatShare:createWechatShare(c.wechatShare),authMode:c.auth.mode,authStore,
+    server=createApp({...c,requireUIAssets:true,wechatShare:createWechatShare(c.wechatShare),authMode:c.auth.mode,authStore,
       trustedProxyAddress:c.auth.trustedProxyAddress,lifecycle:c.lifecycleSocket ? cardLifecycleClient(c.lifecycleSocket) : undefined,
       requireLifecycleReadiness:Boolean(c.lifecycleSocket)});
     await new Promise((ok,no)=>{server.once('error',no);server.listen(c.port ?? 3000,c.host ?? '127.0.0.1',ok);});

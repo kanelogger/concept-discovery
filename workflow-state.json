@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "task_id": "0067-project-architecture-diagrams",
-  "task_file": "tasks/0067-project-architecture-diagrams.md",
-  "phase": "complete",
-  "updated_at": "2026-11-25",
-  "summary": "交付技术架构、业务架构和部署流程三张独立 HTML 图，完成事实复核、Chromium 排版与导出验证。"
+  "task_id": "0068-route-a-lightweight-refactor",
+  "task_file": "tasks/0068-route-a-lightweight-refactor.md",
+  "phase": "implementation",
+  "updated_at": "2026-11-26",
+  "summary": "阶段 0 已实现列表冷暖访问采样和程序资源预压缩、强缓存。合成 HTTPS 二访 JS/CSS 传输 0 字节，等待原站恢复可达后完成真实会话基线和上线复测。"
 }

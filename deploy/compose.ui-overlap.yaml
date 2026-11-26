@@ -1,0 +1,11 @@
+services:
+  app:
+    environment:
+      CONCEPT_PREVIOUS_UI_DIR: /ui-previous
+    volumes:
+      - type: bind
+        source: ${CONCEPT_PREVIOUS_UI_ROOT:?Set the previous release UI directory}
+        target: /ui-previous
+        read_only: true
+        bind:
+          create_host_path: false

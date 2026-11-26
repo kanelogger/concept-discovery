@@ -1,4 +1,5 @@
 import { execFile, execFileSync } from "node:child_process";
+import { createHash, X509Certificate } from "node:crypto";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createServer, request } from "node:http";
 import { createServer as createTLS, request as requestTLS } from "node:https";
@@ -37,7 +38,7 @@ export const fragment = "20261123080001-authabc";
 export const agentToken = "synthetic-agent-token";
 const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aF/0AAAAASUVORK5CYII=", "base64");
 
-export async function authHTTPSFixture({ wechatShare, getShareMaterial, lifecycle, requireLifecycleReadiness, through, retained, rawId } = {}) {
+export async function authHTTPSFixture({ wechatShare, getShareMaterial, lifecycle, requireLifecycleReadiness, through, retained, rawId, listItems = [card] } = {}) {
   const root = mkdtempSync(join(tmpdir(), "cd-auth-https-"));
   const keyFile = join(root, "tls.key");
   const certFile = join(root, "tls.crt");
@@ -45,7 +46,7 @@ export async function authHTTPSFixture({ wechatShare, getShareMaterial, lifecycl
   let target;
   let instant = Date.now();
   let applicationOptions;
-  let assetReads = 0;
+  let assetReads = 0, programRequests = 0;
   const calls = [];
   const beforeRead = { current: null };
   const shareFixture = { active: true, markdown: "" };
@@ -71,7 +72,10 @@ export async function authHTTPSFixture({ wechatShare, getShareMaterial, lifecycl
       "-subj", "/CN=concept-discovery-isolated", "-addext", "subjectAltName=IP:127.0.0.1",
       "-keyout", keyFile, "-out", certFile], { stdio: "ignore" });
     const cert = readFileSync(certFile);
+    const spki = new X509Certificate(cert).publicKey.export({ type: 'spki', format: 'der' });
+    const publicKeyPin = createHash('sha256').update(spki).digest('base64');
     proxy = createTLS({ cert, key: readFileSync(keyFile) }, (req, res) => {
+      if (/^\/ui\/[^?]+\.(?:js|css)(?:\?|$)/.test(req.url)) programRequests++;
       const upstream = request({ host: loopback, port: target, method: req.method, path: req.url, headers: req.headers }, response => {
         res.writeHead(response.statusCode, response.headers);
         response.pipe(res);
@@ -134,7 +138,7 @@ export async function authHTTPSFixture({ wechatShare, getShareMaterial, lifecycl
         };
         if (command === "get-document" && input.id === retained?.id)
           return {id:retained.id,title:retained.title,markdown:retained.body,editable:false};
-        if (command === "list") return { items: [card], total: 1, tags: [] };
+        if (command === "list") return { items: listItems, total: listItems.length, tags: [] };
         throw new Error("Fixture received unexpected command");
       },
     };
@@ -143,7 +147,7 @@ export async function authHTTPSFixture({ wechatShare, getShareMaterial, lifecycl
     writeFileSync(join(root, "agent-token"), agentToken, { mode: 0o600 });
     writeFileSync(client, JSON.stringify({ url, tokenFile: "agent-token" }), { mode: 0o600 });
     return {
-      url, calls, now, beforeRead, shareFixture,
+      url, calls, now, beforeRead, shareFixture, publicKeyPin, programRequests: () => programRequests,
       assetReads: () => assetReads,
       advance(ms) { instant += ms; },
       revoke(token) { authStore.logout(token); },
