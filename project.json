@@ -3,7 +3,7 @@
   "project": {
     "id": "concept-discovery",
     "stage": "personal-knowledge-service",
-    "product_status": "implemented-local-acceptance-passed"
+    "product_status": "single-container-production"
   },
   "runtime": {
     "node_major": 24
@@ -43,13 +43,6 @@
       "command": "npm run raw --",
       "target": "local-siyuan"
     },
-    "single_container_candidate": {
-      "compose": "deploy/compose.content.yaml",
-      "documentation": "docs/agent-environment/content-release.md",
-      "verification": "test:content-container",
-      "owner_packaging_command": "npm run content:package",
-      "offline_deployment_verification": "test:content-offline"
-    },
     "loopback_content_shadow": {
       "command": "npm run start:shadow",
       "documentation": "docs/agent-environment/commands.md"
@@ -62,6 +55,14 @@
     "project_skills": [
       "skills/concept-discovery/SKILL.md"
     ],
-    "connectors": []
+    "connectors": [],
+    "single_container_production": {
+      "compose": "deploy/compose.content.yaml",
+      "documentation": "docs/agent-environment/content-release.md",
+      "verification": "test:content-container",
+      "owner_packaging_command": "npm run content:package",
+      "offline_deployment_verification": "test:content-offline",
+      "production_bind": "127.0.0.1:16806"
+    }
   }
 }

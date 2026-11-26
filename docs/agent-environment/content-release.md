@@ -96,6 +96,9 @@ docker compose --project-name SITE_PROJECT --env-file /path/to/content.env -f /p
 
 同一站点部署时使用固定的 Compose 项目名。Compose 文件从交付目录读取，服务器无需源码、构建步骤或镜像拉取。
 
+正式站的常驻容器使用固定项目名 `concept-discovery-content`，回环端口为 `16806`。正式部署配置保存在宿主 `/etc/concept-discovery-content/compose.yaml` 与同目录的 `compose.env`。从这两份文件操作现有服务。内容包更新时重新核对配置中的镜像及内容目录。
+
+
 从回环与真实代理分别验证服务。以规范 Host 获取 `/api/status` 仅表示进程响应，开放依据是 `/api/readiness` 成功以及真实的业务读回。沿用[反代门禁](../../deploy/nginx-lifecycle-gate.conf)，让就绪子请求和业务上游同时指向同一新容器，保留原 Host 和授权头；验证过的入口只绑定宿主回环。控制记录消失、变更或和候选版本不符时，当前进程拒绝继续服务，重新启用需使用新检查点重新启动。Nginx 的原生 auth_request 遇到非预期就绪状态可能对外返回 500，应在宿主关闭窗口单独配置维护响应。
 
 ## 回退与生产验收
