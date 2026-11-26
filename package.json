@@ -13,6 +13,7 @@
     "test": "node --test tests/service/*.test.mjs tests/tooling/*.test.mjs",
     "test:integration": "node tests/service/integration.mjs && node tests/service/auth-container.mjs",
     "test:lifecycle": "node tests/service/card-lifecycle-integration.mjs",
+    "test:content-integration": "node tests/service/content-compiler-integration.mjs",
     "test:database-first": "node tests/service/database-first-integration.mjs",
     "test:lifecycle-proxy": "node tests/service/card-lifecycle-proxy.mjs && node tests/service/card-lifecycle-proxy-recovery.mjs",
     "check": "npm run validate && npm run raw -- check && npm test",
@@ -20,6 +21,7 @@
     "start": "docker compose --env-file .local/knowledge/compose.env -f deploy/compose.yaml up --build -d",
     "stop": "docker compose --env-file .local/knowledge/compose.env -f deploy/compose.yaml down",
     "build:web": "node scripts/build-web.mjs",
+    "build:content": "node scripts/build-content.mjs",
     "prepack": "npm run build:web",
     "test:browser": "playwright test --config tests/browser/playwright.config.mjs"
   },
@@ -58,6 +60,7 @@
     "README.md",
     ".dockerignore",
     "web/generated",
-    "scripts/build-web.mjs"
+    "scripts/build-web.mjs",
+    "scripts/build-content.mjs"
   ]
 }

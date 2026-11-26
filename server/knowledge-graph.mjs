@@ -3,7 +3,7 @@ import { disciplinesFromTags, tagsFromNodes } from '../lib/card-list.mjs';
 import { CardBodyReader } from '../lib/card-body-reader.mjs';
 import { documentMarkdown } from '../lib/documents.mjs';
 import { cardScope } from '../lib/library-scope.mjs';
-import { cardExcerpt, parseCatalog } from '../lib/scenario-atlas.mjs';
+import { cardExcerpt, catalogTitle, parseCatalog } from '../lib/scenario-atlas.mjs';
 import { fail, quote } from '../lib/siyuan.mjs';
 import { renderCardReferences } from './card-references.mjs';
 import { validBlockID } from './render.mjs';
@@ -52,15 +52,15 @@ function aliasMap(rows) {
   return aliases;
 }
 
-function graphDocument(raw, { id, schema, content }, available, origin) {
-  const markdown = documentMarkdown(raw);
+export function graphDocument({ markdown, id, title, legacyFixedFields, blocks }, available, origin, resolveDocumentId) {
   const body = fromMarkdown(markdown).children;
   const tags = tagsFromNodes(body, { proseOnly: true });
   const disciplines = disciplinesFromTags(tags);
-  const membershipLines = content === '场景图鉴'
-    ? parseCatalog(body, available, origin).membershipLines : undefined;
-  const { references } = renderCardReferences(markdown, { origin, id, legacyFixedFields: schema === '1', membershipLines, annotate: false });
-  return { categories: disciplines.length ? disciplines : tags, summary: cardExcerpt(body), references };
+  const catalog = title === catalogTitle ? parseCatalog(body, available, origin, resolveDocumentId) : undefined;
+  const { references } = renderCardReferences(markdown, {
+    origin, id, legacyFixedFields, blocks, membershipLines: catalog?.membershipLines, annotate: false,
+  });
+  return { categories: disciplines.length ? disciplines : tags, disciplines, summary: cardExcerpt(body), references, catalog };
 }
 
 export async function readKnowledgeGraph(api, { origin, signal, cardBodies = new CardBodyReader(api) }) {
@@ -70,17 +70,13 @@ export async function readKnowledgeGraph(api, { origin, signal, cardBodies = new
   const rows = await readInventory(api, options);
   const available = new Set(rows.map(row => row.id));
   const documents = await cardBodies.read(rows, { signal, allowMissing: true }, (row, raw) => {
-    const parse = value => graphDocument(value, row, available, origin);
-    if (row.content === '场景图鉴') return parse(raw);
+    const parse = value => graphDocument({
+      id: row.id, title: row.content, legacyFixedFields: row.schema === '1', markdown: documentMarkdown(value),
+    }, available, origin);
+    if (row.content === catalogTitle) return parse(raw);
     return cardBodies.derive('graph', JSON.stringify([row.id, row.schema, origin]), raw, parse);
   });
   signal?.throwIfAborted();
-  const nodes = rows.map(({ id, content: title }, index) => ({
-    id, title, categories: documents[index]?.categories ?? [], summary: documents[index]?.summary ?? '',
-  }));
-  const scanned = documents.filter(Boolean).length;
-  if (!scanned && nodes.length) fail('graph_read_failed', '未能读取知识卡正文，请稍后重试。');
-
   const aliases = aliasMap(rows);
   const blocks = new Set();
   for (const doc of documents) {
@@ -91,22 +87,40 @@ export async function readKnowledgeGraph(api, { origin, signal, cardBodies = new
   }
   const owners = await blockOwners(api, [...blocks], options);
   signal?.throwIfAborted();
+  const nodes = rows.map(({ id, content: title }) => ({ id, title }));
+  function resolve(ref) {
+    if (available.has(ref)) return { id: ref };
+    if (validBlockID(ref)) return { id: owners.get(ref), anchor: ref };
+    return { id: aliases.get(ref) };
+  }
+  return buildKnowledgeGraph(nodes, documents, resolve, ref => owners.get(ref));
+}
+
+export function buildKnowledgeGraph(cards, documents, resolve, blockOwner) {
+  const nodes = cards.map(({ id, title }, index) => ({
+    id, title, categories: documents[index]?.categories ?? [], summary: documents[index]?.summary ?? '',
+  }));
+  const scanned = documents.filter(Boolean).length;
+  if (!scanned && nodes.length) fail('graph_read_failed', '未能读取知识卡正文，请稍后重试。');
+
+  const available = new Set(nodes.map(node => node.id));
   const edges = [];
   for (const [index, doc] of documents.entries()) {
-    const source = rows[index].id;
+    const source = nodes[index].id;
     const outgoing = new Map();
     for (const { ref, fragment, anchor, excerpt } of doc?.references ?? []) {
-      const target = available.has(ref) ? ref : validBlockID(ref) ? owners.get(ref) : aliases.get(ref);
+      const identity = resolve(ref);
+      const target = identity?.id;
       if (!available.has(target) || source === target) continue;
-      if (validBlockID(fragment) && owners.get(fragment) !== target) continue;
+      if (validBlockID(fragment) && blockOwner(fragment) !== target) continue;
       if (!outgoing.has(target)) {
         const edge = { source, target, occurrences: [] };
         outgoing.set(target, edge);
         edges.push(edge);
       }
-      const targetBlock = validBlockID(fragment) ? fragment : ref !== target && validBlockID(ref) ? ref : undefined;
+      const targetBlock = validBlockID(fragment) ? fragment : identity.anchor;
       outgoing.get(target).occurrences.push({ anchor, excerpt, ...(targetBlock && { targetBlock }), ...(fragment && { targetFragment: fragment }) });
     }
   }
-  return { nodes, edges, complete: scanned === rows.length, scanned, total: rows.length };
+  return { nodes, edges, complete: scanned === nodes.length, scanned, total: nodes.length };
 }

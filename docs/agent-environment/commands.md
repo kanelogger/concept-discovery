@@ -61,6 +61,32 @@ Docker 不可用时，可为 `npm run test:lifecycle` 显式设置 `CONCEPT_SIYU
 
 初次导出有既有芒格模型映射时，`export` 可一起传 `--ledger <旧账本目录> --models <离线模型目录>`，通过既有文档及快照 ID 确定归属。导出遇到失效的内部引用会报告位置；已核实的单个附件拼写错误可通过 `--asset-corrections <JSON 文件>` 显式提供映射。
 
+## 离线构建只读内容包
+
+在宿主的 Node 24 环境准备三个输入：选定版本的原稿目录、版本化元数据、按库身份封存的历史记录。构建写入全新的私有目录，不启动服务或更改现行站点。
+
+```sh
+npm run build:content -- --raw-root raw --metadata /path/to/metadata.json --baseline /path/to/history.json --out /path/to/new-release
+```
+
+只包含一张新卡 `example` 的最小元数据示例：
+
+```json
+{
+  "version": 1,
+  "libraryId": "example-library",
+  "cards": {"example": {"id": "example", "updated": "20261126090000"}},
+  "readings": {},
+  "history": {"sources": {}, "proposals": {}, "events": {}}
+}
+```
+
+对应的历史输入是 `{"version":1,"libraryId":"example-library","sources":[],"proposals":[],"events":[]}`。两个文件与原稿已有的 `.sync.json` 使用同一个库身份。实际迁移时从隔离的冻结副本分别核实公开卡片 ID、北京时间 14 位 `updated`、修订、块与补读。主卡元数据可用公开 ID 为键，`readings` 使用补读在 raw 下的路径。块记录包含 `id`、`markdown` 和可选的旧字段名 `key`。固定字段旧卡需保存 `legacyFixedFields: true` 和原有 `content` 对象。若原文含指向旧站的绝对链接，在元数据中指定旧站的规范 `origin`。
+
+`metadata.history` 是独立核实的已发历史库存。每类是“记录 ID → 完整记录规范 JSON 的 SHA-256”。从受信的旧库读回完整来源、提案、事件数组后，可由 [historyInventory](../../scripts/build-content.mjs) 计算。已有记录应能同时在库存和发布输入中核实；对普通更新，将 `--previous /path/to/previous-release` 指向上次核实的内容包，可用 `metadata.previousManifest` 固定其 manifest 文件 SHA-256。构建会核对已发历史和保留身份。新来源从同名 JSON 旁注读取快照元数据，也可在 `history.json` 的 `sourceFiles` 中按 raw 路径提供；原文内容取自受管文件。
+
+生成的 `manifest.json` 列出输入摘要、对象数、不可变历史库存、保留身份，以及 `knowledge.sqlite` 和哈希附件的摘要。私有元数据与生成目录均不应作为公开静态目录。可从 [只读内容库](../../lib/content-store.mjs) 的 `openContentStore(path)` 打开 SQLite，调用 `list`、`search`、`document`、`view`、`record` 或 `asset` 读回。使用完毕调用 `close()`。真实思源对照运行 `npm run test:content-integration`，只使用该次隔离栈的合成资料。
+
 ## 只读应用 CLI
 
 用 `CONCEPT_DISCOVERY_CONFIG` 指向私有 `client.json`，其中保存应用地址和独立 Agent Token 的配置。`CONCEPT_SERVICE_CONFIG` 是服务端配置，`kernel.json` 供本地维护使用。

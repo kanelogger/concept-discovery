@@ -212,8 +212,8 @@ function anchorBlocks(tokens, source, blocks) {
 export function renderMarkdown(markdown, { legacyFixedFields = false, blocks = [], membershipLines } = {}) {
   const source = String(markdown ?? "");
   const parsed = md.parse(source, {});
-  const tokens = legacyFixedFields ? omitEmptyFixedFields(parsed)
-    : blocks.length ? anchorBlocks(parsed, source, blocks) : parsed;
+  const visible = legacyFixedFields ? omitEmptyFixedFields(parsed) : parsed;
+  const tokens = blocks.length ? anchorBlocks(visible, source, blocks) : visible;
   if (membershipLines?.size) {
     for (const token of tokens) {
       if (token.type === 'list_item_open' && membershipLines.has(token.map[0]))

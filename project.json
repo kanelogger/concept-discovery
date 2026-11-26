@@ -43,6 +43,11 @@
       "command": "npm run raw --",
       "target": "local-siyuan"
     },
+    "offline_content_snapshot": {
+      "command": "npm run build:content",
+      "target": "private-read-only-sqlite",
+      "documentation": "docs/agent-environment/commands.md"
+    },
     "project_skills": [
       "skills/concept-discovery/SKILL.md"
     ],

@@ -60,6 +60,26 @@ environment:
       side_effects: [覆盖被忽略的 web/generated 构建产物]
       verification_scope: 前端资产可构建，不证明浏览器交互或真实内核链路
       failure_handling: 修复构建错误后重跑；不手改生成文件
+    build_content:
+      run: npm run build:content
+      working_directory: .
+      definition_source: package.json
+      script: build:content
+      implementation_sources: [scripts/build-content.mjs, lib/content-cards.mjs, lib/content-materials.mjs, lib/content-store.mjs, lib/content-views.mjs]
+      prerequisites: [Node.js 24.7+ 及内置 FTS5 trigram, 显式原稿目录与同库冻结输入, 新的私有输出路径]
+      side_effects: [在新目录生成内容 SQLite、哈希附件和清单]
+      verification_scope: 离线身份、历史完整性、编译与本地读回；公网切换另验
+      failure_handling: 保留已有发布包，按报告核对冻结的原稿、版本化元数据及历史输入
+    content_integration:
+      run: npm run test:content-integration
+      working_directory: .
+      definition_source: package.json
+      script: test:content-integration
+      implementation_sources: [tests/service/content-compiler-integration.mjs, tests/service/runtime.mjs]
+      prerequisites: [Node.js 24.7+, 锁定依赖, Docker 与 Compose, 独立回环端口]
+      side_effects: [隔离思源、临时编译输出、脱敏验收记录]
+      verification_scope: 真实旧库 HTTP 与 SQLite 读回的合成样本差分
+      failure_handling: 按运行证据定位差异并清理该次隔离栈
     integration:
       run: npm run test:integration
       working_directory: .
