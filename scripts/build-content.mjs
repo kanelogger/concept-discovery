@@ -9,6 +9,7 @@ import { buildContentViews } from '../lib/content-views.mjs';
 import { inventoryDigest, openContentStore } from '../lib/content-store.mjs';
 import { writeContentDatabase } from '../lib/content-database-writer.mjs';
 import { canonical } from '../lib/siyuan.mjs';
+import { readFrozenArchives } from './frozen-archives.mjs';
 
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 function readInput(path) {
@@ -133,7 +134,7 @@ function checkRawEdits(metadata, prior, store) {
   };
 }
 
-export function buildContent({rawRoot,metadataFile,baselineFile,output,previous,resealManifest}) {
+export function buildContent({rawRoot,metadataFile,baselineFile,output,previous,resealManifest,archiveFile,archiveSha256}) {
   const raw = realpathSync(rawRoot), destination = resolve(output);
   if (lstatSync(destination,{throwIfNoEntry:false})) throw new Error('目标目录已存在，请使用新目录');
   if (inside(raw,physicalDestination(destination))) throw new Error('输出目录不能位于原稿目录中');
@@ -204,6 +205,36 @@ export function buildContent({rawRoot,metadataFile,baselineFile,output,previous,
   if (prior) checkHistory(prior.history,history);
   const compiled=compileContentCards(tree,metadata,materials);
   const views=buildContentViews({...compiled,origin:metadata.origin ?? 'https://local.invalid'});
+  if (Boolean(archiveFile)!==Boolean(archiveSha256)) throw new Error('归档迁移需要冻结收据和独立摘要');
+  let archiveMigration;
+  // Existing readers seal authoredDocuments in the SQLite inventory digest.
+  // Bind the owner-side migration instructions there as well as in the manifest.
+  const archiveWitnesses = Object.values(prior?.authoredDocuments ?? {}).filter(record=>record.archivedWithoutRaw);
+  if (archiveWitnesses.length || prior?.archiveMigration) {
+    if (!prior.archiveMigration || !archiveWitnesses.length ||
+        archiveWitnesses.some(record=>record.archivedWithoutRaw!==digest(prior.archiveMigration)))
+      throw new Error('迁移归档清单与上版内容库的核验记录不符');
+    if (archiveFile || metadata.previousManifest!==priorInput.sha256) throw new Error('延续归档迁移必须核准原先的内容清单');
+    archiveMigration = prior.archiveMigration;
+    if ((metadata.archiveApprovalSha256 && metadata.archiveApprovalSha256!==archiveMigration.approvalSha256) ||
+        (metadata.archiveInventorySha256 && metadata.archiveInventorySha256!==archiveMigration.inventorySha256))
+      throw new Error('归档处置与上版不同');
+    if (archiveMigration.frozenArchivesSha256!==prior.inputs.frozenArchives ||
+        !Array.isArray(archiveMigration.refs) || !archiveMigration.refs.length || archiveMigration.refs.some(ref=>!reserved.has(ref)))
+      throw new Error('上版归档迁移身份不完整');
+  } else if (archiveFile || Object.hasOwn(metadata,'archiveApprovalSha256') || Object.hasOwn(metadata,'archiveInventorySha256')) {
+    if (prior || !archiveFile) throw new Error('首次归档迁移需要独立核准的原冻结收据');
+    const {targets}=readFrozenArchives({file:archiveFile,sha256:archiveSha256,libraryId:baseline.libraryId,rawSha256:rawDigest,
+      baselineSha256:baselineInput.sha256,metadataSha256:metadataInput.sha256,approvalSha256:metadata.archiveApprovalSha256,inventorySha256:metadata.archiveInventorySha256});
+    for (const target of targets) reserved.set(target[0],target);
+    archiveMigration={approvalSha256:metadata.archiveApprovalSha256,inventorySha256:metadata.archiveInventorySha256,
+      frozenArchivesSha256:archiveSha256,refs:targets.map(row=>row[0])};
+    authoredDocuments ??= {};
+    for (const [ref,id,anchor,parent] of targets) if (ref===id && !anchor && !parent)
+      authoredDocuments[id]={archivedWithoutRaw:digest(archiveMigration)};
+  }
+  const hiddenRefs = new Set(archiveMigration?.refs);
+  if (compiled.reservedIdentities.some(({ref})=>hiddenRefs.has(ref))) throw new Error('原稿重新使用了已交割的归档身份');
   // A saved block must remain a block at the same anchor, including across an archive.
   // A reading likewise retains its parent, even when the document ID is unchanged.
   for (const {ref,id,anchor,parentId} of compiled.reservedIdentities) {
@@ -238,7 +269,9 @@ export function buildContent({rawRoot,metadataFile,baselineFile,output,previous,
       files.push({path,sha256:item.hash});
     }
     files.sort((a,b)=>a.path<b.path?-1:a.path>b.path?1:0);
-    const manifest={version:1,libraryId:baseline.libraryId,inputs:{raw:rawDigest,metadata:metadataInput.sha256,baseline:baselineInput.sha256,...(priorInput && {previousManifest:priorInput.sha256})},counts,history,reservedIdentities,...(authoredDocuments && {authoredDocuments}),files};
+    const manifest={version:1,libraryId:baseline.libraryId,inputs:{raw:rawDigest,metadata:metadataInput.sha256,baseline:baselineInput.sha256,
+      ...(archiveMigration && {frozenArchives:archiveMigration.frozenArchivesSha256}),...(priorInput && {previousManifest:priorInput.sha256})},counts,history,reservedIdentities,
+      ...(archiveMigration && {archiveMigration}),...(authoredDocuments && {authoredDocuments}),files};
     writeFileSync(join(staged,'manifest.json'),JSON.stringify(manifest,null,2)+'\n',{flag:'wx'});
     // Reserve exactly this new name. POSIX rename alone replaces an unrelated empty directory.
     mkdirSync(destination,{mode:0o700});
@@ -255,11 +288,13 @@ export function buildContent({rawRoot,metadataFile,baselineFile,output,previous,
 
 if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href===import.meta.url) {
   try {
-    const {values}=parseArgs({options:{'raw-root':{type:'string'},metadata:{type:'string'},baseline:{type:'string'},out:{type:'string'},previous:{type:'string'},reseal:{type:'string'},help:{type:'boolean'}}});
-    if (values.help) console.log('npm run build:content -- --raw-root <原稿目录> --metadata <版本化元数据.json> --baseline <历史基线.json> --out <新目录> [--previous <上次发布目录>] [--reseal <已核准的旧版清单 SHA-256>]');
+    const {values}=parseArgs({options:{'raw-root':{type:'string'},metadata:{type:'string'},baseline:{type:'string'},out:{type:'string'},
+      previous:{type:'string'},reseal:{type:'string'},'frozen-archives':{type:'string'},'frozen-archives-sha256':{type:'string'},help:{type:'boolean'}}});
+    if (values.help) console.log('npm run build:content -- --raw-root <原稿目录> --metadata <版本化元数据.json> --baseline <历史基线.json> --out <新目录> [--previous <上次发布目录>] [--reseal <已核准的旧版清单 SHA-256>] [--frozen-archives FILE --frozen-archives-sha256 SHA]');
     else {
       for (const key of ['raw-root','metadata','baseline','out']) if (!values[key]) throw new Error('缺少参数 --'+key);
-      const {counts}=buildContent({rawRoot:values['raw-root'],metadataFile:values.metadata,baselineFile:values.baseline,output:values.out,previous:values.previous,resealManifest:values.reseal});
+      const {counts}=buildContent({rawRoot:values['raw-root'],metadataFile:values.metadata,baselineFile:values.baseline,output:values.out,previous:values.previous,resealManifest:values.reseal,
+        archiveFile:values['frozen-archives'],archiveSha256:values['frozen-archives-sha256']});
       console.log(JSON.stringify(counts,null,2));
     }
   } catch (error) {

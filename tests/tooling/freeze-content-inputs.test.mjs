@@ -243,6 +243,10 @@ else if (args[0] === 'network' && args[1] === 'inspect' && args.at(-1) === fixtu
   readline.createInterface({input:process.stdin}).on('line', line => {
     const {method, input} = JSON.parse(line);
     record({method, input});
+    if (fixture.readError) {
+      console.log(JSON.stringify({ok:false, error:{code:'freeze_read_failed',message:fixture.readError}}));
+      return;
+    }
     const key = JSON.stringify([method, input]);
     if (!Object.hasOwn(fixture.replies, key)) process.exit(2);
     console.log(JSON.stringify({ok:true, data:fixture.replies[key]}));
@@ -291,14 +295,14 @@ async function dockerFixture(t) {
   const config = { endpoint:'unix:///synthetic/docker.sock', containers, networkId,
     peers:{[appId]:{IPv4Address:'172.25.0.2/16'}, [kernelId]:{IPv4Address:kernelIP + '/16'}}, replies };
   const log = join(f.dir, 'calls.jsonl'), configFile = join(f.dir, 'docker.json');
-  function run(configure = () => {}) {
+  function run(configure = () => {}, extraArgs = []) {
     const next = structuredClone(config);
     configure(next, ...next.containers);
     writeFileSync(configFile, JSON.stringify(next));
     writeFileSync(log, '');
     const env = {...process.env, PATH:bin + ':' + process.env.PATH, DOCKER_CONTEXT:'synthetic',
       FREEZE_DOCKER_FIXTURE:configFile, FREEZE_DOCKER_LOG:log};
-    const result = spawnSync(process.execPath, [cmd, ...args], {env, encoding:'utf8', timeout:20000});
+    const result = spawnSync(process.execPath, [cmd, ...args, ...extraArgs], {env, encoding:'utf8', timeout:20000});
     assert.ifError(result.error);
     const events = readFileSync(log, 'utf8').trim().split('\n').filter(Boolean).map(line => JSON.parse(line));
     assert.ok(!JSON.stringify(events).includes(canary), 'credentials must stay out of Docker arguments and RPC');
@@ -321,6 +325,18 @@ test('freeze CLI selects the verified container namespace, read-only state and l
     assert.equal(events.filter(e => e.method === 'public-read' && e.input.command === command && e.input.input.id === id).length, 2);
   }
   assert.equal(json(join(f.options.output, 'metadata.json')).cards[cardId].frozenGet.data.title, f.card.title);
+});
+
+test('freeze progress and read errors expose stages and allowlisted status only', async t => {
+  const f = await dockerFixture(t);
+  for (const reason of ['http_503', f.canary]) {
+    const {status, stderr, stdout} = f.run(config => { config.readError = reason; }, ['--progress']);
+    assert.equal(status, 1);
+    assert.equal(stdout, '');
+    assert.match(stderr, /"stage":"native-inventory"/);
+    assert.equal(stderr.includes('http_503'), reason === 'http_503');
+    assert.ok(!stderr.includes(f.canary) && !stderr.includes(f.root));
+  }
 });
 
 test('freeze CLI rejects mismatched mounts, published endpoint and Docker network before starting the reader', async t => {
@@ -355,4 +371,109 @@ test('freeze CLI rejects mismatched mounts, published endpoint and Docker networ
   assertRefused('workspace contains a link outside its physical copy');
   rmSync(link);
   assertRefused('worker fails with private diagnostic', config => { config.workerFailure = f.canary + ' ' + f.root; }, true);
+});
+
+test('a witnessed archive without a raw original keeps its non-public identities and the original Git input digest', async t => {
+  const f = await fixture(t);
+  const plain = {...f.options,output:join(f.dir,'unmigrated')};
+  await freezeObservedContent(plain);
+  const before = buildContent({rawRoot:f.options.rawRoot,metadataFile:join(plain.output,'metadata.json'),
+    baselineFile:join(plain.output,'history.json'),output:join(f.dir,'unmigrated-release')});
+  const archivedId='20260101000001-archive', childId='20260101000002-reading', archiveBlock='20260101000003-hiddenb';
+  const row={rawId:'retained-archive',documentId:archivedId,archiveOp:'db-archive-original',operationId:'archive-task-id',
+    signature:hash('signature'),revision:hash('post-archive')};
+  const approvalFile=join(f.dir,'archive-approval.json'), bytes=JSON.stringify({version:1,libraryId,archives:[row]});
+  writeFileSync(approvalFile,bytes);
+  const observed=[{...row,previousRevision:hash('pre-archive'),documents:[
+    {id:archivedId,sha256:hash('private archive body'),revision:row.revision,aliases:['old:concept'],blocks:[],anchorDigests:{}},
+    {id:childId,sha256:hash('private reading body'),revision:hash('child-version'),aliases:[],blocks:[archiveBlock],anchorDigests:{[archiveBlock]:hash('block-md')}},
+  ]}];
+  const archiveOptions={archiveApproval:approvalFile,archiveApprovalSha256:hash(bytes),readArchives:()=>structuredClone(observed)};
+  const databaseOnly=await freezeObservedContent({...f.options,...archiveOptions,output:join(f.dir,'no-private-or-raw-binding')});
+  assert.equal(databaseOnly.archivedCards,1);
+  const stateDir=join(f.dir,'copy','raw-sync',hash(libraryId));
+  mkdirSync(stateDir,{recursive:true});
+  const archivedBinding={remoteId:archivedId,path:'学科/retained-archive/article.md',archived:true,archiveOp:row.archiveOp,revision:row.revision};
+  const state={...f.exported,cards:{...f.exported.cards,[row.rawId]:archivedBinding}};
+  state.readings={...state.readings,'gone/reading.md':{remoteId:childId,parent:archivedId,revision:hash('child-version'),
+    anchors:{[archiveBlock]:{sha256:hash('block-md')}}}};
+  writeFileSync(join(stateDir,'state.json'),JSON.stringify(state));
+  f.save(state);
+  const opts={...f.options,...archiveOptions};
+  await assert.rejects(freezeObservedContent(f.options), /本地绑定仍有归档/);
+  const pending=join(stateDir,'pending.json');
+  writeFileSync(pending,'{}');
+  await assert.rejects(freezeObservedContent(opts), /未结算的原稿同步/);
+  rmSync(pending);
+  const third=structuredClone(state);
+  third.cards.unreviewed={archived:true,remoteId:'20260101000009-another'};
+  writeFileSync(join(stateDir,'state.json'),JSON.stringify(third));
+  await assert.rejects(freezeObservedContent(opts), /本地绑定仍有归档/);
+  writeFileSync(join(stateDir,'state.json'),JSON.stringify(state));
+  await assert.rejects(freezeObservedContent({...opts,archiveApprovalSha256:hash('wrong')}), /文件摘要/);
+  await assert.rejects(freezeObservedContent({...opts,readArchives:()=>[]}), /不完整/);
+  let visits=0;
+  await assert.rejects(freezeObservedContent({...opts,readArchives:()=> {
+    const rows=structuredClone(observed);
+    if (++visits===2) rows[0].documents[1].sha256=hash('changed');
+    return rows;
+  }}), /冻结前后归档/);
+  const broken=structuredClone(state);
+  broken.cards[row.rawId].archiveOp='other-operation';
+  f.save(broken);
+  await assert.rejects(freezeObservedContent(opts), /归档绑定/);
+  const invalidReading=structuredClone(state);
+  invalidReading.readings['gone/reading.md'].revision=hash('another reading revision');
+  f.save(invalidReading);
+  await assert.rejects(freezeObservedContent(opts), /归档绑定/);
+  const badAlias=structuredClone(state);
+  badAlias.readings['gone/reading.md'].legacyId=row.rawId;
+  f.save(badAlias);
+  await assert.rejects(freezeObservedContent(opts), /旧别名/);
+  f.save(state);
+  const collision=structuredClone(observed);
+  collision[0].documents[1].blocks.push(blockId);
+  await assert.rejects(freezeObservedContent({...opts,readArchives:()=>collision}), /归档身份与当前/);
+  const coverage=await freezeObservedContent(opts);
+  assert.equal(coverage.archivedCards,1);
+  const archiveFile=join(opts.output,'frozen-archives.json');
+  assert.equal(coverage.frozenArchivesSha256,hash(readFileSync(archiveFile)));
+  const metadataFile=join(opts.output,'metadata.json'), baselineFile=join(opts.output,'history.json');
+  const build={rawRoot:opts.rawRoot,metadataFile,baselineFile,output:join(f.dir,'public')};
+  assert.throws(()=>buildContent(build),/需要独立核准/);
+  assert.throws(()=>buildContent({...build,archiveFile,archiveSha256:hash('untrusted')}),/文件摘要/);
+  const forged=json(archiveFile), forgedPath=join(f.dir,'forged.json');
+  forged.archives[0].documents[0].aliases.push('invented');
+  writeFileSync(forgedPath,JSON.stringify(forged));
+  assert.throws(()=>buildContent({...build,archiveFile:forgedPath,archiveSha256:hash(readFileSync(forgedPath))}),/原生归档见证已改变/);
+  const released=buildContent({...build,archiveFile,archiveSha256:coverage.frozenArchivesSha256});
+  assert.equal(released.inputs.raw,before.inputs.raw);
+  assert.deepEqual(released.counts,before.counts);
+  assert.ok(released.reservedIdentities.some(r=>r[0]===archivedId && r[1]===archivedId && r[2]==='' && r[3]===''));
+  assert.ok(released.reservedIdentities.some(r=>r[0]===archiveBlock && r[1]===childId && r[2]===archiveBlock && r[3]===archivedId));
+  const db=openContentStore(join(build.output,'knowledge.sqlite'));
+  try {
+    for (const ref of [archivedId,childId,row.rawId,'old:concept',archiveBlock]) {
+      assert.equal(db.activeMain(ref),null);
+      assert.throws(()=>db.document(ref),{code:'not_found'});
+    }
+    assert.equal(db.document(blockId).id,cardId);
+  } finally { db.close(); }
+  const parentSha=hash(readFileSync(join(build.output,'manifest.json')));
+  const nextMeta={...json(metadataFile),previousManifest:parentSha};
+  const nextMetaFile=join(f.dir,'later-meta.json');
+  writeFileSync(nextMetaFile,JSON.stringify(nextMeta));
+  const next={...build,metadataFile:nextMetaFile,previous:build.output,output:join(f.dir,'next')};
+  assert.deepEqual(buildContent(next).reservedIdentities,released.reservedIdentities);
+  nextMeta.cards[cardId].aliases=['old:concept'];
+  writeFileSync(nextMetaFile,JSON.stringify(nextMeta));
+  assert.throws(()=>buildContent({...next,output:join(f.dir,'reuse')}),/身份与旧发布归属不符|交割的归档身份/);
+  const stripped={...released};
+  delete stripped.archiveMigration;
+  writeFileSync(join(build.output,'manifest.json'),JSON.stringify(stripped));
+  const independent={...json(metadataFile)};
+  delete independent.archiveApprovalSha256;
+  delete independent.archiveInventorySha256;
+  writeFileSync(nextMetaFile,JSON.stringify(independent));
+  assert.throws(()=>buildContent({...next,output:join(f.dir,'lost-reservation')}),/上版内容库的核验记录/);
 });

@@ -8,6 +8,7 @@ import { createInterface } from 'node:readline';
 import { assertReadCommand } from '../lib/read-commands.mjs';
 import { rawInventory } from '../lib/raw-inventory.mjs';
 import { Siyuan } from '../lib/siyuan.mjs';
+import { observeFrozenArchives } from './frozen-archives.mjs';
 
 const root = '/state';
 function requireCopy(ok) {
@@ -34,7 +35,7 @@ function post(hostname, port, path, headers, body) {
       try {
         if (res.statusCode !== 200) {
           res.resume();
-          throw new Error('冻结副本拒绝读取');
+          throw Object.assign(new Error('冻结副本拒绝读取'), { statusCode: res.statusCode });
         }
         const chunks = [];
         for await (const chunk of res) chunks.push(chunk);
@@ -89,6 +90,8 @@ async function run() {
       let data;
       if (method === 'inventory' && input?.withBlocks === true) {
         data = await rawInventory(api, { withBlocks: true });
+      } else if (method === 'archive-inventory') {
+        data = await observeFrozenArchives(api, input);
       } else if (method === 'public-read') {
         assertReadCommand(input.command);
         const payload = await post('127.0.0.1', 3000, '/api/v1/commands/' + input.command,
@@ -97,8 +100,11 @@ async function run() {
         data = payload.data;
       } else throw new Error('不支持的冻结读取请求');
       process.stdout.write(JSON.stringify({ ok: true, data }) + '\n');
-    } catch {
-      process.stdout.write(JSON.stringify({ ok: false, error: { code: 'freeze_read_failed', message: '冻结副本读取失败。' } }) + '\n');
+    } catch (error) {
+      // Never expose response text, request data, private paths or credentials.
+      const diagnostic = Number.isInteger(error.statusCode) ? 'http_' + error.statusCode :
+        ['ECONNRESET', 'ETIMEDOUT', 'ECONNREFUSED', 'ABORT_ERR', 'EAI_AGAIN'].includes(error.code) ? error.code : 'invalid_read';
+      process.stdout.write(JSON.stringify({ ok: false, error: { code: 'freeze_read_failed', message: diagnostic } }) + '\n');
     }
   }
 }

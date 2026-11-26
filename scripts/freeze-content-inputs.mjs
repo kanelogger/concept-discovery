@@ -12,6 +12,7 @@ import { canonical, deletedAttr, hash, normalize } from '../lib/siyuan.mjs';
 import { createWikiStore } from '../lib/wiki-store.mjs';
 import { historyInventory } from './build-content.mjs';
 import { connectRaw } from './raw-connection.mjs';
+import { activeArchiveBindings, archiveReservations, readArchiveApproval } from './frozen-archives.mjs';
 
 const nativeId = /^\d{14}-[a-z0-9]{7}$/;
 const own = (obj, key) => Object.hasOwn(obj, key) ? obj[key] : undefined;
@@ -53,7 +54,7 @@ function outputPath(output, protectedRoots) {
   return physical;
 }
 
-function settledState(copy, libraryId) {
+function settledState(copy, libraryId, archives, tree) {
   const stateDir = join(copy, 'raw-sync', hash(libraryId));
   check(!lstatSync(join(stateDir, 'pending.json'), { throwIfNoEntry: false }), '副本存在未结算的原稿同步');
   const file = join(stateDir, 'state.json');
@@ -61,7 +62,8 @@ function settledState(copy, libraryId) {
   check(realpathSync(file) === file, '副本绑定目录不符');
   const state = json(file);
   check(state.identity === libraryId && state.version === 1, '副本本地绑定与库身份不符');
-  const documents = [...Object.values(state.cards), ...Object.values(state.readings)];
+  const active = activeArchiveBindings(state,archives,tree);
+  const documents = [...Object.values(active.cards), ...Object.values(active.readings)];
   check(documents.every(b => !b.archived && !b.archiveOp && !b.reserved && !b.needsSync && !b.forceApply &&
     b.legacyMeta?.lifecycle_status !== 'archived'), '副本本地绑定仍有归档或未结算文档');
   return hash(canonical(state));
@@ -223,26 +225,37 @@ function frozenGet(native, data, owners, readingIds) {
 }
 
 // Bracket the public reads with independent inventories of the selected copy.
-export async function freezeObservedContent({ rawRoot, bindingsFile, wikiRoot, libraryId, origin, readInventory, call, output }) {
+export async function freezeObservedContent({ rawRoot, bindingsFile, wikiRoot, libraryId, origin, readInventory, call, output,
+  archiveApproval, archiveApprovalSha256, readArchives, progress = () => {} }) {
   const raw = realpathSync(rawRoot);
   const copy = realpathSync(dirname(wikiRoot));
   const destination = outputPath(output, [raw, copy]);
-  const settlement = settledState(copy, libraryId);
-  const bindings = json(bindingsFile);
+  check(Boolean(archiveApproval) === Boolean(archiveApprovalSha256),'旧归档交割需要批准文件及独立摘要');
+  const approval = archiveApproval && readArchiveApproval(archiveApproval,archiveApprovalSha256,libraryId);
+  if (approval) progress('archive-inventory');
+  const archives = approval && await readArchives(approval);
+  const archiveTargets = approval && archiveReservations(approval,archives);
+  const tree = loadRawTree(raw);
+  const settlement = settledState(copy, libraryId, archives, tree);
+  const completeBindings = json(bindingsFile);
+  const bindings = activeArchiveBindings(completeBindings,archives,tree);
+  progress('native-inventory');
   const inventory = await readInventory();
   check(libraryId && libraryId === inventory.identity && libraryId === bindings.identity && bindings.version === 1,
     '所选绑定与冻结副本的库身份不符');
   const originUrl = new URL(origin);
   check(origin === originUrl.origin && ['http:', 'https:'].includes(originUrl.protocol), '需要不含凭据的公开源地址');
-  const tree = loadRawTree(raw);
   const original = tree.files.has('.sync.json') ? JSON.parse(tree.files.get('.sync.json')) : undefined;
   check(!original || (original.version === 1 && original.identity === libraryId), '原稿历史绑定属于另一知识库');
   check(!tree.cards.some(card => card.metadata.status === 'archived') &&
     ![...Object.values(bindings.cards), ...Object.values(bindings.readings)].some(row => row.archived),
   '活动库存不能证明已归档卡的更新时间、正文或身份，需另行核对归档副本');
   const nativeCards = byId(inventory.cards, '原生主卡');
+  progress('public-list');
   const list = byId(await publicCards(call), '公开主卡');
-  const metadata = { version: 1, libraryId, origin, cards: map(), readings: map() };
+  const metadata = { version: 1, libraryId, origin, cards: map(), readings: map(),
+    ...(approval && {archiveApprovalSha256,archiveInventorySha256:hash(canonical(archives))}) };
+  progress('public-history');
   const history = await collectHistory(call, wikiRoot, libraryId, inventory);
   metadata.history = historyInventory(history);
   checkMaterials(tree, original, bindings, inventory, history);
@@ -255,7 +268,8 @@ export async function freezeObservedContent({ rawRoot, bindingsFile, wikiRoot, l
       }
     }
   }
-  for (const card of tree.cards) {
+  for (const [index, card] of tree.cards.entries()) {
+    if (index % 25 === 0) progress('public-cards', index, tree.cards.length);
     const binding = own(bindings.cards, card.id), oldBinding = original && own(original.cards, card.id);
     const native = nativeCards.get(binding?.remoteId);
     const { id, legacyMeta } = boundDocument(tree, card, binding, oldBinding, native);
@@ -285,9 +299,12 @@ export async function freezeObservedContent({ rawRoot, bindingsFile, wikiRoot, l
   check(Object.keys(metadata.cards).length === nativeCards.size && list.size === nativeCards.size &&
     Object.keys(bindings.cards).length === nativeCards.size &&
     Object.keys(metadata.readings).length === Object.keys(bindings.readings).length, '活动原稿、公开卡或绑定库存不完整');
+  progress('native-inventory-readback');
   same(await readInventory(), inventory, '冻结前后原生库存');
   compareInventory(await publicCards(call), [...list.values()], '冻结前后公开活动卡库存');
-  for (const doc of [...Object.values(metadata.cards), ...Object.values(metadata.readings)]) {
+  const documents = [...Object.values(metadata.cards), ...Object.values(metadata.readings)];
+  for (const [index, doc] of documents.entries()) {
+    if (index % 25 === 0) progress('public-readback', index, documents.length);
     const { id } = doc;
     same(await call('get-document', { id }), doc.frozenDocument.data, '冻结前后公开投影 get-document/' + id);
     if (doc.frozenGet) same(await call('get', { id }), doc.frozenGet.data, '冻结前后公开投影 get/' + id);
@@ -295,23 +312,37 @@ export async function freezeObservedContent({ rawRoot, bindingsFile, wikiRoot, l
   const wiki = createWikiStore(wikiRoot, libraryId, { readOnly: true });
   same(historyInventory({ sources: wiki.listSources(), proposals: wiki.listProposals(), events: wiki.events() }),
     metadata.history, '冻结前后磁盘历史库存');
-  same(json(bindingsFile), bindings, '冻结前后绑定');
-  same(settledState(copy, libraryId), settlement, '冻结前后副本本地绑定');
+  same(json(bindingsFile), completeBindings, '冻结前后绑定');
+  same(settledState(copy, libraryId, archives, tree), settlement, '冻结前后副本本地绑定');
+  progress('compile-check');
   const compiledTree = loadContentTree(raw, metadata, history);
   check(tree.files.size === compiledTree.files.size &&
     [...tree.files].every(([path, bytes]) => compiledTree.files.get(path)?.equals(bytes)), '读取期间原稿文件发生变化');
   // Validate the re-read bytes with the real compiler before publishing either input.
   const materials = compileContentMaterials(compiledTree, history);
-  compileContentCards(compiledTree, metadata, materials);
+  const compiled = compileContentCards(compiledTree, metadata, materials);
   same(historyInventory(materials), metadata.history, '冻结与可编译的历史库存');
+  const encoded = value=>JSON.stringify(value,null,2)+'\n';
+  let frozenArchives;
+  if (approval) {
+    same(await readArchives(approval),archives,'冻结前后归档证据');
+    const current = new Set(compiled.reservedIdentities.map(row=>row.ref));
+    check(archiveTargets.every(([ref])=>!current.has(ref)), '归档身份与当前原稿或活动文档冲突');
+    const approvalBytes = readFileSync(archiveApproval,'utf8');
+    check(hash(approvalBytes)===archiveApprovalSha256, '归档决定在冻结时发生变化');
+    frozenArchives = {version:1,libraryId,approvalBytes,archives,inputs:{
+      approvalSha256:archiveApprovalSha256,metadataSha256:hash(encoded(metadata)),baselineSha256:hash(encoded(history)),
+      rawSha256:hash([...tree.files.keys()].sort().map(path=>[path,hash(tree.files.get(path))]))}};
+  }
   const coverage = { version: 1, libraryId, cards: list.size, readings: Object.keys(metadata.readings).length,
     sources: history.sources.length, proposals: history.proposals.length, events: history.events.length,
     nativeBlockOwners: nativeBlockOwners.size,
-    unverified: ['归档、待删、删除账本及分享撤销状态须另行核对。'] };
+    ...(frozenArchives && {archivedCards:archives.length,frozenArchivesSha256:hash(encoded(frozenArchives))}),
+    unverified: [frozenArchives ? '待删、删除账本及分享撤销状态须另行核对。' : '归档、待删、删除账本及分享撤销状态须另行核对。'] };
   const staged = mkdtempSync(join(dirname(destination), '.freeze-content-'));
   try {
-    for (const [name, value] of Object.entries({ metadata, history, coverage })) {
-      writeFileSync(join(staged, name + '.json'), JSON.stringify(value, null, 2) + '\n', { mode: 0o600, flag: 'wx' });
+    for (const [name, value] of Object.entries({ metadata, history, coverage, ...(frozenArchives && {'frozen-archives':frozenArchives}) })) {
+      writeFileSync(join(staged, name + '.json'), encoded(value), { mode: 0o600, flag: 'wx' });
     }
     mkdirSync(destination, { mode: 0o700 });
     try { renameSync(staged, destination); }
@@ -320,7 +351,7 @@ export async function freezeObservedContent({ rawRoot, bindingsFile, wikiRoot, l
   return coverage;
 }
 
-export async function freezeContentInputs({ rawRoot, bindingsFile, frozenRoot, libraryId, output }) {
+export async function freezeContentInputs({ rawRoot, bindingsFile, frozenRoot, libraryId, output, archiveApproval, archiveApprovalSha256, progress }) {
   const root = realpathSync(frozenRoot);
   const raw = realpathSync(rawRoot);
   const configured = fileURLToPath(new URL('../.local/knowledge', import.meta.url));
@@ -352,6 +383,7 @@ export async function freezeContentInputs({ rawRoot, bindingsFile, frozenRoot, l
   const connection = connectRaw(root, { frozenReaderOrigin: client.url });
   try {
     return await freezeObservedContent({ rawRoot, bindingsFile, wikiRoot: join(root, 'wiki'), libraryId, origin: client.url,
+      archiveApproval,archiveApprovalSha256,progress,readArchives:input=>connection.rpc('archive-inventory',input),
       readInventory: () => connection.rpc('inventory', { withBlocks: true }),
       call: (command, input) => connection.rpc('public-read', {command, input}), output });
   } finally { await connection.close(); }
@@ -360,18 +392,21 @@ export async function freezeContentInputs({ rawRoot, bindingsFile, frozenRoot, l
 if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
   try {
     const keys = ['raw-root', 'bindings', 'frozen-root', 'library-id', 'out'];
-    const { values } = parseArgs({ options: { ...Object.fromEntries(keys.map(key => [key, { type: 'string' }])), help: { type: 'boolean' } } });
-    if (values.help) console.log('node scripts/freeze-content-inputs.mjs --raw-root RAW --bindings FILE --frozen-root ISOLATED_COMPOSE_ROOT --library-id ID --out NEW_DIR');
+    const { values } = parseArgs({ options: { ...Object.fromEntries([...keys,'archive-approval','archive-approval-sha256'].map(key => [key, { type: 'string' }])), help: { type: 'boolean' }, progress: { type: 'boolean' } } });
+    if (values.help) console.log('node scripts/freeze-content-inputs.mjs --raw-root RAW --bindings FILE --frozen-root ISOLATED_COMPOSE_ROOT --library-id ID --out NEW_DIR [--archive-approval FILE --archive-approval-sha256 SHA] [--progress]');
     else {
       for (const key of keys) check(values[key], '缺少显式参数 --' + key);
-      const result = await freezeContentInputs({ rawRoot: values['raw-root'], bindingsFile: values.bindings, frozenRoot: values['frozen-root'],
-        libraryId: values['library-id'], output: values.out });
-      console.log(JSON.stringify({ cards: result.cards, readings: result.readings, sources: result.sources, proposals: result.proposals, events: result.events }));
+      const progress = values.progress ? (stage, done, total) => console.error(JSON.stringify({stage, done, total})) : undefined;
+      const result = await freezeContentInputs({ rawRoot: values['raw-root'], bindingsFile: values.bindings, frozenRoot: values['frozen-root'], progress,
+        libraryId: values['library-id'], output: values.out,archiveApproval:values['archive-approval'],archiveApprovalSha256:values['archive-approval-sha256'] });
+      console.log(JSON.stringify({ cards: result.cards, readings: result.readings, sources: result.sources, proposals: result.proposals, events: result.events,
+        ...(result.frozenArchivesSha256 && {archivedCards:result.archivedCards,frozenArchivesSha256:result.frozenArchivesSha256}) }));
     }
   } catch (error) {
     // Native JSON/argument/IO errors can quote credentials, input text or paths.
     const missing = /^缺少显式参数 --(raw-root|bindings|frozen-root|library-id|out)$/.test(error.message);
-    console.error(missing ? error.message : '冻结失败。请核对隔离副本、原稿、绑定、公开库存与输出目录。');
+    const diagnostic = error.code === 'freeze_read_failed' && /^(?:http_[1-5]\d\d|ECONNRESET|ETIMEDOUT|ECONNREFUSED|ABORT_ERR|EAI_AGAIN|invalid_read)$/.test(error.message);
+    console.error(missing ? error.message : diagnostic ? '冻结失败。隔离读取返回 ' + error.message : '冻结失败。请核对隔离副本、原稿、绑定、公开库存与输出目录。');
     process.exitCode = 1;
   }
 }

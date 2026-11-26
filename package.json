@@ -82,6 +82,10 @@
     "scripts/github-app-installation.mjs",
     "scripts/github-branch-reader.mjs",
     "scripts/github-deletion-ledger-gate.mjs",
-    "scripts/verify-deletion-ledger-append.mjs"
+    "scripts/verify-deletion-ledger-append.mjs",
+    "scripts/frozen-archives.mjs",
+    "scripts/inspect-legacy-handoff.mjs",
+    "scripts/project-deployment-raw.mjs",
+    "scripts/raw-sync.mjs"
   ]
 }

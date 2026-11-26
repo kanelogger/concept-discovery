@@ -118,6 +118,7 @@ export function connectRaw(privateRoot, {lifecycleWorker = false, materialsRoot,
   const args = ['run','--rm','-i','--init','--network',frozen ? 'container:' + app.Id : networks[0], '--workdir','/app',
     ...bind(root,'/state',frozen), ...bind(join(repo,'lib'),'/app/lib',true),
     ...bind(join(repo,'scripts',script),'/app/scripts/' + script,true)];
+  if (frozen) args.push(...bind(join(repo,'scripts/frozen-archives.mjs'),'/app/scripts/frozen-archives.mjs',true));
   if (app.Config.User) args.push('--user',app.Config.User);
   if (lifecycleWorker) {
     const kernelConfig = JSON.parse(readFileSync(join(root,'kernel.json'),'utf8'));
