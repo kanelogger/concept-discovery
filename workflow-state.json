@@ -4,5 +4,5 @@
   "task_file": "tasks/0068-route-a-lightweight-refactor.md",
   "phase": "implementation",
   "updated_at": "2026-11-26",
-  "summary": "已完成离线编译和隔离 SQLite 影子读取，十个命令、旧会话和分享已与旧栈对照。默认部署仍用思源；真实已登录列表基线及线上窗口待核实。"
+  "summary": "阶段 0–2 已交付本地候选。阶段 3 已移除 AntD，已登录 SQLite 列表在隔离浏览器逐项达到首屏和二访预算。线上基线和切换仍需可访问的站主会话、正式冻结输入及发布窗口。"
 }

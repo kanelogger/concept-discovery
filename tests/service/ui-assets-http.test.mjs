@@ -135,8 +135,24 @@ test('old tabs load listed schema 1 chunks; current names win and broken optiona
   const page = await legacy('/cards');
   assert.match(page.bytes.toString(), /href="\/ui\/theme.css"/);
   assert.match(page.bytes.toString(), /src="\/ui\/app.js"/);
+  const oldNonce = /name="style-nonce" content="([^"]+)"/.exec(page.bytes.toString())[1];
+  assert.ok(page.headers['content-security-policy'].includes("'nonce-" + oldNonce + "'"));
   const oldEntry = await legacy('/ui/app.js');
   assert.equal(oldEntry.headers['cache-control'], 'no-store');
   assert.match(oldEntry.headers.vary, /Authorization/);
   assert.equal((await legacy('/ui/app.js', {authorization:'Bearer expired'})).status, 401);
+});
+
+test('a previous release serves the stylesheet referenced by its lazy route', async t => {
+  const readerCSS = 'assets/card-reader-ABCDEFG5.css';
+  const oldStyle = '.reader{color:purple}';
+  const previous = release(t, 2, {js,css:[]}, {[js]:body,[readerCSS]:oldStyle});
+  const current = release(t, 2, {js,css:[]}, {[js]:body});
+  const get = await serve(t, {uiAssetRoot:current,previousUIAssetRoot:previous});
+  const response = await get('/ui/' + readerCSS, {'Accept-Encoding':'br'});
+  assert.equal(response.status, 200);
+  assert.equal(response.headers['content-type'], 'text/css; charset=utf-8');
+  assert.equal(response.headers['cache-control'], immutable);
+  assert.equal(brotliDecompressSync(response.bytes).toString(), oldStyle);
+  assert.ok(!(await get('/login')).bytes.includes(readerCSS));
 });

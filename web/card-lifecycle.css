@@ -39,7 +39,7 @@ body:has(.lifecycle-page) { min-width: 0; }
 .lifecycle-task { padding: .75rem 1rem; background: var(--surface); border-radius: 5px; }
 .lifecycle-task p { margin: 0; }
 .lifecycle-task .lifecycle-actions { margin-block-start: .65rem; }
-.app-header:has(.manual-deletion-trigger) > .ant-flex { margin-inline-start: auto; }
+.app-header:has(.manual-deletion-trigger) > .app-nav { margin-inline-start: auto; }
 .app-header .manual-deletion-trigger {
   margin-inline-start: .75rem;
   color: var(--danger);
@@ -85,8 +85,8 @@ body:has(.lifecycle-page) { min-width: 0; }
     gap: .4rem;
     padding-block: .55rem;
   }
-  .app-header:has(.manual-deletion-trigger) > .ant-flex,
-  .app-header:has(.manual-deletions-dialog) > .ant-flex {
+  .app-header:has(.manual-deletion-trigger) > .app-nav,
+  .app-header:has(.manual-deletions-dialog) > .app-nav {
     order: 1;
     flex-wrap: wrap;
     width: 100%;

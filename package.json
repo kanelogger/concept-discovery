@@ -28,10 +28,7 @@
     "test:browser": "playwright test --config tests/browser/playwright.config.mjs"
   },
   "dependencies": {
-    "@ant-design/icons": "6.3.4",
-    "antd": "6.7.0",
     "d3": "7.9.2",
-    "dayjs": "1.11.23",
     "markdown-it": "14.3.2",
     "mdast-util-from-markdown": "2.0.3",
     "mdast-util-gfm": "3.1.0",

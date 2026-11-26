@@ -1,6 +1,7 @@
 // Graph sidebar and controls adapted from yibie/claude-best-practices-zh, mindmap/graph.html (MIT).
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { buildGraphLayout, categoryColor } from './graph-layout.mjs';
+export { default as stylesheet } from "./knowledge-graph.css?route";
 import { routeHref } from './routes.mjs';
 import { GraphCanvas } from './graph-canvas.jsx';
 import { GraphPanel, SidebarDetails } from './graph-panel.jsx';

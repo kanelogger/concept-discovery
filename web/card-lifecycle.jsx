@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useId, useRef, useState } from "react";
-import Button from "antd/es/button";
-import "./card-lifecycle.css";
+import React, { useEffect, useId, useRef, useState } from "react";
+import { Button } from "./components/ui/button.jsx";
+import { lifecycleRequest } from "./lifecycle-sync.mjs";
+export { default as stylesheet } from "./card-lifecycle.css?route";
 
 const labels = { archive:"归档", restore:"恢复", purge:"彻底删除", "mark-archive":"补记归档",
   resume:"继续原操作", compensate:"撤销原操作" };
@@ -19,16 +20,6 @@ const blockers = {
   original_path_unverified:"原稿目录待核对",
   catalogue_reference:"目录引用待核对", raw_missing:"原稿缺失",
 };
-
-async function lifecycleRequest(path, {body,signal} = {}) {
-  const res = await fetch("/api/card-lifecycle" + path, {
-    method:body ? "POST" : "GET", signal, credentials:"same-origin",
-    ...(body && {headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}),
-  });
-  const result = await res.json();
-  if (!res.ok || !result.ok) throw new Error(result.error?.message ?? "维护服务暂不可用。");
-  return result.data;
-}
 
 export function LifecycleDialog({ action, target, onClose, onConfirmed, databaseFirst = false }) {
   const dialog = useRef(null), titleId = useId(), descriptionId = useId();
@@ -96,7 +87,7 @@ export function LifecycleDialog({ action, target, onClose, onConfirmed, database
       <div className="lifecycle-actions">
         <Button autoFocus disabled={sending} onClick={() => dialog.current.close()}>取消</Button>
         {error && !sending && <Button onClick={() => { setPreview(null); setError(""); setAttempt(n=>n+1); }}>重新预览</Button>}
-        {preview?.id && <Button htmlType="submit" type="primary" danger={purge} loading={sending}>{labels[action]}</Button>}
+        {preview?.id && <Button type="submit" variant="primary" danger={purge} disabled={sending} aria-busy={sending}>{labels[action]}</Button>}
       </div>
       {sending && <p role="status">正在提交，请稍候。</p>}
     </form>
@@ -121,39 +112,6 @@ const syncIssueLabels = {
   native_outcome_unknown:"数据库写入结果待核实",newer_purge_pending:"有卡片已转入待删除",
   shared_dependency_pending:"共享附件涉及本批其他原稿，已顺延到下一批次",
 };
-
-export function useLifecycleSync(owner) {
-  const [info,setInfo]=useState(null);
-  const [unavailable,setUnavailable]=useState(false);
-  const [attempt,setAttempt]=useState(0);
-  const refresh=useCallback(()=>setAttempt(value=>value+1),[]);
-  useEffect(()=>{
-    if (!owner) {
-      // A focus check temporarily hides the same session. Retain the editor's
-      // mode while requiring a fresh read before showing another raw command.
-      setUnavailable(true);
-      return;
-    }
-    const controller=new AbortController();
-    let timer;
-    async function check() {
-      try {
-        const result=await lifecycleRequest("/sync-status",{signal:controller.signal});
-        if (controller.signal.aborted) return;
-        setInfo(result.enabled ? result : null);
-        setUnavailable(false);
-        if (!result.enabled) return;
-      } catch {
-        if (controller.signal.aborted) return;
-        setUnavailable(true);
-      }
-      timer=setTimeout(check,30000);
-    }
-    void check();
-    return ()=>{controller.abort();clearTimeout(timer);};
-  },[owner,attempt]);
-  return {info,unavailable,refresh};
-}
 
 function ExportSyncStatus({sync,onReviewPublished}) {
   const {info,unavailable,refresh}=sync;
@@ -188,7 +146,7 @@ function ExportSyncStatus({sync,onReviewPublished}) {
           <Button disabled={retrying} onClick={()=>retry({rawId})}>下个批次重新核对</Button>}
       </li>)}
     </ul>}
-    {info.issue?.batchId && <Button onClick={()=>retry({batchId:info.issue.batchId})} loading={retrying}>重新核对批次</Button>}
+    {info.issue?.batchId && <Button onClick={()=>retry({batchId:info.issue.batchId})} disabled={retrying} aria-busy={retrying}>重新核对批次</Button>}
     {info.issue?.canReviewPublished &&
       <Button onClick={()=>onReviewPublished(info.issue.batchId)}>重新预览待删范围</Button>}
     {retryError && <p role="alert" className="lifecycle-error">{retryError}</p>}
@@ -199,7 +157,7 @@ export function DatabaseCardButton({cardId,enabled}) {
   const [open,setOpen]=useState(false);
   if (!enabled) return null;
   return <>
-    <Button type="text" onClick={()=>setOpen(true)}>{cardId?"编辑":"新增卡片"}</Button>
+    <Button variant="text" onClick={()=>setOpen(true)}>{cardId?"编辑":"新增卡片"}</Button>
     {open && <DatabaseCardDialog cardId={cardId} onClose={()=>setOpen(false)} />}
   </>;
 }
@@ -257,7 +215,7 @@ function DatabaseCardDialog({cardId,onClose}) {
       </div>}
       <div className="lifecycle-actions">
         <Button disabled={sending} onClick={()=>dialog.current.close()}>关闭</Button>
-        {draft && <Button htmlType="submit" type="primary" loading={sending}>{intent?"核对保存结果":"保存"}</Button>}
+        {draft && <Button type="submit" variant="primary" disabled={sending} aria-busy={sending}>{intent?"核对保存结果":"保存"}</Button>}
       </div>
     </form>
   </dialog>;
@@ -330,7 +288,7 @@ export function ArchiveList({sync}) {
         : task ? (taskStatuses[task.state] || "正在读取操作状态") : "正在读取操作状态…")}</p>
       {!databaseFirst && task?.state === "needs-review" && !taskError && (task.originalId
         ? <div className="lifecycle-actions">
-          <Button href={"/archives?operation="+encodeURIComponent(task.originalId)}>查看原操作</Button>
+          <a className="paper-button" href={"/archives?operation="+encodeURIComponent(task.originalId)}>查看原操作</a>
           {task.progress?.stage === "compensation-native" && <Button onClick={()=>setSelection({action:"resume",target:{id:task.id}})}>
             继续撤销
           </Button>}
@@ -357,7 +315,7 @@ export function ArchiveList({sync}) {
           <Button onClick={() => selected("restore",card)}>恢复</Button>}
         {card.state === "needs-marker" && <Button onClick={() => selected("mark-archive",card)}>补记归档</Button>}
         {(card.state === "archived" || card.state === "missing-raw") &&
-          <Button danger type="text" onClick={() => selected("purge",card)}>彻底删除</Button>}
+          <Button danger variant="text" onClick={() => selected("purge",card)}>彻底删除</Button>}
       </div>
     </li>)}</ul>}
     {selection && <LifecycleDialog {...selection} databaseFirst={databaseFirst} onClose={() => setSelection(null)} onConfirmed={confirmed} />}

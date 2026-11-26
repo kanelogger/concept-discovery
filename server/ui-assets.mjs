@@ -34,7 +34,7 @@ function loadRelease(root, allowMissingManifest = false) {
     if (allowMissingManifest && error.code === 'ENOENT') return null;
     throw error;
   }
-  const { schema, entry, assets } = JSON.parse(manifestBytes);
+  const { schema, entry, assets, staticStyles } = JSON.parse(manifestBytes);
   if (![1, 2].includes(schema) || !Array.isArray(assets)) throw new Error('Invalid UI manifest');
   const files = new Map();
   for (const { path, sha256, encodings } of assets) {
@@ -60,7 +60,7 @@ function loadRelease(root, allowMissingManifest = false) {
   const tags = [...entry.css.map(path => '<link rel="stylesheet" href="/ui/' + path + '">'),
     '<script type="module" src="/ui/' + entry.js + '"></script>'];
   files.set('manifest.json', { type: 'application/json; charset=utf-8', immutable: false, bodies: new Map([['identity', manifestBytes]]) });
-  return { files, entryHTML: tags.join('\n    ') };
+  return { files, legacyStyleNonce: staticStyles !== true, entryHTML: tags.join('\n    ') };
 }
 
 function chooseEncoding(bodies, header) {
@@ -100,6 +100,7 @@ export function loadUIAssets({ uiAssetRoot, previousUIAssetRoot, requireUIAssets
   }
   return {
     entryHTML: current?.entryHTML ?? '',
+    legacyStyleNonce: current?.legacyStyleNonce ?? false,
     read(path, acceptEncoding) {
       const file = current?.files.get(path) ?? (path !== 'manifest.json' && previous?.files.get(path));
       if (!file) return null;

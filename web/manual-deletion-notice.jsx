@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from "react";
-import { WarningOutlined } from "@ant-design/icons";
-import Button from "antd/es/button";
+import { Button } from "./components/ui/button.jsx";
+export { default as stylesheet } from "./card-lifecycle.css?route";
 
 function DeletionCommand({ text }) {
   const command = useRef(null);
@@ -72,7 +72,7 @@ export function ManualDeletionNotice({ sync }) {
   const items = sync.info?.manualDeletions ?? [];
   return <>
     {items.length > 0 && <Button ref={trigger} className="manual-deletion-trigger" size="small"
-      icon={<WarningOutlined aria-hidden="true" />} aria-haspopup="dialog"
+      aria-haspopup="dialog"
       onClick={event => {
         fallbackFocus.current = event.currentTarget.closest("header")?.querySelector(".brand");
         setOpen(true);

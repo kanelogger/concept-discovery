@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { routeHref } from "./routes.mjs";
 import { scrollWorkspaceTo } from "./lib/utils.mjs";
 import { indexAtlasRelations, ScenarioLinks } from "./scenario-links.jsx";
-import "./scenario-atlas.css";
+export { default as stylesheet } from "./scenario-atlas.css?route";
 
 const views = { scenes: "按问题场景", disciplines: "按学科" };
 const emptyCategories = [];
@@ -249,7 +249,10 @@ function AtlasEntry({ entry, open, onToggle, cardMap, currentId, onTurn, cardHre
   </div>;
 }
 
-export function ScenarioAtlas({ data, loading, error, position, onPosition, onRetry, cardHref, onCrossJump, onBack }) {
+export function ScenarioAtlas({ data, loading, error, position, onPosition, onRetry, cardHref, onCrossJump, onBack, onContentReady }) {
+  useLayoutEffect(() => {
+    onContentReady("scenarios");
+  }, [data, onContentReady]);
   const view = position.view === "disciplines" ? "disciplines" : "scenes";
   const catalog = data?.catalog;
   const groups = catalog?.status === "ready" ? catalog.groups : emptyCategories;

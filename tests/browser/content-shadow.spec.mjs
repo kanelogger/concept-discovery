@@ -132,3 +132,132 @@ test("SQLite graph opens its linked slug in a new tab and the atlas restores its
   await expect(toggle).toHaveAttribute("aria-expanded", "true");
   await expect(card).toBeVisible();
 });
+
+
+test("the initial SQLite list and direct detail render without a duplicate command request", async ({page,shadowUrl})=>{
+  const commands=[];
+  page.on("request", req=>{
+    const path=new URL(req.url()).pathname;
+    if(path.startsWith("/api/v1/commands/")) commands.push(path);
+  });
+  await page.goto(shadowUrl+"/cards");
+  await expect(page.locator(".card-title-link").first()).toBeVisible();
+  expect(commands).not.toContain("/api/v1/commands/list");
+  await page.goto(shadowUrl+"/?id=new");
+  await expect(page.locator("#document-title")).toHaveText(title);
+  expect(commands).not.toContain("/api/v1/commands/get-document");
+  await expect(page.locator("#initial-page")).toHaveCount(0);
+});
+
+test("a late reader stylesheet waits for layout, respects navigation, and offers recovery after a network failure", async ({ page, shadowUrl }) => {
+  const css = "**/ui/assets/card-reader-*.css";
+  const requested = Promise.withResolvers();
+  const release = Promise.withResolvers();
+  await page.route(css, async route => {
+    requested.resolve();
+    await release.promise;
+    await route.continue();
+  }, { times: 1 });
+  await page.goto(shadowUrl + "/cards");
+  const link = page.getByRole("link", { name: title, exact: true });
+  try {
+    await link.click();
+    await requested.promise;
+    await expect(page.locator("#reader")).toHaveCount(0);
+    await page.locator("#cards-nav").click();
+    await expect(link).toBeVisible();
+  } finally { release.resolve(); }
+  await link.click();
+  await expect(page.locator("#document-title")).toHaveText(title);
+  await expect(page.locator(".reader-heading")).toHaveCSS("margin-bottom", "27px");
+
+  await page.route(css, route => route.abort("failed"), { times: 1 });
+  await page.reload();
+  await expect(page.getByRole("alert")).toContainText("页面组件未能加载");
+  await page.getByRole("button", { name: "刷新当前页" }).click();
+  await expect(page.locator("#document-title")).toHaveText(title);
+  await expect(page).toHaveURL(shadowUrl + "/?id=new");
+});
+
+test("owner rechecks the current session before revealing the SQLite seed, including a logout while JS is delayed", async ({browser}) => {
+  const {withShadowList} = await import('../performance/shadow-list.mjs');
+  const {owner} = await import('../service/auth-https-fixture.mjs');
+  await withShadowList(async service=>{
+    const context=await browser.newContext({ignoreHTTPSErrors:true});
+    try {
+      const current=await context.newPage();
+      const requests=[];
+      current.on('request',req=>requests.push(new URL(req.url()).pathname));
+      await current.goto(service.url+'/login');
+      await current.locator('#login-username').fill(owner.username);
+      await current.locator('#login-password').fill(owner.password);
+      await current.locator('.session-form button[type=submit]').click();
+      await expect(current.locator('.card-title-link')).toHaveCount(20);
+      expect(requests).toContain('/api/session');
+      expect(requests).not.toContain('/api/v1/commands/list');
+      const delayed=await context.newPage();
+      let revealed=false;
+      await delayed.exposeFunction('reportedPrivateView',()=>{revealed=true;});
+      await delayed.addInitScript(()=>{
+        new MutationObserver(()=>{
+          if(document.querySelector('.card-title-link')?.checkVisibility()) window.reportedPrivateView();
+        }).observe(document,{subtree:true,childList:true,attributes:true});
+      });
+      const waiting=Promise.withResolvers(), release=Promise.withResolvers();
+      await delayed.route('**/ui/app-*.js',async route=>{
+        waiting.resolve();
+        await release.promise;
+        await route.continue();
+      },{times:1});
+      try {
+        await delayed.goto(service.url+'/cards',{waitUntil:'commit'});
+        await waiting.promise;
+        await expect(delayed.locator('#initial-page')).toHaveCount(1);
+        await current.bringToFront();
+        await current.getByRole('button',{name:'退出登录'}).click();
+        await expect(current.locator('#login-username')).toBeVisible();
+        await delayed.bringToFront();
+      } finally {release.resolve();}
+      await expect(delayed.locator('#login-username')).toBeVisible();
+      expect(revealed).toBe(false);
+    } finally{await context.close();}
+  });
+});
+
+test("a logout broadcast precedes a delayed successful first session response", async ({browser}) => {
+  const {withShadowList} = await import('../performance/shadow-list.mjs');
+  const {owner} = await import('../service/auth-https-fixture.mjs');
+  await withShadowList(async service=>{
+    const context=await browser.newContext({ignoreHTTPSErrors:true});
+    try {
+      const current=await context.newPage();
+      await current.goto(service.url+'/login');
+      await current.locator('#login-username').fill(owner.username);
+      await current.locator('#login-password').fill(owner.password);
+      await current.locator('.session-form button[type=submit]').click();
+      await expect(current.locator('.card-title-link')).toHaveCount(20);
+      const pending=await context.newPage(), checked=Promise.withResolvers(), release=Promise.withResolvers();
+      const logoutSeen=Promise.withResolvers();
+      await pending.exposeFunction('recordLogout',()=>logoutSeen.resolve());
+      await pending.addInitScript(()=>{
+        const channel=new BroadcastChannel('concept-discovery.session');
+        channel.onmessage=event=>{if(event.data?.logout)window.recordLogout();};
+      });
+      await pending.route('**/api/session',async route=>{
+        const response=await route.fetch();
+        checked.resolve(response.status());
+        await release.promise;
+        await route.fulfill({response});
+      },{times:1});
+      try {
+        await pending.goto(service.url+'/cards',{waitUntil:'commit'});
+        expect(await checked.promise).toBe(200);
+        await current.getByRole('button',{name:'退出登录'}).evaluate(button=>button.click());
+        await logoutSeen.promise;
+        await expect(current.locator('#login-username')).toBeVisible();
+      } finally {release.resolve();}
+      await expect(pending.locator('#login-username')).toBeVisible();
+      await expect(pending.locator('.card-title-link')).toHaveCount(0);
+    } finally {await context.close();}
+  });
+});

@@ -1,0 +1,7 @@
+.atlas-relations { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .65rem; font-size: .875rem; line-height: 1.65; }
+.atlas-relations-label { color: var(--muted); }
+.atlas-relations ul { display: flex; flex-wrap: wrap; gap: .15rem .75rem; margin: 0; padding: 0; list-style: none; }
+.atlas-relations li { min-inline-size: 0; overflow-wrap: anywhere; }
+.atlas-relations a { color: var(--link); text-decoration: underline; text-underline-offset: .18em; }
+.atlas-relations a:hover { color: #176657; }
+.reader-heading .atlas-relations { margin-block-start: .65rem; }

@@ -1,3 +1,4 @@
+import { listPageInput, takeInitialPage } from "./initial-page.mjs";
 import { readRoute, routeHref, pageSize } from "./routes.mjs";
 import { scrollWorkspaceTo } from "./lib/utils.mjs";
 const scenarioPreferenceKey = "cd.atlas.position.v1";
@@ -57,8 +58,9 @@ export function formatDate(value) {
 }
 
 export function createWorkspace({ fetch: fetcher = globalThis.fetch, browser = globalThis.window,
-  sessionId, onUnauthorized, setTitle = title => { browser.document.title = title; } } = {}) {
+  sessionId, onUnauthorized, initialRead, setTitle = title => { browser.document.title = title; } } = {}) {
   const lifetime = new AbortController();
+  let firstRead = initialRead ?? (!sessionId ? takeInitialPage(browser)?.read : null);
   const sessionHistory = value => !sessionId || value?.cd_auth === sessionId ? value : { cd_auth: sessionId };
   if (sessionId) {
     try { browser.localStorage?.removeItem(scenarioPreferenceKey); } catch { /* Storage may be disabled. */ }
@@ -110,6 +112,15 @@ export function createWorkspace({ fetch: fetcher = globalThis.fetch, browser = g
   async function request(path, { method = "POST", body, signal } = {}) {
     signal = signal ? AbortSignal.any([signal, lifetime.signal]) : lifetime.signal;
     signal.throwIfAborted();
+    if (firstRead) {
+      const saved = firstRead;
+      firstRead = null;
+      if (method === "POST" && path === "/api/v1/commands/" + saved.command &&
+          JSON.stringify(body) === JSON.stringify(saved.input)) {
+        browser.performance?.mark?.("cd-initial-" + saved.command);
+        return saved.data;
+      }
+    }
     let response;
     try { response = await fetcher(path, { method, credentials: "same-origin", signal, headers: body === undefined ? undefined : { "Content-Type": "application/json" }, body: JSON.stringify(body) }); }
     catch (error) { if (error.name === "AbortError") throw error; throw new RequestError("transport_unknown", "无法连接知识库"); }
@@ -549,8 +560,7 @@ export function createWorkspace({ fetch: fetcher = globalThis.fetch, browser = g
       tags: facets?.tags ?? [], tagsLoading: Boolean(tagsRequest || rowRequestSuppliesTags), tagsError: sameInput ? state.tagsError : "" });
     if (cached) restoreListPosition();
     try {
-      const data = await request("/api/v1/commands/list", { body: { ...scope, offset: (state.page - 1) * pageSize,
-        limit: pageSize, tag: state.tag, includeTags: state.tag ? true : "page" }, signal: controller.signal });
+      const data = await request("/api/v1/commands/list", { body: listPageInput(selected), signal: controller.signal });
       if (controller.signal.aborted) return;
       if (state.tag) {
         facets = { key: facetKey, tags: data.tags ?? [] };
@@ -732,6 +742,7 @@ export function createWorkspace({ fetch: fetcher = globalThis.fetch, browser = g
   return {
     subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener); }, getSnapshot: () => state,
     start: () => applyLocation(true),
+    pauseQuery() { clearTimeout(queryTimer); },
     navigate, loadList, loadListTags, listPage, applyFilters, href, setQuery, wikiPage, command, routeContentReady,
     scenarioPage, loadScenarios, setScenarioPosition, trackScenarioScroll, backFromCard,
     graphPage, loadGraph, setGraphView,
@@ -756,6 +767,7 @@ export function createWorkspace({ fetch: fetcher = globalThis.fetch, browser = g
     },
     destroy() {
       destroyed = true;
+      firstRead = null;
       lastGraphPositions = undefined;
       beginNavigation();
       lifetime.abort();

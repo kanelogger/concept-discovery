@@ -83,10 +83,14 @@ test("a cached list remains interactive while it refreshes, and full tags load o
   const card = await create(service, "缓存列表 " + opId("cache"));
   const first = { id: card.id, title: "缓存列表", tags: ["当前页"] };
   const later = { id: "20261123000000-ccccccc", title: "第二页结果", tags: ["其他页"] };
+  const firstPage = [first, ...Array.from({ length: 19 }, (_, i) => ({ ...first, id: "cache-row-" + i, title: "缓存行 " + i }))];
   const refresh = gate(), requested = gate();
   let reads = 0, tagReads = 0;
   await page.route("**/api/v1/commands/list", async route => {
     const body = route.request().postDataJSON();
+    if (body.tag === "其他页") {
+      return route.fulfill({ json: { ok: true, data: { items: [later], tags: ["当前页", "其他页"], total: 1 } } });
+    }
     if (body.includeTags === true) {
       if (++tagReads === 1) return route.fulfill({ status: 503, json: { ok: false } });
       return route.fulfill({ json: { ok: true, data: { tags: ["当前页", "其他页"], items: [first], total: 21 } } });
@@ -96,32 +100,76 @@ test("a cached list remains interactive while it refreshes, and full tags load o
       await refresh.promise;
       return route.fulfill({ status: 503, json: { ok: false } });
     }
-    return route.fulfill({ json: { ok: true, data: { items: body.offset ? [later] : [first], total: 21 } } });
+    return route.fulfill({ json: { ok: true, data: { items: body.offset ? [later] : firstPage, total: 21 } } });
   });
   const link = page.getByRole("link", { name: first.title, exact: true });
   await page.goto(service.url + "/cards");
+  const table = page.getByRole("table", { name: "知识卡列表" });
+  await expect(table.getByRole("row")).toHaveCount(21);
   await link.click();
   await expect(page.locator("#reader")).toBeVisible();
   try {
     await page.goBack();
     await requested.promise;
     await expect(link).toBeFocused();
-    await expect(page.locator(".ant-pagination-next button")).toBeEnabled();
-    const chooser = page.getByRole("combobox", { name: "标签" });
+    const nextPage = page.getByRole("button", { name: "下一页" });
+    await expect(nextPage).toBeEnabled();
+    const chooser = page.getByRole("button", { name: "标签 全部标签" });
     expect(tagReads).toBe(0);
     await chooser.click();
     await page.getByRole("button", { name: "重试标签" }).click();
-    await expect(page.locator(".ant-select-item-option-content").filter({ hasText: /^其他页$/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: "其他页", exact: true })).toBeVisible();
+    await expect(chooser).toBeFocused();
     await chooser.press("Escape");
     await expect(chooser).toHaveAttribute("aria-expanded", "false");
     await expect(chooser).toBeFocused();
     refresh.release();
     await expect(page.locator("#list-message")).toContainText("仍显示上次读取的列表");
     await expect(link).toBeVisible();
-    await page.locator(".ant-pagination-next button").click();
-    await expect(page.getByRole("link", { name: later.title, exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "重新读取" }).click();
+    await expect(page.locator("#list-message")).toHaveCount(0);
+    await nextPage.press("Enter");
+    await expect(page.getByRole("link", { name: later.title, exact: true })).toBeFocused();
+    await expect(page.getByRole("button", { name: "第 2 页" })).toHaveAttribute("aria-current", "page");
     await expect(page).toHaveURL(/page=2/);
+    await expect(table.getByRole("row")).toHaveCount(2);
+    await chooser.press("Enter");
+    const option = page.getByRole("button", { name: "其他页", exact: true });
+    await option.press("Enter");
+    await expect(page.getByRole("button", { name: "标签 其他页" })).toBeFocused();
+    await expect(page).toHaveURL(service.url + "/cards?" + new URLSearchParams({ tag: "其他页" }));
+    await expect(page.getByText("共 1 张知识卡")).toBeVisible();
   } finally { refresh.release(); }
+});
+
+test("a Chinese composition submits only the committed search", async ({ service, ui }) => {
+  const { page, context } = ui;
+  const title = "A中文组合";
+  const card = await create(service, title);
+  await page.goto(service.url + "/cards");
+  await expect(page.locator(".card-title-link").first()).toBeVisible();
+  const search = page.getByLabel("关键词", { exact: true });
+  const queries = [];
+  page.on("request", request => {
+    if (request.url().endsWith("/api/v1/commands/list")) queries.push(request.postDataJSON().query);
+  });
+  const cdp = await context.newCDPSession(page);
+  try {
+    await page.clock.install();
+    await page.clock.pauseAt(new Date(Date.now() + 1000));
+    await search.fill("A");
+    await cdp.send("Input.imeSetComposition", { text: "zhong", selectionStart: 5, selectionEnd: 5 });
+    await search.press("Enter");
+    await page.clock.runFor(500);
+    expect(queries).toEqual([]);
+    await expect(page).toHaveURL(service.url + "/cards");
+    await cdp.send("Input.insertText", { text: "中文组合" });
+    await page.clock.runFor(500);
+    await expect(page.locator(`.card-title-link[data-card-id="${card.id}"]`)).toHaveText(title);
+    expect(queries).toEqual([title]);
+    await expect(search).toHaveValue(title);
+    await expect(page).toHaveURL(service.url + "/cards?" + new URLSearchParams({ q: title }));
+  } finally { await cdp.detach(); }
 });
 
 test("one update date filters the card list and survives navigation", async ({ service, ui }, testInfo) => {
@@ -140,10 +188,10 @@ test("one update date filters the card list and survives navigation", async ({ s
   await expect(date).toHaveCount(1);
   await expect(page.getByLabel(/更新(?:开始|结束)日期/)).toHaveCount(0);
 
-  await date.click();
-  await expect(page.locator(".ant-picker-dropdown:visible")).toBeVisible();
+  await date.press("Alt+ArrowDown");
   await date.press("Escape");
-  await expect(page.locator(".ant-picker-dropdown:visible")).toHaveCount(0);
+  await expect(page).toHaveURL(`${service.url}/cards?from=2000-01-01&to=2000-01-02`);
+  await expect(date).toHaveValue("");
   await expect(date).toBeFocused();
   await date.fill(day);
   await date.press("Enter");
@@ -529,9 +577,22 @@ test("source links, choices and history read the selected snapshot and archived 
   await expect(body).toHaveJSProperty("textContent", first.markdown);
   await expect(page.getByRole("link", { name: "打开出处" })).toHaveAttribute("href", first.url);
   await testInfo.attach("source-reader", {body:await page.screenshot(),contentType:"image/png"});
-  await chooser.fill("访谈");
-  await page.getByText(second.title + " · 第 1 版", { exact: true }).click();
+  const filter = page.getByRole("searchbox", { name: "按标题查找原文" });
+  await filter.fill("查不到此标题");
+  await expect(chooser).toBeDisabled();
+  await expect(body).toHaveJSProperty("textContent", first.markdown);
+  await filter.fill("访谈");
+  await expect(chooser.getByRole("option", { name: first.title, exact: false })).toHaveCount(0);
+  await filter.press("Tab");
+  await expect(chooser).toBeFocused();
+  await page.route("**/api/v1/commands/source-get", route => route.fulfill({
+    status: 503, json: { ok: false, error: { message: "合成读取失败" } },
+  }), { times: 1 });
+  await chooser.selectOption({label: second.title + " · 第 1 版"});
   await expect(page).toHaveURL(url(second));
+  await expect(filter).toHaveValue("");
+  await expect(page.getByRole("alert")).toContainText("原文读取失败");
+  await page.getByRole("button", { name: "重试" }).click();
   await expect(body).toHaveJSProperty("textContent", second.markdown);
   await expect(body.locator("script")).toHaveCount(0);
 
@@ -559,8 +620,7 @@ test("source links, choices and history read the selected snapshot and archived 
   await expect(body).toHaveJSProperty("textContent", first.markdown);
   await page.getByText("历史整理提案", { exact: true }).click();
   const history = page.getByRole("combobox", { name: "选择历史提案" });
-  await history.click();
-  await page.getByText(first.title + " · " + proposal.createdAt, { exact: true }).click();
+  await history.selectOption({label: first.title + " · " + proposal.createdAt});
   const item = proposal.items[0];
   await expect(page.getByRole("heading", { name: item.title })).toBeVisible();
   await expect(page.getByText(item.body, { exact: true })).toBeVisible();

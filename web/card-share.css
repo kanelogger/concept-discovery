@@ -1,3 +1,5 @@
+@import "./reader-prose.css";
+
 .detail-workspace .card-share-panel {
   max-inline-size: var(--reader-width);
   margin-block: -12px 28px;

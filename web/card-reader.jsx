@@ -1,9 +1,13 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import Alert from "antd/es/alert";
-import { DownOutlined } from "@ant-design/icons";
-import "./card-reader.css";
+import { formatDate } from "./workspace.mjs";
+import { TagChip } from "./tag-chip.jsx";
+import { prepareCardBody } from "./card-sections.mjs";
+import { ReaderScenarioLinks } from "./scenario-links.jsx";
+import { Button } from "./components/ui/button.jsx";
+import { lazyRoute } from "./components/lazy-route.jsx";
+export { default as stylesheet } from "./card-reader.css?route";
 
-export function CardBody({ current, prepared, anchor, onJump, recalling }) {
+function CardBody({ current, prepared, anchor, onJump, recalling }) {
   const { html, understanding, situation, sections } = prepared;
   const body = useRef(null);
   const directory = useRef(null);
@@ -96,7 +100,7 @@ export function CardBody({ current, prepared, anchor, onJump, recalling }) {
   const chapters = html && <div className="prose reader-chapters" dangerouslySetInnerHTML={markup} />;
   return <>
     {unavailableCitation?.current === current && unavailableCitation.anchor === anchor &&
-      <Alert className="reader-notice" type="info" role="status" title="原来的引用位置已变化。已打开来源卡，可在正文中查看当前内容。" />}
+      <p className="reader-notice paper-notice" role="status">原来的引用位置已变化。已打开来源卡，可在正文中查看当前内容。</p>}
     <div ref={body} id="document-body"
       className={`reader-body-layout${indexed ? " has-contents" : ""}${hasOverview ? " has-overview" : ""}`}>
       {recalling ? <>
@@ -109,7 +113,7 @@ export function CardBody({ current, prepared, anchor, onJump, recalling }) {
           <summary>
             <span className="reference-open">展开理解与参考</span>
             <span className="reference-close">收起理解与参考</span>
-            <DownOutlined aria-hidden="true" />
+            <span className="reader-chevron reader-chevron--down" aria-hidden="true" />
           </summary>
           {understandingView}
           {chapters}
@@ -127,4 +131,82 @@ export function CardBody({ current, prepared, anchor, onJump, recalling }) {
       </>}
     </div>
   </>;
+}
+
+function Reader({ current, prepared, anchor, recalling, scenarioSourceView, scenarioData, workspace }) {
+  const readings = current.readings ?? [];
+  const tags = current.tags ?? [];
+  const aliases = useMemo(() => ({ __html: prepared.aliases }), [prepared.aliases]);
+  return <article id="reader" className="reader" aria-labelledby="document-title">
+    <header className="reader-heading">
+      {prepared.metadata.name.map(id => <span key={id} id={id} className="reader-field-anchor" aria-hidden="true" />)}
+      <h1 id="document-title">{current.title}</h1>
+      {prepared.aliases && <div className="reader-aliases" dangerouslySetInnerHTML={aliases} />}
+      {tags.length > 0 && <>
+        {prepared.metadata.tags.map(id => <span key={id} id={id} className="reader-field-anchor" aria-hidden="true" />)}
+        <div className="record-meta">{tags.map(tag => <TagChip key={tag} tag={tag} />)}</div>
+      </>}
+      {scenarioSourceView && <ReaderScenarioLinks cardId={current.id} fromView={scenarioSourceView}
+        atlasData={scenarioData} readAtlas={workspace.readAtlasRelations} onCrossJump={workspace.jumpToAtlas} />}
+    </header>
+    <CardBody current={current} prepared={prepared} anchor={anchor} recalling={recalling} onJump={workspace.setCardFragment} />
+    {(readings.length > 0 || current.updated) && <footer className="reader-footer">
+      {readings.length > 0 && <section id="readings" className="readings" aria-labelledby="readings-heading">
+        <h2 id="readings-heading">补充阅读</h2>
+        <ul id="reading-list">{readings.map(item => <li key={item.id}>
+          <a href={workspace.href("detail", item.id)} data-card-id={item.id}>
+            {item.title}<span className="reader-chevron" aria-hidden="true" />
+          </a>
+        </li>)}</ul>
+      </section>}
+      {current.updated && <time className="reader-updated">更新于 {formatDate(current.updated)}</time>}
+    </footer>}
+  </article>;
+}
+
+const CardSharePanel = lazyRoute(() => import("./card-share.jsx"), "CardSharePanel");
+const LifecycleDialog = lazyRoute(() => import("./card-lifecycle.jsx"), "LifecycleDialog");
+const DatabaseCardButton = lazyRoute(() => import("./card-lifecycle.jsx"), "DatabaseCardButton", null);
+
+export default function CardReader({ state, workspace, owner, ownerMaintenance, databaseFirst, children }) {
+  const card = state.current;
+  const prepared = useMemo(() => card && prepareCardBody(card), [card]);
+  const [recallCard, setRecallCard] = useState(null);
+  const [shareCard, setShareCard] = useState(null);
+  const [archiveCard, setArchiveCard] = useState(null);
+  const sharing = Boolean(card && shareCard === card);
+  const recalling = Boolean(card?.question && recallCard === card);
+  useLayoutEffect(() => {
+    workspace.routeContentReady("detail");
+  }, [workspace, card]);
+  return <div className={prepared?.sections.length ? "record-page record-page--indexed" : "record-page"}>
+    <div className="record-controls">
+      <div className="record-back">
+        <Button id="back-to-list" variant="text" onClick={() => void workspace.backFromCard()}>
+          <span aria-hidden="true">←</span>
+          {state.graphReturn ? "返回图谱" : state.scenarioReturn ? "返回图鉴" : "返回列表"}
+        </Button>
+      </div>
+      <div className="document-toolbar">
+        <span id="document-status" role="status" aria-live="polite">{state.navigating ? "正在读取…" : ""}</span>
+        {card?.shareable && owner && <Button variant="text" aria-expanded={sharing} aria-controls={sharing ? "card-share-panel" : undefined}
+          onClick={() => setShareCard(sharing ? null : card)}>分享</Button>}
+        {ownerMaintenance && card?.canArchive && <>
+          <Button variant="text" onClick={() => setArchiveCard(card)}>归档</Button>
+          {databaseFirst && <DatabaseCardButton key={card.id} cardId={card.id} enabled />}
+        </>}
+        {card?.question && <Button id="try-recall" variant="text" onClick={() => setRecallCard(recalling ? null : card)}>
+          {recalling ? "返回阅读" : "试着回想"}
+        </Button>}
+      </div>
+    </div>
+    {sharing && <CardSharePanel key={card.id} cardId={card.id} />}
+    {archiveCard && archiveCard === card && <LifecycleDialog action="archive" target={archiveCard}
+      onClose={() => setArchiveCard(null)} onConfirmed={operation => {
+        location.assign("/archives?operation=" + encodeURIComponent(operation.id));
+      }} />}
+    {children}
+    {card && <Reader key={card.id} current={card} prepared={prepared} anchor={state.documentAnchor}
+      recalling={recalling} scenarioSourceView={state.scenarioSourceView} scenarioData={state.scenarioRelationsData} workspace={workspace} />}
+  </div>;
 }

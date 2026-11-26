@@ -19,7 +19,7 @@ function observeContent({ selector, expected }) {
     const observer = new MutationObserver(() => {
       if (document.querySelectorAll(selector).length !== expected) return;
       if (selector === '.card-title-link' &&
-          !document.querySelector('.ant-pagination:not(.ant-pagination-disabled)')) return;
+          !document.querySelector('nav[aria-label="列表分页"] :is(a, button)')) return;
       observer.disconnect();
       requestAnimationFrame(() => requestAnimationFrame(() => { window.contentTime = performance.now() - start; }));
     });

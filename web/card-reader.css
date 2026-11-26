@@ -1,18 +1,5 @@
-.app, .shared-card {
-  --reader-position: #176657;
-  --reader-serif: "Songti SC", "Noto Serif CJK SC", SimSun, Georgia, serif;
-}
-
-.app--reading .brand { color: var(--link); font-size: 15px; }
-.app-header [aria-current] { color: var(--reader-position); font-weight: 600; }
-.app-header [aria-current]::after {
-  position: absolute;
-  inset-inline: 7px;
-  inset-block-end: -18px;
-  block-size: 2px;
-  background: currentColor;
-  content: "";
-}
+@import "./reader-prose.css";
+@import "./scenario-links.css";
 
 .reader a[id^="cd-ref-"]:target { outline: 2px solid var(--reader-position); outline-offset: 3px; scroll-margin-block: 5rem; }
 .detail-workspace { background: #fcfaf7; }
@@ -38,19 +25,13 @@
 }
 .detail-workspace .record-back { padding: 0; border: 0; }
 .detail-workspace .record-back button { padding-inline: 0 8px; color: var(--muted); }
-.detail-workspace .document-toolbar { min-height: 36px; }
+.detail-workspace .document-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 36px; }
+#document-status { color: var(--muted); }
 .detail-workspace #try-recall { color: var(--link); padding-inline: 6px; }
 
 .detail-workspace :is(.record-controls, .document-message),
 .reader :is(.reader-heading, .reader-notice, .reader-recall, summary, .reader-footer) {
   max-inline-size: var(--reader-width);
-}
-.reader-heading { margin-block-end: 27px; overflow-wrap: anywhere; }
-.reader-heading h1 {
-  margin: 0;
-  font: 700 2.65rem/1.35 var(--reader-serif);
-  letter-spacing: -.035em;
-  text-wrap: balance;
 }
 .reader-aliases {
   display: grid;
@@ -101,24 +82,6 @@
 }
 .reader-overview { grid-area: overview; }
 .reader-chapters { grid-area: body; }
-.reader .prose { min-inline-size: 0; max-inline-size: var(--reader-width); }
-.reader .prose :is(h1, h2) {
-  margin-block: 28px 8px;
-  font: 700 1.5rem/1.35 var(--reader-serif);
-  text-wrap: balance;
-}
-.reader .prose h1 { font-size: 1.65rem; }
-.reader .prose :is(h1, h2, h3, h4, h5, h6)[id] { scroll-margin-block-start: 24px; }
-.reader .prose > :first-child { margin-block-start: 0; }
-.reader .prose p { margin-block: 0; text-wrap: pretty; }
-.reader .prose p + p { margin-block-start: .85em; }
-.reader .prose li > p { margin-block: .25em; }
-.reader .prose blockquote {
-  margin-block: 14px 0;
-  padding: 5px 0 5px 14px;
-  font-size: 1rem;
-}
-.reader .prose img { margin-block: 1.65em; border-radius: 10px; }
 .reader-overview { display: grid; gap: 24px; }
 .reader .reader-understanding { font-size: 18px; }
 .reader .reader-understanding > :nth-child(1 of :not(span[id]:empty)):is(h1, h2, h3, h4, h5, h6) {
@@ -193,9 +156,19 @@
 }
 .reader-reference summary::-webkit-details-marker { display: none; }
 .reader-reference summary:hover { text-decoration: underline; text-underline-offset: .2em; }
-.reader-reference summary .anticon { font-size: 12px; }
+.reader-chevron {
+  display: inline-block;
+  flex: none;
+  width: .5em;
+  height: .5em;
+  align-self: center;
+  border: solid currentColor;
+  border-width: 1px 1px 0 0;
+  transform: rotate(45deg);
+}
+.reader-chevron--down { transform: rotate(135deg); }
 .reader-reference[open] summary { margin-block-end: 19px; border-block-end: 1px solid var(--border); }
-.reader-reference[open] summary .anticon { transform: rotate(180deg); }
+.reader-reference[open] .reader-chevron--down { transform: rotate(-45deg); }
 .reader-reference .reader-understanding + .reader-chapters { margin-block-start: 24px; }
 .reader-reference:not([open]) .reference-close,
 .reader-reference[open] .reference-open { display: none; }
@@ -225,14 +198,12 @@
   color: var(--link);
   overflow-wrap: anywhere;
 }
-.readings a .anticon { flex: none; font-size: 11px; }
 
 @media (max-width: 65rem) {
   .detail-workspace .record-page { --reader-gap: 2rem; --reader-index-width: 10rem; }
 }
 
 /* Keep the document readable when a desktop window is narrow or zoomed. */
-body:has(.app--reading) { min-width: 0; }
 @media (max-width: 55rem) {
   .detail-workspace .record-page { --record-width: var(--reader-width); inline-size: min(var(--record-width), 100% - 3rem); }
   .reader-body-layout.has-contents { display: block; }
@@ -257,13 +228,9 @@ body:has(.app--reading) { min-width: 0; }
 }
 
 @media (max-width: 36rem) {
-  .app--reading .app-header { height: auto; min-height: 60px; flex-wrap: wrap; line-height: normal; padding-block: 8px; }
-  .app--reading .app-header > .ant-flex { flex-wrap: wrap; max-inline-size: 100%; }
-  .app-header [aria-current]::after { inset-block-end: 0; }
   .detail-workspace .record-page { inline-size: calc(100% - 2rem); }
   .detail-workspace .record-controls { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-block-end: 20px; }
   .detail-workspace .document-toolbar { max-inline-size: 100%; margin-inline-start: auto; }
-  .reader-heading h1 { font-size: 2rem; }
   .reader-overview { gap: 18px; }
   .reader-recall { padding: 18px; }
 }

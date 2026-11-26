@@ -7,22 +7,21 @@ import { brotliCompressSync, gzipSync } from 'node:zlib';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const output = resolve(root, 'web/generated');
-// The table measures scrollbars with rc-util outside ConfigProvider.
-// Reuse the page nonce for those style nodes.
-const rcStyleNonce = {
-  name: 'rc-style-nonce',
-  setup(build) {
-    build.onLoad({ filter: /@rc-component[\\/]util[\\/]es[\\/]Dom[\\/]dynamicCSS\.js$/ }, ({ path }) => {
-      const source = readFileSync(path, 'utf8');
-      const original = '  if (csp?.nonce) {\n    styleNode.nonce = csp?.nonce;\n  }';
-      if (!source.includes(original)) throw new Error('Review the rc-util CSP adapter after upgrading the dependency');
-      const replacement = `  const nonce = csp?.nonce ?? document.querySelector('meta[name="style-nonce"]')?.content;
-  if (nonce) styleNode.nonce = nonce;`;
-      return { contents: source.replace(original, replacement), loader: 'js' };
+// A lazy page exports the URL of its stylesheet. Bundle its @imports before
+// fingerprinting it so an already-open tab keeps the matching CSS after a release.
+const routeStyles = {
+  name: 'route-styles',
+  setup(builder) {
+    builder.onResolve({ filter: /\.css\?route$/ }, args => ({
+      path: relative(root, resolve(args.resolveDir, args.path.slice(0, -'?route'.length))).split('\\').join('/'), namespace: 'route-style',
+    }));
+    builder.onLoad({ filter: /.*/, namespace: 'route-style' }, async ({path}) => {
+      const css = await build({ absWorkingDir: root, entryPoints: [path], bundle: true, minify: true,
+        charset: 'utf8', target: 'es2022', write: false, legalComments: 'eof' });
+      return { contents: css.outputFiles[0].contents, loader: 'file' };
     });
   },
 };
-
 async function buildBundle(directory) {
   const result = await build({
     absWorkingDir: root,
@@ -32,8 +31,10 @@ async function buildBundle(directory) {
     chunkNames: 'chunks/[name]-[hash]',
     assetNames: 'assets/[name]-[hash]',
     bundle: true,
+    plugins: [routeStyles],
+    publicPath: '/ui',
+    charset: 'utf8',
     jsx: 'automatic',
-    plugins: [rcStyleNonce],
     splitting: true,
     metafile: true,
     format: 'esm',
@@ -64,7 +65,7 @@ async function buildBundle(directory) {
     }
     return asset;
   });
-  const manifest = { schema: 2, entry: { js: generated(main[0]), css }, assets };
+  const manifest = { schema: 2, staticStyles: true, entry: { js: generated(main[0]), css }, assets };
   writeFileSync(resolve(directory, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
 }
 

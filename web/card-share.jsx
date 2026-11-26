@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import Button from "antd/es/button";
-import "./card-share.css";
+import { Button } from "./components/ui/button.jsx";
+import { previewIdFrom } from "./share-path.mjs";
+export { default as stylesheet } from "./card-share.css?route";
 
 async function request(path, { method = "GET", signal, data, credentials = "same-origin" } = {}) {
   const response = await fetch(path, {
@@ -42,9 +43,6 @@ async function readSharedCard(token, previewId, signal) {
     return read();
   }
 }
-
-const previewIdFrom = path => /^\/share\/([a-f0-9]{32})$/.exec(path)?.[1];
-export const isSharedCardPath = path => path === "/share" || Boolean(previewIdFrom(path));
 
 export function CardSharePanel({ cardId }) {
   const path = "/api/card-shares/" + encodeURIComponent(cardId);
@@ -136,16 +134,16 @@ export function CardSharePanel({ cardId }) {
       <label htmlFor="card-share-url">分享链接</label>
       <div className="card-share-actions">
         <input ref={field} id="card-share-url" type="text" value={url} readOnly spellCheck={false} />
-        <Button ref={copyButton} htmlType="button" command="--copy-card-share" commandfor="card-share-url"
+        <Button ref={copyButton} disabled={busy} command="--copy-card-share" commandfor="card-share-url"
           onClick={supportsCommand ? undefined : () => void copy(field.current)}>复制链接</Button>
-        <Button danger type="text" disabled={busy} onClick={() => void change("DELETE")}>撤销链接</Button>
+        <Button danger variant="text" disabled={busy} onClick={() => void change("DELETE")}>撤销链接</Button>
       </div>
       <p className="card-share-link-help">在微信打开链接后，用右上角菜单转发。</p>
     </>}
-    {details && !url && <Button ref={createButton} type="primary" loading={busy} onClick={() => void change("PUT")}>
+    {details && !url && <Button ref={createButton} variant="primary" disabled={busy} aria-busy={busy} onClick={() => void change("PUT")}>
       创建分享链接
     </Button>}
-    {details && url && !preview && suggestion && <Button loading={busy} onClick={() => void change("PATCH")}>
+    {details && url && !preview && suggestion && <Button disabled={busy} aria-busy={busy} onClick={() => void change("PATCH")}>
       启用新版转发预览
     </Button>}
     {!details && !busy && <Button onClick={() => setAttempt(attempt + 1)}>重新读取分享状态</Button>}

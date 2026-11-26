@@ -1,0 +1,60 @@
+.app, .shared-card {
+  --reader-position: #176657;
+  --reader-serif: "Songti SC", "Noto Serif CJK SC", SimSun, Georgia, serif;
+}
+
+.prose { font-size: 17px; line-height: 1.85; overflow-wrap: anywhere; }
+.prose a { text-decoration-line: underline; text-underline-offset: .2em; }
+.prose > :first-child { margin-top: 0; }
+.prose p, .prose ul, .prose ol { margin: .55em 0 1em; }
+.prose li { margin-block: .25em; }
+.prose :is(h1, h2, h3, h4, h5, h6) { margin: 1.65em 0 .55em; font-weight: 600; line-height: 1.5; text-wrap: pretty; letter-spacing: -.015em; }
+.prose h1 { font-size: 1.4em; }
+.prose h2 { font-size: 1.2em; }
+.prose h3 { font-size: 1.08em; }
+.prose :is(h4, h5, h6) { font-size: 1em; }
+.prose blockquote { margin: 1.3em 0; padding: 8px 18px; color: var(--muted); border-left: 1px solid var(--control-border); }
+.prose blockquote p { margin: .25em 0; }
+.prose pre { overflow: auto; padding: 17px 20px; background: var(--surface); border-radius: 7px; font-size: 13px; line-height: 1.7; tab-size: 2; scrollbar-width: thin; scrollbar-color: var(--scroll-thumb) transparent; }
+.prose code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: .84em; background: var(--surface); padding: .12em .3em; border-radius: 3px; }
+.prose pre code { font-size: inherit; padding: 0; background: transparent; border-radius: 0; }
+.prose img { max-width: 100%; height: auto; display: block; margin: 1.4em 0; }
+.prose table { border-collapse: collapse; display: block; overflow-x: auto; width: max-content; max-width: 100%; font-size: .9em; margin-block: 1.4em; }
+.prose th, .prose td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+.prose th { background: var(--surface); font-weight: 600; }
+.prose hr { border: 0; border-top: 1px solid var(--border); margin: 2em 0; }
+.prose :target { scroll-margin-top: 28px; }
+
+.prose a { color: var(--link); }
+.prose ul { list-style: disc; padding-left: 1.5em; }
+.prose ol { list-style: decimal; padding-left: 1.5em; }
+
+.reader-heading { margin-block-end: 27px; overflow-wrap: anywhere; }
+.reader-heading h1 {
+  margin: 0;
+  font: 700 2.65rem/1.35 var(--reader-serif);
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+.reader .prose { min-inline-size: 0; max-inline-size: var(--reader-width); }
+.reader .prose :is(h1, h2) {
+  margin-block: 28px 8px;
+  font: 700 1.5rem/1.35 var(--reader-serif);
+  text-wrap: balance;
+}
+.reader .prose h1 { font-size: 1.65rem; }
+.reader .prose :is(h1, h2, h3, h4, h5, h6)[id] { scroll-margin-block-start: 24px; }
+.reader .prose > :first-child { margin-block-start: 0; }
+.reader .prose p { margin-block: 0; text-wrap: pretty; }
+.reader .prose p + p { margin-block-start: .85em; }
+.reader .prose li > p { margin-block: .25em; }
+.reader .prose blockquote {
+  margin-block: 14px 0;
+  padding: 5px 0 5px 14px;
+  font-size: 1rem;
+}
+.reader .prose img { margin-block: 1.65em; border-radius: 10px; }
+
+@media (max-width: 36rem) {
+  .reader-heading h1 { font-size: 2rem; }
+}

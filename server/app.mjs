@@ -1,5 +1,7 @@
+import { readRoute } from '../web/routes.mjs';
+import { listPageInput } from '../web/initial-page.mjs';
 import { createServer } from 'node:http';
-import { randomBytes, createHash, timingSafeEqual } from 'node:crypto';
+import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { Siyuan, fail } from '../lib/siyuan.mjs';
 import { execute } from '../lib/commands.mjs';
@@ -102,13 +104,53 @@ export function createApp({kernelConfig,agentToken,publicUrl,authMode='required'
       if (contentReader.activeMain(id)) fail('content_unavailable','内容包仍包含已隐藏的主卡，请核对候选版本。');
     }
   }
+  async function publicDocument(input, data, req, token) {
+    if (!contentReader) {
+      const {html}=renderCardReferences(data.markdown,{origin,id:data.id,legacyFixedFields:data.legacyFixedFields,blocks:data.editable?data.blocks:undefined});
+      data={...data,html,question:headingQuestion(data.markdown)};
+    }
+    const shareable = authRequired && !token && (contentReader
+      ? (await share.cardInfo(input.id))?.id === data.id
+      : data.deletable === true);
+    if (contentReader && authRequired && !token && !readSession(req,authStore)) fail('unauthorized','请登录后继续。');
+    return {...data,editable:false,deletable:false,readOnlyReason,
+      ...(shareable && {shareable:true}),...(shareable && !contentReader && lifecycle && {canArchive:true})};
+  }
+  async function initialPage(url, req) {
+    if (!contentReader) return '';
+    const route=readRoute(url.href);
+    if (route.redirect || !['list','detail'].includes(route.kind)) return '';
+    const session=authRequired ? readSession(req,authStore) : null;
+    if (authRequired && !session) fail('unauthorized','请登录后继续。');
+    checkContentVisibility();
+    const command=route.kind==='list' ? 'list' : 'get-document';
+    const input=command==='list' ? listPageInput(route.filters) : {id:route.id};
+    let data;
+    try {
+      data=await dispatch(command,input,{publicUrl:origin});
+      if (command==='get-document') data=await publicDocument(input,data,req,false);
+    } catch (error) {
+      // Invalid filters and missing bookmarks retain the normal page's error and retry controls.
+      if (['not_found','invalid_input','identity_conflict','outside_scope'].includes(error.code)) return '';
+      throw error;
+    }
+    if (session && readSession(req,authStore)?.publicId!==session.publicId) fail('unauthorized','请登录后继续。');
+    checkContentVisibility();
+    const payload={route:url.pathname+url.search,read:{command,input,data},
+      ...(session && {session:{publicId:session.publicId}})};
+    const json=JSON.stringify(payload).replaceAll('<','\\u003c').replaceAll('>','\\u003e').replaceAll('&','\\u0026')
+      .replaceAll('\u2028','\\u2028').replaceAll('\u2029','\\u2029');
+    return '<script type="application/json" id="initial-page">'+json+'</script>';
+  }
   checkContentVisibility();
   const server=createServer(async(req,res)=>{
-    const styleNonce=randomBytes(18).toString('base64');
+    // Only an older release selected as the current UI needs a nonce for its runtime styles.
+    const nonce = ui.legacyStyleNonce ? randomBytes(18).toString('base64') : null;
+    const stylePolicy = nonce ? `'self' 'nonce-${nonce}'` : "'self'";
     res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');
     res.setHeader('Referrer-Policy','no-referrer');res.setHeader('X-Frame-Options','DENY');
     res.setHeader('Vary','Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site');
-    res.setHeader('Content-Security-Policy',`default-src 'self'; script-src 'self'; style-src 'self' 'nonce-${styleNonce}'; img-src 'self' https: http: data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'`);
+    res.setHeader('Content-Security-Policy',`default-src 'self'; script-src 'self'; style-src ${stylePolicy}; img-src 'self' https: http: data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'`);
     try{
       const url = new URL(req.url, origin);
       // Preserve raw path segments for both origin-form and absolute-form request targets.
@@ -166,15 +208,17 @@ export function createApp({kernelConfig,agentToken,publicUrl,authMode='required'
       }
       if(sharePage){
         res.setHeader('X-Robots-Tag','noindex, nofollow');
-        res.setHeader('Content-Security-Policy',`default-src 'self'; script-src 'self'; style-src 'self' 'nonce-${styleNonce}'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'`);
+        res.setHeader('Content-Security-Policy',`default-src 'self'; script-src 'self'; style-src ${stylePolicy}; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'`);
       }
       if(sharePage||req.method==='GET'&&(page||staticFiles.has(path)||path==='/login')||req.method==='HEAD'&&path===defaultCover){
         const [file,type]=staticFiles.get(path)??staticFiles.get('/');res.setHeader('Content-Type',type);
         const content=readFileSync(new URL('../web/'+file,import.meta.url));
         if(file!=='index.html'){res.end(content);return;}
-        const html=content.toString('utf8').replaceAll('__STYLE_NONCE__',styleNonce).replaceAll('__AUTH_MODE__',authMode)
-          .replace('<!-- UI_ASSETS -->',ui.entryHTML)
-          .replaceAll('__LIFECYCLE__',authRequired&&lifecycle?'enabled':'disabled');
+        const seed = page && !sharePage ? await initialPage(url, req) : '';
+        const html=content.toString('utf8').replaceAll('__AUTH_MODE__',authMode)
+          .replace('<!-- UI_ASSETS -->',()=>nonce ? '<meta name="style-nonce" content="'+nonce+'">'+ui.entryHTML : ui.entryHTML)
+          .replaceAll('__LIFECYCLE__',authRequired&&lifecycle?'enabled':'disabled')
+          .replace('<!-- INITIAL_PAGE -->',()=>seed);
         const preview=sharePage?await share.pagePreview(path):null;
         if(sharePage&&path!=='/share'&&!preview)res.statusCode=404;
         res.end(preview?html.replace('<title>Concept Discovery</title>',()=>shareHead(preview)):html);return;
@@ -224,18 +268,7 @@ export function createApp({kernelConfig,agentToken,publicUrl,authMode='required'
         try { data=await dispatch(command,input,{publicUrl:origin,signal:disconnect.signal}); }
         finally { res.off('close',close); }
         if(res.destroyed)return;
-        if(command==='get-document'){
-          if (!contentReader) {
-            const {html}=renderCardReferences(data.markdown,{origin,id:data.id,legacyFixedFields:data.legacyFixedFields,blocks:data.editable?data.blocks:undefined});
-            data={...data,html,question:headingQuestion(data.markdown)};
-          }
-          const shareable = authRequired && !token && (contentReader
-            ? (await share.cardInfo(input.id))?.id === data.id
-            : data.deletable === true);
-          if (contentReader && authRequired && !token && !readSession(req,authStore)) fail('unauthorized','请登录后继续。');
-          data={...data,editable:false,deletable:false,readOnlyReason,
-            ...(shareable&&{shareable:true}),...(shareable&&!contentReader&&lifecycle&&{canArchive:true})};
-        }
+        if(command==='get-document') data=await publicDocument(input,data,req,token);
         checkContentVisibility();
         send(res,200,{ok:true,data});return;
       }

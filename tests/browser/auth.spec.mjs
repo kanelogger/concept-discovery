@@ -586,3 +586,44 @@ test("returning to a previously opened private page after revocation does not di
     description: persisted ? "Verified pageshow.persisted on restored private document" : "Browser loaded a fresh document. Ordinary back verified only.",
   });
 });
+
+test("站主升级旧分享预览后仍可复制同一凭证并打开原链接", async ({ page, service, context }) => {
+  const token = service.legacyShare();
+  await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: service.url });
+  await page.goto(readerURL(service));
+  await login(page);
+  await page.getByRole("button", { name: "分享", exact: true }).click();
+  const field = page.getByLabel("分享链接", { exact: true });
+  const oldURL = service.url + "/share#" + token;
+  await expect(field).toHaveValue(oldURL);
+
+  const requested = Promise.withResolvers(), release = Promise.withResolvers();
+  await page.route("**/api/card-shares/*", async route => {
+    if (route.request().method() === "PATCH") {
+      requested.resolve();
+      await release.promise;
+    }
+    await route.continue();
+  });
+  const upgrade = page.getByRole("button", { name: "启用新版转发预览" });
+  const copy = page.getByRole("button", { name: "复制链接" });
+  try {
+    await upgrade.click();
+    await requested.promise;
+    await expect(upgrade).toBeDisabled();
+    await expect(copy).toBeDisabled();
+    await expect(page.getByRole("button", { name: "撤销链接" })).toBeDisabled();
+    release.resolve();
+    await expect(page.getByText("分享预览已更新")).toBeVisible();
+    await expect(copy).toBeFocused();
+    const url = new URL(await field.inputValue());
+    expect(url.pathname).toMatch(/^\/share\/[a-f0-9]{32}$/);
+    expect(url.hash).toBe("#" + token);
+    await copy.press("Enter");
+    await expect(page.getByText("已复制链接")).toBeVisible();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(url.href);
+    await page.goto(oldURL);
+    await expect(page.getByRole("heading", { name: card.title })).toBeVisible();
+    await expect(page.getByText(card.body, { exact: true })).toBeVisible();
+  } finally { release.resolve(); }
+});

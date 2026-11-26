@@ -77,11 +77,9 @@ test('explicit local browser access needs no credentials while origin and indepe
     const call=(path,body,headers={})=>fetch(url+path,{method:'POST',headers:{'content-type':'application/json',...headers},body:JSON.stringify(body)});
     const page=await fetch(url+'/');
     const policy=page.headers.get('content-security-policy');
-    const nonce=policy.match(/'nonce-([^']+)'/)[1];
+    assert.match(policy, /(?:^|; )style-src 'self';/);
     assert.doesNotMatch(policy,/unsafe-inline|unsafe-eval/);
-    assert.ok((await page.text()).includes('name="style-nonce" content="'+nonce+'"'));
-    const second=await fetch(url+'/');
-    assert.notEqual(second.headers.get('content-security-policy').match(/'nonce-([^']+)'/)[1],nonce);
+    assert.ok(!(await page.text()).includes('style-nonce'));
 
     assert.equal(page.headers.get('set-cookie'),null);
     const status=await fetch(url+'/api/status');assert.equal(status.status,200);

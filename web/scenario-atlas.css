@@ -1,3 +1,5 @@
+@import "./scenario-links.css";
+
 body:has(.atlas-page) { min-width: 0; }
 .workspace:has(.atlas-page) { background: #fcfaf7; }
 
@@ -278,13 +280,8 @@ body:has(.atlas-page) { min-width: 0; }
   text-underline-offset: .23em;
 }
 .atlas-card-link:hover { color: var(--atlas-green); }
-.atlas-relations { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .65rem; font-size: .875rem; line-height: 1.65; }
-.atlas-relations-label { color: var(--muted); }
-.atlas-relations ul { display: flex; flex-wrap: wrap; gap: .15rem .75rem; margin: 0; padding: 0; list-style: none; }
-.atlas-relations li { min-inline-size: 0; overflow-wrap: anywhere; }
-.atlas-relations a, .atlas-return { color: var(--link); text-decoration: underline; text-underline-offset: .18em; }
-.atlas-relations a:hover, .atlas-return:hover { color: #176657; }
-.reader-heading .atlas-relations { margin-block-start: .65rem; }
+.atlas-return { color: var(--link); text-decoration: underline; text-underline-offset: .18em; }
+.atlas-return:hover { color: #176657; }
 .atlas-return { border: 0; background: transparent; padding: .25rem 0; margin-bottom: .5rem; font: inherit; font-size: .875rem; cursor: pointer; }
 .atlas-category-nav .atlas-return { justify-self: start; margin-bottom: .25rem; padding: .35rem .65rem; white-space: nowrap; }
 

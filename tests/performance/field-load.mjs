@@ -21,7 +21,7 @@ scriptTaskMsAtProbe is Chromium's cumulative ScriptDuration as sampled after the
 LCP is the last candidate in a fixed 500 ms observation window after the readable probe. Public summary omits raw addresses and response content.`;
 const views = {
   login: '#login-password', cards: '.card-title-link', card: '#document-body .prose',
-  graph: '.graph-node', scenarios: '.atlas-entries, .atlas-empty', wiki: '.wiki-source-choice, .wiki-page .ant-empty',
+  graph: '.graph-node', scenarios: '.atlas-entries, .atlas-empty', wiki: '.wiki-source-choice, .wiki-empty',
   custom: null,
 };
 const round = value => Math.round(value * 10) / 10;
@@ -59,7 +59,7 @@ function readPaints() {
     .map(e => ({ name: e.name.split('#')[0], body: e.encodedBodySize, end: e.responseEnd }));
   // Navigation Timing includes the initial address for some redirect chains.
   if (entries.length && nav) entries[0].name = location.href.split('#')[0];
-  return { entries, readableMs: window.fieldProbe?.readableMs ?? null, lcpMs: window.fieldProbe?.lcpMs ?? null,
+  return { entries, initialListMs: performance.getEntriesByName('cd-initial-list','mark')[0]?.startTime ?? null, readableMs: window.fieldProbe?.readableMs ?? null, lcpMs: window.fieldProbe?.lcpMs ?? null,
     fcpMs: performance.getEntriesByName('first-contentful-paint', 'paint')[0]?.startTime ?? null,
     observedUntilMs: performance.now() };
 }
@@ -103,12 +103,16 @@ async function takeSample(context, settings) {
     const readableMs = paints.readableMs == null || paints.fcpMs == null ? null : round(Math.max(paints.readableMs, paints.fcpMs));
     if (!failure && settings.syntheticOwner && view === 'cards') {
       const completed = waterfall.filter(row => row.status === 200 && row.endMs != null && row.endMs <= readableMs);
-      if (!['session', 'command-list'].every(route => completed.some(row => row.route === route))) failure = 'fixture-reads-missing';
+      const owners = completed.some(row => row.route === 'session');
+      const lists = waterfall.filter(row => row.route === 'command-list');
+      if (settings.embedded) {
+        if (!owners || lists.length || paints.initialListMs == null || paints.initialListMs > readableMs) failure = 'fixture-reads-missing';
+      } else if (!owners || !completed.some(row => row.route === 'command-list')) failure = 'fixture-reads-missing';
     }
     const landed = routeClass(landedURL.href, target.origin, 'Document');
     const expectedRoute = view === 'custom' ? landed !== 'login' : view === landed;
     if (!failure && (readableMs === null || !sameOrigin || !expectedRoute)) failure = 'unexpected-page';
-    const sample = { failure, landed, readableMs: failure ? null : readableMs,
+    const sample = { failure, landed, initialListMs: paints.initialListMs ?? null, readableMs: failure ? null : readableMs,
       fcpMs: paints.fcpMs == null ? null : round(paints.fcpMs),
       lcpMs: paints.lcpMs == null ? null : round(paints.lcpMs),
       observedUntilMs: paints.observedUntilMs == null ? null : round(paints.observedUntilMs),
@@ -188,7 +192,7 @@ export async function runPairs(browser, settings) {
       }
     } finally { await context.close(); }
   }
-  const source = !settings.fixture ? 'field' : settings.view === 'graph' ? 'synthetic-local-sql' : 'synthetic-https-fixed-data';
+  const source = !settings.fixture ? 'field' : settings.embedded ? 'synthetic-https-sqlite' : settings.view === 'graph' ? 'synthetic-local-sql' : 'synthetic-https-fixed-data';
   return { schema: 2, source, ...(settings.readProgramRequests ? { fixtureTLS: 'temporary-spki-pin' } : {}),
     browser: browser.version(), viewport,
     targetRoute: routeClass(settings.target.href, settings.target.origin, 'Document'), view: settings.view,

@@ -147,7 +147,7 @@ printf '%s\n' '{"query":"瓶颈","limit":5}' | node bin/concept-discovery.mjs se
 
 ### 网页加载耗时
 
-用 `node tests/performance/field-load.mjs --fixture` 跑隔离列表，用 `--fixture --view card` 验证带 HTTPS 站主会话的合成阅读。各组输出五对冷访与正常二访、资源传输字节和内容可读时间。缓存与去敏回归可单独运行 `node --test tests/performance/field-load.test.mjs`。
+用 `node tests/performance/field-load.mjs --fixture` 跑隔离列表，用 `--fixture --view card` 验证带 HTTPS 站主会话的合成阅读。各组输出五对冷访与正常二访、资源传输字节和内容可读时间。用 `node tests/performance/shadow-list.mjs` 对 SQLite 的已登录列表按相同条件采样，核实仍有会话重验、内联数据已被消费且没有重复请求首屏列表。缓存与去敏回归可单独运行 `node --test tests/performance/field-load.test.mjs`。
 
 实站测量以读者实际入口为准。例如 `node tests/performance/field-load.mjs --url https://kb.example.com/cards --view cards --owner-login` 会打开专用浏览器让站主登录；替换为自己的站点。对未登录入口可使用 `--view login`。每对使用新上下文，二访在同一上下文新开页。JSON 写向标准输出，可保存在忽略目录 `.local/performance/`。保留失败样本；零个可读样本时无法计算页面性能。合成测量、公网登录页和已登录阅读页分别报告。
 
