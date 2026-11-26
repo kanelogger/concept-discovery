@@ -87,6 +87,41 @@ npm run build:content -- --raw-root raw --metadata /path/to/metadata.json --base
 
 生成的 `manifest.json` 列出输入摘要、对象数、不可变历史库存、保留身份，以及 `knowledge.sqlite` 和哈希附件的摘要。私有元数据与生成目录均不应作为公开静态目录。可从 [只读内容库](../../lib/content-store.mjs) 的 `openContentStore(path)` 打开 SQLite，调用 `list`、`search`、`document`、`view`、`record` 或 `asset` 读回。使用完毕调用 `close()`。真实思源对照运行 `npm run test:content-integration`，只使用该次隔离栈的合成资料。
 
+### 对照旧库与影子服务
+
+准备已停止维护写入的独立思源副本，使用它自己的 Compose 项目、回环应用端口和私有根。先导出新目录，并从该副本核实库身份。下例的路径均为占位符；输出位置须为新目录，其父目录须已存在。
+
+```sh
+npm run freeze:content -- --raw-root /path/to/export --bindings /path/to/export/.sync.json --frozen-root /path/to/isolated-state --library-id VERIFIED_ID --out /path/to/frozen-inputs
+npm run build:content -- --raw-root /path/to/export --metadata /path/to/frozen-inputs/metadata.json --baseline /path/to/frozen-inputs/history.json --out /path/to/shadow-release
+```
+
+冻结前先检查本机 Docker 端点及副本实际挂载。临时读取进程使用已核实应用容器的网络命名空间、该容器自己的回环端口、指定内核 IP 和只读状态目录。工具在冻结前后复核公开详情与补读，再从所选副本的公开只读命令、原生库存和历史文件核对活动卡、补读、块归属、版本以及提案与事件。私有输出含 `metadata.json`、`history.json`、`coverage.json`。正文、原生哈希及字段投影需要来自同一版本；活动接口无法核实的归档、待删除与分享撤销状态须另行对账。这些输入含私人内容，应和冷备一样保管。
+
+在独立影子目录内准备该服务专用的令牌文件、配置与编译好的前端。纯回环验收可用下列配置（文件名 `shadow.json`）。将 `libraryId` 换成已核对的实际值，可附 `manifestSha256` 固定本次内容包清单文件的 SHA-256。
+
+```json
+{
+  "backend": "content-shadow",
+  "publicUrl": "http://127.0.0.1:6817",
+  "host": "127.0.0.1",
+  "port": 6817,
+  "auth": {"mode": "local"},
+  "libraryId": "example-library",
+  "agentTokenFile": "shadow-agent-token",
+  "contentRelease": "../shadow-release"
+}
+```
+
+```sh
+npm run build:web
+npm run start:shadow -- /path/to/shadow-state/shadow.json
+```
+
+打开配置对应的回环地址，或让 CLI 的独立 `client.json` 指向该地址和影子令牌。需要核对旧登录和分享时，用该次隔离 HTTPS 代理的回环源作为 `publicUrl`，配置 `auth.mode=required`、`auth.databaseFile=shadow-auth.sqlite`。把来自同一库、处于一致状态的认证备份复制到影子配置旁，文件权限为 0600。影子环境中的创建、撤销和注销只写这份独立副本。
+
+`shareMaterialsDirectory` 可指向已核实的分享素材目录；无配套素材的卡使用原标题与站点封面。私有图谱、图鉴和有活动引用的哈希图片在允许读之后支持 ETag。旧名附件、分享正文、预览、专属封面及命令响应沿用 `no-store`。影子入口仅绑定回环，启动前校验内容包及资源；生产 Compose 和思源维护就绪检查继续按原配置工作。[影子启动入口](../../scripts/start-content-shadow.mjs)
+
 ## 只读应用 CLI
 
 用 `CONCEPT_DISCOVERY_CONFIG` 指向私有 `client.json`，其中保存应用地址和独立 Agent Token 的配置。`CONCEPT_SERVICE_CONFIG` 是服务端配置，`kernel.json` 供本地维护使用。

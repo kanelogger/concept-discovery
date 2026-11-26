@@ -40,8 +40,10 @@ export function routeHref(kind, id, filters = {}, hash = '') {
     return '/scenarios' + (id?.view === 'disciplines' ? '?view=discipline' : '') +
       (id?.categoryId ? '#' + encodeURIComponent(id.categoryId) : '');
   }
-  const path = kind === 'list' ? '/cards' : '/cards/' + encodeURIComponent(id);
+  const reserved = kind === 'detail' && id === 'new';
+  const path = kind === 'list' ? '/cards' : reserved ? '/' : '/cards/' + encodeURIComponent(id);
   const params=new URLSearchParams();
+  if (reserved) params.set('id', id);
   for(const [key,value]of[['q',filters.query],['tag',filters.tag],['from',filters.updatedFrom],['to',filters.updatedTo],['page',filters.page>1?filters.page:'']])if(value)params.set(key,String(value));
   return path+(params.size?'?'+params:'')+hash;
 }

@@ -18,9 +18,11 @@
     "test:lifecycle-proxy": "node tests/service/card-lifecycle-proxy.mjs && node tests/service/card-lifecycle-proxy-recovery.mjs",
     "check": "npm run validate && npm run raw -- check && npm test",
     "deploy:init": "node scripts/deploy-init.mjs",
+    "start:shadow": "node scripts/start-content-shadow.mjs",
     "start": "docker compose --env-file .local/knowledge/compose.env -f deploy/compose.yaml up --build -d",
     "stop": "docker compose --env-file .local/knowledge/compose.env -f deploy/compose.yaml down",
     "build:web": "node scripts/build-web.mjs",
+    "freeze:content": "node scripts/freeze-content-inputs.mjs",
     "build:content": "node scripts/build-content.mjs",
     "prepack": "npm run build:web",
     "test:browser": "playwright test --config tests/browser/playwright.config.mjs"
@@ -61,6 +63,10 @@
     ".dockerignore",
     "web/generated",
     "scripts/build-web.mjs",
-    "scripts/build-content.mjs"
+    "scripts/build-content.mjs",
+    "scripts/freeze-content-inputs.mjs",
+    "scripts/raw-connection.mjs",
+    "scripts/frozen-reader.mjs",
+    "scripts/start-content-shadow.mjs"
   ]
 }

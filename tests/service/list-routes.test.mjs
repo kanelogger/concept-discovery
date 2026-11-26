@@ -166,3 +166,16 @@ test('list propagates a failed fallback even when that card had cached tags', as
   await assert.rejects(docs.list({ includeTags: true }, options), error);
   assert.equal(singles, 1);
 });
+
+test('the detail route for the public ID new preserves filters and does not collide with the old list bookmark', () => {
+  const selected = {query:'搜索',tag:'学科',page:2};
+  const href = routeHref('detail','new',selected,'#正文');
+  const target = readRoute(href);
+  assert.equal(target.kind,'detail');
+  assert.equal(target.id,'new');
+  assert.equal(target.filters.page,2);
+  assert.equal(target.filters.query,selected.query);
+  assert.equal(target.filters.tag,selected.tag);
+  assert.equal(decodeURIComponent(target.hash),'#正文');
+  assert.equal(readRoute('/cards/new').kind,'list');
+});

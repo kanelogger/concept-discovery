@@ -53,6 +53,7 @@ export function cardShareStore(database) {
     WHERE card_id = ? AND token = ? AND ${visible('s')}
   `);
   const deletion = database.prepare('INSERT INTO card_share_deletions VALUES (?) ON CONFLICT DO NOTHING');
+  const fences = database.prepare('SELECT card_id FROM card_share_deletions UNION SELECT card_id FROM card_share_pending_deletions');
   const wasDeleted = database.prepare('SELECT 1 FROM card_share_deletions WHERE card_id = ?');
   const pending = database.prepare('INSERT INTO card_share_pending_deletions VALUES (?) ON CONFLICT DO NOTHING');
   const pendingFor = database.prepare('SELECT 1 FROM card_share_pending_deletions WHERE card_id = ?');
@@ -99,6 +100,7 @@ export function cardShareStore(database) {
     return insert.get(cardId,randomBytes(32).toString('base64url'),JSON.stringify(content),generation,cardId,cardId)?.token;
   }
   return {
+    hasCard: cardId => Boolean(byCard.get(cardId)),
     state: cardId => byCard.get(cardId) ?? { token: null, generation: 0 },
     create:publish,
     createWithPreview(cardId, generation, content, preview) {
@@ -134,6 +136,7 @@ export function cardShareStore(database) {
         return Boolean(pendingFor.get(cardId) || wasDeleted.get(cardId));
       });
     },
+    fencedIds: () => fences.all().map(row=>row.card_id),
     fencedForDeletion:cardId=>Boolean(pendingFor.get(cardId) || wasDeleted.get(cardId)),
     releasePendingDeletion(cardId,minimumGeneration) {
       return transaction(()=>{

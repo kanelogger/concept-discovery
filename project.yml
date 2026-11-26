@@ -70,12 +70,32 @@ environment:
       side_effects: [在新目录生成内容 SQLite、哈希附件和清单]
       verification_scope: 离线身份、历史完整性、编译与本地读回；公网切换另验
       failure_handling: 保留已有发布包，按报告核对冻结的原稿、版本化元数据及历史输入
+    freeze_content:
+      run: npm run freeze:content
+      working_directory: .
+      definition_source: package.json
+      script: freeze:content
+      implementation_sources: [scripts/freeze-content-inputs.mjs, scripts/frozen-reader.mjs, scripts/raw-connection.mjs, lib/raw-inventory.mjs]
+      prerequisites: [指定的隔离思源副本和回环客户端、原稿及同库绑定、显式库身份和新输出路径]
+      side_effects: [只读核实选定副本并写入私有冻结输入目录]
+      verification_scope: 活动文档、块、补读与历史记录；归档及待删除状态需另外核对
+      failure_handling: 拒绝不一致输入，保留既有冻结副本
+    start_shadow:
+      run: npm run start:shadow
+      working_directory: .
+      definition_source: package.json
+      script: start:shadow
+      implementation_sources: [scripts/start-content-shadow.mjs, server/content-reader.mjs, server/app.mjs]
+      prerequisites: [明确的影子配置、已编译的程序和内容包、影子令牌；required 模式使用独立认证库和回环 HTTPS 代理]
+      side_effects: [回环监听；登录及分享写入指定的隔离认证库]
+      verification_scope: 通过原 HTTP 和 CLI 入口对照十个只读命令、附件与预计算视图
+      failure_handling: 配置或发布包不符则拒绝启动；不改旧栈
     content_integration:
       run: npm run test:content-integration
       working_directory: .
       definition_source: package.json
       script: test:content-integration
-      implementation_sources: [tests/service/content-compiler-integration.mjs, tests/service/runtime.mjs]
+      implementation_sources: [tests/service/content-compiler-integration.mjs, tests/service/content-shadow-comparison.mjs, tests/service/runtime.mjs]
       prerequisites: [Node.js 24.7+, 锁定依赖, Docker 与 Compose, 独立回环端口]
       side_effects: [隔离思源、临时编译输出、脱敏验收记录]
       verification_scope: 真实旧库 HTTP 与 SQLite 读回的合成样本差分

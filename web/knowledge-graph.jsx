@@ -1,6 +1,7 @@
 // Graph sidebar and controls adapted from yibie/claude-best-practices-zh, mindmap/graph.html (MIT).
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { buildGraphLayout, categoryColor } from './graph-layout.mjs';
+import { routeHref } from './routes.mjs';
 import { GraphCanvas } from './graph-canvas.jsx';
 import { GraphPanel, SidebarDetails } from './graph-panel.jsx';
 
@@ -230,7 +231,7 @@ export default function KnowledgeGraph({ data, positions, view = empty, onViewCh
       {hasGraph ? <>
         <GraphCanvas ref={canvas} positions={positions} layout={layout} view={view}
           onHover={id => setHovered(old => id ?? (latest.current.nodeId ? null : old))}
-          onPick={id => chooseNode(id)} onDoubleClick={id => window.open('/cards/' + encodeURIComponent(id), '_blank', 'noopener')}
+          onPick={id => chooseNode(id)} onDoubleClick={id => window.open(routeHref('detail', id), '_blank', 'noopener')}
           onEdge={item => chooseEdge(item)} onCamera={camera => patchView({ camera }, true)}
           onDismiss={() => dismiss()} onPoint={placePanel} />
         {allHidden && <div className="graph-empty-filter" role="status">

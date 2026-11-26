@@ -155,6 +155,21 @@ export async function authHTTPSFixture({ wechatShare, getShareMaterial, lifecycl
       legacyShare() {
         return authStore.shares.create(card.id, authStore.shares.state(card.id).generation, { title: card.title, html: `<p>${card.body}</p>` });
       },
+      async withShadow(start, check) {
+        // Copy the quiescent synthetic auth DB, then exercise both versions behind the same TLS origin.
+        await middle?.close();
+        await close(application);
+        authStore.close();
+        let candidate;
+        try {
+          candidate = await start(storeOptions.databasePath);
+          target = candidate.address().port;
+          await check();
+        } finally {
+          await close(candidate);
+          await useStore();
+        }
+      },
       async restart() {
         await middle?.close();
         await close(application);

@@ -6,6 +6,7 @@ import { documentMarkdown } from '../../lib/documents.mjs';
 import { buildContent } from '../../scripts/build-content.mjs';
 import { createLegacyCard } from './legacy-fixture.mjs';
 import { runtime, writeJSON } from './runtime.mjs';
+import { compareContentShadow } from './content-shadow-comparison.mjs';
 
 const description = '用证据校准旧判断。';
 const readingText = '补读中出现贝叶斯先验。';
@@ -129,6 +130,7 @@ async function verify(instance) {
   } finally {
     store.close();
   }
+  await compareContentShadow(instance,{libraryId,oldId:old.id,ordinaryId:ordinary.id,readingId:reading.id,blockId:section.id});
 }
 
 const instance = await runtime('content-compiler');

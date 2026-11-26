@@ -109,7 +109,8 @@ export async function runtime(label, { resume, build = true, ready = true, initi
       service.publicUrl = url;
       writeJSON(join(root, "service.json"), service);
       writeJSON(join(root, "client.json"), { url, tokenFile: "agent-token" });
-      const values = readFileSync(join(root, "compose.env"), "utf8").replace("CONCEPT_PORT=6806", "CONCEPT_PORT=" + port);
+      const values = readFileSync(join(root, "compose.env"), "utf8").replace("CONCEPT_PORT=6806", "CONCEPT_PORT=" + port)
+        + "\nCOMPOSE_PROJECT_NAME=" + name + "\n";
       writeFileSync(join(root, "compose.env"), values, { mode: 0o600 });
     }
     env = { ...process.env };

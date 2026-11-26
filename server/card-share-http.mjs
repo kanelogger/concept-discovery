@@ -108,11 +108,15 @@ function signatureUrl(value, origin, expectedPath) {
   }
 }
 
-export function cardShareRoutes({ api, authStore, dispatch, origin, json, readAsset, send, wechatShare, getShareMaterial }) {
+export function cardShareRoutes({ api, activeMain, authStore, dispatch, origin, json, readAsset, send, wechatShare, getShareMaterial }) {
   const shares = authStore?.shares;
   const toUrl = (token, preview) => `${origin}${sharePath(preview)}#${token}`;
   const describe = preview => preview ? describePreview(preview, origin) : null;
   const cardInfo = async id => {
+    if (activeMain) {
+      const info = await activeMain(id);
+      return info && !shares?.fencedForDeletion(info.id) ? info : null;
+    }
     const rows = await api.sql(`SELECT b.id, b.content AS title,
       (SELECT value FROM attributes WHERE block_id = b.id AND name = 'custom-cd-legacy-id' LIMIT 1) AS rawId
       FROM blocks b WHERE b.id = ${quote(id)} AND ${cardScope(api.c)}
@@ -120,7 +124,10 @@ export function cardShareRoutes({ api, authStore, dispatch, origin, json, readAs
         AND parent.name = 'custom-cd-parent' AND parent.value <> '')`, { signal: AbortSignal.timeout(5000) });
     return rows[0];
   };
-  const publicActive = id => cardInfo(id).catch(() => fail('share_unavailable', '暂时无法读取分享。'));
+  const publicActive = async id => {
+    const info = await cardInfo(id).catch(() => fail('share_unavailable', '暂时无法读取分享。'));
+    return info?.id === id;
+  };
   async function managed(id, token) {
     const preview = token ? shares.previewFor(token) : null;
     const info = preview ? null : await cardInfo(id);
@@ -212,8 +219,17 @@ export function cardShareRoutes({ api, authStore, dispatch, origin, json, readAs
       if (!readSession(req, authStore)) fail('unauthorized', '请登录后管理分享链接。');
     };
     requireOwner();
-    const [, id, suggestedCover] = management;
-    if (!validBlockID(id)) fail('invalid_input', '需要有效的知识卡 ID。');
+    const [, ref, suggestedCover] = management;
+    let id = ref;
+    if (activeMain) {
+      let decoded;
+      try { decoded = decodeURIComponent(ref); }
+      catch { fail('invalid_input', '需要有效的知识卡 ID。'); }
+      const info = await cardInfo(decoded);
+      if (info) id = info.id;
+      else if (req.method === 'DELETE' && !suggestedCover && shares.hasCard(decoded)) id = decoded;
+      else fail('not_found', '知识卡不存在或已归档。');
+    } else if (!validBlockID(id)) fail('invalid_input', '需要有效的知识卡 ID。');
     if (suggestedCover) {
       if (req.method !== 'GET') return false;
       const info = await cardInfo(id);
@@ -237,6 +253,7 @@ export function cardShareRoutes({ api, authStore, dispatch, origin, json, readAs
         if (card.id !== id || card.anchor) fail('not_found', '知识卡不存在或已归档。');
         const content = await snapshot(card, origin, readAsset);
         if (res.destroyed) return true;
+        if (activeMain && (await cardInfo(id))?.id !== id) fail('not_found', '知识卡不存在或已归档。');
         requireOwner();
         token = shares.createWithPreview(id, generation, content, withCover(getShareMaterial({ ...info, title: card.title })));
         if (!token) fail('share_conflict', '分享链接已变更，请重新打开分享面板。');
@@ -266,5 +283,5 @@ export function cardShareRoutes({ api, authStore, dispatch, origin, json, readAs
     }
     return true;
   }
-  return { handle, pagePreview };
+  return { handle, pagePreview, cardInfo };
 }

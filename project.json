@@ -43,6 +43,10 @@
       "command": "npm run raw --",
       "target": "local-siyuan"
     },
+    "loopback_content_shadow": {
+      "command": "npm run start:shadow",
+      "documentation": "docs/agent-environment/commands.md"
+    },
     "offline_content_snapshot": {
       "command": "npm run build:content",
       "target": "private-read-only-sqlite",

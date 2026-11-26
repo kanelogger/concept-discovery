@@ -4,7 +4,7 @@ const localResults = fileURLToPath(new URL('../../.local/browser-results/', impo
 
 export default defineConfig({
   testDir: ".",
-  testMatch: ["critical.spec.mjs", "scenario-atlas.spec.mjs", "knowledge-graph.spec.mjs", "auth.spec.mjs"],
+  testMatch: ["critical.spec.mjs", "scenario-atlas.spec.mjs", "knowledge-graph.spec.mjs", "auth.spec.mjs", "content-shadow.spec.mjs"],
   fullyParallel: false,
   workers: 1,
   retries: 0,

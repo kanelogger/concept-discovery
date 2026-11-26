@@ -4,5 +4,5 @@
   "task_file": "tasks/0068-route-a-lightweight-refactor.md",
   "phase": "implementation",
   "updated_at": "2026-11-26",
-  "summary": "阶段 0 已提交；阶段 1 离线 SQLite 编译器已通过仓库整库演练及隔离思源差分。下一步核对隔离 HTTP 影子服务的命令和分享契约；真实站主列表测量仍等线上入口恢复。"
+  "summary": "已完成离线编译和隔离 SQLite 影子读取，十个命令、旧会话和分享已与旧栈对照。默认部署仍用思源；真实已登录列表基线及线上窗口待核实。"
 }
