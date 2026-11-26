@@ -2,7 +2,7 @@
   "schema_version": 1,
   "task_id": "0068-route-a-lightweight-refactor",
   "task_file": "tasks/0068-route-a-lightweight-refactor.md",
-  "phase": "verification",
+  "phase": "complete",
   "updated_at": "2026-11-26",
-  "summary": "正式站已切流到单容器 16806，服务器旧库、容器、Git 工作副本及旧维护均删除。新版独立 Compose 重启后就绪、读卡、有效分享和三笔删除拒绝核验通过。站主实际浏览器输入密码后的会话验收仍待确认。"
+  "summary": "正式单容器已替换思源旧栈，生产旧库、容器、Git 工作副本及维护任务均已移除。独立重启、读卡、已有分享与删除拒绝核验通过，站主已从自己的浏览器确认正式站登录并打开知识卡。"
 }
