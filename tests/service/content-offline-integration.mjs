@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
 import { createHash, randomBytes } from 'node:crypto';
-import { cpSync, createReadStream, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, createReadStream, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { lookup } from 'node:dns/promises';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
@@ -9,7 +9,7 @@ import { pipeline } from 'node:stream/promises';
 import { parseArgs } from 'node:util';
 import { collectOfflineEvidence } from './content-offline-evidence.mjs';
 import { packageContentDelivery } from '../../scripts/package-content-delivery.mjs';
-import { createContentLedgerDrill } from '../tooling/content-ledger-fixture.mjs';
+import { contentDeletionsCommand } from '../../scripts/content-deletions.mjs';
 import { contentFixture, sha, shared } from './content-container-fixture.mjs';
 
 const {values}=parseArgs({options:{machine:{type:'string'},image:{type:'string'},'previous-image':{type:'string'},
@@ -23,7 +23,7 @@ assert.match(values.machine,/^cd-routea-[a-z0-9]+$/);
 assert.notEqual(values.image,values['previous-image']);
 assert.notEqual(values['program-version'],values['previous-version']);
 const name='run-'+randomBytes(6).toString('hex');
-const work=mkdtempSync(join(tmpdir(),'cd-offline-owner-'));
+const work=mkdtempSync(join(realpathSync(tmpdir()),'cd-offline-owner-'));
 const evidence=resolve('.local','service-acceptance','cd-offline-'+name.slice(4));
 mkdirSync(evidence,{recursive:true,mode:0o700});
 const base='/var/lib/concept-offline-drill', guestRoot=base+'/'+name, observer=base+'/observe.sh';
@@ -62,14 +62,27 @@ try {
   assert.equal(guest('docker','ps','-aq'),'','Use a fresh dedicated guest');
   assert.equal(guest('docker','image','ls','-aq'),'','Use a fresh guest image store');
   const fixtureRoot=join(work,'fixture'); mkdirSync(fixtureRoot);
-  let ledger;
-  const fixture=await contentFixture(fixtureRoot,'https://127.0.0.1:18443',{releaseLabel:name,createLedger:args=>{
-    ledger=createContentLedgerDrill(join(work,'owner-ledger'),args);
-    return ledger;
+  let ownerRegistry;
+  const fixture=await contentFixture(fixtureRoot,'https://127.0.0.1:18443',{releaseLabel:name,createDeletionAuthority:options=>{
+    const owner=join(work,'owner-deletions');
+    mkdirSync(owner,{mode:0o700});
+    const seed=join(owner,'initial.json');
+    const bytes=JSON.stringify({version:1,libraryId:options.libraryId,deletedIds:[]});
+    writeFileSync(seed,bytes,{mode:0o600});
+    const args=['--database',join(owner,'owner.sqlite'),'--library-id',options.libraryId];
+    const initial=contentDeletionsCommand(['init',...args,'--seed',seed,'--seed-sha256',sha(bytes)]);
+    const current=contentDeletionsCommand(['add',...args,'--current-sha256',sha(initial),
+      '--release',options.directory,'--manifest-sha256',options.manifestSha256,options.publicId]);
+    const pin=sha(current);
+    ownerRegistry={read(){
+      const bytes=contentDeletionsCommand(['export',...args,'--current-sha256',pin]);
+      return {bytes, deletions:JSON.parse(bytes),deletionsSha256:pin,authoritySha256:pin};
+    }};
+    return ownerRegistry;
   }});
   const close=fixture.close();
   const controlSha=sha(readFileSync(join(fixture.controlDirectory,'deletions.json')));
-  const authority=ledger.read();
+  const authority=ownerRegistry.read();
   assert.equal(close.deletionsSha256,authority.deletionsSha256);
   const identity=JSON.parse(readFileSync(join(fixture.controlDirectory,'approved.json'))).authIdentity;
   const tls=join(work,'tls');mkdirSync(tls);
@@ -93,8 +106,8 @@ try {
   const beforeTar=join(previousDir,'image.tar');
   result.previous={imageRef:previous.imageRef,configSha256:previous.configSha256,programVersion:values['previous-version']};
   result.delivery={manifestSha256:candidate.manifestSha256,imageRef:candidate.imageRef,configSha256:candidate.configSha256,programVersion:values['program-version']};
-  result.ledgerHead=authority.ledgerHead;
-  console.log('Owner verified signed deletion ledger and sealed both program archives');
+  result.authoritySha256=authority.authoritySha256;
+  console.log('Owner verified local deletion records and sealed both program archives');
   persist();
   const setup=join(work,'bootstrap');mkdirSync(setup);
   cpSync('deploy/install-content-delivery.py',join(setup,'install.py'));
@@ -109,7 +122,7 @@ try {
     previousImageRef:previous.imageRef,previousIdentifiers:[previous.imageManifestSha256,previous.configSha256],
     candidateImageRef:candidate.imageRef,priorTarSha256:await fileDigest(beforeTar)}),{mode:0o600});
   // Only the previous program goes to the guest now. Its old content and the
-  // owner's authority, Git worktrees and signing key stay on the workstation.
+  // owner's private deletion database stays on the workstation.
   await transfer(setup,['install.py','checks.py','fixture.json','tls','live'],guestRoot);
   guestOwned=true;
   await transfer(previousDir,['image.tar'],guestRoot);
@@ -127,13 +140,13 @@ try {
   checked('import-new','install');
   checked('start-closed','start-candidate');checked('verify-closed','closed');
   async function updateControls(label, decision) {
-    const current=ledger.read();
-    assert.equal(decision.ledgerHead,current.ledgerHead);
+    const current=ownerRegistry.read();
+    assert.equal(decision.authoritySha256,current.authoritySha256);
     assert.equal(decision.deletionsSha256,current.deletionsSha256);
     await transfer(dirname(fixture.controlDirectory),[basename(fixture.controlDirectory),basename(fixture.settings)],guestRoot+'/next');
     const readback=checked(label,'controls');
     assert.equal(decision.checkpointSha256,readback.checkpointSha256);
-    result.steps[label].verifiedLedgerHead=current.ledgerHead;persist();
+    result.steps[label].verifiedAuthoritySha256=current.authoritySha256;persist();
   }
   await updateControls('publish-approval',fixture.open());
   checked('publish-listener','start-candidate');

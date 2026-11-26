@@ -130,16 +130,16 @@ environment:
       side_effects: [在站主本机生成含程序镜像归档的私有新交付目录及清单]
       verification_scope: 镜像身份、操作系统与架构、内容及配置摘要
       failure_handling: 按阶段重试，保留旧版本和独立控制记录
-    content_ledger:
-      run: npm run content:ledger
+    content_deletions:
+      run: npm run content:deletions
       working_directory: .
       definition_source: package.json
-      script: content:ledger
-      implementation_sources: [scripts/content-ledger.mjs, scripts/content-ledger-check.mjs]
-      prerequisites: [站主本机 Git、可信签名根和头、冻结操作或历史发布清单；不同写入及验证身份]
-      side_effects: [读取和核验删除决定；写入子命令可签署、暂存、提交必需检查或推送指定候选]
-      verification_scope: 原生历史决定映射和纯 slug 新卡、本机独立验签与指定 SHA 的必需检查
-      failure_handling: 未核准签名、父提交或权限时停止，保留检查点
+      script: content:deletions
+      implementation_sources: [scripts/content-deletions.mjs]
+      prerequisites: [站主私有目录、独立核实的累计清单摘要、核准内容版本和主卡 ID]
+      side_effects: [在本机导入已有清单、追加永久删除决定及输出累计清单]
+      verification_scope: 当前清单一致性、保留但不可读取的主卡和批量追加
+      failure_handling: 摘要、库身份或公开主卡不符时拒绝新增
     content_offline:
       run: npm run test:content-offline
       working_directory: .
@@ -147,7 +147,7 @@ environment:
       script: test:content-offline
       implementation_sources: [tests/service/content-offline-integration.mjs, tests/service/content-offline-host.py, tests/service/content-offline-observe.sh]
       prerequisites: [已准备的独立 Ubuntu 测试机、专属 Docker 和宿主 Nginx、两个可溯源且平台相同的不同程序镜像]
-      side_effects: [创建合成签名库、隔离认证卷和交付包；在专属测试机内限制出站并采集部署和进程证据]
+      side_effects: [创建本机合成删除记录、隔离认证卷和交付包；在专属测试机内限制出站并采集部署和进程证据]
       verification_scope: 宿主和容器均无法访问 GitHub 时发布、重启、程序回退及逐步读回
       failure_handling: 记录已完成步骤、清理本轮专属资源，不触碰生产
     content_container:

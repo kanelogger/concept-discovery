@@ -2,31 +2,36 @@
 
 本入口将同一版本的 SQLite、附件及转发素材挂载给一个 Node 应用容器。站主配置、内容、认证卷、核准控制目录使用四个并列实体目录。核准控制及其最新检查点摘要由站主独立保管，和认证卷、内容冷备分开。现行思源部署的切换须另有站主窗口。
 
-**所有 Git 操作在站主本机完成。** 本机读取远端原稿和权威删除账本、校验签名、提交和推送。服务器只接收、校验、安装和运行已生成的发布产物。服务器的部署、就绪、重启和回退均禁止使用工作副本、Git 命令、GitHub API 或 GitHub 凭据。首次切流结算旧维护任务后，停用旧 Git 轮询和定时导出。
+站主在本机准备原稿目录、发布包及累计删除记录。编辑、发布、删卡、重启和备份恢复可以全程离线。服务器接收并校验发布产物与核准文件。首次切流时停用思源的 Git 轮询和定时导出。
 
 ## 本机准备并核对版本
 
-1. 首次切流，在现行应用停止内容写入后，独立核实正式库身份、已发原文与历史、活动和归档主卡以及未完成批次。在本机获取并验证权威删除账本的最新签名头，单列 `cancelled` 的决定。用同库维护任务的冻结计划、操作 ID 和已核实文档身份，把有效永久决定映射到公开主卡 ID。结算待删与未完成任务，再形成当前核准清单。当前候选的活动列表仅用于比对。
+1. 首次切流，在现行应用停止内容写入后，独立核实正式库身份、已发原文与历史、活动和归档主卡以及未完成批次。使用切换时已核实的同库累计删除清单，导入站主本机记录。结算待删与未完成任务，再形成当前核准清单。当前候选的活动列表仅用于比对。
 2. 在本机按[离线构建说明](commands.md#离线构建只读内容包)编译一个新的私有版本目录。需要自定义转发素材时在其 `share-materials/` 放置 `catalog.json` 和对应的 `covers/<rawId>.png`。缺少某张卡的素材时使用该卡标题和站点封面。核对完整目录、所有附件和专属封面。发布涉及永久删除时，在开放入口前清理宿主上仍含被删内容的旧版数据库、独占资源和旧工作副本，读回保留卡引用的共用图片。Git 历史与脱离服务宿主的离线冷备按原约定保留。
 3. 在本机运行 `npm run content:inspect -- /path/to/release VERIFIED_LIBRARY_ID`，得到内容清单摘要、素材摘要、活动主卡数与程序读取契约。比对独立冻结库存后，由站主生成核准记录。检查输出本身不授予开放权限。
 
-每次发布或回退签准开放前，站主在本机重新获取并验签最新权威删除账本，核对生效决定与 `deletedIds`。在独立核准记录中同时留存账本提交 ID、`deletions.json` 摘要和 `checkpoint.json` 摘要。服务器以这份当前核准的摘要核对磁盘，旧控制文件即使彼此匹配也不能作为开放依据。同版重启继续核对磁盘上的当前记录。隔离验收使用合成权威账本，并对三次读回保存对应关系。
+每次签准发布或回退前，用站主独立保管的最新清单摘要导出累计删除记录，核对本次检查点中的删除文件摘要。旧内容包、旧认证副本或旧控制文件不能替代最新核准。
 
-核对服务器上已删内容的副本时，一并检查上传区中的旧内容归档、解包暂存目录及失败安装留下的文件。只含程序的兼容镜像可留作回退。清理后读回保留卡及共享附件。
+核对服务器上已删内容的副本时，一并检查旧内容归档、解包暂存目录及失败安装留下的文件。只含程序的兼容镜像可留作回退。清理后读回保留卡及共享附件。
 
-### 本机账本追加与独立校验
+### 本机累计删除记录
 
-对纯 slug 主卡签发新决定前，使用站主已核准的原稿提交和历史发布包运行 `npm run content:ledger -- capture CAPTURE_CONFIG`，保留原稿提交、主卡公开身份及返回的发布收据摘要。读取旧 v1 签决还需结算完成的同库冻结任务和文档映射。本机读回配置提供库身份、独立可信签名根及最近核准的账本头、允许签名者、证据文件及其摘要。
+在站主私有的独立目录中保存 SQLite 记录。首次导入使用已经核实的同库累计 `deletions.json`。旧读回收据 `ledger-readback.json` 中的 `deletions` 字段使用紧凑 JSON 编码，字节应匹配已经独立留存的旧 `deletionsSha256`。新库可用同一格式的空清单。以下命令分别保存初始、拟追加和已追加的累计清单。
 
 ```sh
-npm run content:ledger -- read WRITER_CONFIG
-npm run content:ledger -- prepare WRITER_CONFIG DECISION_FILE
-npm run content:ledger -- stage WRITER_CONFIG CANDIDATE_SHA
-npm run content:ledger -- verify-candidate VERIFIER_CONFIG CANDIDATE_SHA
-npm run content:ledger -- publish WRITER_CONFIG CANDIDATE_SHA
+npm run --silent content:deletions -- init --database OWNER_DB --library-id LIBRARY_ID \
+  --seed EXISTING_DELETIONS --seed-sha256 VERIFIED_SEED_SHA256 > initial-deletions.json
+npm run --silent content:deletions -- plan --database OWNER_DB --library-id LIBRARY_ID \
+  --current-sha256 CURRENT_DELETIONS_SHA256 --release VERIFIED_RELEASE \
+  --manifest-sha256 VERIFIED_MANIFEST_SHA256 PUBLIC_CARD_ID > planned-deletions.json
+npm run --silent content:deletions -- add --database OWNER_DB --library-id LIBRARY_ID \
+  --current-sha256 CURRENT_DELETIONS_SHA256 --release VERIFIED_RELEASE \
+  --manifest-sha256 VERIFIED_MANIFEST_SHA256 PUBLIC_CARD_ID > next-deletions.json
+npm run --silent content:deletions -- export --database OWNER_DB --library-id LIBRARY_ID \
+  --current-sha256 VERIFIED_NEXT_SHA256 > deletions.json
 ```
 
-写入者使用具有 Contents 写权限的专用 App，仅暂存精确候选并读取必需检查。验证者在站主机器上的独立目录使用自己的受信源码、冻结证据和仅能读库、写检查的 App，重新核验权威父提交、签名及追加内容后为精确 SHA 发布检查。正式启用前读回分支保护绑定的 App 和检查名称，在演练分支验证身份分离、正常追加和拒绝路径。服务器运行与回退均消费本机核准后的产物。
+新增前核对目标的主卡 ID、归属和旧链接。命令只接受在已核准发布包中保留身份且不可公开读取的主卡 ID，可以在同一事务登记多张。先独立保存旧清单、待追加清单及各自摘要。提交删除决定前关闭入口并排空请求。追加命令输出应逐字等于待追加清单。若提交中断，用预计的新摘要尝试导出。若新摘要不符而旧摘要仍能导出，可重试该批。读回并独立保管新清单及其摘要，再生成闭门检查点并执行认证和分享清理。删除记录数据库、最新导出及摘要应在站主侧保留独立副本，与站点内容和认证冷备分开。恢复时从当前清单重新生成检查点。
 
 ## 控制目录与认证交割
 

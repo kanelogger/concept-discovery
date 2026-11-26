@@ -2,7 +2,7 @@
   "schema_version": 1,
   "task_id": "0068-route-a-lightweight-refactor",
   "task_file": "tasks/0068-route-a-lightweight-refactor.md",
-  "phase": "blocked",
+  "phase": "verification",
   "updated_at": "2026-11-26",
-  "summary": "正式内容包已在生产验摘要暂存，279 张活动卡双镜像逐卡读回通过。站主要求先永久删除两张测试卡再切流。两卡当前不可由候选库读取，但未获得正式删除签决，本机缺受信签署能力。公网未切换，原登录返回 500；旧维护服务已停止但仍启用开机启动。"
+  "summary": "本机累计删除已接管旧一笔及本次两笔，发布和恢复不需 Git 或 GitHub。正式新容器回环就绪、读卡与有效分享通过，旧分享已拒绝，旧维护服务已停止并取消自启。旧思源数据和冷备仍在停用的服务器私有目录，公网未切换。"
 }

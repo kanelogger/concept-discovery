@@ -19,7 +19,7 @@ function json(file, value) {
   return sha(text);
 }
 
-export async function contentFixture(root, origin, {createLedger,releaseLabel=''} = {}) {
+export async function contentFixture(root, origin, {createDeletionAuthority,releaseLabel=''} = {}) {
   const rawRoot = join(root,'raw'), directory = join(root,'release'), previous = join(root,'previous');
   const settings = join(root,'settings'), controlDirectory = join(root,'control'), auth = join(root,'auth');
   const databasePath = join(auth,'auth.sqlite'), cold = join(root,'cold.sqlite');
@@ -43,7 +43,6 @@ export async function contentFixture(root, origin, {createLedger,releaseLabel=''
   for (const id of ['card-a','card-b','card-c']) article(id);
   json(baselineFile,{version:1,libraryId,sources:[],proposals:[],events:[]});
   compile(previous);
-  const ledger = createLedger?.({libraryId,publicId:'card-b',publishedRelease:previous,rawRoot});
   article('card-a',true);
   rmSync(join(rawRoot,'示例','card-b'),{recursive:true});
   delete cards['card-b'];
@@ -63,6 +62,7 @@ export async function contentFixture(root, origin, {createLedger,releaseLabel=''
     assetBytes:manifest.files.filter(f=>f.path.startsWith('assets/')).reduce((sum,f)=>sum+statSync(join(directory,f.path)).size,0)};
   const asset = '/' + manifest.files.find(file=>file.path.startsWith('assets/')).path;
   const manifestSha256 = sha(readFileSync(join(directory,'manifest.json')));
+  const deletionAuthority = createDeletionAuthority?.({libraryId,publicId:'card-b',directory,manifestSha256});
   const reader = openContentReader({directory,libraryId,origin});
   let materialDigest;
   try { materialDigest = openContentShareMaterials(join(directory,'share-materials'),reader).digest; }
@@ -89,15 +89,23 @@ export async function contentFixture(root, origin, {createLedger,releaseLabel=''
   let generation = 0;
   function control(state,authIdentity) {
     generation++;
-    const review=ledger?.read();
+    const review=deletionAuthority?.read();
     const deletions=review?.deletions ?? {version:1,libraryId,deletedIds:['card-b']};
     if (deletions.libraryId!==libraryId || JSON.stringify(deletions.deletedIds)!=='["card-b"]') throw new Error('合成账本与已核实的删除目标不符');
     const approvedSha256 = json(join(controlDirectory,'approved.json'),{version:1,libraryId,generation,state,authIdentity,
       readerContract:1,manifestSha256,materialDigest,activeIds:Object.keys(cards).filter(id=>id!=='card-a'),archivedIds:['card-a']});
-    const deletionsSha256 = json(join(controlDirectory,'deletions.json'),deletions);
-    if (review && review.deletionsSha256!==deletionsSha256) throw new Error('签名账本与落盘的删除清单摘要不符');
+    const deletionFile = join(controlDirectory,'deletions.json');
+    let deletionsSha256;
+    if (review) {
+      writeFileSync(deletionFile+'.next',review.bytes,{mode:0o600});
+      renameSync(deletionFile+'.next',deletionFile);
+      deletionsSha256 = sha(readFileSync(deletionFile));
+    } else {
+      deletionsSha256 = json(deletionFile,deletions);
+    }
+    if (review && review.deletionsSha256!==deletionsSha256) throw new Error('站主记录与落盘的删除清单摘要不符');
     const checkpointSha256 = json(join(controlDirectory,'checkpoint.json'),{version:1,libraryId,generation,approvedSha256,deletionsSha256});
-    return {...opts,checkpointSha256,deletionsSha256,ledgerHead:review?.ledgerHead};
+    return {...opts,checkpointSha256,deletionsSha256,authoritySha256:review?.authoritySha256};
   }
   let identity = handoffContentAuth('bind',control('closed',null));
   copyFileSync(databasePath,cold);
