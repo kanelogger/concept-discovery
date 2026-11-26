@@ -1,10 +1,9 @@
 import MarkdownIt from "markdown-it";
 import linkifyText from "markdown-it/lib/rules_core/linkify.mjs";
 import { parseFragment } from "parse5";
-import { empty } from "../lib/markdown.mjs";
+import { emptyFixedField as empty, validBlockID } from "../lib/read-contract.mjs";
 
 const escape = (value) => String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
-const blockID = /^\d{14}-[a-z0-9]{7}$/;
 const renderOrigin = "https://local.invalid";
 function destination(value) {
   if (value.startsWith("assets/") && new URL(value, renderOrigin).pathname.startsWith("/assets/")) {
@@ -176,7 +175,7 @@ function omitEmptyFixedFields(tokens) {
   return visible;
 }
 
-function anchorBlocks(tokens, source, blocks) {
+function anchorBlocks(tokens, source, blocks, onMissingBlock) {
   const byLine = new Map();
   const roots = [];
   for (const token of tokens) {
@@ -189,13 +188,15 @@ function anchorBlocks(tokens, source, blocks) {
   let cursor = 0;
   let line = 0;
   for (const block of blocks) {
-    if (!blockID.test(block.id)) continue;
+    if (!validBlockID(block.id)) continue;
     const text = block.markdown.trim();
     const start = text ? source.indexOf(text, cursor) : -1;
     if (start >= 0) line += source.slice(cursor, start).split("\n").length - 1;
     const token = start >= 0 ? byLine.get(line) : undefined;
-    if (token && !token.attrGet("id")) token.attrSet("id", block.id);
+    const wholeBlock = !onMissingBlock || (token && token.map[1] - token.map[0] === text.split("\n").length);
+    if (token && wholeBlock && !token.attrGet("id")) token.attrSet("id", block.id);
     else {
+      onMissingBlock?.(block.id);
       // Reference definitions have no visible token but can still be linked to.
       const next = roots.find(candidate => candidate.map[0] >= line);
       if (!fallbacks.has(next)) fallbacks.set(next, []);
@@ -209,11 +210,11 @@ function anchorBlocks(tokens, source, blocks) {
   return [...tokens.flatMap(token => [...(fallbacks.get(token) ?? []), token]), ...(fallbacks.get(undefined) ?? [])];
 }
 
-export function renderMarkdown(markdown, { legacyFixedFields = false, blocks = [], membershipLines } = {}) {
+export function renderMarkdown(markdown, { legacyFixedFields = false, blocks = [], membershipLines, onMissingBlock } = {}) {
   const source = String(markdown ?? "");
   const parsed = md.parse(source, {});
   const visible = legacyFixedFields ? omitEmptyFixedFields(parsed) : parsed;
-  const tokens = blocks.length ? anchorBlocks(visible, source, blocks) : visible;
+  const tokens = blocks.length ? anchorBlocks(visible, source, blocks, onMissingBlock) : visible;
   if (membershipLines?.size) {
     for (const token of tokens) {
       if (token.type === 'list_item_open' && membershipLines.has(token.map[0]))
@@ -223,4 +224,4 @@ export function renderMarkdown(markdown, { legacyFixedFields = false, blocks = [
   convertInline(tokens);
   return md.renderer.render(tokens, md.options, {});
 }
-export function validBlockID(value) { return blockID.test(value); }
+export { validBlockID };

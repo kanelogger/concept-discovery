@@ -2,8 +2,8 @@ import { lstatSync, readFileSync, realpathSync } from 'node:fs';
 import { dirname, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { authenticationConfig, isLoopback } from '../server/auth-config.mjs';
-import { openServiceAuth } from '../server/main.mjs';
-import { createApp } from '../server/app.mjs';
+import { openServiceAuth } from '../server/auth-store.mjs';
+import { createReaderApp } from '../server/reader-http.mjs';
 import { openContentReader } from '../server/content-reader.mjs';
 import { createWechatShare, wechatShareConfig } from '../server/wechat-share.mjs';
 import { shareMaterialReader } from '../server/card-share-preview.mjs';
@@ -35,7 +35,7 @@ export async function startContentShadow(configFile) {
     authStore=openServiceAuth(auth);
     const materials=config.shareMaterialsDirectory ? realpathSync(resolve(base,config.shareMaterialsDirectory)) : resolve(directory,'share-materials');
     if (config.shareMaterialsDirectory) JSON.parse(readFileSync(resolve(materials,'catalog.json'),'utf8'));
-    server=createApp({contentReader:reader,publicUrl:origin.origin,agentToken:token,authMode:auth.mode,authStore,
+    server=createReaderApp({contentReader:reader,publicUrl:origin.origin,agentToken:token,authMode:auth.mode,authStore,
       trustedProxyAddress:auth.trustedProxyAddress,requireUIAssets:true,
       wechatShare:createWechatShare(wechatShareConfig(config.wechatShare,file)),
       getShareMaterial:shareMaterialReader(pathToFileURL(materials+sep))});

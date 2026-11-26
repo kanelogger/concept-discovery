@@ -261,3 +261,10 @@ test("a logout broadcast precedes a delayed successful first session response", 
     } finally {await context.close();}
   });
 });
+
+test("a retired native block bookmark retains the parent card and reports the changed position", async ({page,shadowUrl})=>{
+  await page.goto(shadowUrl+'/?id=new#20261126090000-absent0');
+  await expect(page.locator('#document-title')).toHaveText(title);
+  await expect(page.locator('.reader-notice')).toContainText('原来的引用位置已变化');
+  await expect(page.locator('#document-body')).toContainText(keyword);
+});

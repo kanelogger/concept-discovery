@@ -38,6 +38,11 @@ test('the shadow opens a verified release and never serves unlisted or changed a
   assert.deepEqual(Buffer.from(await response.arrayBuffer()),png);
   writeFileSync(join(directory,'assets','unpublished.txt'),'unpublished');
   assert.equal((await reader.readAsset('/assets/unpublished.txt')).status,404);
+  assert.throws(()=>openContentReader(options),/未核准/);
+  rmSync(join(directory,'assets','unpublished.txt'));
+  writeFileSync(join(directory,'knowledge.sqlite.bak'),'unlisted old database');
+  assert.throws(()=>openContentReader(options),/未封存/);
+  rmSync(join(directory,'knowledge.sqlite.bak'));
   writeFileSync(join(directory,path.slice(1)),'changed after startup');
   await assert.rejects(reader.readAsset(path),{code:'content_unavailable'});
   assert.throws(()=>openContentReader(options),/文件与清单摘要/);

@@ -1,8 +1,5 @@
-import { parseFragment, serialize } from 'parse5';
-import { cardScope } from '../lib/library-scope.mjs';
-import { fail, quote } from '../lib/siyuan.mjs';
+import { fail, validBlockID } from '../lib/read-contract.mjs';
 import { readSession } from './auth-http.mjs';
-import { renderMarkdown, validBlockID } from './render.mjs';
 import { validPreviewId, validShareToken } from './card-share-store.mjs';
 import { defaultCover, describePreview, readShareCover } from './card-share-preview.mjs';
 
@@ -46,6 +43,7 @@ async function imageData(response, limit) {
 }
 
 async function snapshot(card, origin, readAsset) {
+  const [{ renderMarkdown }, { parseFragment, serialize }] = await Promise.all([import('./render.mjs'), import('parse5')]);
   const html = renderMarkdown(card.markdown, { legacyFixedFields: card.legacyFixedFields });
   if (Buffer.byteLength(html) > htmlLimit) fail('input_too_large', '卡片正文过大，无法创建分享链接。');
   const tree = parseFragment(html);
@@ -108,7 +106,7 @@ function signatureUrl(value, origin, expectedPath) {
   }
 }
 
-export function cardShareRoutes({ api, activeMain, authStore, dispatch, origin, json, readAsset, send, wechatShare, getShareMaterial }) {
+export function cardShareRoutes({ legacyCardInfo, activeMain, authStore, dispatch, origin, json, readAsset, send, wechatShare, getShareMaterial }) {
   const shares = authStore?.shares;
   const toUrl = (token, preview) => `${origin}${sharePath(preview)}#${token}`;
   const describe = preview => preview ? describePreview(preview, origin) : null;
@@ -117,12 +115,7 @@ export function cardShareRoutes({ api, activeMain, authStore, dispatch, origin, 
       const info = await activeMain(id);
       return info && !shares?.fencedForDeletion(info.id) ? info : null;
     }
-    const rows = await api.sql(`SELECT b.id, b.content AS title,
-      (SELECT value FROM attributes WHERE block_id = b.id AND name = 'custom-cd-legacy-id' LIMIT 1) AS rawId
-      FROM blocks b WHERE b.id = ${quote(id)} AND ${cardScope(api.c)}
-      AND NOT EXISTS (SELECT 1 FROM attributes parent WHERE parent.block_id = b.id
-        AND parent.name = 'custom-cd-parent' AND parent.value <> '')`, { signal: AbortSignal.timeout(5000) });
-    return rows[0];
+    return legacyCardInfo(id);
   };
   const publicActive = async id => {
     const info = await cardInfo(id).catch(() => fail('share_unavailable', '暂时无法读取分享。'));

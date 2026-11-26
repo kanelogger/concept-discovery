@@ -1,3 +1,4 @@
+import { verifiedShareCover } from './content-share-materials.mjs';
 import { readFileSync } from 'node:fs';
 
 export const defaultCover = '/share-cover.png';
@@ -22,7 +23,10 @@ export function shareMaterialReader(root) {
 
 export const getShareMaterial = shareMaterialReader(materials);
 
-export const readShareCover = cover => cover ? { type: 'image/png', bytes: readFileSync(cover) } : null;
+export function readShareCover(cover) {
+  if (!cover) return null;
+  return cover.file ? verifiedShareCover(cover) : {type:'image/png', bytes:readFileSync(cover)};
+}
 
 export function describePreview(preview, origin) {
   return {

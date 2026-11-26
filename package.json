@@ -25,7 +25,14 @@
     "freeze:content": "node scripts/freeze-content-inputs.mjs",
     "build:content": "node scripts/build-content.mjs",
     "prepack": "npm run build:web",
-    "test:browser": "playwright test --config tests/browser/playwright.config.mjs"
+    "test:browser": "playwright test --config tests/browser/playwright.config.mjs",
+    "start:content": "node scripts/start-content-service.mjs",
+    "content:auth": "node scripts/content-auth-admin.mjs",
+    "test:content-container": "node tests/service/content-container-integration.mjs",
+    "content:inspect": "node scripts/inspect-content-release.mjs",
+    "content:package": "node scripts/package-content-delivery.mjs",
+    "content:ledger": "node scripts/content-ledger.mjs",
+    "test:content-offline": "node tests/service/content-offline-integration.mjs"
   },
   "dependencies": {
     "d3": "7.9.2",
@@ -64,6 +71,17 @@
     "scripts/freeze-content-inputs.mjs",
     "scripts/raw-connection.mjs",
     "scripts/frozen-reader.mjs",
-    "scripts/start-content-shadow.mjs"
+    "scripts/start-content-shadow.mjs",
+    "scripts/start-content-service.mjs",
+    "scripts/content-auth-admin.mjs",
+    "scripts/inspect-content-release.mjs",
+    "scripts/package-content-delivery.mjs",
+    "scripts/content-ledger.mjs",
+    "scripts/content-ledger-check.mjs",
+    "scripts/git-deletion-ledger.mjs",
+    "scripts/github-app-installation.mjs",
+    "scripts/github-branch-reader.mjs",
+    "scripts/github-deletion-ledger-gate.mjs",
+    "scripts/verify-deletion-ledger-append.mjs"
   ]
 }

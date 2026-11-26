@@ -14,6 +14,7 @@ server/share-materials/
 !web/**
 !scripts/
 !scripts/service-start.mjs
+!scripts/start-content-service.mjs
 !scripts/build-web.mjs
 !deploy/
 !deploy/Dockerfile

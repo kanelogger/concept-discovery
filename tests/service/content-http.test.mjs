@@ -27,6 +27,10 @@ async function fixture(t) {
     },
     async dispatch(command, {id}, {publicUrl, signal}) {
       assert.equal(publicUrl, origin);
+      if (command==='list') {
+        await state.beforeList?.();
+        return {items:[],total:0};
+      }
       assert.ok(command === 'get-document');
       await state.beforeDocument?.();
       signal?.throwIfAborted();
@@ -137,6 +141,14 @@ test('candidate private conditional GET checks authorization, availability and r
   state.beforeView = () => {state.session = false;};
   noStore(await get(graph,'*'),401);
   noStore(await get(image,'*'),401);
+});
+
+test('private list responses recheck an owner session revoked while the query was running',async t=>{
+  const {state,request}=await fixture(t);
+  state.beforeList=()=>{state.session=false;};
+  const path='/api/v1/commands/list';
+  noStore(await request(path,{method:'POST',headers:owner,data:{}}),401);
+  assert.deepEqual(await data(await request(path,{method:'POST',headers:agent,data:{}})),{items:[],total:0});
 });
 
 test('aliases and new slugs use one persistent share identity across legacy upgrade, public reads and revocation', async t => {

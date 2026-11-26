@@ -43,6 +43,13 @@
       "command": "npm run raw --",
       "target": "local-siyuan"
     },
+    "single_container_candidate": {
+      "compose": "deploy/compose.content.yaml",
+      "documentation": "docs/agent-environment/content-release.md",
+      "verification": "test:content-container",
+      "owner_packaging_command": "npm run content:package",
+      "offline_deployment_verification": "test:content-offline"
+    },
     "loopback_content_shadow": {
       "command": "npm run start:shadow",
       "documentation": "docs/agent-environment/commands.md"

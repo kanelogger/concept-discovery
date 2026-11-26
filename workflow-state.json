@@ -2,7 +2,7 @@
   "schema_version": 1,
   "task_id": "0068-route-a-lightweight-refactor",
   "task_file": "tasks/0068-route-a-lightweight-refactor.md",
-  "phase": "implementation",
+  "phase": "verification",
   "updated_at": "2026-11-26",
-  "summary": "阶段 0 至 3 已本地提交。阶段 4 已调整为站主本机执行全部 Git 操作并出包，服务器离线导入。已有单容器演练通过，热负载 RSS 93.97 MB 超目标。无项目工作副本且宿主和容器均无法访问 GitHub 的发布、重启、回退验收待做。本轮只调整计划和任务，生产保持现状，原站 500 尚无恢复读回。"
+  "summary": "阶段 4 本地候选已在干净的 Ubuntu 24.04 amd64 隔离宿主发布、重启和回退，宿主和容器均阻断 GitHub，逐步业务和执行记录核对通过。ARM 开发容器实际登录后的热读 RSS 为 73.69 MB。正式站继续沿用原部署，生产冻结、App 权限与切流需正式窗口，原站 500 尚无恢复读回。"
 }

@@ -17,7 +17,8 @@ export function authenticationConfig(service, configPath) {
   const { auth } = service;
   const mode = authenticationMode(publicOrigin, auth?.mode ?? 'required');
   if (mode === 'local') return { mode };
-  const base = dirname(resolve(configPath));
+  const configDirectory = dirname(resolve(configPath));
+  const base = service.backend === 'content' && service.authDirectory ? resolve(configDirectory, service.authDirectory) : configDirectory;
   const filename = auth?.databaseFile;
   if (typeof filename !== 'string' || filename === '.' || filename === '..' || !filename || basename(filename) !== filename || /[\\\x00-\x1f]/.test(filename)) {
     throw new Error('Configure auth.databaseFile as a private filename beside service.json');

@@ -62,7 +62,7 @@ function transaction(database, action) {
   }
 }
 
-function prepareDatabase(path, initialize) {
+function prepareDatabase(path, initialize, readOnly = false) {
   if (initialize) {
     try {
       closeSync(openSync(path, 'wx', 0o600));
@@ -71,7 +71,7 @@ function prepareDatabase(path, initialize) {
     }
   }
   requirePrivateFile(path);
-  const database = new DatabaseSync(path, { timeout: 3_000 });
+  const database = new DatabaseSync(path, { timeout: 3_000, readOnly });
   try {
     if (initialize) transaction(database, () => {
       const { application_id: identifier } = database.prepare('PRAGMA application_id').get();
@@ -124,6 +124,19 @@ function revokeAll(database) {
   database.exec('DELETE FROM sessions; DELETE FROM rate_limits;');
 }
 
+// Offline handoff and its read-only verifier must recognize the same provisioned
+// database as the service, without initializing an empty or foreign database.
+export function openProvisionedAuthDatabase(path, {readOnly = false} = {}) {
+  const database = prepareDatabase(path, false, readOnly);
+  try {
+    readOwner(database);
+    return database;
+  } catch (error) {
+    database.close();
+    throw error;
+  }
+}
+
 export async function initializeAuthStore({ databasePath }, { username, password }) {
   username = provisioningName(username);
   validatePassword(password);
@@ -144,9 +157,13 @@ export async function initializeAuthStore({ databasePath }, { username, password
 
 export function openAuthStore({ databasePath, now = Date.now }) {
   const database = prepareDatabase(databasePath, false);
-  let shares;
-  try { shares = cardShareStore(database); }
-  catch (error) { database.close(); throw error; }
+  let shares, currentSession;
+  try {
+    shares = cardShareStore(database);
+    currentSession = database.prepare(`SELECT public_id AS publicId, expires_at AS expiresAt
+      FROM sessions JOIN owner ON owner.version=sessions.version AND owner.account=1
+      WHERE digest=? AND expires_at > ?`);
+  } catch (error) { database.close(); throw error; }
   let passwordChecks = 0;
 
   function reserveAttempt(source) {
@@ -170,9 +187,7 @@ export function openAuthStore({ databasePath, now = Date.now }) {
   function session(token) {
     const digest = tokenDigest(token);
     if (!digest) return null;
-    return database.prepare(`SELECT public_id AS publicId, expires_at AS expiresAt
-      FROM sessions JOIN owner ON owner.version=sessions.version AND owner.account=1
-      WHERE digest=? AND expires_at > ?`).get(digest, now()) ?? null;
+    return currentSession.get(digest, now()) ?? null;
   }
 
   async function verifyPassword(password, source, verifyOwner) {
@@ -252,4 +267,11 @@ export function openAuthStore({ databasePath, now = Date.now }) {
 
     close: () => database.close(),
   };
+}
+
+export function openServiceAuth(auth) {
+  if(auth.mode==='local')return;
+  const store=openAuthStore(auth);
+  try{store.assertReady();return store;}
+  catch(error){store.close();throw error;}
 }

@@ -1,0 +1,34 @@
+services:
+  app:
+    image: ${CONCEPT_CONTENT_IMAGE:?Select a built and verified content-runtime image}
+    pull_policy: never
+    user: "${CONCEPT_UID:-1000}:${CONCEPT_GID:-1000}"
+    environment:
+      CONCEPT_SERVICE_CONFIG: /settings/service.json
+      TZ: Asia/Shanghai
+    ports:
+      - "127.0.0.1:${CONCEPT_PORT:-6806}:3000"
+    volumes:
+      - type: bind
+        source: ${CONCEPT_CONTENT_RELEASE:?Set the immutable release directory}
+        target: /content
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${CONCEPT_CONTENT_SETTINGS:?Set the independent service configuration directory}
+        target: /settings
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${CONCEPT_CONTENT_CONTROL:?Set the authoritative control directory}
+        target: /control
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${CONCEPT_CONTENT_AUTH:?Set the dedicated owner and share database directory}
+        target: /auth
+        bind: {create_host_path: false}
+    read_only: true
+    tmpfs:
+      - /tmp
+    restart: unless-stopped

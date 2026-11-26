@@ -1,4 +1,4 @@
-import { fail } from '../lib/siyuan.mjs';
+import { fail } from '../lib/read-contract.mjs';
 import { confirmSessionPassword, readSession } from './auth-http.mjs';
 
 const prefix = '/api/card-lifecycle';

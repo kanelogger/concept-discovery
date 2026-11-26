@@ -14,6 +14,9 @@
 | 加载耗时采样或程序资源缓存 | `node --test tests/performance/field-load.test.mjs` 核对真实浏览器的缓存命中、304、连接失败和去敏；以同一探针对旧版与新版运行 `node tests/performance/field-load.mjs --fixture`，核对每次可读时刻、会话及列表请求。 |
 | 存储布局、内核升级、备份/恢复协议 | 真实集成及独立冷备恢复检查；按改动补充浏览器检查 |
 | 构建、依赖或部署 | 构建及真实集成；界面依赖变化时补充浏览器检查 |
+| 单容器 SQLite 候选 | `npm run test:content-container` 使用 Docker、Nginx、OpenSSL 和 Playwright Chromium，核对真实登录阅读、代理闭门、冷恢复和服务性能。通过 `CONCEPT_TEST_ROLLBACK_IMAGE` 指定另一个已构建的兼容镜像，可验证程序回退。 |
+
+离线发布另用 `npm run test:content-offline -- --help` 所列参数。以专属 Ubuntu 测试机、独立 Docker daemon、宿主 Nginx、两份已构建程序及合成签名账本采样。收回业务结果、阻断探针、进程及网络证据后再评定；功能和观测结论分别保留。
 
 选择依据和实际结果只记在本任务文件一处。相同产物已通过的检查无需重复运行；后续改动只重跑受影响范围。失败、跳过、未覆盖或不可用必须如实写明，不把历史结果当作当前通过。
 

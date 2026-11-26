@@ -1,5 +1,5 @@
 import { isIP } from 'node:net';
-import { fail } from '../lib/siyuan.mjs';
+import { fail } from '../lib/read-contract.mjs';
 
 export const isReadingPage = (path) => ['/', '/wiki', '/scenarios', '/graph', '/archives'].includes(path) || /^\/cards(?:\/[^/]+(?:\/edit)?)?$/.test(path);
 

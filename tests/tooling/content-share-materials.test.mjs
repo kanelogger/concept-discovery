@@ -1,0 +1,33 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import {copyFileSync,mkdirSync,mkdtempSync,renameSync,rmSync,symlinkSync,writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {openContentShareMaterials} from '../../server/content-share-materials.mjs';
+import {readShareCover} from '../../server/card-share-preview.mjs';
+
+test('published materials are pinned to the matching active title and the exact cover bytes', t=>{
+  const root=mkdtempSync(join(tmpdir(),'cd-sealed-materials-'));
+  t.after(()=>rmSync(root,{recursive:true,force:true}));
+  const dir=join(root,'materials'),owner={id:'public-keeper',title:'保留卡',rawId:'keeper'};
+  const reader={activeMain:id=>id==='keeper'?owner:null};
+  assert.equal(openContentShareMaterials(dir,reader).get(owner).title,owner.title);
+  mkdirSync(join(dir,'covers'),{recursive:true});
+  const row={id:'keeper',cardTitle:owner.title,title:'转发标题',description:'摘要'};
+  const catalog=join(dir,'catalog.json'),cover=join(dir,'covers','keeper.png');
+  writeFileSync(catalog,JSON.stringify({keeper:row}));
+  copyFileSync(new URL('../../web/share-cover.png',import.meta.url),cover);
+  const release=openContentShareMaterials(dir,reader);
+  assert.equal(release.get(owner).title,'转发标题');
+  assert.equal(readShareCover(release.get(owner).cover).type,'image/png');
+  writeFileSync(catalog,JSON.stringify({keeper:{...row,title:'新素材'}}));
+  assert.equal(release.get(owner).title,'转发标题');
+  assert.notEqual(openContentShareMaterials(dir,reader).digest,release.digest);
+  copyFileSync(cover,join(dir,'covers','deleted.png'));
+  assert.throws(()=>openContentShareMaterials(dir,reader),/封面/);
+  rmSync(join(dir,'covers','deleted.png'));
+  writeFileSync(cover,'changed');assert.throws(()=>readShareCover(release.get(owner).cover),{code:'share_unavailable'});
+  renameSync(join(dir,'covers'),join(root,'other-covers'));
+  symlinkSync(join(root,'other-covers'),join(dir,'covers'),'dir');
+  assert.throws(()=>openContentShareMaterials(dir,reader),/实体目录/);
+});

@@ -12,6 +12,22 @@
 
 每次发布或回退签准开放前，站主在本机重新获取并验签最新权威删除账本，核对生效决定与 `deletedIds`。在独立核准记录中同时留存账本提交 ID、`deletions.json` 摘要和 `checkpoint.json` 摘要。服务器以这份当前核准的摘要核对磁盘，旧控制文件即使彼此匹配也不能作为开放依据。同版重启继续核对磁盘上的当前记录。隔离验收使用合成权威账本，并对三次读回保存对应关系。
 
+核对服务器上已删内容的副本时，一并检查上传区中的旧内容归档、解包暂存目录及失败安装留下的文件。只含程序的兼容镜像可留作回退。清理后读回保留卡及共享附件。
+
+### 本机账本追加与独立校验
+
+对纯 slug 主卡签发新决定前，使用站主已核准的原稿提交和历史发布包运行 `npm run content:ledger -- capture CAPTURE_CONFIG`，保留原稿提交、主卡公开身份及返回的发布收据摘要。读取旧 v1 签决还需结算完成的同库冻结任务和文档映射。本机读回配置提供库身份、独立可信签名根及最近核准的账本头、允许签名者、证据文件及其摘要。
+
+```sh
+npm run content:ledger -- read WRITER_CONFIG
+npm run content:ledger -- prepare WRITER_CONFIG DECISION_FILE
+npm run content:ledger -- stage WRITER_CONFIG CANDIDATE_SHA
+npm run content:ledger -- verify-candidate VERIFIER_CONFIG CANDIDATE_SHA
+npm run content:ledger -- publish WRITER_CONFIG CANDIDATE_SHA
+```
+
+写入者使用具有 Contents 写权限的专用 App，仅暂存精确候选并读取必需检查。验证者在站主机器上的独立目录使用自己的受信源码、冻结证据和仅能读库、写检查的 App，重新核验权威父提交、签名及追加内容后为精确 SHA 发布检查。正式启用前读回分支保护绑定的 App 和检查名称，在演练分支验证身份分离、正常追加和拒绝路径。服务器运行与回退均消费本机核准后的产物。
+
 ## 控制目录与认证交割
 
 控制目录使用三个 JSON 文件。摘要均为**文件原始字节**的 SHA-256。版本 1 使用下列字段。
@@ -34,22 +50,26 @@ npm run content:auth -- bind --offline --database /path/auth/auth.sqlite --libra
 
 ## 构建与启动
 
-在本机核实目标服务器的 Linux 架构，构建并导出程序镜像。将示例中的 `linux/PROD_ARCH` 和 `VERIFIED_VERSION` 替换为核实的平台和本次版本。记录不可变镜像 ID。单独保留上一兼容镜像及其归档，新旧程序都须能核实当前内容格式。
+站主已确认目标平台为 `linux/amd64`。在本机为目标架构构建程序，再把核准的 SQLite、素材和完整 Nginx/Compose 配置放进新交付目录。下面的版本、库身份与路径需换成本次实际值。Nginx 配置须让业务和就绪子请求使用同一上游。
 
 ```sh
-docker build --platform linux/PROD_ARCH --target content-runtime -f deploy/Dockerfile -t concept-discovery-content:VERIFIED_VERSION .
-docker image inspect --format '{{.Id}}' concept-discovery-content:VERIFIED_VERSION
-docker image save -o concept-discovery-content-VERIFIED_VERSION.tar concept-discovery-content:VERIFIED_VERSION
+docker build --platform linux/amd64 --target content-runtime -f deploy/Dockerfile -t concept-discovery-content:VERSION .
+npm run content:package -- --platform linux/amd64 --image concept-discovery-content:VERSION \
+  --program-version PROGRAM_REV --input-version RAW_REV --library-id VERIFIED_LIBRARY \
+  --release /private/current-content --compose deploy/compose.content.yaml \
+  --nginx /private/proxy/nginx.conf --readiness /private/proxy/readiness.conf --output /private/delivery-VERSION
 ```
 
-本机生成发布清单，记录程序镜像 ID、目标平台、内容清单摘要、内容格式和交付文件 SHA-256。经受控通道交付镜像归档、内容包、Compose 文件、本次使用的 Nginx 上游及就绪配置和发布清单。服务器按站主核准的清单摘要验收交付物。核准、删除及检查点文件通过独立控制目录交付。认证卷和密钥单独管理。
+在独立核准记录保存命令返回的 `manifestSha256`。交付目录含 `delivery.json`、单平台镜像归档、内容包及三份配置。清单分别记录平台配置摘要、程序及输入版本、SQLite 格式、读取契约和逐文件摘要。认证卷、密钥及核准控制目录单独交割。提前保留并核准上一兼容程序，可仅向服务器导入其程序归档。
 
-服务器从新落盘目录对照站主核准的发布清单校验摘要，导入镜像后核对镜像 ID，再将内容装入新版本目录。启动前确认上一兼容镜像已在宿主可用。
+服务器预先布置来自可信来源的 [Python 安装器](../../deploy/install-content-delivery.py)，或独立核实脚本摘要。服务器使用 Python 3、支持 STRICT 表的 SQLite 和本机 Docker，无需项目工作副本。将本次交付目录传入后，使用来自独立核准记录的摘要执行安装。
 
 ```sh
-docker image load -i /path/to/delivery/concept-discovery-content-VERIFIED_VERSION.tar
-docker image inspect --format '{{.Id}}' concept-discovery-content:VERIFIED_VERSION
+python3 /opt/site-tools/install-content-delivery.py --delivery /srv/site/uploads/delivery-VERSION \
+  --manifest-sha256 VERIFIED_DELIVERY_SHA256 --install-root /srv/site/versions
 ```
+
+版本库目录须已存在。安装器核对宿主 Docker 平台、交付内容和镜像身份，导入后在新版本目录读回配置、素材及数据库。重复安装复核原目录。将返回的 `contentDirectory` 和 `imageRef` 配入 Compose；用返回的 `imageId` 核对活动容器的实际程序。两个引擎可能分别用平台 manifest 或 config 标识同一程序，交付清单保存可对照的不可变摘要。
 
 在独立只读设置目录放入站主配置的令牌文件及 `service.json`。示例中的值需替换为实际核对结果：
 
@@ -79,12 +99,14 @@ docker compose --project-name SITE_PROJECT --env-file /path/to/content.env -f /p
 
 ### GitHub 不可达时的验收
 
-使用与正式部署同构的隔离宿主。部署目录只准备发布产物及服务数据，不放置项目 Git 工作副本或 GitHub 凭据。阻断宿主和应用容器访问 GitHub，保留入站产物传输和经 Nginx 的 HTTPS 访问。从宿主和容器分别主动验证阻断，为每个探针记录时间和进程来源。三步均在阻断持续期间执行，核对出站记录时可据此辨认探针。
+使用与正式部署同构的隔离宿主。准备独立的 Docker daemon、宿主 Nginx 和只属于本轮的观测组件。[隔离宿主准备与观察器](offline-drill-host.md)
+
+部署目录只准备发布产物及服务数据，不放置项目 Git 工作副本或 GitHub 凭据。阻断宿主和应用容器访问 GitHub，保留入站产物传输和经 Nginx 的 HTTPS 访问。从宿主和容器分别主动验证阻断，为每个探针记录时间和进程来源。三步均在阻断持续期间执行，核对出站记录时可据此辨认探针。
 
 1. **发布。** 上传并校验此前未安装的新镜像与内容包，导入镜像，按闭门核准流程启动并开放。核对运行中的镜像 ID 和内容清单摘要。
 2. **重启。** 用同一配置重启应用，确认进程确已重启，镜像和内容版本与重启前一致，就绪恢复，当前认证和分享照常可用。
 3. **回退。** 闭门后把程序切回已导入且镜像 ID 不同的上一兼容版本，继续挂载当前核准内容、最新删除记录和当前认证卷。核对镜像已回退、内容仍为当前版本，然后复核开放条件。
 
-每步经代理验证就绪、站主登录、`/cards`、保留卡与共用附件、有效分享，以及归档卡、已删卡和撤销分享的拒绝结果。证据包含导入前后的镜像和内容库存、运行容器的镜像 ID 与启动时间、当前内容和独立检查点摘要、认证卷卷号与世代。保留三步的部署命令和宿主及容器的进程执行记录，以核实部署与服务均未调用 Git。将业务进程与出站记录对应，核实它们没有访问 GitHub。读回只记录测试对象和结果，移除登录及分享凭证。三步全部通过才满足本项切换条件。
+每步经代理验证就绪、站主登录、`/cards`、保留卡与共用附件。三步沿用同一条预先签发的有效分享，用保留卡先前已撤销的另一条旧链接核对拒绝结果，同时核对归档卡、永久删除卡的旧分享及封面。证据包含导入前后的镜像和内容库存、运行容器的镜像 ID 与启动时间、当前内容和独立检查点摘要、认证卷卷号与世代。保留三步的部署命令和宿主及容器的进程执行记录，以核实部署与服务均未调用 Git。将业务进程与出站记录对应，核实它们没有访问 GitHub。读回只记录测试对象和结果，移除登录及分享凭证。三步全部通过才满足本项切换条件。
 
 实际正式站还需核实旧宿主离线冷备、排空/停写和线上副本物理清理、公网证书、站主登录、微信实机及持续可达性。隔离演练与正式站读回分别记录。

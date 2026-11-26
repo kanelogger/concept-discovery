@@ -19,4 +19,6 @@ CLI 从 stdin 接收 JSON，成功时 stdout 返回 `{ok:true,data}`，失败时
 
 ## 维护知识
 
-明确要求维护内容时，在项目的 `raw/` 定位或创建原稿。一张知识卡对应学科目录中的一个 `article.md`。正文和人的理解写 Markdown，图片、原始资料与补充阅读放在相应 `assets/`。修改后从项目根目录运行 `npm run raw -- check`。需要更新网站时，核对目标实例，用 `npm run raw -- sync --dry-run` 查看差异，再用 `npm run raw -- sync` 写入并读回。遇到版本冲突，保留现场并核对报告中的原稿、目标和修订。[原稿格式与模板](../../raw/README.md) · [目标实例、归档与回执恢复](../../docs/agent-environment/commands.md#本地知识原稿)
+明确要求维护内容时，在项目的 `raw/` 定位或创建原稿。一张知识卡对应学科目录中的一个 `article.md`。正文和人的理解写 Markdown，图片、原始资料与补充阅读放在相应 `assets/`。修改后从项目根目录运行 `npm run raw -- check`。目标是现行思源实例时，先核对目标，用 `npm run raw -- sync --dry-run` 查看差异，再用 `npm run raw -- sync` 写入并读回。遇到版本冲突，保留现场并核对报告中的原稿、目标和修订。[原稿格式与模板](../../raw/README.md) · [目标实例、归档与回执恢复](../../docs/agent-environment/commands.md#本地知识原稿)
+
+独立 SQLite 内容服务沿用同一只读 CLI。站主在本机核对原稿、历史和签名删除决定，构建内容包并交付。服务器从已核准的磁盘内容提供阅读。[单容器发布手册](../../docs/agent-environment/content-release.md)

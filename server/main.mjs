@@ -4,9 +4,11 @@ import { pathToFileURL } from 'node:url';
 import { config } from '../lib/siyuan.mjs';
 import { createApp } from './app.mjs';
 import { authenticationConfig } from './auth-config.mjs';
-import { openAuthStore } from './auth-store.mjs';
+import { openServiceAuth } from './auth-store.mjs';
 import { createWechatShare, wechatShareConfig } from './wechat-share.mjs';
 import { cardLifecycleClient } from '../lib/card-lifecycle-socket.mjs';
+
+export { openServiceAuth };
 
 export function loadServiceConfig(path) {
   const file=resolve(path); const base=dirname(file);
@@ -25,13 +27,6 @@ export function loadServiceConfig(path) {
     wechatShare:wechatShareConfig(c.wechatShare,file),
   };
 }
-export function openServiceAuth(auth) {
-  if(auth.mode==='local')return;
-  const store=openAuthStore(auth);
-  try{store.assertReady();return store;}
-  catch(error){store.close();throw error;}
-}
-
 export async function start(path=process.env.CONCEPT_SERVICE_CONFIG,{authStore:providedStore}={}) {
   if (!path) throw new Error('Set CONCEPT_SERVICE_CONFIG');
   const c=loadServiceConfig(path);

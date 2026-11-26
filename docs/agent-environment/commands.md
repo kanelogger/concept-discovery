@@ -63,7 +63,7 @@ Docker 不可用时，可为 `npm run test:lifecycle` 显式设置 `CONCEPT_SIYU
 
 ## 离线构建只读内容包
 
-在宿主的 Node 24 环境准备三个输入：选定版本的原稿目录、版本化元数据、按库身份封存的历史记录。构建写入全新的私有目录，不启动服务或更改现行站点。
+在站主本机的 Node 24 环境准备三个输入：选定版本的原稿目录、版本化元数据、按库身份封存的历史记录。构建写入全新的私有目录，不启动服务或更改现行站点。
 
 ```sh
 npm run build:content -- --raw-root raw --metadata /path/to/metadata.json --baseline /path/to/history.json --out /path/to/new-release
@@ -86,6 +86,27 @@ npm run build:content -- --raw-root raw --metadata /path/to/metadata.json --base
 `metadata.history` 是独立核实的已发历史库存。每类是“记录 ID → 完整记录规范 JSON 的 SHA-256”。从受信的旧库读回完整来源、提案、事件数组后，可由 [historyInventory](../../scripts/build-content.mjs) 计算。已有记录应能同时在库存和发布输入中核实；对普通更新，将 `--previous /path/to/previous-release` 指向上次核实的内容包，可用 `metadata.previousManifest` 固定其 manifest 文件 SHA-256。构建会核对已发历史和保留身份。新来源从同名 JSON 旁注读取快照元数据，也可在 `history.json` 的 `sourceFiles` 中按 raw 路径提供；原文内容取自受管文件。
 
 生成的 `manifest.json` 列出输入摘要、对象数、不可变历史库存、保留身份，以及 `knowledge.sqlite` 和哈希附件的摘要。私有元数据与生成目录均不应作为公开静态目录。可从 [只读内容库](../../lib/content-store.mjs) 的 `openContentStore(path)` 打开 SQLite，调用 `list`、`search`、`document`、`view`、`record` 或 `asset` 读回。使用完毕调用 `close()`。真实思源对照运行 `npm run test:content-integration`，只使用该次隔离栈的合成资料。
+
+### 修改从思源迁入的卡
+
+保留首次冻结的 `frozenDocument` 和主卡的 `frozenGet`。在变化的主卡或补读元数据中追加 `rawEdit`，把 `--previous` 指向上次核准的版本，将该版本清单的文件摘要填入 `metadata.previousManifest`。构建器会核对两代的公开 ID、保留身份和历史库存。下例的摘要需替换为该原稿文件当前字节的 SHA-256。
+
+```json
+{
+  "rawEdit": {
+    "version": 1,
+    "updated": "20261126143000",
+    "rawSha256": "<原稿文件 SHA-256>",
+    "retiredBlockIds": []
+  }
+}
+```
+
+实质改动使用较上版递增的北京时间。补读改正文或标题时，同时声明父卡的更新；移除补读时核对其旧归属，移除当前补读元数据，历史 ID 继续保留。仍能唯一定位的原生块沿用旧锚点，删除或无法定位的块需在 `retiredBlockIds` 逐一确认，旧书签会打开原卡并提示位置发生变化。
+
+修改 schema 1 主卡正文时，在 `rawEdit.fixedFields.content` 填全原有字段，保留各字段类型。在 `rawEdit.fixedFields.sections` 逐项提供受影响字段仍活动的旧章节，每项含 `id`、`key` 和与新正文一致的 `markdown`。构建器按章节核对字段值。`get` 保留 schema 1、关系及章节，对新正文返回 `hashSource: "raw-markdown"`。只改补读时保留主卡原生哈希。仅调整 YAML 引号、键顺序或文件时间时沿用原更新时间。
+
+早期版本 2 内容包缺少原稿语义摘要。第一次改卡前，准备旧版的完整原稿、原始元数据文件和历史文件，连同 `--previous <旧包目录> --reseal <旧版清单 SHA-256>` 构建到新目录。此步通过命令行指定摘要，以便旧元数据文件逐字保留。构建器核对三项输入的原始摘要，以及旧块归属和公开投影。后续以新基线为 `--previous`，将其清单摘要写入新元数据的 `previousManifest`，再构建改动。
 
 ### 对照旧库与影子服务
 
@@ -121,6 +142,8 @@ npm run start:shadow -- /path/to/shadow-state/shadow.json
 打开配置对应的回环地址，或让 CLI 的独立 `client.json` 指向该地址和影子令牌。需要核对旧登录和分享时，用该次隔离 HTTPS 代理的回环源作为 `publicUrl`，配置 `auth.mode=required`、`auth.databaseFile=shadow-auth.sqlite`。把来自同一库、处于一致状态的认证备份复制到影子配置旁，文件权限为 0600。影子环境中的创建、撤销和注销只写这份独立副本。
 
 `shareMaterialsDirectory` 可指向已核实的分享素材目录；无配套素材的卡使用原标题与站点封面。私有图谱、图鉴和有活动引用的哈希图片在允许读之后支持 ETag。旧名附件、分享正文、预览、专属封面及命令响应沿用 `no-store`。影子入口仅绑定回环，启动前校验内容包及资源；生产 Compose 和思源维护就绪检查继续按原配置工作。[影子启动入口](../../scripts/start-content-shadow.mjs)
+
+单容器发布、认证卷交割与冷备恢复见[内容服务运行说明](content-release.md)。
 
 ## 只读应用 CLI
 

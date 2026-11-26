@@ -85,11 +85,81 @@ environment:
       working_directory: .
       definition_source: package.json
       script: start:shadow
-      implementation_sources: [scripts/start-content-shadow.mjs, server/content-reader.mjs, server/app.mjs]
+      implementation_sources: [scripts/start-content-shadow.mjs, server/content-reader.mjs, server/reader-http.mjs]
       prerequisites: [明确的影子配置、已编译的程序和内容包、影子令牌；required 模式使用独立认证库和回环 HTTPS 代理]
       side_effects: [回环监听；登录及分享写入指定的隔离认证库]
       verification_scope: 通过原 HTTP 和 CLI 入口对照十个只读命令、附件与预计算视图
       failure_handling: 配置或发布包不符则拒绝启动；不改旧栈
+    inspect_content:
+      run: npm run content:inspect
+      working_directory: .
+      definition_source: package.json
+      script: content:inspect
+      implementation_sources: [scripts/inspect-content-release.mjs, server/content-reader.mjs, server/content-share-materials.mjs]
+      prerequisites: [显式版本目录和独立核准的库身份]
+      side_effects: []
+      verification_scope: 核对候选文件、资产、历史身份、素材与读取契约并打印候选摘要
+      failure_handling: 重新核对版本目录，不将候选检查结果当作正式核准
+    start_content:
+      run: npm run start:content
+      working_directory: .
+      definition_source: package.json
+      script: start:content
+      implementation_sources: [scripts/start-content-service.mjs, lib/content-approval.mjs, lib/content-auth-handoff.mjs, deploy/compose.content.yaml]
+      prerequisites: [已核准的内容版本、独立控制目录、已绑定的认证卷、独立 HTTPS 配置]
+      side_effects: [监听服务、写入已核准的认证和分享卷]
+      verification_scope: 单应用容器由宿主回环发布，流量经 HTTPS 与独立门禁；实际生产切换需另验
+      failure_handling: 保持入口关闭，核对独立检查点与各卷身份
+    content_auth:
+      run: npm run content:auth
+      working_directory: .
+      definition_source: package.json
+      script: content:auth
+      implementation_sources: [scripts/content-auth-admin.mjs, lib/content-auth-handoff.mjs]
+      prerequisites: [站主核实来源并关闭入口、管理员明确指定绑定/核对/恢复动作及所选停写卷]
+      side_effects: [绑定认证卷；按所选动作清理已签决的目标，恢复会撤销旧会话与分享]
+      verification_scope: 本地认证卷交割和物理清理回执
+      failure_handling: 保持关闭，按原检查点续跑
+    package_content:
+      run: npm run content:package
+      working_directory: .
+      definition_source: package.json
+      script: content:package
+      implementation_sources: [scripts/package-content-delivery.mjs, deploy/install-content-delivery.py]
+      prerequisites: [已构建的目标镜像、Docker、Python 3 和已核准内容目录及代理配置]
+      side_effects: [在站主本机生成含程序镜像归档的私有新交付目录及清单]
+      verification_scope: 镜像身份、操作系统与架构、内容及配置摘要
+      failure_handling: 按阶段重试，保留旧版本和独立控制记录
+    content_ledger:
+      run: npm run content:ledger
+      working_directory: .
+      definition_source: package.json
+      script: content:ledger
+      implementation_sources: [scripts/content-ledger.mjs, scripts/content-ledger-check.mjs]
+      prerequisites: [站主本机 Git、可信签名根和头、冻结操作或历史发布清单；不同写入及验证身份]
+      side_effects: [读取和核验删除决定；写入子命令可签署、暂存、提交必需检查或推送指定候选]
+      verification_scope: 原生历史决定映射和纯 slug 新卡、本机独立验签与指定 SHA 的必需检查
+      failure_handling: 未核准签名、父提交或权限时停止，保留检查点
+    content_offline:
+      run: npm run test:content-offline
+      working_directory: .
+      definition_source: package.json
+      script: test:content-offline
+      implementation_sources: [tests/service/content-offline-integration.mjs, tests/service/content-offline-host.py, tests/service/content-offline-observe.sh]
+      prerequisites: [已准备的独立 Ubuntu 测试机、专属 Docker 和宿主 Nginx、两个可溯源且平台相同的不同程序镜像]
+      side_effects: [创建合成签名库、隔离认证卷和交付包；在专属测试机内限制出站并采集部署和进程证据]
+      verification_scope: 宿主和容器均无法访问 GitHub 时发布、重启、程序回退及逐步读回
+      failure_handling: 记录已完成步骤、清理本轮专属资源，不触碰生产
+    content_container:
+      run: npm run test:content-container
+      working_directory: .
+      definition_source: package.json
+      script: test:content-container
+      implementation_sources: [tests/service/content-container-integration.mjs, tests/service/content-container-fixture.mjs]
+      prerequisites: [本机 Docker/Compose、Nginx 测试代理镜像、OpenSSL、Playwright Chromium 和回环端口；程序回退另需显式可兼容旧镜像]
+      side_effects: [合成内容包和认证卷、独立容器、代理与证据目录]
+      verification_scope: 单容器权限与代理门禁、浏览器登录阅读、服务计时与进程内存、合成恢复及所选兼容程序回退
+      failure_handling: 核对该次资源与证据，保留其他容器和正式数据
     content_integration:
       run: npm run test:content-integration
       working_directory: .

@@ -1,4 +1,4 @@
-import { execFileSync, spawn } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { once } from 'node:events';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
@@ -27,12 +27,20 @@ export async function startLifecycleNginx(upstreamPort) {
     const gate = readFileSync(new URL('../../deploy/nginx-lifecycle-gate.conf',import.meta.url),'utf8')
       .replace('127.0.0.1:6806',`127.0.0.1:${upstreamPort}`);
     const config = join(root,'nginx.conf');
+    // Distribution builds may default to a system-wide temp directory that
+    // isn't installed alongside a standalone test binary.
+    const build=spawnSync(binary,['-V'],{encoding:'utf8'});
+    if (build.error) throw build.error;
+    const temporaryPaths=['fastcgi','uwsgi','scgi']
+      .filter(name=>!build.stderr.includes('--without-http_'+name+'_module'))
+      .map(name=>name+'_temp_path "'+root+'/'+name+'";').join('\n');
     writeFileSync(config,`pid "${root}/nginx.pid";
       error_log "${root}/error.log";
       events {}
       http { access_log off;
         client_body_temp_path "${root}";
         proxy_temp_path "${root}";
+        ${temporaryPaths}
         server {
           listen 127.0.0.1:${port};
           ${gate}

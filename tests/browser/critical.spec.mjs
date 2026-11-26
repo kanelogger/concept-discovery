@@ -49,17 +49,21 @@ test("list data can finish before its route module and still restore the source 
   await page.goto(listUrl);
   await link.click();
   await expect(page.locator("#reader")).toBeVisible();
+  const refreshedList = page.waitForResponse("**/api/v1/commands/list");
   await page.goBack();
   await expect(link).toBeFocused();
+  // Returning restores the cached row before its background refresh completes.
+  // Finish that response before observing requests from the next document.
+  await (await refreshedList).finished();
 
   const release = gate();
   const scripts = [];
   page.on("request", request => { if (request.resourceType() === "script") scripts.push(request.url()); });
   await page.route("**/ui/chunks/card-list-*.js", async route => { await release.promise; await route.continue(); });
   try {
-    const data = page.waitForResponse("**/api/v1/commands/list");
+    const data = page.waitForResponse("**/api/v1/commands/list").then(response => response.json());
     await page.reload({ waitUntil: "domcontentloaded" });
-    expect((await (await data).json()).data.items.map(item => item.id)).toContain(card.id);
+    expect((await data).data.items.map(item => item.id)).toContain(card.id);
     await settled(page);
     await expect(page.locator("#list-page")).toHaveCount(0);
     release.release();

@@ -31,7 +31,7 @@ function CardBody({ current, prepared, anchor, onJump, recalling }) {
       const target = document.getElementById(anchor);
       const isCitation = anchor.startsWith("cd-ref-");
       if (!body.current?.closest("#reader")?.contains(target)) {
-        if (isCitation) {
+        if (isCitation || /^\d{14}-[a-z0-9]{7}$/.test(anchor)) {
           setUnavailableCitation({ current, anchor });
           body.current?.closest("#workspace")?.scrollTo(0, 0);
         }

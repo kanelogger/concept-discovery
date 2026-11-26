@@ -29,6 +29,21 @@ export function validateDecision(value) {
   return normalized;
 }
 
+// The native cleaner calls validateDecision directly. Only content publishing
+// and the independent append checker understand public-ID decisions.
+export function validateSignedDecision(value) {
+  if (value?.version !== 2) return validateDecision(value);
+  const {version,opId,library,publicId,publicationSha256,sourceCommit,outcome} = value;
+  if (typeof opId !== 'string' || !operation.test(opId) || typeof library !== 'string' ||
+      !library.trim() || library.length > 300 || typeof publicId !== 'string' || !slug.test(publicId) ||
+      typeof publicationSha256 !== 'string' || !digest.test(publicationSha256) ||
+      typeof sourceCommit !== 'string' || !sha.test(sourceCommit) || (outcome !== undefined && outcome !== 'cancelled'))
+    fail('invalid_input','公开主卡删除决定的身份或发布依据无效。');
+  const record = {version,opId,library,publicId,publicationSha256,sourceCommit,...(outcome && {outcome})};
+  if (encode(record) !== encode(value)) fail('invalid_input','公开主卡删除决定含额外字段。');
+  return record;
+}
+
 const recordPath = opId => `decisions/${opId}.json`;
 
 // The journal must live outside the knowledge cold backup. The host worker
