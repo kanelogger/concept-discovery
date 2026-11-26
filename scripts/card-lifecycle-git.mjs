@@ -79,8 +79,13 @@ export function openCardLifecycleGit({ cwd, remote, branch = 'main', readBranch 
   const observedHead = () => git(['for-each-ref', '--format=%(objectname)', tracking]) || null;
   const fetched = tracking + '-fetched';
   function recordHead(previous,head) {
-    if (previous && git(['merge-base', previous, head]) !== previous)
-      fail('content_conflict', '原稿分支已回退或改写历史。');
+    if (previous && previous !== head) {
+      try { git(['merge-base', '--is-ancestor', previous, head]); }
+      catch (error) {
+        if (error.status !== 1) throw error;
+        fail('content_conflict', '原稿分支已回退或改写历史。');
+      }
+    }
     git(['update-ref', tracking, head, previous || '0'.repeat(40)]);
     return head;
   }

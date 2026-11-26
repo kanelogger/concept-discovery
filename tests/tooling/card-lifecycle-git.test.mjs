@@ -73,6 +73,10 @@ test('main 精确读取使用本地或同头 Git 对象，拒绝回退、分叉�
   reported=divergent;
   await assert.rejects(reader.readSnapshot(),{code:'content_conflict'});
   assert.equal(reader.observedHead(),latest);
+  const independent=git(f.workerClone,'commit-tree',latest+'^{tree}','-m','independent main with identical files');
+  reported=independent;
+  await assert.rejects(reader.readSnapshot(), {code:'content_conflict'});
+  assert.equal(reader.observedHead(),latest,'an independently rooted main must leave the trusted head intact');
   reported=latest;
   advanceTracking=()=>git(f.workerClone,'update-ref',tracking,advanced,latest);
   await assert.rejects(reader.readSnapshot(),/update-ref/);
