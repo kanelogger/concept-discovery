@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "task_id": "0068-route-a-lightweight-refactor",
-  "task_file": "tasks/0068-route-a-lightweight-refactor.md",
+  "task_id": "0069-single-card-deletion-skill",
+  "task_file": "tasks/0069-single-card-deletion-skill.md",
   "phase": "complete",
-  "updated_at": "2026-11-26",
-  "summary": "正式单容器已替换思源旧栈，生产旧库、容器、Git 工作副本及维护任务均已移除。独立重启、读卡、已有分享与删除拒绝核验通过，站主已从自己的浏览器确认正式站登录并打开知识卡。"
+  "updated_at": "2026-11-28",
+  "summary": "项目本机已新增单张知识卡删除技能。格式、引用、两条操作路径的只读演练及既有删除与认证回归已核对。"
 }
